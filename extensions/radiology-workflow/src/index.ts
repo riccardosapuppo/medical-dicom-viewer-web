@@ -1,5 +1,8 @@
 import { RadiologyWorkflow } from './RadiologyWorkflow';
 import { MontageViewport } from './MontageViewport';
+import { SafeStackScroller } from './SafeStackScroller';
+import { handleReferenceCursorMove } from './referenceCursors';
+import { SmartImageLoadManager } from './smartImageLoadManager';
 
 export const id = '@portfolio/ohif-extension-radiology-workflow';
 
@@ -25,6 +28,14 @@ const extension = {
   },
   getHangingProtocolModule() {
     return [{ id: 'capturedProtocols', protocols: [] }];
+  },
+  getUtilityModule() {
+    return [
+      {
+        id: 'workflowUtilities',
+        exports: { SmartImageLoadManager, SafeStackScroller, handleReferenceCursorMove },
+      },
+    ];
   },
 };
 
