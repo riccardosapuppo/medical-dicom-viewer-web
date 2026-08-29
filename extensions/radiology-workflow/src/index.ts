@@ -1,4 +1,5 @@
 import { RadiologyWorkflow } from './RadiologyWorkflow';
+import { MontageViewport } from './MontageViewport';
 
 export const id = '@portfolio/ohif-extension-radiology-workflow';
 
@@ -15,6 +16,12 @@ const extension = {
         component: RadiologyWorkflow,
       },
     ];
+  },
+  getViewportModule() {
+    return [{ id: 'montage', component: MontageViewport }];
+  },
+  getToolbarModule() {
+    return [{ id: 'montage', label: 'Montage', commandName: 'setMontageLayout' }];
   },
 };
 

@@ -577,6 +577,161 @@ button {
   background: #1c3945;
 }
 
+.toolbar-menu-anchor {
+  position: relative;
+}
+
+.montage-menu {
+  width: 18rem;
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  padding: 0.75rem;
+  border: 1px solid #28505e;
+  border-radius: 0.35rem;
+  background: #0a1d27;
+  box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.55);
+}
+
+.montage-menu header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.15rem 0.2rem 0.7rem;
+}
+
+.montage-menu header strong {
+  color: #c6e2ea;
+  font-size: 0.76rem;
+}
+
+.montage-menu header small {
+  color: #638591;
+  font-size: 0.62rem;
+}
+
+.montage-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
+}
+
+.viewer-toolbar .montage-options button {
+  height: 3.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border-color: #1d3a45;
+  color: #7897a2;
+  background: #07161e;
+  font-size: 0.6rem;
+}
+
+.viewer-toolbar .montage-options button.active,
+.viewer-toolbar .montage-options button:hover {
+  border-color: #43bdd9;
+  color: #71d9ef;
+}
+
+.layout-glyph {
+  width: 1.7rem;
+  height: 1.3rem;
+  display: grid;
+  gap: 1px;
+}
+
+.layout-glyph i {
+  width: auto;
+  height: auto;
+  margin: 0;
+  border: 1px solid currentColor;
+  background: rgba(92, 203, 229, 0.08);
+}
+
+.viewer-toolbar .montage-off {
+  width: 100%;
+  margin-top: 0.55rem;
+  border-color: #203d48;
+  color: #71909c;
+  background: #07161e;
+}
+
+.montage-viewport {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: grid;
+  gap: 0.22rem;
+  padding: 0.22rem;
+  overflow: hidden;
+  background: #020507;
+  touch-action: none;
+}
+
+.montage-cell {
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #1e4754;
+  background: #000;
+}
+
+.montage-cell:first-child {
+  border-color: #48c6e3;
+}
+
+.montage-image-frame {
+  width: 92%;
+  height: 92%;
+  display: grid;
+  place-items: center;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.montage-image-frame .synthetic-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.montage-cell > span {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.4rem;
+  color: #64cee5;
+  font-size: 0.55rem;
+  text-shadow: 0 1px 2px #000;
+}
+
+.montage-page-indicator {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.55rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.2rem;
+  color: #a5dbe7;
+  background: rgba(2, 9, 13, 0.78);
+  font-size: 0.58rem;
+  pointer-events: none;
+}
+
+.montage-page-indicator small {
+  margin-top: 0.12rem;
+  color: #557b88;
+  font-size: 0.52rem;
+}
+
 .viewer-body {
   min-height: 0;
   display: grid;
