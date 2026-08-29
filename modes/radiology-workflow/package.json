@@ -1,0 +1,11 @@
+{
+  "name": "@portfolio/ohif-mode-radiology-workflow",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "@ohif/core": "^3.11.0"
+  }
+}
+

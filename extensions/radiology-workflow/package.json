@@ -1,0 +1,12 @@
+{
+  "name": "@portfolio/ohif-extension-radiology-workflow",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "@ohif/core": "^3.11.0",
+    "react": "^18.3.1"
+  }
+}
+
