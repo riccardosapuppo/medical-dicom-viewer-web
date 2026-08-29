@@ -6,6 +6,7 @@
   "scripts": {
     "start": "docker compose up --build",
     "dev": "vite --host 0.0.0.0",
+    "generate:dicom": "node scripts/generate-dicom.mjs",
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -25,10 +26,10 @@
     "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",
     "@vitejs/plugin-react": "4.3.4",
+    "dcmjs": "^0.45.0",
     "jsdom": "25.0.1",
     "typescript": "5.7.2",
     "vite": "6.0.7",
     "vitest": "2.1.8"
   }
 }
-
