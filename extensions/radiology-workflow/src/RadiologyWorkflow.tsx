@@ -25,8 +25,7 @@ export function RadiologyWorkflow() {
         </nav>
         <div className="operator"><span>Demo reader</span><small>Local session</small></div>
       </header>
-      {activeStudy ? <ViewerShell study={activeStudy} /> : <Worklist studies={syntheticStudies} openStudyUIDs={openStudyUIDs} onOpenStudy={study => dispatch({ type: 'open', study })} />}
+      {activeStudy ? <ViewerShell key={activeStudy.studyInstanceUID} study={activeStudy} /> : <Worklist studies={syntheticStudies} openStudyUIDs={openStudyUIDs} onOpenStudy={study => dispatch({ type: 'open', study })} />}
     </div>
   );
 }
-

@@ -817,6 +817,13 @@ button {
   background: #020609;
 }
 
+.viewport-grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  gap: 0.3rem;
+}
+
 .viewport {
   width: 100%;
   height: 100%;
@@ -828,14 +835,310 @@ button {
   background: #000;
 }
 
-.viewport > .synthetic-image {
+.standard-image {
   width: min(72vh, 72vw);
   max-width: 88%;
   height: min(72vh, 72vw);
   max-height: 88%;
+  display: grid;
+  place-items: center;
+}
+
+.standard-image .synthetic-image {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   image-rendering: auto;
   filter: contrast(1.18);
+}
+
+.standard-image.inverse .synthetic-image {
+  filter: invert(1) contrast(1.18);
+}
+
+.button-count {
+  min-width: 1rem;
+  display: inline-grid;
+  place-items: center;
+  margin-left: 0.2rem;
+  padding: 0.05rem 0.25rem;
+  border-radius: 1rem;
+  color: #91dcec;
+  background: #153a47;
+  font-size: 0.55rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 5, 8, 0.74);
+  backdrop-filter: blur(3px);
+}
+
+.protocol-manager {
+  width: min(50rem, 100%);
+  max-height: min(46rem, calc(100vh - 2rem));
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(8rem, 1fr) auto;
+  overflow: hidden;
+  border: 1px solid #285361;
+  border-radius: 0.55rem;
+  background: #091b25;
+  box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.72);
+}
+
+.protocol-manager > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 1.35rem;
+  border-bottom: 1px solid #1c3a46;
+}
+
+.protocol-manager h2 {
+  margin: 0.15rem 0 0;
+  color: #d4eaf1;
+  font-size: 1.2rem;
+}
+
+.protocol-manager > header p {
+  margin: 0;
+}
+
+.protocol-manager > header button {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #264650;
+  border-radius: 0.25rem;
+  color: #7394a0;
+  background: #0b232d;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.protocol-current {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr);
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.35rem;
+  border-bottom: 1px solid #173440;
+  background: #0b202a;
+}
+
+.protocol-current > span {
+  color: #7195a2;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.protocol-current div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.protocol-current strong {
+  color: #c1dce5;
+  font-size: 0.72rem;
+}
+
+.protocol-current small {
+  color: #577986;
+  font-size: 0.56rem;
+}
+
+.protocol-capture {
+  display: grid;
+  grid-template-columns: 1.5fr 1.1fr auto;
+  align-items: end;
+  gap: 0.7rem;
+  padding: 1rem 1.35rem;
+  border-bottom: 1px solid #173440;
+}
+
+.protocol-capture label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: #678895;
+  font-size: 0.61rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.protocol-capture input,
+.protocol-capture select {
+  height: 2.35rem;
+  padding: 0 0.65rem;
+  border: 1px solid #234653;
+  border-radius: 0.25rem;
+  outline: 0;
+  color: #c7dde5;
+  background: #06141c;
+  font-size: 0.72rem;
+}
+
+.protocol-capture button,
+.protocol-actions button {
+  height: 2.35rem;
+  padding: 0 0.8rem;
+  border: 1px solid #3cb4d0;
+  border-radius: 0.25rem;
+  color: #7edff4;
+  background: #103440;
+  font-size: 0.66rem;
+  cursor: pointer;
+}
+
+.protocol-capture button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.protocol-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.35rem 0.65rem;
+}
+
+.protocol-list-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.protocol-list-heading strong {
+  color: #aac8d2;
+  font-size: 0.73rem;
+}
+
+.protocol-list-heading small {
+  color: #557784;
+  font-size: 0.58rem;
+}
+
+.protocol-list-heading > span {
+  min-width: 1.5rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 1rem;
+  color: #6fd6ec;
+  background: #123440;
+  font-size: 0.62rem;
+  text-align: center;
+}
+
+.protocol-list {
+  min-height: 8rem;
+  overflow: auto;
+  padding: 0 1.35rem 1rem;
+}
+
+.protocol-empty {
+  min-height: 7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.35rem;
+  border: 1px dashed #25434e;
+  border-radius: 0.3rem;
+  color: #7695a0;
+  font-size: 0.7rem;
+}
+
+.protocol-empty span {
+  color: #547582;
+  font-size: 0.62rem;
+}
+
+.protocol-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.8rem;
+  border: 1px solid #1e3d48;
+  border-radius: 0.3rem;
+  background: #07171f;
+}
+
+.protocol-card > div:first-child {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.25rem 0.6rem;
+}
+
+.protocol-card strong {
+  color: #b8d3dc;
+  font-size: 0.72rem;
+}
+
+.protocol-card small {
+  grid-column: 2;
+  color: #5c7d89;
+  font-size: 0.59rem;
+}
+
+.match {
+  grid-row: span 2;
+  padding: 0.25rem 0.4rem;
+  border-radius: 0.2rem;
+  color: #b69df5;
+  background: rgba(144, 104, 226, 0.15);
+  font-size: 0.53rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.match.exact {
+  color: #6ddcf2;
+  background: rgba(55, 180, 212, 0.14);
+}
+
+.protocol-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.protocol-actions button {
+  height: 1.9rem;
+  padding: 0 0.55rem;
+  border-color: #285564;
+  color: #83cddd;
+  background: #0d2832;
+}
+
+.protocol-actions button.delete {
+  border-color: #52343a;
+  color: #cb818d;
+  background: #29171d;
+}
+
+.protocol-manager > footer {
+  padding: 0.75rem 1.35rem;
+  border-top: 1px solid #173440;
+  color: #567884;
+  background: #07161f;
+  font-size: 0.58rem;
+}
+
+@media (max-width: 720px) {
+  .protocol-current { grid-template-columns: repeat(2, 1fr); }
+  .protocol-current > span { grid-column: span 2; }
+  .protocol-capture { grid-template-columns: 1fr; }
+  .protocol-card { grid-template-columns: 1fr; }
+  .protocol-actions { flex-wrap: wrap; }
 }
 
 .overlay {

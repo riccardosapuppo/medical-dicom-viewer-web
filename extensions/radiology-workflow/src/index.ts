@@ -23,6 +23,9 @@ const extension = {
   getToolbarModule() {
     return [{ id: 'montage', label: 'Montage', commandName: 'setMontageLayout' }];
   },
+  getHangingProtocolModule() {
+    return [{ id: 'capturedProtocols', protocols: [] }];
+  },
 };
 
 export default extension;
