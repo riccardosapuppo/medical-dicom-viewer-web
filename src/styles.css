@@ -1252,6 +1252,259 @@ button {
   animation: image-loading-spin 700ms linear infinite;
 }
 
+.tool-length {
+  cursor: crosshair;
+}
+
+.annotation-overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 7;
+  inset: 0;
+  overflow: visible;
+  color: #68e4ff;
+  pointer-events: none;
+}
+
+.annotation-overlay line {
+  stroke: currentColor;
+  stroke-width: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+.annotation-overlay circle {
+  fill: #071018;
+  stroke: currentColor;
+  stroke-width: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+
+.annotation-overlay text {
+  fill: currentColor;
+  font-size: 2.2px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 0.6px;
+}
+
+.key-image-board {
+  width: min(70rem, 100%);
+  max-height: calc(100vh - 2rem);
+  display: grid;
+  grid-template-rows: auto auto minmax(10rem, 1fr) auto;
+  overflow: hidden;
+  border: 1px solid #285361;
+  border-radius: 0.55rem;
+  background: #091b25;
+  box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.72);
+}
+
+.key-image-board > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 1.35rem;
+  border-bottom: 1px solid #1c3a46;
+}
+
+.key-image-board > header > div:first-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.key-image-board h2 {
+  margin: 0.15rem 0 0.2rem;
+  color: #d4eaf1;
+  font-size: 1.2rem;
+}
+
+.key-image-board header p {
+  margin: 0;
+}
+
+.key-image-board header span {
+  color: #63838f;
+  font-size: 0.62rem;
+}
+
+.key-image-board > header > div:last-child {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.key-image-board button {
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid #2d6979;
+  border-radius: 0.25rem;
+  color: #82d5e7;
+  background: #0d2b36;
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+
+.key-image-board button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.key-image-board header button:last-child {
+  width: 2rem;
+  padding: 0;
+  font-size: 1.1rem;
+}
+
+.print-heading {
+  display: none;
+}
+
+.key-image-grid {
+  min-height: 10rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: 0.85rem;
+  overflow: auto;
+  padding: 1.1rem 1.35rem;
+  background: #06141c;
+}
+
+.key-image-empty {
+  min-height: 16rem;
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.35rem;
+  border: 1px dashed #254650;
+  border-radius: 0.35rem;
+  color: #7695a0;
+}
+
+.key-image-empty > span {
+  color: #5ccbe3;
+  font-size: 2rem;
+}
+
+.key-image-empty strong {
+  font-size: 0.75rem;
+}
+
+.key-image-empty small {
+  color: #557683;
+  font-size: 0.62rem;
+}
+
+.key-image-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #234450;
+  border-radius: 0.3rem;
+  background: #091c25;
+}
+
+.key-image-canvas {
+  aspect-ratio: 1;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #000;
+}
+
+.key-image-canvas > .synthetic-image {
+  width: 100%;
+  height: 100%;
+}
+
+.key-image-canvas > span {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.5rem;
+  color: #65d1e7;
+  font-size: 0.56rem;
+  text-shadow: 0 1px 2px #000;
+}
+
+.key-image-caption {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem;
+}
+
+.key-image-caption > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.key-image-caption strong,
+.key-image-caption span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.key-image-caption strong {
+  color: #b7d2dc;
+  font-size: 0.67rem;
+}
+
+.key-image-caption span {
+  color: #5d7e8a;
+  font-size: 0.56rem;
+}
+
+.key-image-caption button {
+  min-height: 1.7rem;
+  padding: 0 0.5rem;
+  border-color: #50333a;
+  color: #c77d89;
+  background: #28171c;
+}
+
+.key-image-board > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.35rem;
+  border-top: 1px solid #173440;
+  color: #567884;
+  background: #07161f;
+  font-size: 0.58rem;
+}
+
+@media (max-width: 850px) {
+  .key-image-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .key-image-grid { grid-template-columns: 1fr; }
+  .key-image-board > header { align-items: flex-start; }
+  .key-image-board > header > div:last-child { flex-direction: column-reverse; }
+}
+
+@media print {
+  body { color: #111; background: #fff; }
+  body > #root > .radiology-app > * { display: none !important; }
+  .key-image-backdrop { position: static; display: block; padding: 0; background: #fff; }
+  .key-image-board { width: 100%; max-height: none; display: block; overflow: visible; border: 0; color: #111; background: #fff; box-shadow: none; }
+  .key-image-board > header, .key-image-board > footer { display: none; }
+  .print-heading { display: flex; justify-content: space-between; margin-bottom: 0.6cm; padding-bottom: 0.25cm; border-bottom: 1px solid #999; color: #111; font-size: 10pt; }
+  .key-image-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.45cm; overflow: visible; padding: 0; background: #fff; }
+  .key-image-card { break-inside: avoid; border: 1px solid #aaa; background: #fff; }
+  .key-image-caption strong { color: #111; }
+  .key-image-caption span { color: #444; }
+  .key-image-caption button { display: none; }
+}
+
 @keyframes image-loading-spin {
   to { transform: rotate(360deg); }
 }
