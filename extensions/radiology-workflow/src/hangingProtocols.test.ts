@@ -1,4 +1,4 @@
-import { syntheticStudies } from '../../../src/data/studies';
+import { syntheticStudies } from './syntheticStudies';
 import { applyHangingProtocol, applicableHangingProtocols, captureHangingProtocol, type ViewerPresentationState } from './hangingProtocols';
 
 const presentation: ViewerPresentationState = {
@@ -28,4 +28,3 @@ describe('captured hanging protocols', () => {
     expect(applied).toMatchObject({ gridLayout: '1x2', montageLayout: '2x2', sliceIndex: 2, windowCenter: 90 });
   });
 });
-

@@ -1,4 +1,4 @@
-import type { Study } from '../../../src/domain/study';
+import type { Study } from './study';
 import type { MontageLayoutId } from './montage';
 import type { RelativeFraming } from './relativeFraming';
 
@@ -79,4 +79,3 @@ export function applyHangingProtocol(
     montageLayout: protocol.presentation.montageLayout,
   };
 }
-

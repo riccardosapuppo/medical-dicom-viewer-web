@@ -1,4 +1,4 @@
-import { syntheticStudies } from '../../../src/data/studies';
+import { syntheticStudies } from './syntheticStudies';
 import { emptyFilters, filterStudies, setDatePreset } from './worklistFilters';
 
 describe('worklist filtering', () => {

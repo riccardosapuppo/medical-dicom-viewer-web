@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { Study } from '../../../src/domain/study';
+import type { Study } from './study';
 
 interface SyntheticImageProps {
   study: Study;
@@ -46,4 +46,3 @@ export function SyntheticImage({ study, slice = Math.floor(study.slices / 2), co
 
   return <canvas ref={canvasRef} className={compact ? 'synthetic-image compact' : 'synthetic-image'} aria-label={`Synthetic ${study.modality} slice`} />;
 }
-

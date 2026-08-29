@@ -1,4 +1,5 @@
 import { RadiologyWorkflow } from './RadiologyWorkflow';
+import './styles.css';
 import { MontageViewport } from './MontageViewport';
 import { SafeStackScroller } from './SafeStackScroller';
 import { handleReferenceCursorMove } from './referenceCursors';
@@ -15,24 +16,24 @@ const extension = {
   getLayoutTemplateModule() {
     return [
       {
-        id: 'radiologyWorkflowLayout',
+        name: 'radiologyWorkflowLayout',
         component: RadiologyWorkflow,
       },
     ];
   },
   getViewportModule() {
-    return [{ id: 'montage', component: MontageViewport }];
+    return [{ name: 'montage', component: MontageViewport }];
   },
   getToolbarModule() {
-    return [{ id: 'montage', label: 'Montage', commandName: 'setMontageLayout' }];
+    return [{ name: 'montage', label: 'Montage', commandName: 'setMontageLayout' }];
   },
   getHangingProtocolModule() {
-    return [{ id: 'capturedProtocols', protocols: [] }];
+    return [{ name: 'capturedProtocols' }];
   },
   getUtilityModule() {
     return [
       {
-        id: 'workflowUtilities',
+        name: 'workflowUtilities',
         exports: { SmartImageLoadManager, SafeStackScroller, handleReferenceCursorMove },
       },
     ];

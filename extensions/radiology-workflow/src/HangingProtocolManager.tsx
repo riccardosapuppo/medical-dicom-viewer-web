@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { Study } from '../../../src/domain/study';
+import type { Study } from './study';
 import {
   applicableHangingProtocols,
   captureHangingProtocol,
@@ -61,4 +61,3 @@ export function HangingProtocolManager({ study, presentation, protocols, onSave,
     </div>
   );
 }
-

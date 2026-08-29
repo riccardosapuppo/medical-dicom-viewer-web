@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent, type WheelEvent } from 'react';
-import type { Study } from '../../../src/domain/study';
+import type { Study } from './study';
 import { formatDate, formatPatientName } from './format';
 import { HangingProtocolManager } from './HangingProtocolManager';
 import { HangingProtocolRepository } from './hangingProtocolRepository';

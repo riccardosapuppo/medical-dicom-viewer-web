@@ -1,4 +1,4 @@
-import { syntheticStudies } from '../../../src/data/studies';
+import { syntheticStudies } from './syntheticStudies';
 import { annotationLength, captureKeyImage } from './keyImages';
 
 describe('key image capture', () => {
@@ -15,4 +15,3 @@ describe('key image capture', () => {
     expect(length).toBe(50);
   });
 });
-

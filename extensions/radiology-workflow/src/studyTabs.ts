@@ -1,4 +1,4 @@
-import type { Study } from '../../../src/domain/study';
+import type { Study } from './study';
 
 export interface StudyTabsState {
   openStudies: Study[];
@@ -33,4 +33,3 @@ export function studyTabsReducer(state: StudyTabsState, action: StudyTabsAction)
   const fallback = openStudies[Math.min(index, openStudies.length - 1)]?.studyInstanceUID ?? null;
   return { openStudies, activeStudyUID: wasActive ? fallback : state.activeStudyUID };
 }
-

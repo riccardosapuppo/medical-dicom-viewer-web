@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type WheelEvent } from 'react';
-import type { Study } from '../../../src/domain/study';
+import type { Study } from './study';
 import { SyntheticImage } from './SyntheticImage';
 import { getMontageLayout, moveMontagePage, visibleMontageSlices, type MontageLayoutId } from './montage';
 import { captureRelativeFraming, restoreRelativeFraming, type RelativeFraming } from './relativeFraming';
@@ -82,4 +82,3 @@ export function MontageViewport({ study, layoutId, onPageChange }: MontageViewpo
     </div>
   );
 }
-

@@ -1,5 +1,5 @@
 import { useMemo, useReducer } from 'react';
-import { syntheticStudies } from '../../../src/data/studies';
+import { syntheticStudies } from './syntheticStudies';
 import { formatPatientName } from './format';
 import { studyTabsReducer, initialStudyTabsState } from './studyTabs';
 import { ViewerShell } from './ViewerShell';

@@ -1,4 +1,4 @@
-import type { Study } from '../../../src/domain/study';
+import type { Study } from './study';
 
 export interface Point {
   x: number;
@@ -46,4 +46,3 @@ export function annotationLength(annotation: LengthAnnotation, width: number, he
   const y = (annotation.end.y - annotation.start.y) * height;
   return Math.sqrt(x * x + y * y);
 }
-

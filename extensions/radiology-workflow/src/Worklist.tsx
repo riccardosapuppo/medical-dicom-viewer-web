@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
-import type { Study } from '../../../src/domain/study';
+import { useEffect, useMemo, useState } from 'react';
+import type { Study } from './study';
 import { formatDate, formatPatientName, formatTime } from './format';
 import { SyntheticImage } from './SyntheticImage';
+import { queryStudyInstanceUIDs } from './dicomWeb';
 import { emptyFilters, filterStudies, setDatePreset, type WorklistFilters } from './worklistFilters';
 
 interface WorklistProps {
@@ -13,6 +14,14 @@ interface WorklistProps {
 export function Worklist({ studies, openStudyUIDs, onOpenStudy }: WorklistProps) {
   const [filters, setFilters] = useState<WorklistFilters>(() => setDatePreset(emptyFilters, 'today', new Date(2026, 7, 29)));
   const [expandedStudyUID, setExpandedStudyUID] = useState<string | null>(null);
+  const [archiveStatus, setArchiveStatus] = useState<{ online: boolean; count: number }>({ online: false, count: studies.length });
+  useEffect(() => {
+    let active = true;
+    queryStudyInstanceUIDs()
+      .then(uids => { if (active) setArchiveStatus({ online: true, count: uids.length }); })
+      .catch(() => { if (active) setArchiveStatus({ online: false, count: studies.length }); });
+    return () => { active = false; };
+  }, [studies.length]);
   const filteredStudies = useMemo(() => filterStudies(studies, filters), [filters, studies]);
   const change = (field: keyof WorklistFilters, value: string) => setFilters(current => ({ ...current, [field]: value }));
   const toggleModality = (modality: 'CT' | 'MR') =>
@@ -31,7 +40,7 @@ export function Worklist({ studies, openStudyUIDs, onOpenStudy }: WorklistProps)
           <h1>Study worklist</h1>
           <p>Search the archive, inspect a series, then keep several studies open while reading.</p>
         </div>
-        <div className="archive-status"><span /> Archive ready · 18 studies</div>
+        <div className={archiveStatus.online ? 'archive-status online' : 'archive-status'}><span /> {archiveStatus.online ? 'Orthanc connected' : 'Local catalog'} · {archiveStatus.count} studies</div>
       </header>
 
       <div className="worklist-filters" aria-label="Study filters">

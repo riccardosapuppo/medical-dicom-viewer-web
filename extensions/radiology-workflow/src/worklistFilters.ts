@@ -1,4 +1,4 @@
-import type { Modality, Study } from '../../../src/domain/study';
+import type { Modality, Study } from './study';
 
 export interface WorklistFilters {
   patient: string;

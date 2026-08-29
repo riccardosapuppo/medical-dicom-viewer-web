@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Study } from '../../../src/domain/study';
+import type { Study } from './study';
 import { nearbyImageIndexes, SmartImageLoadManager } from './smartImageLoadManager';
 
 export function useSmartImageLoading(study: Study, sliceIndex: number) {
@@ -45,4 +45,3 @@ export function useSmartImageLoading(study: Study, sliceIndex: number) {
 
   return loading;
 }
-

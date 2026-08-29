@@ -1,4 +1,4 @@
-import { syntheticStudies } from '../../../src/data/studies';
+import { syntheticStudies } from './syntheticStudies';
 import { initialStudyTabsState, studyTabsReducer } from './studyTabs';
 
 describe('multi-study tabs', () => {
@@ -18,4 +18,3 @@ describe('multi-study tabs', () => {
     expect(closed.activeStudyUID).toBe(syntheticStudies[0].studyInstanceUID);
   });
 });
-

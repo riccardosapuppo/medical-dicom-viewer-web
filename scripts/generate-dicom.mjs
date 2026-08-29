@@ -7,7 +7,10 @@ import dcmjs from 'dcmjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const definitions = JSON.parse(fs.readFileSync(path.join(root, 'data', 'study-definitions.json'), 'utf8'));
 const outputRoot = path.join(root, 'dicom', 'synthetic');
-const catalogPath = path.join(root, 'public', 'data', 'studies.json');
+const catalogPaths = [
+  path.join(root, 'public', 'data', 'studies.json'),
+  path.join(root, 'extensions', 'radiology-workflow', 'src', 'data', 'studies.json'),
+];
 const rows = 128;
 const columns = 128;
 const { DicomDict, DicomMetaDictionary } = dcmjs.data;
@@ -140,6 +143,8 @@ const studies = definitions.map((definition, index) => {
   };
 });
 
-fs.mkdirSync(path.dirname(catalogPath), { recursive: true });
-fs.writeFileSync(catalogPath, `${JSON.stringify(studies, null, 2)}\n`);
+for (const catalogPath of catalogPaths) {
+  fs.mkdirSync(path.dirname(catalogPath), { recursive: true });
+  fs.writeFileSync(catalogPath, `${JSON.stringify(studies, null, 2)}\n`);
+}
 console.log(`Generated ${studies.length} studies and ${studies.reduce((sum, study) => sum + study.slices, 0)} DICOM instances.`);

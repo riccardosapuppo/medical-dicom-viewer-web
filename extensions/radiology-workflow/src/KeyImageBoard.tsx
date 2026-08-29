@@ -1,4 +1,4 @@
-import { syntheticStudies } from '../../../src/data/studies';
+import { syntheticStudies } from './syntheticStudies';
 import { formatPatientName } from './format';
 import type { KeyImage } from './keyImages';
 import { AnnotationOverlay } from './AnnotationOverlay';
@@ -34,4 +34,3 @@ export function KeyImageBoard({ images, onDelete, onClose }: KeyImageBoardProps)
     </div>
   );
 }
-
