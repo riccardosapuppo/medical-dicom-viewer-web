@@ -1,3 +1,5 @@
+import { RadiologyWorkflow } from './RadiologyWorkflow';
+
 export const id = '@portfolio/ohif-extension-radiology-workflow';
 
 const extension = {
@@ -6,7 +8,14 @@ const extension = {
   preRegistration() {
     return undefined;
   },
+  getLayoutTemplateModule() {
+    return [
+      {
+        id: 'radiologyWorkflowLayout',
+        component: RadiologyWorkflow,
+      },
+    ];
+  },
 };
 
 export default extension;
-

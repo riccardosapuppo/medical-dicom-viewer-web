@@ -16,6 +16,14 @@ export function modeFactory() {
       valid: modalities.split('\\').some(modality => ['CT', 'MR'].includes(modality)),
       description: 'This demonstration mode accepts synthetic CT and MR studies.',
     }),
+    routes: [
+      {
+        path: 'radiology-workflow',
+        layoutTemplate: () => ({
+          id: '@portfolio/ohif-extension-radiology-workflow.layoutTemplateModule.radiologyWorkflowLayout',
+        }),
+      },
+    ],
   };
 }
 
@@ -27,4 +35,3 @@ const mode = {
 };
 
 export default mode;
-

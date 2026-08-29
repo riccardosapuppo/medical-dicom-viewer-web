@@ -3,10 +3,9 @@ import { App } from './App';
 
 describe('application scaffold', () => {
   it('registers the radiology workflow extension and mode', () => {
-    render(<App />);
+    const { container } = render(<App />);
 
-    expect(screen.getByText('Radiology Workflow Viewer')).toBeInTheDocument();
-    expect(screen.getByText(/Synthetic worklist loading/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Study worklist' })).toBeInTheDocument();
+    expect(container.querySelector('.worklist-summary')).toHaveTextContent('8 matching studies');
   });
 });
-

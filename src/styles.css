@@ -75,3 +75,701 @@ h1 {
   box-shadow: 0 0 1rem rgba(72, 208, 155, 0.75);
 }
 
+button {
+  color: inherit;
+}
+
+.radiology-app {
+  min-height: 100vh;
+  background: #07121a;
+}
+
+.app-header {
+  height: 4.25rem;
+  display: grid;
+  grid-template-columns: 12.5rem minmax(0, 1fr) 9rem;
+  align-items: stretch;
+  border-bottom: 1px solid #18313e;
+  background: #081923;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0 1rem;
+  border: 0;
+  border-right: 1px solid #18313e;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.brand > span {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid #49c7e7;
+  border-radius: 0.35rem;
+  color: #6fddf5;
+  font-weight: 800;
+}
+
+.brand div,
+.operator,
+.study-tab > span:last-child,
+.tab-main > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand small,
+.operator small,
+.study-tab small,
+.tab-main small {
+  color: #698a99;
+  font-size: 0.67rem;
+  font-weight: 500;
+}
+
+.study-tabs {
+  display: flex;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.study-tab {
+  min-width: 10.5rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  border: 0;
+  border-right: 1px solid #18313e;
+  border-bottom: 2px solid transparent;
+  background: #0a1b26;
+  text-align: left;
+  cursor: pointer;
+}
+
+.study-tab.active {
+  border-bottom-color: #51cce9;
+  background: #102a37;
+}
+
+.study-tab > span:last-child,
+.tab-main > span:last-child {
+  min-width: 0;
+}
+
+.study-tab strong,
+.tab-main strong {
+  max-width: 9rem;
+  overflow: hidden;
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-main {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tab-icon {
+  color: #66d6ed;
+  font-size: 1.25rem;
+}
+
+.tab-modality,
+.modality {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 0.22rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.tab-modality {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.tab-modality.ct,
+.modality.ct {
+  color: #72dff5;
+  background: rgba(60, 183, 218, 0.14);
+}
+
+.tab-modality.mr,
+.modality.mr {
+  color: #b99bff;
+  background: rgba(145, 107, 231, 0.16);
+}
+
+.tab-close {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.25rem;
+  padding: 0.1rem 0.25rem;
+  border: 0;
+  color: #668491;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tab-close:hover {
+  color: #fff;
+}
+
+.operator {
+  justify-content: center;
+  padding-left: 1rem;
+  border-left: 1px solid #18313e;
+  font-size: 0.75rem;
+}
+
+.worklist-page {
+  width: min(100%, 100rem);
+  margin: 0 auto;
+  padding: 2.2rem 2.5rem 4rem;
+}
+
+.worklist-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+}
+
+.worklist-heading h1 {
+  margin: 0.15rem 0 0.35rem;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+.worklist-heading > div > p:last-child {
+  margin: 0;
+  color: #7596a5;
+  font-size: 0.88rem;
+}
+
+.archive-status {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #88aab8;
+  font-size: 0.75rem;
+}
+
+.archive-status span {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #42ce91;
+  box-shadow: 0 0 0.7rem rgba(66, 206, 145, 0.65);
+}
+
+.worklist-filters {
+  display: grid;
+  grid-template-columns: 1.15fr 0.8fr 1fr 1.2fr 0.8fr 0.8fr;
+  gap: 0.8rem;
+  margin-top: 1.8rem;
+  padding: 1rem;
+  border: 1px solid #18333f;
+  border-radius: 0.4rem;
+  background: #0a1a24;
+}
+
+.worklist-filters label,
+.worklist-filters fieldset,
+.date-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+  color: #6f909e;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.worklist-filters input {
+  min-width: 0;
+  width: 100%;
+  height: 2.35rem;
+  padding: 0 0.65rem;
+  border: 1px solid #203c48;
+  border-radius: 0.25rem;
+  outline: none;
+  color: #d6e7ed;
+  background: #06131b;
+  font-size: 0.78rem;
+}
+
+.worklist-filters input:focus {
+  border-color: #3eaac5;
+  box-shadow: 0 0 0 2px rgba(62, 170, 197, 0.12);
+}
+
+.worklist-filters fieldset {
+  grid-column: span 2;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 0;
+  border: 0;
+}
+
+.worklist-filters legend {
+  margin-bottom: 0.35rem;
+}
+
+.filter-chip,
+.date-presets button {
+  height: 2rem;
+  padding: 0 0.8rem;
+  border: 1px solid #244350;
+  border-radius: 0.25rem;
+  color: #8da8b4;
+  background: #0c202b;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.filter-chip.active {
+  border-color: #46b9d6;
+  color: #7ddff5;
+  background: #123442;
+}
+
+.date-presets {
+  grid-column: span 4;
+  flex-direction: row;
+  align-items: flex-end;
+}
+
+.date-presets > span {
+  align-self: center;
+  margin-right: 0.2rem;
+}
+
+.worklist-summary {
+  padding: 1.2rem 0 0.7rem;
+  color: #6d8c99;
+  font-size: 0.75rem;
+}
+
+.worklist-summary strong {
+  color: #c7dce5;
+}
+
+.worklist-summary span {
+  margin: 0 0.4rem;
+}
+
+.study-table-wrap {
+  overflow: auto;
+  border: 1px solid #17313d;
+  border-radius: 0.35rem;
+  background: #081822;
+}
+
+.study-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+}
+
+.study-table th {
+  height: 2.7rem;
+  padding: 0 0.75rem;
+  border-bottom: 1px solid #22404c;
+  color: #688995;
+  background: #0c202a;
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.study-table td {
+  height: 3.55rem;
+  padding: 0 0.75rem;
+  border-bottom: 1px solid #122c37;
+  color: #9eb8c3;
+  white-space: nowrap;
+}
+
+.study-row {
+  cursor: default;
+}
+
+.study-row:hover,
+.study-row.open {
+  background: #0c2632;
+}
+
+.study-row.open {
+  box-shadow: inset 2px 0 #46bedc;
+}
+
+.study-table small {
+  display: block;
+  margin-top: 0.15rem;
+  color: #587885;
+}
+
+.patient-link,
+.expand-button {
+  padding: 0;
+  border: 0;
+  color: #b9d9e5;
+  background: transparent;
+  cursor: pointer;
+}
+
+.patient-link:hover {
+  color: #68d9f1;
+}
+
+.expand-button {
+  width: 1.6rem;
+  height: 1.6rem;
+  color: #5fcbe4;
+  font-size: 1.3rem;
+  transition: transform 120ms ease;
+}
+
+.expand-button[aria-expanded='true'] {
+  transform: rotate(90deg);
+}
+
+.modality {
+  min-width: 2rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+}
+
+.series-row td {
+  height: auto;
+  background: #06141d;
+}
+
+.series-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+}
+
+.series-preview > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.series-preview > div span {
+  color: #678994;
+}
+
+.series-preview > button {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #39a9c5;
+  border-radius: 0.25rem;
+  color: #70d9ef;
+  background: #0d2a36;
+  cursor: pointer;
+}
+
+.synthetic-image.compact {
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 1px solid #28444f;
+  background: #000;
+  image-rendering: auto;
+}
+
+.viewer-shell {
+  height: calc(100vh - 4.25rem);
+  display: grid;
+  grid-template-rows: 3.3rem 3rem minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.patient-strip {
+  display: grid;
+  grid-template-columns: 1.1fr 2fr auto;
+  align-items: center;
+  gap: 2.2rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid #1b3440;
+  background: #0a1b25;
+}
+
+.patient-strip > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.patient-strip strong {
+  overflow: hidden;
+  color: #d3e8ef;
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.patient-strip span {
+  color: #6c8e9c;
+  font-size: 0.67rem;
+}
+
+.study-count {
+  text-align: right;
+}
+
+.viewer-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0 0.65rem;
+  border-bottom: 1px solid #162f3b;
+  background: #07161f;
+}
+
+.viewer-toolbar button {
+  height: 2.1rem;
+  padding: 0 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 0.2rem;
+  color: #789aa7;
+  background: transparent;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.viewer-toolbar button:hover,
+.viewer-toolbar button.active {
+  border-color: #244956;
+  color: #7cdcf1;
+  background: #0d2834;
+}
+
+.viewer-toolbar i {
+  width: 1px;
+  height: 1.4rem;
+  margin: 0 0.4rem;
+  background: #1c3945;
+}
+
+.viewer-body {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 13.5rem minmax(0, 1fr) 14.5rem;
+}
+
+.series-browser,
+.measurements-panel {
+  min-height: 0;
+  border-right: 1px solid #19333f;
+  background: #091a24;
+}
+
+.measurements-panel {
+  border-right: 0;
+  border-left: 1px solid #19333f;
+}
+
+.panel-title {
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.8rem;
+  border-bottom: 1px solid #19333f;
+  color: #a7c2cd;
+  font-size: 0.72rem;
+}
+
+.panel-title span {
+  min-width: 1.2rem;
+  padding: 0.15rem 0.35rem;
+  border-radius: 1rem;
+  color: #5e8492;
+  background: #0e2a35;
+  font-size: 0.62rem;
+  text-align: center;
+}
+
+.series-card {
+  width: calc(100% - 1rem);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0.6rem 0.5rem;
+  padding: 0.45rem;
+  border: 1px solid #1e3b47;
+  border-radius: 0.25rem;
+  background: #07151e;
+  text-align: left;
+  cursor: pointer;
+}
+
+.series-card.selected {
+  border-color: #42b8d4;
+  box-shadow: inset 2px 0 #42b8d4;
+}
+
+.series-card > span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.series-card strong {
+  overflow: hidden;
+  color: #aecbd5;
+  font-size: 0.65rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.series-card small {
+  color: #5d7f8c;
+  font-size: 0.6rem;
+}
+
+.viewport-stage {
+  min-width: 0;
+  min-height: 0;
+  padding: 0.35rem;
+  background: #020609;
+}
+
+.viewport {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #1c5362;
+  background: #000;
+}
+
+.viewport > .synthetic-image {
+  width: min(72vh, 72vw);
+  max-width: 88%;
+  height: min(72vh, 72vw);
+  max-height: 88%;
+  object-fit: contain;
+  image-rendering: auto;
+  filter: contrast(1.18);
+}
+
+.overlay {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  color: #6bd8ef;
+  font-size: 0.63rem;
+  line-height: 1.2;
+  text-shadow: 0 1px 2px #000;
+  pointer-events: none;
+}
+
+.overlay strong {
+  color: #c5edf6;
+}
+
+.top-left { top: 0.7rem; left: 0.7rem; }
+.top-right { top: 0.7rem; right: 0.7rem; text-align: right; }
+.bottom-left { bottom: 1.25rem; left: 0.7rem; }
+
+.orientation {
+  position: absolute;
+  color: #4dd0ec;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.orientation-top { top: 0.65rem; left: 50%; }
+.orientation-left { top: 50%; left: 0.65rem; }
+
+.slice-slider {
+  width: calc(100% - 2rem);
+  height: 0.2rem;
+  position: absolute;
+  right: 1rem;
+  bottom: 0.45rem;
+  left: 1rem;
+  accent-color: #46c4e2;
+  opacity: 0.62;
+}
+
+.empty-panel {
+  height: calc(100% - 2.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.3rem;
+  color: #53727f;
+  text-align: center;
+}
+
+.empty-panel > span {
+  font-size: 1.8rem;
+  font-weight: 200;
+}
+
+.empty-panel strong {
+  color: #718e99;
+  font-size: 0.75rem;
+}
+
+.empty-panel small {
+  font-size: 0.65rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 1000px) {
+  .app-header { grid-template-columns: 10rem minmax(0, 1fr); }
+  .operator { display: none; }
+  .worklist-filters { grid-template-columns: repeat(3, 1fr); }
+  .date-presets, .worklist-filters fieldset { grid-column: span 3; }
+  .viewer-body { grid-template-columns: 11rem minmax(0, 1fr); }
+  .measurements-panel { display: none; }
+}
+
+@media (max-width: 680px) {
+  .app-header { grid-template-columns: 4rem minmax(0, 1fr); }
+  .brand { padding: 0 1rem; }
+  .brand div { display: none; }
+  .worklist-page { padding: 1.4rem 1rem 3rem; }
+  .worklist-heading { align-items: flex-start; flex-direction: column; gap: 0.8rem; }
+  .worklist-filters { grid-template-columns: 1fr 1fr; }
+  .date-presets, .worklist-filters fieldset { grid-column: span 2; flex-wrap: wrap; }
+  .viewer-body { grid-template-columns: minmax(0, 1fr); }
+  .series-browser { display: none; }
+  .patient-strip { grid-template-columns: 1fr 1fr; }
+  .study-count { display: none !important; }
+}
