@@ -4,10 +4,10 @@
   width: 20%;
   height: 100%;
   left: 100%;
-  background: #1a1a1a;
+  background: #1a1f26;
   padding: 60px 8px;
   transition: all 0.3s ease-in;
-  border: 1px solid #2f2f2f;
+  border: 1px solid #272e38;
   color: #fff;
   z-index: 50;
 }
@@ -17,7 +17,7 @@
 }
 
 #preferiti-tools .rimuovi-preferito-btn {
-  background: #b71c1c;
+  background: #38bdf8;
   width: 100%;
   margin-top: 2px;
 }

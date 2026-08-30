@@ -10,7 +10,7 @@ export const Upload = (props: IconProps) => (
   >
     <g
       transform="translate(1 1)"
-      stroke="#348CFD"
+      stroke="#38bdf8"
       fill="none"
       fillRule="evenodd"
       strokeLinecap="round"

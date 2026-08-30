@@ -622,7 +622,7 @@ const buildSavedConfigHtml = (tipo, entry) => {
 
   return `
     ${header}
-    <div style="border-top:1px solid #2a2a2a;padding-top:6px;">
+    <div style="border-top:1px solid #212832;padding-top:6px;">
       ${cells.join('')}
     </div>
   `;
@@ -703,7 +703,7 @@ async function creaDIV() {
   <p style=${configAttiva.length > 0 ? 'color:#e9e9e9;display:block' : 'display:none'}>🟢 Hanging protocol applicati per questo studio </p>
   </div>
 
-  <div style="margin-top:12px;border-top:1px solid #2a2a2a;padding-top:10px;">
+  <div style="margin-top:12px;border-top:1px solid #212832;padding-top:10px;">
     <button id="toggle-hp-saved-config" style="background:#1f1f1f;border:1px solid #333;color:#e5e5e5;padding:6px 10px;border-radius:4px;cursor:pointer;">
       Vedi configurazione salvata
     </button>
@@ -712,7 +712,7 @@ async function creaDIV() {
 
   <div style="display:flex;margin-top: 10px;">
   <div class="opzione-hp">
-  <h3 style>Salva configurazione attuale solo per questo <span style="color:#b71c1c">studio</span></h3>
+  <h3 style>Salva configurazione attuale solo per questo <span style="color:#38bdf8">studio</span></h3>
   <p>Gli Hanging Protocol si applicheranno solo a questo specifico studio</p>
   <p style="color:red;display:none" id="hp-studiospecifico-presente">Hai attualmente una configurazione salvata solo per questo studio </p>
   <button id="save-hp-config-actual-study">${configAttiva.includes('studioSpecifico') ? 'Sovrascrivi config. attuale' : 'Salva solo per questo studio'}</button>
@@ -720,7 +720,7 @@ async function creaDIV() {
   </div>
 
   <div class="opzione-hp">
-  <h3>Salva configurazione attuale solo per questo tipo di <span style="color:#b71c1c">esame</span></h3>
+  <h3>Salva configurazione attuale solo per questo tipo di <span style="color:#38bdf8">esame</span></h3>
   <p>Gli Hanging Protocol si applicheranno a tutti gli esami con descrizione <span style="font-weight: 600;">${studyDescription}</span></p>
   <p style="color:red;display:none" id="hp-descrizioneesame-presente">Hai attualmente una configurazione salvata per tutti gli esami con descrizione "${studyDescription}" </p>
   <p style="color:red;display:none" id="esame-senza-nome">Questo esame non ha un nome, se salvi la configurazione quest'ultima si applicherà a tutti gli esami senza nome. </p>
@@ -729,7 +729,7 @@ async function creaDIV() {
   </div>
 
   <div style="margin-right:0" class="opzione-hp">
-  <h3>Salva configurazione attuale per questa <span style="color:#b71c1c">modality</span></h3>
+  <h3>Salva configurazione attuale per questa <span style="color:#38bdf8">modality</span></h3>
   <p>Gli Hanging Protocol si applicheranno a tutti gli esami con modality <span style="font-weight: 600;">${modality}</span></p>
   <p style="color:red;display:none" id="hp-modality-presente">Hai attualmente una configurazione salvata per questa modality</p>
   <button id="save-hp-config-modality">${configAttiva.includes('modality') ? 'Sovrascrivi config. attuale' : 'Salva per questa modality'}</button>

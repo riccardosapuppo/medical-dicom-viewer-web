@@ -68,7 +68,7 @@ function markIframeFailed(iframeId, message) {
 
   const tab = document.querySelector(`.mdv-dynamic-tab[data-iframe-id="${iframeId}"]`);
   if (tab) {
-    tab.style.border = '1px solid #e30613';
+    tab.style.border = '1px solid #38bdf8';
     tab.style.background = 'rgb(40 15 15)';
     tab.title = message;
   }
@@ -910,7 +910,7 @@ function injectTabs(target) {
 
   patientTab.classList.add('active-tab');
   patientTab.style.background = 'rgb(22 22 22)';
-  patientTab.style.border = '1px solid #e30613';
+  patientTab.style.border = '1px solid #38bdf8';
 
   // ============ TAB "+" (APRE MODALE) ============
 
@@ -1097,7 +1097,7 @@ function setPatientTabActive(isActive) {
   if (isActive) {
     patientTab.classList.add('active-tab');
     patientTab.style.background = "rgb(22 22 22)";
-    patientTab.style.border = '1px solid #e30613';
+    patientTab.style.border = '1px solid #38bdf8';
     patientTab.style.cursor = 'default';
   } else {
     patientTab.classList.remove('active-tab');
@@ -1396,7 +1396,7 @@ function showIframeForTab(iframeId) {
   if (activeTab) {
     activeTab.classList.add('active-tab');
     activeTab.style.background = "rgb(22 22 22)";
-    activeTab.style.border = "1px solid #e30613";
+    activeTab.style.border = "1px solid #38bdf8";
   }
 
   // Nascondi la tab principale se un iframe è attivo

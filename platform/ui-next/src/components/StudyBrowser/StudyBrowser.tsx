@@ -244,7 +244,7 @@ const StudyBrowser = ({
             width: 'var(--mdv-study-panel-controls-width, 320px)',
             maxHeight: '340px',
             overflowY: 'auto',
-            background: '#1a1a1a',
+            background: '#1a1f26',
             border: '1px solid #3a3a3a',
             borderBottom: 'none',
             borderRadius: '8px 8px 0 0',
@@ -278,15 +278,15 @@ const StudyBrowser = ({
                   alignItems: 'center',
                   padding: '8px 12px',
                   cursor: 'pointer',
-                  background: isSelected ? 'rgba(227, 6, 19, 0.15)' : 'transparent',
-                  borderLeft: isSelected ? '3px solid rgb(227, 6, 19)' : '3px solid transparent',
+                  background: isSelected ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                  borderLeft: isSelected ? '3px solid rgb(56, 189, 248)' : '3px solid transparent',
                   transition: 'background 0.15s',
                 }}
                 onMouseEnter={e => {
-                  if (!isSelected) (e.currentTarget as HTMLElement).style.background = '#2a2a2a';
+                  if (!isSelected) (e.currentTarget as HTMLElement).style.background = '#212832';
                 }}
                 onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.background = isSelected ? 'rgba(227, 6, 19, 0.15)' : 'transparent';
+                  (e.currentTarget as HTMLElement).style.background = isSelected ? 'rgba(56, 189, 248, 0.15)' : 'transparent';
                 }}
               >
                 <div style={{ minWidth: 0, flex: 1, position: 'relative' }}

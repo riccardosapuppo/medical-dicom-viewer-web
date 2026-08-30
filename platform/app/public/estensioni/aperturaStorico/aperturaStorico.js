@@ -170,7 +170,7 @@ function showStoricoLoadingError(
 
   const closeButton = document.createElement('button');
   closeButton.textContent = 'Chiudi';
-  closeButton.style.background = '#8a1818';
+  closeButton.style.background = '#0ea5e9';
   closeButton.style.border = '1px solid #d0d0d0';
   closeButton.style.color = '#fff';
   closeButton.style.padding = '6px 12px';

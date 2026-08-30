@@ -41,7 +41,7 @@ const StudyListTableRow = props => {
                     },
                     { 'bg-secondary-dark': isExpanded }
                   )}
-                  style={isOpenInTab ? { color: '#e30613' } : undefined}
+                  style={isOpenInTab ? { color: '#38bdf8' } : undefined}
                   onClick={onClickRow}
                   data-cy={clickableCY}
                 >

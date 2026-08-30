@@ -34,7 +34,7 @@ export const OHIFLogoColorDarkBackground = (props: IconProps) => (
         <g
           id="Group"
           transform="translate(12.8702, 15.2102)"
-          fill="#5ACCE6"
+          fill="#38bdf8"
           fillRule="nonzero"
         >
           <path
