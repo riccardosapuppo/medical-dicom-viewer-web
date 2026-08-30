@@ -74,9 +74,10 @@ function RadiologyViewport(props: RadiologyViewportProps) {
     }));
   }, [displaySet]);
 
-  // The montage opens on the level the reader was already looking at, rendered
-  // with the window level they had set. Anything else means arriving at a sheet
-  // of images that do not match what was on screen a moment earlier.
+  // The subgrid opens on the level the reader was already looking at, rendered
+  // with the window level they had set, and divided to suit the length of the
+  // series. Anything else means arriving at a sheet of images that do not match
+  // what was on screen a moment earlier.
   useEffect(() => {
     if (!montage.enabled) {
       return;
@@ -89,8 +90,11 @@ function RadiologyViewport(props: RadiologyViewportProps) {
     const index = viewport?.getCurrentImageIdIndex?.() ?? 0;
     setLiveFrameIndex(index);
     setVoiRange(viewport?.getProperties?.()?.voiRange);
-    montageService.revealFrame(viewportId, index, frames.length);
-  }, [montage.enabled, cornerstoneViewportService, montageService, viewportId, frames.length]);
+    montageService.open(viewportId, frames.length, index);
+    // Deliberately keyed on the switch alone: re-running this while the reader
+    // slides the window would drag it back to where they started.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [montage.enabled]);
 
   const onSelectFrame = useCallback(
     (frameIndex: number) => {
@@ -125,12 +129,17 @@ function RadiologyViewport(props: RadiologyViewportProps) {
   );
 
   const onGridChange = useCallback(
-    (grid: MontageGrid) => montageService.setGrid(viewportId, grid),
-    [montageService, viewportId]
+    (grid: MontageGrid) => montageService.setGrid(viewportId, grid, frames.length),
+    [frames.length, montageService, viewportId]
   );
 
-  const onPageChange = useCallback(
-    (page: number) => montageService.setPage(viewportId, page, frames.length),
+  const onSlide = useCallback(
+    (delta: number) => montageService.slide(viewportId, delta, frames.length),
+    [frames.length, montageService, viewportId]
+  );
+
+  const onFirstIndexChange = useCallback(
+    (first: number) => montageService.setFirstImageIndex(viewportId, first, frames.length),
     [frames.length, montageService, viewportId]
   );
 
@@ -147,13 +156,13 @@ function RadiologyViewport(props: RadiologyViewportProps) {
         <MontageSheet
           frames={frames}
           seriesDescription={displaySet?.SeriesDescription || 'Series'}
-          grid={montage.grid}
-          page={montage.page}
+          montage={montage}
           activeFrameIndex={liveFrameIndex}
           keptImageIds={kept}
           voiRange={voiRange}
           onGridChange={onGridChange}
-          onPageChange={onPageChange}
+          onSlide={onSlide}
+          onFirstIndexChange={onFirstIndexChange}
           onSelectFrame={onSelectFrame}
           onToggleKeep={onToggleKeep}
           onClose={onClose}

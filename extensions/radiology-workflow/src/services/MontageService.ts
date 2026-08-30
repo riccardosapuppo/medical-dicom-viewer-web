@@ -1,34 +1,31 @@
 import { PubSubService } from '@ohif/core';
 
 import {
-  clampPage,
+  cellCount,
+  clampFirstIndex,
   DEFAULT_MONTAGE_GRID,
+  gridForSeries,
   MONTAGE_GRIDS,
-  pageCount,
-  pageOfFrame,
+  revealIndex,
+  scrollRange,
+  slideBy,
   type MontageGrid,
+  type MontageState,
 } from '../viewports/montageLayout';
 
-export type MontageViewportState = {
-  enabled: boolean;
-  grid: MontageGrid;
-  page: number;
-};
-
-const initialState = (): MontageViewportState => ({
+const initialState = (): MontageState => ({
   enabled: false,
   grid: { ...DEFAULT_MONTAGE_GRID },
-  page: 0,
+  firstImageIndex: 0,
 });
 
 /**
- * Holds, per viewport, whether the reader is looking at a montage and which
- * page of it.
+ * Holds, per viewport, whether the reader is looking at a subgrid, how it is
+ * divided, and where the window onto the series sits.
  *
- * The state lives in a service rather than in the viewport component because
- * the toolbar has to read and change it from outside the viewport, and because
- * a viewport that is unmounted and remounted by a layout change should come
- * back showing the same page.
+ * The state lives in a service rather than in the component because the toolbar
+ * changes it from outside the viewport, and because a viewport unmounted and
+ * remounted by a layout change should come back showing the same levels.
  */
 export default class MontageService extends PubSubService {
   static EVENTS = {
@@ -40,13 +37,13 @@ export default class MontageService extends PubSubService {
     create: (): MontageService => new MontageService(),
   };
 
-  private state = new Map<string, MontageViewportState>();
+  private state = new Map<string, MontageState>();
 
   constructor() {
     super(MontageService.EVENTS);
   }
 
-  public getState(viewportId: string): MontageViewportState {
+  public getState(viewportId: string): MontageState {
     return this.state.get(viewportId) ?? initialState();
   }
 
@@ -64,42 +61,62 @@ export default class MontageService extends PubSubService {
     return enabled;
   }
 
-  public setGrid(viewportId: string, grid: MontageGrid): void {
-    this.update(viewportId, { grid: { ...grid }, page: 0 });
+  /**
+   * Turns the subgrid on with a grid chosen for the length of the series, and
+   * the window placed so the level the reader was on is on the sheet.
+   */
+  public open(viewportId: string, total: number, currentImageIndex: number): MontageState {
+    const grid = gridForSeries(total);
+    const opened: MontageState = { enabled: true, grid, firstImageIndex: 0 };
+    opened.firstImageIndex = revealIndex(opened, total, currentImageIndex);
+    this.replace(viewportId, opened);
+    return opened;
   }
 
-  /** Cycles through the offered grids, for a toolbar button with no menu. */
-  public nextGrid(viewportId: string): MontageGrid {
+  public setGrid(viewportId: string, grid: MontageGrid, total: number): void {
+    const current = this.getState(viewportId);
+    const next: MontageState = { ...current, grid: { ...grid } };
+    // Keep the top-left level where it was, then pull the window back if the
+    // larger grid would now run past the end of the series.
+    next.firstImageIndex = clampFirstIndex(current.firstImageIndex, total, cellCount(grid));
+    this.replace(viewportId, next);
+  }
+
+  /** Cycles the offered grids, for a keyboard shortcut or a plain button. */
+  public nextGrid(viewportId: string, total: number): MontageGrid {
     const { grid } = this.getState(viewportId);
     const at = MONTAGE_GRIDS.findIndex(g => g.rows === grid.rows && g.columns === grid.columns);
-    const grids = MONTAGE_GRIDS;
-    const next = grids[(at + 1 + grids.length) % grids.length];
-    this.setGrid(viewportId, next);
+    const next = MONTAGE_GRIDS[(at + 1 + MONTAGE_GRIDS.length) % MONTAGE_GRIDS.length];
+    this.setGrid(viewportId, next, total);
     return next;
   }
 
-  public setPage(viewportId: string, page: number, frameCount: number): number {
+  public setFirstImageIndex(viewportId: string, first: number, total: number): number {
     const { grid } = this.getState(viewportId);
-    const clamped = clampPage(page, frameCount, grid);
-    this.update(viewportId, { page: clamped });
+    const clamped = clampFirstIndex(first, total, cellCount(grid));
+    this.update(viewportId, { firstImageIndex: clamped });
     return clamped;
   }
 
-  public movePage(viewportId: string, delta: number, frameCount: number): number {
-    return this.setPage(viewportId, this.getState(viewportId).page + delta, frameCount);
+  /** Slides the window by a number of images, which is how scrolling arrives. */
+  public slide(viewportId: string, delta: number, total: number): number {
+    const next = slideBy(this.getState(viewportId), total, delta);
+    this.update(viewportId, { firstImageIndex: next });
+    return next;
   }
 
-  /** Brings the page holding a frame into view, to follow the active instance. */
-  public revealFrame(viewportId: string, frameIndex: number, frameCount: number): number {
-    const { grid } = this.getState(viewportId);
-    return this.setPage(viewportId, pageOfFrame(frameIndex, frameCount, grid), frameCount);
+  /** Brings a level onto the sheet, moving the window as little as possible. */
+  public reveal(viewportId: string, imageIndex: number, total: number): number {
+    const next = revealIndex(this.getState(viewportId), total, imageIndex);
+    this.update(viewportId, { firstImageIndex: next });
+    return next;
   }
 
-  public pageCountFor(viewportId: string, frameCount: number): number {
-    return pageCount(frameCount, this.getState(viewportId).grid);
+  public scrollRangeFor(viewportId: string, total: number): number {
+    return scrollRange(total, this.getState(viewportId).grid);
   }
 
-  /** Forgets a viewport that the layout no longer contains. */
+  /** Forgets a viewport the layout no longer contains. */
   public forget(viewportId: string): void {
     if (this.state.delete(viewportId)) {
       this._broadcastEvent(MontageService.EVENTS.STATE_CHANGED, { viewportId, state: null });
@@ -110,8 +127,11 @@ export default class MontageService extends PubSubService {
     this.state.clear();
   }
 
-  private update(viewportId: string, patch: Partial<MontageViewportState>): void {
-    const next = { ...this.getState(viewportId), ...patch };
+  private update(viewportId: string, patch: Partial<MontageState>): void {
+    this.replace(viewportId, { ...this.getState(viewportId), ...patch });
+  }
+
+  private replace(viewportId: string, next: MontageState): void {
     this.state.set(viewportId, next);
     this._broadcastEvent(MontageService.EVENTS.STATE_CHANGED, { viewportId, state: next });
   }

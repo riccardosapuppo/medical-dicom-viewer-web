@@ -35,7 +35,8 @@ export default function getCommandsModule({ servicesManager }: withAppTypes) {
     },
 
     showMontage: () => {
-      montageService.setEnabled(active(), true);
+      const viewportId = active();
+      montageService.setEnabled(viewportId, true);
     },
 
     hideMontage: () => {
@@ -48,12 +49,14 @@ export default function getCommandsModule({ servicesManager }: withAppTypes) {
         montageService.setEnabled(viewportId, true);
         return;
       }
-      montageService.nextGrid(viewportId);
+      montageService.nextGrid(viewportId, frameCountOfActiveViewport(viewportId));
     },
 
-    nextMontagePage: () => {
+    /** Slides the window down one row of the subgrid. */
+    nextMontageRow: () => {
       const viewportId = active();
-      montageService.movePage(viewportId, 1, frameCountOfActiveViewport(viewportId));
+      const { grid } = montageService.getState(viewportId);
+      montageService.slide(viewportId, grid.columns, frameCountOfActiveViewport(viewportId));
     },
 
     /**
@@ -99,9 +102,11 @@ export default function getCommandsModule({ servicesManager }: withAppTypes) {
       });
     },
 
-    previousMontagePage: () => {
+    /** Slides the window up one row of the subgrid. */
+    previousMontageRow: () => {
       const viewportId = active();
-      montageService.movePage(viewportId, -1, frameCountOfActiveViewport(viewportId));
+      const { grid } = montageService.getState(viewportId);
+      montageService.slide(viewportId, -grid.columns, frameCountOfActiveViewport(viewportId));
     },
   };
 

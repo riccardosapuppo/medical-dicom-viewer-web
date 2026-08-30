@@ -169,3 +169,17 @@
 body.rw-overlays-hidden .viewport-overlay {
   display: none;
 }
+
+/*
+ * The series bar down the right of a subgrid: the same idea as the one on an
+ * ordinary viewport, narrower because the sheet needs the width.
+ */
+.rw-series-bar {
+  writing-mode: vertical-lr;
+  width: 10px;
+  height: 100%;
+  margin: 0;
+  cursor: ns-resize;
+  accent-color: var(--rw-live);
+  background: transparent;
+}
