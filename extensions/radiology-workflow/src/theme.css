@@ -1,61 +1,68 @@
 /*
- * The reading-room palette.
+ * The reading-room palette, for the half of the viewer that uses CSS variables.
  *
- * OHIF publishes its colours as HSL triplets in CSS custom properties, so a
- * theme is a matter of redefining those rather than fighting the components
- * that use them. These declarations sit outside any cascade layer, and OHIF's
- * live in @layer base, so they win without a single !important.
+ * OHIF is two generations of UI package at once. The newer one publishes its
+ * colours as custom properties, redefined here; the older one carries literal
+ * hex values, overridden in config/tailwind.preset.js. Both are needed:
+ * theming one recolours half the application and leaves the rest visibly stock,
+ * which is the mistake this file used to make on its own.
  *
- * The shift is from OHIF's azure (hue 214) to indigo (hue 236), with a single
- * warm accent. The reason is not decoration: on a dark reading display every
- * piece of chrome is some shade of blue, so anything the reader has chosen to
- * keep — a starred image, a saved layout — needs a colour nothing else uses.
- * Gold is that colour here, and it is spent nowhere else.
+ * These declarations sit outside any cascade layer and OHIF's live in
+ * @layer base, so they win without a single !important.
+ *
+ * The scheme is slate with one warm accent. Cool grey-blue is what a reporting
+ * display should be, because anything more saturated competes with the image
+ * for attention. Amber is spent only on what the reader has deliberately kept:
+ * a starred frame, a saved arrangement. It never appears twice meaning two
+ * different things.
  */
 
 :root {
-  --background: 236 55% 6%;
-  --foreground: 209 60% 96%;
+  --background: 214 17% 8%;
+  --foreground: 214 32% 91%;
 
-  --card: 236 45% 12%;
-  --card-foreground: 209 100% 95%;
+  --card: 215 19% 13%;
+  --card-foreground: 214 32% 91%;
 
-  --popover: 236 42% 19%;
-  --popover-foreground: 209 100% 95%;
+  --popover: 215 18% 19%;
+  --popover-foreground: 214 32% 91%;
 
-  --primary: 236 60% 62%;
-  --primary-foreground: 0 0% 100%;
+  /* State: the active tool, the focused viewport. */
+  --primary: 198 93% 60%;
+  --primary-foreground: 214 17% 8%;
 
-  --secondary: 236 45% 41%;
-  --secondary-foreground: 209 80% 88%;
+  --secondary: 215 18% 19%;
+  --secondary-foreground: 214 32% 91%;
 
-  --muted: 236 45% 12%;
-  --muted-foreground: 209 32% 70%;
+  --muted: 215 19% 13%;
+  --muted-foreground: 215 20% 65%;
 
-  --accent: 236 50% 26%;
-  --accent-foreground: 209 100% 95%;
+  --accent: 215 18% 23%;
+  --accent-foreground: 214 32% 91%;
 
-  --border: 236 32% 24%;
-  --input: 236 45% 30%;
-  --ring: 236 60% 62%;
+  --border: 215 18% 19%;
+  --input: 215 18% 19%;
+  --ring: 198 93% 60%;
 
-  --neutral-light: 209 70% 82%;
-  --neutral: 220 20% 62%;
+  --neutral-light: 215 20% 65%;
+  --neutral: 215 16% 52%;
+  --neutral-dark: 215 19% 13%;
 
-  /* The one warm colour, reserved for what the reader has kept. */
-  --highlight: 45 100% 58%;
+  /* Kept: the one warm colour in the application. */
+  --highlight: 38 92% 50%;
 
   /* Named for what they mean rather than what they look like, so the montage
    * and the panels stay in step if the palette is ever retuned. */
-  --rw-kept: hsl(45 100% 58%);
-  --rw-kept-dim: hsl(206 85% 79%);
-  --rw-rule: hsl(236 45% 41%);
-  --rw-label: hsl(209 100% 90%);
-  --rw-label-ground: hsl(236 42% 19%);
+  --rw-kept: hsl(38 92% 50%);
+  --rw-kept-dim: hsl(215 20% 65%);
+  --rw-live: hsl(198 93% 60%);
+  --rw-rule: hsl(215 18% 19%);
+  --rw-label: hsl(214 32% 91%);
+  --rw-label-ground: hsl(215 19% 13%);
 }
 
 /*
- * The separating lines of a montage are the same blue as the lines between
+ * The separating lines of a montage are the same as the lines between
  * viewports, so that a sheet of frames reads as a subdivision of the viewport
  * it sits in rather than as a different kind of window.
  */
@@ -66,7 +73,7 @@
 .rw-badge {
   color: var(--rw-label);
   background-color: var(--rw-label-ground);
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4);
 }
 
 /* The instance number sits on the image itself, where no background can be
@@ -77,7 +84,7 @@
 }
 
 .rw-frame:hover {
-  outline: 1px solid hsl(236 60% 62%);
+  outline: 1px solid var(--rw-live);
   outline-offset: -1px;
 }
 
@@ -115,4 +122,45 @@
 
 .rw-star.is-kept svg {
   fill: currentColor;
+}
+
+/*
+ * The application name, in place of the viewer's own mark. Set in the interface
+ * face at the weight the study list headings use, so it reads as part of the
+ * application rather than as a logo dropped on top of it.
+ */
+.rw-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--rw-label);
+  user-select: none;
+}
+
+.rw-wordmark strong {
+  font-weight: 600;
+}
+
+.rw-wordmark span {
+  font-weight: 400;
+  color: hsl(215 20% 65%);
+}
+
+/* A rule in the accent colour: the one identifying mark the interface carries. */
+.rw-wordmark::before {
+  content: '';
+  width: 3px;
+  height: 1.05rem;
+  border-radius: 2px;
+  background-color: var(--rw-live);
+}
+
+/* Said once, quietly, where the viewer's own disclaimer used to shout it. */
+.rw-disclaimer {
+  color: hsl(215 16% 52%);
+  font-size: 0.6875rem;
+  white-space: nowrap;
 }

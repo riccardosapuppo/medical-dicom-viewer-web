@@ -119,6 +119,50 @@ function linkConfig() {
   info('config linked as public/app-config');
 }
 
+/**
+ * Applies this repository's palette to the half of the viewer that does not use
+ * CSS variables.
+ *
+ * OHIF is two generations of UI package at once, and the older one carries its
+ * colours as literal values in a Tailwind preset. Adding ours after both of
+ * theirs is the supported way for a later preset to win; the alternative was a
+ * stylesheet of overrides fighting components that had already been given a
+ * colour, which is how a theme ends up half applied.
+ */
+function applyPalette() {
+  const configPath = path.join(ohifDir, 'platform', 'app', 'tailwind.config.js');
+  const ours = "require('../../../config/tailwind.preset.js')";
+  const source = fs.readFileSync(configPath, 'utf8');
+
+  if (source.includes(ours)) {
+    info('palette already applied');
+    return;
+  }
+
+  const stock = "presets: [require('../ui/tailwind.config.js'), require('../ui-next/tailwind.config.js')],";
+  if (!source.includes(stock)) {
+    throw new Error(
+      'the viewer no longer declares its Tailwind presets the way this expects. ' +
+        'Check platform/app/tailwind.config.js before going further.'
+    );
+  }
+
+  const patched = source.replace(
+    stock,
+    [
+      'presets: [',
+      "    require('../ui/tailwind.config.js'),",
+      "    require('../ui-next/tailwind.config.js'),",
+      "    // Applied last, so this repository's palette wins over both of OHIF's.",
+      `    ${ours},`,
+      '  ],',
+    ].join('\n  ')
+  );
+
+  fs.writeFileSync(configPath, patched);
+  info('palette applied to the viewer build');
+}
+
 /** Registers the packages with the viewer, which loads only what is listed. */
 function registerPlugins() {
   const configPath = path.join(ohifDir, 'platform', 'app', 'pluginConfig.json');
@@ -166,6 +210,9 @@ try {
 
   step('linking the viewer configuration');
   linkConfig();
+
+  step('applying the palette');
+  applyPalette();
 
   step('registering the plugins with the viewer');
   registerPlugins();
