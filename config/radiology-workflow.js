@@ -91,6 +91,36 @@ window.config = {
     option: 'never',
   },
 
+  /**
+   * What the layout selector offers.
+   *
+   * The stock selector lists the plain grids and then, underneath, the
+   * reformatting protocols: three planes, three planes with a volume, four up,
+   * volume only. Those belong to a decision the reader has not made yet.
+   * Offering them from the grid picker puts a volume render one row below
+   * "2 x 2", and choosing one on a session with no graphics context throws
+   * over the whole page.
+   *
+   * Reformatting is one decision on one icon. Once it has been made the
+   * protocols become the useful thing to switch between, so the selector grows
+   * them then and not before.
+   */
+  customizationService: [
+    {
+      'layoutSelector.advancedPresetGenerator': {
+        $apply: defaultGenerator => args => {
+          const { hangingProtocolService } = args.servicesManager.services;
+          const active = hangingProtocolService?.getActiveProtocol?.()?.protocol?.id;
+
+          // 'default' is the plain stack layout; anything else means the
+          // reader has already asked for a reformatted arrangement.
+          const reformatting = Boolean(active) && active !== 'default';
+
+          return reformatting ? defaultGenerator(args) : [];
+        },
+      },
+    },
+  ],
   defaultDataSourceName: 'orthanc',
   dataSources: [
     {

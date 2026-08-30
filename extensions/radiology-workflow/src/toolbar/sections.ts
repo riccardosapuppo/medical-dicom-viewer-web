@@ -84,6 +84,15 @@ const sections = {
     'ImageOverlayViewer',
   ],
 
+  // Nothing in the corner of the viewport. The stock arrangement puts an
+  // orientation menu and a data overlay menu there, both of which offer axial,
+  // sagittal, coronal and fusion on a viewport that is showing a plain stack.
+  // Choosing one asks the graphics context to reformat, which is what the MPR
+  // button is for and which fails outright where there is no such context.
+  // Reformatting is one decision on one icon, and this is the other half of
+  // making that true.
+  [TOOLBAR_SECTIONS.viewportActionMenu.topLeft]: [],
+
   MoreTools: ['Cine', 'TrackballRotate', 'LayoutPresets', 'TagBrowser', 'SegmentLabelTool'],
 };
 
