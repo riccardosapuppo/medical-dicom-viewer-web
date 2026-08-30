@@ -7,6 +7,24 @@ import type { Button } from '@ohif/core/types';
  * the viewer.
  */
 const toolbarButtons: Button[] = [
+  // The groups this mode arranges the toolbar into. A reading room does a few
+  // distinct things with a study, and the row says which they are instead of
+  // presenting twenty equal buttons.
+  { id: 'Navigate', uiType: 'ohif.toolButtonList', props: { buttonSection: true } },
+  { id: 'Compare', uiType: 'ohif.toolButtonList', props: { buttonSection: true } },
+  { id: 'Arrange', uiType: 'ohif.toolButtonList', props: { buttonSection: true } },
+
+  {
+    id: 'Stacks',
+    uiType: 'ohif.toolButton',
+    props: {
+      icon: 'tool-stack-scroll',
+      label: 'Back to slices',
+      tooltip: 'Return every viewport to the slices as acquired',
+      commands: 'resetViewportsToStacks',
+      evaluate: 'evaluate.action',
+    },
+  },
   {
     id: 'Montage',
     uiType: 'ohif.toolButton',

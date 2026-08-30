@@ -38,20 +38,25 @@ export const toolbarSections = {
   ...basicToolbarSections,
 
   [TOOLBAR_SECTIONS.primary]: [
-    'MeasurementTools',
-    'Pan',
-    'Zoom',
+    'Navigate',
     'WindowLevel',
-    'StackScroll',
-    'Layout',
-    'LayoutPresets',
-    'Montage',
-    'Crosshairs',
-    'ImageSliceSync',
-    'ReferenceLines',
+    'MeasurementTools',
+    'Compare',
+    'Arrange',
     'Capture',
     'MoreTools',
   ],
+
+  // Moving through the study.
+  Navigate: ['StackScroll', 'Pan', 'Zoom', 'Magnify'],
+
+  // Holding two viewports to the same place, which is most of what reading a
+  // multi-series study consists of.
+  Compare: ['Crosshairs', 'ImageSliceSync', 'ReferenceLines'],
+
+  // Deciding what is on screen, and getting back out of a layout that is not
+  // what was wanted.
+  Arrange: ['Layout', 'LayoutPresets', 'Montage', 'Stacks'],
 
   MoreTools: [
     'Reset',
@@ -62,7 +67,6 @@ export const toolbarSections = {
     'Cine',
     'Angle',
     'CobbAngle',
-    'Magnify',
     'AdvancedMagnify',
     'CalibrationLine',
     'WindowLevelRegion',

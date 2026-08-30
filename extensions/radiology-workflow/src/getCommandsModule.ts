@@ -54,6 +54,35 @@ export default function getCommandsModule({ servicesManager }: withAppTypes) {
       montageService.movePage(viewportId, 1, frameCountOfActiveViewport(viewportId));
     },
 
+    /**
+     * Puts every viewport back to a plain stack of the series it holds.
+     *
+     * The viewer remembers what was in each grid position, so returning from
+     * an MPR layout to an ordinary grid brings the sagittal or the 3D view
+     * back with it, in a viewport the reader expected to be showing slices as
+     * acquired. This is the way out of that, in one action.
+     */
+    resetViewportsToStacks: async () => {
+      const { viewports } = viewportGridService.getState();
+      const updates = [];
+
+      for (const [viewportId, viewport] of viewports) {
+        const displaySetInstanceUIDs = viewport?.displaySetInstanceUIDs ?? [];
+        if (displaySetInstanceUIDs.length === 0) {
+          continue;
+        }
+        updates.push({
+          viewportId,
+          displaySetInstanceUIDs,
+          viewportOptions: { viewportType: 'stack', orientation: 'acquisition' },
+        });
+      }
+
+      if (updates.length > 0) {
+        await viewportGridService.setDisplaySetsForViewports(updates);
+      }
+    },
+
     showLayoutPresets: () => {
       uiModalService.show({
         content: LayoutPresetModal,
