@@ -367,15 +367,32 @@ function WorkList({
       console.log('url: ', url)
       // const url = 'http://localhost:3000/viewer/viewer?Token=1iJ7SuNLy0hXsbZh6RfgHotZAtBYxXTNZsl05AVzcx0nK0UQ2YgE5dsvAqZMP522swwBMpirAKi8dTATJ4&User=admin&StudyDescription=RX+MAMMOGRAFIA+BILATERALE&Modality=MG&prefetch=1&aetitle=MDV&StudyInstanceUIDs=1.2.826.0.1.3680043.2.612.998.1.120250219.10000147538021.8370'
 
-      // chiamata al parent, non all’iframe
-      if (window.parent && typeof window.parent.openStudyInInternalTab === 'function') {
-        window.parent.openStudyInInternalTab(url, {
+      // La pagina ospite tiene il viewer in un iframe e apre gli studi in schede
+      // proprie. Fuori da quella pagina la funzione non esiste, e prima di questo
+      // cambio il clic finiva in un console.warn: lo studio non si apriva e non
+      // veniva detto perche.
+      const parentTabs =
+        window.parent !== window &&
+        typeof (window.parent as Window & { openStudyInInternalTab?: unknown })
+          .openStudyInInternalTab === 'function';
+
+      if (parentTabs) {
+        (
+          window.parent as Window & {
+            openStudyInInternalTab: (u: string, meta: Record<string, string>) => void;
+          }
+        ).openStudyInInternalTab(url, {
           title: `${patientName} — ${accession}`,
-          tooltip: `Paziente: ${patientName}\nDescrizione: ${description}\nAccession: ${accession}\nModality: ${modalities}`,
+          tooltip: `Paziente: ${patientName}
+Descrizione: ${description}
+Accession: ${accession}
+Modality: ${modalities}`,
         });
-      } else {
-        console.warn("openStudyInInternalTab non disponibile nel parent");
+        return;
       }
+
+      // Da soli: si va allo stesso indirizzo in questa finestra.
+      navigate(url.replace(window.location.origin, ''));
 
     };
 
