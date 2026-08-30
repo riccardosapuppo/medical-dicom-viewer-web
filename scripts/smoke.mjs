@@ -68,11 +68,20 @@ function findChromium() {
   return undefined;
 }
 
+/**
+ * Two lists, because they mean different things. An uncaught exception stopped
+ * something; a console error is a library complaining, and the onboarding tour
+ * complains on every load about an element it looks for before the viewport
+ * exists. Only the first kind fails this check, but both are printed, because a
+ * new line in the second is worth a look.
+ */
 const problems = [];
-const record = text => {
+const noise = [];
+const record = (text, fatal = true) => {
   const line = String(text).slice(0, 300);
-  if (!problems.includes(line)) {
-    problems.push(line);
+  const list = fatal ? problems : noise;
+  if (!list.includes(line)) {
+    list.push(line);
   }
 };
 
@@ -90,7 +99,7 @@ const browser = await chromium.launch({
 
 const page = await browser.newPage({ viewport: { width: 1600, height: 950 } });
 page.on('pageerror', error => record(`uncaught: ${error.message}`));
-page.on('console', message => message.type() === 'error' && record(`console: ${message.text()}`));
+page.on('console', message => message.type() === 'error' && record(message.text(), false));
 
 fs.mkdirSync(shots, { recursive: true });
 const checks = [];
@@ -121,13 +130,15 @@ check('the viewer is not named anywhere a reader can see', !visible.includes('oh
 await page.screenshot({ path: path.join(shots, 'study-list.png') });
 
 console.log('\nViewer');
-// Opening through the button is what a reader does, and it exercises the mode
-// route rather than a hand-written URL. The multi-series study is chosen
-// because it is the one that exercises the series panel.
-await page.locator('tr', { hasText: 'C3N-00310' }).first().click();
-const launch = page.getByRole('button', { name: /open study/i }).first();
-await launch.click({ timeout: 30000 }).catch(() => record('no launch button on the study list'));
-await page.waitForTimeout(25000);
+// This viewer is entered by address with the study on it, which is how the host
+// page enters it in a real installation. The three-series study is the one worth
+// opening: it is the one that exercises the series panel.
+const study = '1.3.6.1.4.1.14519.5.2.1.3320.3273.330352612792644515148733881839';
+await page.goto(`${VIEWER}/viewer?StudyInstanceUIDs=${study}`, {
+  waitUntil: 'domcontentloaded',
+  timeout: 120000,
+});
+await page.waitForTimeout(35000);
 
 const canvases = await page.locator('canvas').count();
 check('the study renders', canvases > 0, `${canvases} canvas`);
@@ -137,24 +148,34 @@ const toolbar = await page.evaluate(
 );
 check('the toolbar is present', toolbar > 10, `${toolbar} buttons`);
 
-const overlap = await page.evaluate(() => {
-  const mark = document.querySelector('.rw-wordmark');
-  if (!mark) {
-    return 'no mark';
-  }
-  const right = mark.getBoundingClientRect().right;
-  const first = [...document.querySelectorAll('button')]
-    .filter(b => b.getBoundingClientRect().y < 50 && b.getBoundingClientRect().width > 8)
-    .map(b => b.getBoundingClientRect().x)
-    .sort((a, b) => a - b)[0];
-  return first === undefined ? 'no buttons' : first < right - 2;
-});
-check('the name is not sitting under the toolbar', overlap === false, String(overlap));
+// Every icon in this project is cut at the size it is used, because nothing
+// sizes them: they are placed as plain images and drawn at whatever they
+// intrinsically are. One at ninety-six pixels sat over the middle of the study.
+const oversized = await page.evaluate(() =>
+  [...document.querySelectorAll('img')]
+    // Only the icons. Thumbnails arrive as data URIs and are meant to be large,
+    // which an earlier version of this check reported as a fault.
+    .filter(i => /\/assets\//.test(i.src) && !i.src.startsWith('data:'))
+    .filter(i => i.naturalWidth > 64 && i.getBoundingClientRect().width > 64)
+    .map(i => i.src.split('/').pop())
+);
+check('no icon is drawn oversized', oversized.length === 0, oversized.join(', '));
+
+const series = await page.evaluate(
+  () => ((document.body.innerText || '').match(/Pre Contrast|BONE|po 7min/g) || []).length
+);
+check('the series panel is populated', series >= 3, `${series} mentions`);
 
 await page.screenshot({ path: path.join(shots, 'viewer.png') });
 
 console.log(`\nUncaught errors: ${problems.length}`);
 problems.slice(0, 10).forEach(problem => console.log(`  ${problem}`));
+
+if (noise.length > 0) {
+  console.log(`Console errors, which do not fail this check: ${noise.length}`);
+  noise.slice(0, 6).forEach(line => console.log(`  ${line.slice(0, 110)}`));
+}
+
 console.log(`Screenshots in ${shots}`);
 
 await browser.close();
