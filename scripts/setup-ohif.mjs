@@ -127,13 +127,29 @@ function registerPlugins() {
 
   for (const { dir, key } of PACKAGES) {
     const { name } = JSON.parse(fs.readFileSync(path.join(root, dir, 'package.json'), 'utf8'));
-    if (config[key].some(entry => entry.packageName === name)) {
+    const at = config[key].findIndex(entry => entry.packageName === name);
+
+    // The study list offers one button per mode, in the order they are
+    // registered. This mode goes first so that opening a study lands in it
+    // rather than in the stock viewer, which is the whole point of building it.
+    const wantsFront = key === 'modes';
+
+    if (at === 0 || (at > 0 && !wantsFront)) {
       info(`${name} already registered`);
       continue;
     }
-    config[key].push({ packageName: name });
+    if (at > 0) {
+      config[key].splice(at, 1);
+      info(`${name} moved to the front`);
+    } else {
+      info(`${name} registered as ${key.replace(/s$/, '')}`);
+    }
+    if (wantsFront) {
+      config[key].unshift({ packageName: name });
+    } else {
+      config[key].push({ packageName: name });
+    }
     changed = true;
-    info(`${name} registered as ${key.replace(/s$/, '')}`);
   }
 
   if (changed) {
