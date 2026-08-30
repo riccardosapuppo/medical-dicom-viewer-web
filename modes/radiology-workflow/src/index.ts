@@ -7,6 +7,7 @@ import {
   mode as basicMode,
   modeInstance as basicModeInstance,
   ohif,
+  onModeEnter as basicOnModeEnter,
   toolbarButtons as basicToolbarButtons,
   toolbarSections as basicToolbarSections,
 } from '@ohif/mode-basic';
@@ -28,43 +29,53 @@ export const extensionDependencies = {
 export const toolbarButtons = [...basicToolbarButtons, ...modeToolbarButtons];
 
 /**
- * The order of the primary row follows the way a study is actually read:
- * measure, navigate, set the window, arrange the screen, then the montage for
- * an overview, then the tools that keep several viewports in step. Everything
- * that is reached occasionally sits under More, so the row stays short enough
- * to be read at a glance.
+ * The row a reading room actually wants in front of it.
+ *
+ * It is long on purpose. A radiologist reading all day reaches for the same
+ * twenty things and wants them under the pointer, not two clicks down a menu;
+ * hiding tools behind groups suits somebody opening the viewer once a month,
+ * which is not who this is for. What is grouped is grouped because the members
+ * are alternatives to each other: measurements, and the transforms.
+ *
+ * The order is the order of the work. Measure and move first, because that is
+ * most of it. Then the window, then what is on screen and how it is reformatted.
+ * Then the tools that hold viewports together, then what gets kept.
  */
 export const toolbarSections = {
   ...basicToolbarSections,
 
   [TOOLBAR_SECTIONS.primary]: [
-    'Navigate',
-    'WindowLevel',
     'MeasurementTools',
-    'Compare',
-    'Arrange',
+    'Pan',
+    'Zoom',
+    'StackScroll',
+    'WindowLevel',
+    'Magnify',
+    'TransformTools',
+    'invert',
+    'Layout',
+    'LayoutMPR',
+    'Montage',
+    'Stacks',
+    'LayoutPresets',
+    'Crosshairs',
+    'ReferenceCursors',
+    'ImageSliceSync',
+    'ReferenceLines',
+    'ScaleOverlay',
+    'TrackballRotate',
+    'Probe',
+    'Cine',
+    'StudyInformation',
     'Capture',
     'MoreTools',
   ],
 
-  // Moving through the study.
-  Navigate: ['StackScroll', 'Pan', 'Zoom', 'Magnify'],
-
-  // Holding two viewports to the same place, which is most of what reading a
-  // multi-series study consists of.
-  Compare: ['Crosshairs', 'ImageSliceSync', 'ReferenceLines'],
-
-  // Deciding what is on screen, and getting back out of a layout that is not
-  // what was wanted.
-  Arrange: ['Layout', 'LayoutPresets', 'Montage', 'Stacks'],
+  // Rotating and flipping are alternatives to one another and are reached
+  // occasionally, so they are one entry rather than four.
+  TransformTools: ['rotate-right', 'rotate-left', 'flipHorizontal', 'flipVertical', 'Reset'],
 
   MoreTools: [
-    'Reset',
-    'rotate-right',
-    'flipHorizontal',
-    'invert',
-    'Probe',
-    'Cine',
     'Angle',
     'CobbAngle',
     'AdvancedMagnify',
@@ -72,6 +83,7 @@ export const toolbarSections = {
     'WindowLevelRegion',
     'ImageOverlayViewer',
     'TagBrowser',
+    'SegmentLabelTool',
   ],
 };
 
@@ -101,6 +113,24 @@ export const route = {
   layoutInstance,
 };
 
+/**
+ * Reference cursors and the scale overlay ship with Cornerstone but are not
+ * registered by OHIF, so they belong to no tool group and a button for either
+ * would do nothing. The extension registers the tools; this puts them in the
+ * group the viewports use, after the stock groups have been built.
+ */
+export function onModeEnter(props: withAppTypes) {
+  basicOnModeEnter.call(this, props);
+
+  const { toolGroupService } = props.servicesManager.services;
+  // The scale starts off: a ruler down every image is useful when asked for and
+  // clutter when not.
+  toolGroupService.addToolsToToolGroup('default', {
+    passive: [{ toolName: 'ReferenceCursors' }],
+    disabled: [{ toolName: 'ScaleOverlay' }],
+  });
+}
+
 export const modeInstance = {
   ...basicModeInstance,
   id,
@@ -110,6 +140,7 @@ export const modeInstance = {
   extensions: extensionDependencies,
   toolbarButtons,
   toolbarSections,
+  onModeEnter,
 };
 
 const mode = {

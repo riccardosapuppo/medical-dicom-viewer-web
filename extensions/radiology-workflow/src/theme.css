@@ -164,3 +164,8 @@
   font-size: 0.6875rem;
   white-space: nowrap;
 }
+
+/* Hiding the text burned over the image, everywhere at once. */
+body.rw-overlays-hidden .viewport-overlay {
+  display: none;
+}

@@ -1,4 +1,5 @@
 import LayoutPresetModal from './layouts/LayoutPresetModal';
+import { toggleStudyInformation } from './studyInformation';
 import type MontageService from './services/MontageService';
 
 /**
@@ -7,12 +8,13 @@ import type MontageService from './services/MontageService';
  * button works whichever cell of a multi-viewport layout has focus.
  */
 export default function getCommandsModule({ servicesManager }: withAppTypes) {
-  const { montageService, viewportGridService, displaySetService, uiModalService } =
+  const { montageService, viewportGridService, displaySetService, uiModalService, toolbarService } =
     servicesManager.services as {
       montageService: MontageService;
       viewportGridService: AppTypes.ViewportGridService;
       displaySetService: AppTypes.DisplaySetService;
       uiModalService: AppTypes.UIModalService;
+      toolbarService: AppTypes.ToolbarService;
     };
 
   /** How many instances the active viewport is showing, for paging limits. */
@@ -81,6 +83,12 @@ export default function getCommandsModule({ servicesManager }: withAppTypes) {
       if (updates.length > 0) {
         await viewportGridService.setDisplaySetsForViewports(updates);
       }
+    },
+
+    /** Hides or restores the text burned over every viewport at once. */
+    toggleStudyInformation: () => {
+      toggleStudyInformation();
+      toolbarService.refreshToolbarState({ viewportId: viewportGridService.getActiveViewportId() });
     },
 
     showLayoutPresets: () => {

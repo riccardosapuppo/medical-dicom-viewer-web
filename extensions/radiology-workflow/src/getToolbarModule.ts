@@ -1,5 +1,6 @@
 import { utils } from '@ohif/ui-next';
 
+import { isStudyInformationHidden } from './studyInformation';
 import type MontageService from './services/MontageService';
 
 /**
@@ -15,6 +16,18 @@ export default function getToolbarModule({ servicesManager }: withAppTypes) {
   };
 
   return [
+    {
+      // Pressed while the information is hidden, so the button says what the
+      // viewports are currently doing rather than what pressing it would do.
+      name: 'evaluate.studyInformation',
+      evaluate: () => {
+        const hidden = isStudyInformationHidden();
+        return {
+          className: utils.getToggledClassName(hidden),
+          isActive: hidden,
+        };
+      },
+    },
     {
       name: 'evaluate.montage',
       evaluate: ({ viewportId }: { viewportId: string }) => {

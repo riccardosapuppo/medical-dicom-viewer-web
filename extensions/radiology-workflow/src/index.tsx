@@ -2,6 +2,7 @@ import './theme.css';
 
 import { id } from './id';
 import registerCursors from './cursors';
+import registerTools from './tools';
 import getCommandsModule from './getCommandsModule';
 import getToolbarModule from './getToolbarModule';
 import getViewportModule from './getViewportModule';
@@ -27,6 +28,7 @@ const radiologyWorkflowExtension = {
     servicesManager.registerService(ReadingListService.REGISTRATION);
     servicesManager.registerService(LayoutPresetService.REGISTRATION);
     registerCursors();
+    registerTools();
   },
 
   onModeEnter: ({ servicesManager }: withAppTypes) => {
