@@ -16,6 +16,9 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@cornerstonejs/core": "3.9.5",
+    "@cornerstonejs/dicom-image-loader": "3.9.5",
+    "@cornerstonejs/tools": "3.9.5",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

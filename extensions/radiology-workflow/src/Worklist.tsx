@@ -85,7 +85,15 @@ export function Worklist({ studies, openStudyUIDs, onOpenStudy }: WorklistProps)
                     <td>{study.numberOfStudyRelatedInstances}</td>
                   </tr>
                   {expanded && (
-                    <tr className="series-row"><td /><td colSpan={7}><div className="series-preview"><SyntheticImage study={study} compact /><div><strong>Series 1 · {study.seriesDescription}</strong><span>{study.modality} · {study.slices} images · {study.bodyPart}</span></div><button type="button" onClick={() => onOpenStudy(study)}>Open study</button></div></td></tr>
+                    <tr className="series-row"><td /><td colSpan={7}><div className="worklist-series-list">
+                      {study.series.map(series => (
+                        <div className="series-preview" key={series.seriesInstanceUID}>
+                          <SyntheticImage study={study} slice={Math.floor(series.slices / 2)} compact />
+                          <div><strong>Series {series.seriesNumber} · {series.description}</strong><span>{study.modality} · {series.orientation} · {series.slices} images · {study.bodyPart}</span></div>
+                        </div>
+                      ))}
+                      <button className="open-study-button" type="button" onClick={() => onOpenStudy(study)}>Open all {study.numberOfStudyRelatedSeries} series</button>
+                    </div></td></tr>
                   )}
                 </FragmentRow>
               );
