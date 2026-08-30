@@ -1,3 +1,4 @@
+import { getShouldUseCPURendering } from '@cornerstonejs/core';
 import { utils } from '@ohif/ui-next';
 
 import { isStudyInformationHidden } from './studyInformation';
@@ -16,6 +17,24 @@ export default function getToolbarModule({ servicesManager }: withAppTypes) {
   };
 
   return [
+    {
+      /**
+       * Reformatting a volume is done by the graphics context. Where there is
+       * none the viewer draws on the CPU, and pressing the button reaches a
+       * library that asks for a 3D context, receives null, and throws. Saying
+       * so on the button is the difference between a demonstration that
+       * explains itself and one that appears broken.
+       */
+      name: 'evaluate.gpuRendering',
+      evaluate: () =>
+        getShouldUseCPURendering()
+          ? {
+              disabled: true,
+              disabledText:
+                'This session is drawing on the CPU, which cannot reformat a volume. It needs graphics acceleration in the browser.',
+            }
+          : undefined,
+    },
     {
       // Pressed while the information is hidden, so the button says what the
       // viewports are currently doing rather than what pressing it would do.

@@ -33,14 +33,19 @@ const toolbarButtons: Button[] = [
     id: 'LayoutMPR',
     uiType: 'ohif.toolButton',
     props: {
-      icon: 'icon-mpr',
+      // Not icon-mpr: that one draws at 12 pixels beside neighbours drawn at
+      // 28, which was measured rather than noticed.
+      icon: 'layout-advanced-mpr',
       label: 'MPR',
       tooltip: 'Reformat this series in three planes',
       commands: [{ commandName: 'toggleHangingProtocol', commandOptions: { protocolId: 'mpr' } }],
-      evaluate: {
-        name: 'evaluate.displaySetIsReconstructable',
-        disabledText: 'This series cannot be reformatted: its slices are not evenly spaced.',
-      },
+      evaluate: [
+        {
+          name: 'evaluate.displaySetIsReconstructable',
+          disabledText: 'This series cannot be reformatted: its slices are not evenly spaced.',
+        },
+        'evaluate.gpuRendering',
+      ],
     },
   },
 
