@@ -71,14 +71,19 @@ export const modeInstance = {
   // Reference cursors and the scale overlay ship with Cornerstone and are not
   // registered by the viewer, so they belong to no tool group and a button for
   // either would do nothing. The extension registers the tools; this puts them
-  // in the group the viewports use. The scale starts off: a ruler down every
-  // image is useful when asked for and clutter when not.
+  // in the group the viewports use.
+  //
+  // Both go in disabled, and their buttons switch them on. Neither draws
+  // anything a reader can grab, so neither belongs in the passive mode that
+  // annotations use: the library walks the passive tools on every click asking
+  // each for the handle nearest the pointer, and a tool without handles has no
+  // such method. Registering them passive threw on the first click in a
+  // viewport, which is how this was found.
   toolGroupAdditions: {
     ...basicModeInstance.toolGroupAdditions,
     default: [
       {
-        passive: [{ toolName: 'ReferenceCursors' }],
-        disabled: [{ toolName: 'ScaleOverlay' }],
+        disabled: [{ toolName: 'ReferenceCursors' }, { toolName: 'ScaleOverlay' }],
       },
     ],
   },

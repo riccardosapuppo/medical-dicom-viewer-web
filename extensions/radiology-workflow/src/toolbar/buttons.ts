@@ -7,14 +7,6 @@ import type { Button } from '@ohif/core/types';
  * their icons and their disabled states consistent with the rest of the viewer.
  */
 
-/** Makes a tool the active one across every tool group a viewport might use. */
-const setToolActive = {
-  commandName: 'setToolActiveToolbar',
-  commandOptions: {
-    toolGroupIds: ['default', 'mpr', 'SRToolGroup', 'volume3d'],
-  },
-};
-
 /**
  * Overlays are enabled and disabled rather than made active, and have to be
  * re-evaluated when the reader moves to another viewport.
@@ -97,8 +89,12 @@ const toolbarButtons: Button[] = [
       icon: 'tool-point',
       label: 'Reference cursors',
       tooltip: 'Show this pointer position in every viewport of the same anatomy',
-      commands: setToolActive,
-      evaluate: 'evaluate.cornerstoneTool',
+      commands: 'toggleEnabledDisabledToolbar',
+      listeners: overlayListeners('ReferenceCursors'),
+      evaluate: [
+        'evaluate.cornerstoneTool.toggle',
+        { name: 'evaluate.viewport.supported', unsupportedViewportTypes: ['video'] },
+      ],
     },
   },
 
