@@ -6,6 +6,7 @@ import getCommandsModule from './getCommandsModule';
 import getToolbarModule from './getToolbarModule';
 import getViewportModule from './getViewportModule';
 import MontageService from './services/MontageService';
+import LayoutPresetService from './services/LayoutPresetService';
 import ReadingListService from './services/ReadingListService';
 
 /** Held for the life of the mode, so leaving it does not leave listeners behind. */
@@ -24,6 +25,7 @@ const radiologyWorkflowExtension = {
   preRegistration: ({ servicesManager }: withAppTypes) => {
     servicesManager.registerService(MontageService.REGISTRATION);
     servicesManager.registerService(ReadingListService.REGISTRATION);
+    servicesManager.registerService(LayoutPresetService.REGISTRATION);
     registerCursors();
   },
 
@@ -57,4 +59,4 @@ const radiologyWorkflowExtension = {
 };
 
 export default radiologyWorkflowExtension;
-export { MontageService, ReadingListService };
+export { LayoutPresetService, MontageService, ReadingListService };

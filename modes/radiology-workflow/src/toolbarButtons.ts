@@ -18,6 +18,17 @@ const toolbarButtons: Button[] = [
       evaluate: 'evaluate.montage',
     },
   },
+  {
+    id: 'LayoutPresets',
+    uiType: 'ohif.toolButton',
+    props: {
+      icon: 'tool-layout',
+      label: 'Arrangements',
+      tooltip: 'Save how this study is arranged, and apply it to the next one like it',
+      commands: 'showLayoutPresets',
+      evaluate: 'evaluate.action',
+    },
+  },
 ];
 
 export default toolbarButtons;

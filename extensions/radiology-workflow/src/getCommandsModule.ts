@@ -1,3 +1,4 @@
+import LayoutPresetModal from './layouts/LayoutPresetModal';
 import type MontageService from './services/MontageService';
 
 /**
@@ -6,11 +7,13 @@ import type MontageService from './services/MontageService';
  * button works whichever cell of a multi-viewport layout has focus.
  */
 export default function getCommandsModule({ servicesManager }: withAppTypes) {
-  const { montageService, viewportGridService, displaySetService } = servicesManager.services as {
-    montageService: MontageService;
-    viewportGridService: AppTypes.ViewportGridService;
-    displaySetService: AppTypes.DisplaySetService;
-  };
+  const { montageService, viewportGridService, displaySetService, uiModalService } =
+    servicesManager.services as {
+      montageService: MontageService;
+      viewportGridService: AppTypes.ViewportGridService;
+      displaySetService: AppTypes.DisplaySetService;
+      uiModalService: AppTypes.UIModalService;
+    };
 
   /** How many instances the active viewport is showing, for paging limits. */
   const frameCountOfActiveViewport = (viewportId: string): number => {
@@ -49,6 +52,14 @@ export default function getCommandsModule({ servicesManager }: withAppTypes) {
     nextMontagePage: () => {
       const viewportId = active();
       montageService.movePage(viewportId, 1, frameCountOfActiveViewport(viewportId));
+    },
+
+    showLayoutPresets: () => {
+      uiModalService.show({
+        content: LayoutPresetModal,
+        title: 'Saved arrangements',
+        containerClassName: 'max-w-lg p-4',
+      });
     },
 
     previousMontagePage: () => {

@@ -44,6 +44,7 @@ export const toolbarSections = {
     'WindowLevel',
     'StackScroll',
     'Layout',
+    'LayoutPresets',
     'Montage',
     'Crosshairs',
     'ImageSliceSync',
