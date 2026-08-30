@@ -235,6 +235,38 @@ function redirectErrorReports() {
   info("error reports point at this project");
 }
 
+/**
+ * Makes one click on a series put it in the viewport.
+ *
+ * The stock panel loads a series on double click and does nothing at all on
+ * a single one: it passes an empty function for it. A reader going through a
+ * study clicks a series to see it, and clicking once and watching nothing
+ * happen is the kind of small friction that makes a tool feel unfinished.
+ *
+ * Both handlers take the same argument and the panel already builds the one
+ * that loads, so this points the empty one at it. There is no hook for it,
+ * hence the rewrite in the clone.
+ */
+function enableSingleClickSeries() {
+  const file = path.join(
+    ohifDir,
+    "extensions", "default", "src", "Panels", "StudyBrowser", "PanelStudyBrowser.tsx"
+  );
+  const source = fs.readFileSync(file, "utf8");
+  const stock = "onClickThumbnail={() => {}}";
+  const ours = "onClickThumbnail={onDoubleClickThumbnailHandler}";
+
+  if (source.includes(ours)) {
+    info("one click already loads a series");
+    return;
+  }
+  if (!source.includes(stock)) {
+    throw new Error("the series panel no longer ignores single clicks the way this expects: " + file);
+  }
+  fs.writeFileSync(file, source.replace(stock, ours));
+  info("one click loads a series");
+}
+
 /** Registers the packages with the viewer, which loads only what is listed. */
 function registerPlugins() {
   const configPath = path.join(ohifDir, 'platform', 'app', 'pluginConfig.json');
@@ -369,6 +401,7 @@ try {
   step('applying the name and mark');
   applyBranding();
   redirectErrorReports();
+  enableSingleClickSeries();
 
   step('registering the plugins with the viewer');
   registerPlugins();
