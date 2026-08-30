@@ -28,9 +28,19 @@ const QUICK_BUILD = process.env.QUICK_BUILD;
 const BUILD_NUM = process.env.CIRCLE_BUILD_NUM || '0';
 
 // read from ../version.txt
-const VERSION_NUMBER = fs.readFileSync(path.join(__dirname, '../version.txt'), 'utf8') || '';
+// Read if present. A fresh clone has neither until the release script writes
+// them, and a build that stops because it cannot stamp a version number into a
+// banner is a build that stops for no reason.
+const readOptional = name => {
+  try {
+    return fs.readFileSync(path.join(__dirname, '..', name), 'utf8').trim();
+  } catch {
+    return '';
+  }
+};
 
-const COMMIT_HASH = fs.readFileSync(path.join(__dirname, '../commit.txt'), 'utf8') || '';
+const VERSION_NUMBER = readOptional('version.txt');
+const COMMIT_HASH = readOptional('commit.txt');
 
 //
 dotenv.config();

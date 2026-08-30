@@ -178,12 +178,17 @@ module.exports = (env, argv) => {
               // PACS Analytics NON usa più isSuite (api.ts usa location.origin), quindi non serve
               // forzarlo: forzarlo interferirebbe solo col viewer.
               const isSuiteValue = isProdBuild ? 'false' : 'true';
-              // enablePrintBuilder e showStudyList restano SEMPRE false (copia in dist/app-config.js;
-              // il sorgente default.js NON viene toccato).
+              // enablePrintBuilder resta forzato a false: il generatore di stampa
+              // dipende da una libreria commerciale che non viene distribuita con
+              // questo repository, quindi il pulsante non deve comparire.
+              //
+              // showStudyList NON e piu forzato. Nell'impianto originale il viewer
+              // veniva aperto dalla pagina ospite, che gli passava lo studio, e un
+              // elenco non serviva; qui e il solo modo di entrare, quindi segue il
+              // valore del sorgente.
               const updated = contentString
                 .replace(/window\.isSuite\s*=\s*(?:true|false)\s*;/, `window.isSuite = ${isSuiteValue};`)
-                .replace(/(\benablePrintBuilder\s*:\s*)(?:true|false)/, '$1false')
-                .replace(/(\bshowStudyList\s*:\s*)(?:true|false)/, '$1false');
+                .replace(/(\benablePrintBuilder\s*:\s*)(?:true|false)/, '$1false');
               return updated;
             },
           },

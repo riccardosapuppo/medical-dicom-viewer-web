@@ -80,3 +80,8 @@ cloud-client-id.json
 
 # Dipendenze installate a runtime dal backend (token storico remoto)
 .deps-storico-remoto/
+
+# Build output and logs of this working copy
+platform/app/dist/
+.dev.log
+.install.log
