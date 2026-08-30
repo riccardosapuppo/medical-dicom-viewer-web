@@ -42,6 +42,15 @@ wired up upstream, so a stock toolbar cannot offer them.
 **Reference lines confined to one study**, and changes to the trackball, patched
 into the drawing library rather than worked around above it.
 
+**Windows across several monitors.** A browser extension, in
+[estensione-browser/](estensione-browser/), that reads the displays attached to
+the workstation, remembers where each viewer window was put, and puts it back on
+the next visit. The panel inside the viewer detects whether it is installed and
+walks through loading it unpacked.
+
+**A guided tour of all of the above**, in the language of the interface, shown
+once on the first study opened.
+
 ## Running it
 
 The viewer reads from an archive over DICOMweb. The demonstration ships one, and
@@ -86,12 +95,18 @@ long series is slower, and the reformat button is off and says why.
 one that holds per-user settings and shared hanging protocols. Here those live in
 the browser, which means they are per-machine and disappear with the site data.
 
-**The reporting feature is not here.** It depends on a commercial reporting
-library that is not ours to redistribute, so both the feature and the library are
-left out of this repository.
+**The reporting feature is not here.** Its designer came from a commercial
+reporting library that is not mine to redistribute, and ran inside a page only
+the production install served. Both are out of this repository rather than
+present and switched off.
 
-**The interface is in Italian**, as it was written. The code, the comments and
-the commit history are in English.
+**Neither is the analytics dashboard**, which answered a question about a
+department's workload rather than about reading images, and read it from an
+endpoint that is not here either.
+
+**The interface is in Italian**, as it was written, and so are the comments in
+the parts I wrote — changing them would make this repository disagree with the
+copy that runs. The commit history is in English.
 
 ## Layout
 
@@ -102,5 +117,6 @@ modes/             which tools and panels a kind of study opens with
 @cornerstonejs/    two patched drawing tools, linked in place of the published ones
 data/              which studies to fetch, and their attribution
 scripts/           fetching the studies, loading the archive, the smoke check
+estensione-browser/  the browser extension for placing windows across monitors
 docs/              screenshots, produced by the smoke check rather than by hand
 ```
