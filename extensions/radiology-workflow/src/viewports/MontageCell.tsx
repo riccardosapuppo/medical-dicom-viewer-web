@@ -14,9 +14,25 @@ type MontageCellProps = {
   label: string;
   frameIndex: number;
   isActive: boolean;
+  isKept: boolean;
   voiRange?: VoiRange;
   onSelect: (frameIndex: number) => void;
+  onToggleKeep: (frameIndex: number) => void;
 };
+
+/** Outline only until the frame is kept, then filled: kept is visible at a glance. */
+function Star() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="15"
+      height="15"
+      aria-hidden="true"
+    >
+      <path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.6 9.7l5.8-.8z" />
+    </svg>
+  );
+}
 
 /**
  * One frame of the montage.
@@ -31,11 +47,13 @@ function MontageCell({
   label,
   frameIndex,
   isActive,
+  isKept,
   voiRange,
   onSelect,
+  onToggleKeep,
 }: MontageCellProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const boxRef = useRef<HTMLButtonElement | null>(null);
+  const boxRef = useRef<HTMLDivElement | null>(null);
   const [boxHeight, setBoxHeight] = useState(0);
   const [failed, setFailed] = useState(false);
 
@@ -97,31 +115,44 @@ function MontageCell({
   }, [imageId, boxHeight, voiRange?.lower, voiRange?.upper]);
 
   return (
-    <button
-      type="button"
+    <div
       ref={boxRef}
-      onClick={() => onSelect(frameIndex)}
-      aria-label={`Frame ${label}`}
-      aria-current={isActive}
-      className={`group relative flex items-center justify-center overflow-hidden bg-black
-        outline-none ring-inset transition-shadow
-        ${isActive ? 'ring-primary-light ring-2' : 'ring-0 hover:ring-1 hover:ring-white/40'}`}
+      className={`rw-frame relative flex items-center justify-center overflow-hidden bg-black
+        ${isActive ? 'outline outline-2 -outline-offset-2 outline-primary' : ''}`}
     >
-      {failed ? (
-        <span className="text-muted-foreground text-[10px]">unavailable</span>
-      ) : (
-        <canvas
-          ref={canvasRef}
-          className="max-h-full max-w-full"
-        />
-      )}
-      <span
-        className="pointer-events-none absolute bottom-0.5 right-1 text-[10px] leading-none
-          text-white/70 mix-blend-difference"
+      <button
+        type="button"
+        onClick={() => onSelect(frameIndex)}
+        aria-label={`Go to instance ${label}`}
+        aria-current={isActive}
+        className="flex h-full w-full items-center justify-center"
       >
+        {failed ? (
+          <span className="text-muted-foreground text-[10px]">unavailable</span>
+        ) : (
+          <canvas
+            ref={canvasRef}
+            className="max-h-full max-w-full"
+          />
+        )}
+      </button>
+
+      <button
+        type="button"
+        onClick={() => onToggleKeep(frameIndex)}
+        aria-pressed={isKept}
+        title={isKept ? 'Remove from the reading list' : 'Keep for the report'}
+        aria-label={isKept ? `Remove instance ${label} from the reading list` : `Keep instance ${label}`}
+        className={`rw-star absolute left-1 top-1 z-10 flex h-6 w-6 items-center justify-center
+          rounded bg-black/40 ${isKept ? 'is-kept' : ''}`}
+      >
+        <Star />
+      </button>
+
+      <span className="rw-frame-number pointer-events-none absolute bottom-0.5 right-1 text-[10px] leading-none">
         {label}
       </span>
-    </button>
+    </div>
   );
 }
 

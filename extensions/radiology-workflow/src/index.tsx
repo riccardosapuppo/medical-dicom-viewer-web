@@ -1,8 +1,12 @@
+import './theme.css';
+
 import { id } from './id';
+import registerCursors from './cursors';
 import getCommandsModule from './getCommandsModule';
 import getToolbarModule from './getToolbarModule';
 import getViewportModule from './getViewportModule';
 import MontageService from './services/MontageService';
+import ReadingListService from './services/ReadingListService';
 
 /** Held for the life of the mode, so leaving it does not leave listeners behind. */
 const subscriptions: Array<{ unsubscribe: () => void }> = [];
@@ -19,6 +23,8 @@ const radiologyWorkflowExtension = {
 
   preRegistration: ({ servicesManager }: withAppTypes) => {
     servicesManager.registerService(MontageService.REGISTRATION);
+    servicesManager.registerService(ReadingListService.REGISTRATION);
+    registerCursors();
   },
 
   onModeEnter: ({ servicesManager }: withAppTypes) => {
@@ -51,4 +57,4 @@ const radiologyWorkflowExtension = {
 };
 
 export default radiologyWorkflowExtension;
-export { MontageService };
+export { MontageService, ReadingListService };

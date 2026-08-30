@@ -1,0 +1,118 @@
+/*
+ * The reading-room palette.
+ *
+ * OHIF publishes its colours as HSL triplets in CSS custom properties, so a
+ * theme is a matter of redefining those rather than fighting the components
+ * that use them. These declarations sit outside any cascade layer, and OHIF's
+ * live in @layer base, so they win without a single !important.
+ *
+ * The shift is from OHIF's azure (hue 214) to indigo (hue 236), with a single
+ * warm accent. The reason is not decoration: on a dark reading display every
+ * piece of chrome is some shade of blue, so anything the reader has chosen to
+ * keep — a starred image, a saved layout — needs a colour nothing else uses.
+ * Gold is that colour here, and it is spent nowhere else.
+ */
+
+:root {
+  --background: 236 55% 6%;
+  --foreground: 209 60% 96%;
+
+  --card: 236 45% 12%;
+  --card-foreground: 209 100% 95%;
+
+  --popover: 236 42% 19%;
+  --popover-foreground: 209 100% 95%;
+
+  --primary: 236 60% 62%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 236 45% 41%;
+  --secondary-foreground: 209 80% 88%;
+
+  --muted: 236 45% 12%;
+  --muted-foreground: 209 32% 70%;
+
+  --accent: 236 50% 26%;
+  --accent-foreground: 209 100% 95%;
+
+  --border: 236 32% 24%;
+  --input: 236 45% 30%;
+  --ring: 236 60% 62%;
+
+  --neutral-light: 209 70% 82%;
+  --neutral: 220 20% 62%;
+
+  /* The one warm colour, reserved for what the reader has kept. */
+  --highlight: 45 100% 58%;
+
+  /* Named for what they mean rather than what they look like, so the montage
+   * and the panels stay in step if the palette is ever retuned. */
+  --rw-kept: hsl(45 100% 58%);
+  --rw-kept-dim: hsl(206 85% 79%);
+  --rw-rule: hsl(236 45% 41%);
+  --rw-label: hsl(209 100% 90%);
+  --rw-label-ground: hsl(236 42% 19%);
+}
+
+/*
+ * The separating lines of a montage are the same blue as the lines between
+ * viewports, so that a sheet of frames reads as a subdivision of the viewport
+ * it sits in rather than as a different kind of window.
+ */
+.rw-montage {
+  background-color: var(--rw-rule);
+}
+
+.rw-badge {
+  color: var(--rw-label);
+  background-color: var(--rw-label-ground);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
+}
+
+/* The instance number sits on the image itself, where no background can be
+ * assumed; the double shadow keeps it legible over bone and over air alike. */
+.rw-frame-number {
+  color: #fff;
+  text-shadow: 0 0 3px #000, 0 0 3px #000;
+}
+
+.rw-frame:hover {
+  outline: 1px solid hsl(236 60% 62%);
+  outline-offset: -1px;
+}
+
+/*
+ * The star appears on hover, and stays put once the frame is kept: which
+ * frames were kept has to be readable at a glance, without hovering over
+ * twenty of them to find out.
+ */
+.rw-star {
+  color: var(--rw-kept-dim);
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease;
+}
+
+.rw-frame:hover .rw-star,
+.rw-star:focus-visible {
+  opacity: 1;
+}
+
+.rw-star:hover {
+  color: var(--rw-kept);
+}
+
+.rw-star.is-kept {
+  opacity: 1;
+  color: var(--rw-kept);
+}
+
+.rw-star svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.rw-star.is-kept svg {
+  fill: currentColor;
+}

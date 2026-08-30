@@ -4,6 +4,7 @@ import { useSystem } from '@ohif/core';
 
 import MontageSheet, { type MontageFrame } from './MontageSheet';
 import MontageService, { type MontageViewportState } from '../services/MontageService';
+import ReadingListService from '../services/ReadingListService';
 import type { VoiRange } from './MontageCell';
 import type { MontageGrid } from './montageLayout';
 
@@ -25,16 +26,21 @@ type RadiologyViewportProps = {
 function RadiologyViewport(props: RadiologyViewportProps) {
   const { servicesManager } = useSystem();
   const { viewportId, displaySets } = props;
-  const { montageService, cornerstoneViewportService } = servicesManager.services as {
-    montageService: MontageService;
-    cornerstoneViewportService: AppTypes.CornerstoneViewportService;
-  };
+  const { montageService, readingListService, cornerstoneViewportService } =
+    servicesManager.services as {
+      montageService: MontageService;
+      readingListService: ReadingListService;
+      cornerstoneViewportService: AppTypes.CornerstoneViewportService;
+    };
+
+  const displaySet = displaySets?.[0];
 
   const [montage, setMontage] = useState<MontageViewportState>(() =>
     montageService.getState(viewportId)
   );
   const [liveFrameIndex, setLiveFrameIndex] = useState(0);
   const [voiRange, setVoiRange] = useState<VoiRange | undefined>(undefined);
+  const [kept, setKept] = useState<ReadonlySet<string>>(new Set());
 
   useEffect(() => {
     setMontage(montageService.getState(viewportId));
@@ -49,13 +55,24 @@ function RadiologyViewport(props: RadiologyViewportProps) {
     return unsubscribe;
   }, [montageService, viewportId]);
 
+  useEffect(() => {
+    const refresh = () =>
+      setKept(new Set(readingListService.getAll().map(frame => frame.imageId)));
+    refresh();
+    const { unsubscribe } = readingListService.subscribe(
+      ReadingListService.EVENTS.CHANGED,
+      refresh
+    );
+    return unsubscribe;
+  }, [readingListService]);
+
   const frames: MontageFrame[] = useMemo(() => {
-    const images = displaySets?.[0]?.images ?? [];
+    const images = displaySet?.images ?? [];
     return images.map((image, index: number) => ({
       imageId: image.imageId,
       label: String(image.InstanceNumber ?? index + 1),
     }));
-  }, [displaySets]);
+  }, [displaySet]);
 
   // The montage opens on the level the reader was already looking at, rendered
   // with the window level they had set. Anything else means arriving at a sheet
@@ -90,6 +107,23 @@ function RadiologyViewport(props: RadiologyViewportProps) {
     [cornerstoneViewportService, montageService, viewportId]
   );
 
+  const onToggleKeep = useCallback(
+    (frameIndex: number) => {
+      const frame = frames[frameIndex];
+      if (!frame || !displaySet) {
+        return;
+      }
+      readingListService.toggle({
+        imageId: frame.imageId,
+        studyInstanceUID: displaySet.StudyInstanceUID,
+        seriesInstanceUID: displaySet.SeriesInstanceUID,
+        seriesDescription: displaySet.SeriesDescription || 'Series',
+        instanceNumber: frame.label,
+      });
+    },
+    [displaySet, frames, readingListService]
+  );
+
   const onGridChange = useCallback(
     (grid: MontageGrid) => montageService.setGrid(viewportId, grid),
     [montageService, viewportId]
@@ -112,13 +146,16 @@ function RadiologyViewport(props: RadiologyViewportProps) {
       {montage.enabled && frames.length > 0 && (
         <MontageSheet
           frames={frames}
+          seriesDescription={displaySet?.SeriesDescription || 'Series'}
           grid={montage.grid}
           page={montage.page}
           activeFrameIndex={liveFrameIndex}
+          keptImageIds={kept}
           voiRange={voiRange}
           onGridChange={onGridChange}
           onPageChange={onPageChange}
           onSelectFrame={onSelectFrame}
+          onToggleKeep={onToggleKeep}
           onClose={onClose}
         />
       )}
