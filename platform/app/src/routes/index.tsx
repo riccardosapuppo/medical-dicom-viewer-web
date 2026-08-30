@@ -7,7 +7,6 @@ import DataSourceWrapper from './DataSourceWrapper';
 import WorkList from './WorkList';
 import Local from './Local';
 import Debug from './Debug';
-import PacsAnalytics from './PacsAnalytics';
 import NotFound from './NotFound';
 import buildModeRoutes from './buildModeRoutes';
 import PrivateRoute from './PrivateRoute';
@@ -57,19 +56,6 @@ const bakedInRoutes = [
   {
     path: `${publicUrl}debug`,
     children: Debug,
-  },
-  {
-    // Dashboard PACS Analytics: montata alla ROOT (`/pacs-analytics`), FUORI dal
-    // prefisso publicUrl del viewer (qui '/viewer/'). Il routerBasename è '/',
-    // quindi un path letterale root la rende raggiungibile a
-    // http://localhost:3000/pacs-analytics senza toccare le route del viewer.
-    // (Il secondo entry mantiene anche la versione col prefisso, per robustezza.)
-    path: '/pacs-analytics',
-    children: PacsAnalytics,
-  },
-  {
-    path: `${publicUrl}pacs-analytics`,
-    children: PacsAnalytics,
   },
   {
     path: `${publicUrl}local`,
