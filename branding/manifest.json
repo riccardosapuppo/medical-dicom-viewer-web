@@ -1,0 +1,16 @@
+{
+  "short_name": "DICOM Viewer",
+  "name": "Medical DICOM Viewer (Web)",
+  "description": "A reading workspace for CT and MR studies served over DICOMweb.",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#111418",
+  "background_color": "#111418"
+}

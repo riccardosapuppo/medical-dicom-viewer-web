@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Medical DICOM Viewer">
+  <!--
+    A sheet of frames on a light box, with one kept.
+
+    The mark is the montage: a series laid out as a page, and the single amber
+    frame is the one the reader marked to come back to. It is the same amber the
+    interface spends on nothing else, so the icon and the application agree.
+  -->
+  <rect width="64" height="64" rx="13" fill="#111418"/>
+  <g fill="#94a3b8">
+    <rect x="12" y="14" width="12" height="10" rx="1.5"/>
+    <rect x="26" y="14" width="12" height="10" rx="1.5"/>
+    <rect x="40" y="14" width="12" height="10" rx="1.5"/>
+    <rect x="12" y="27" width="12" height="10" rx="1.5"/>
+    <rect x="40" y="27" width="12" height="10" rx="1.5"/>
+    <rect x="12" y="40" width="12" height="10" rx="1.5"/>
+    <rect x="26" y="40" width="12" height="10" rx="1.5"/>
+    <rect x="40" y="40" width="12" height="10" rx="1.5"/>
+  </g>
+  <rect x="26" y="27" width="12" height="10" rx="1.5" fill="#f59e0b"/>
+</svg>

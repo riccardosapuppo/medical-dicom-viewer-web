@@ -37,8 +37,8 @@ window.config = {
         React.createElement(
           'span',
           { className: 'rw-wordmark' },
-          React.createElement('strong', null, 'Lightbox'),
-          React.createElement('span', null, 'radiology workspace')
+          React.createElement('strong', null, 'Medical DICOM Viewer'),
+          React.createElement('span', null, 'Web')
         ),
         React.createElement(
           'span',

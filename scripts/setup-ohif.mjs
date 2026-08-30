@@ -196,9 +196,86 @@ function registerPlugins() {
     changed = true;
   }
 
+  // The study list offers one button per registered mode. The viewer ships
+  // several, most of which cannot open most studies and appear greyed out; a
+  // row of disabled buttons asks the reader to work out which one applies. Only
+  // this mode is left enabled, so opening a study is one decision.
+  for (const entry of config.modes) {
+    const isOurs = PACKAGES.some(({ dir }) => {
+      const { name } = JSON.parse(fs.readFileSync(path.join(root, dir, 'package.json'), 'utf8'));
+      return name === entry.packageName;
+    });
+    if (!isOurs && entry.default !== false) {
+      entry.default = false;
+      changed = true;
+    }
+  }
+
   if (changed) {
     fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`);
+    info(`${config.modes.filter(m => m.default !== false).length} mode offered in the study list`);
   }
+}
+
+/**
+ * Gives the viewer this application's name and mark.
+ *
+ * The name matches the portfolio entry exactly, because a project that calls
+ * itself one thing in one place and another elsewhere reads as two unfinished
+ * projects. The viewer's own name and logo are replaced everywhere the reader
+ * can see them; where it is named is the README and the third party notices,
+ * which is where crediting belongs.
+ */
+function applyBranding() {
+  const publicDir = path.join(ohifDir, 'platform', 'app', 'public');
+
+  // The mark. An SVG icon is declared before the packaged .ico files, and
+  // browsers prefer it, so the stock favicon never wins.
+  const assets = path.join(publicDir, 'assets');
+  fs.mkdirSync(assets, { recursive: true });
+  fs.copyFileSync(path.join(root, 'branding', 'favicon.svg'), path.join(assets, 'icon.svg'));
+
+  fs.copyFileSync(
+    path.join(root, 'branding', 'manifest.json'),
+    path.join(publicDir, 'manifest.json')
+  );
+
+  const templatePath = path.join(publicDir, 'html-templates', 'index.html');
+  let template = fs.readFileSync(templatePath, 'utf8');
+  const before = template;
+
+  template = template.replace(
+    /<title>[^<]*<\/title>/,
+    '<title>Medical DICOM Viewer (Web)</title>'
+  );
+
+  // Declared before the packaged .ico, and browsers prefer an SVG icon, so the
+  // stock favicon never wins. Matched on the manifest link with a pattern
+  // rather than an exact string, because the template is wrapped across lines
+  // and its indentation is not something to depend on.
+  if (!template.includes('assets/icon.svg')) {
+    const svgIcon =
+      '<link rel="icon" type="image/svg+xml" href="<%= PUBLIC_URL %>assets/icon.svg" />\n    ';
+    const patched = template.replace(/<link\s+rel="manifest"/, `${svgIcon}$&`);
+    if (patched === template) {
+      throw new Error('could not find where to declare the icon in the page template');
+    }
+    template = patched;
+  }
+
+  // Anything left naming the viewer where a reader would see it: the page
+  // title, the name a phone shows under a saved shortcut, the package name
+  // that reaches a meta tag. Matched case-insensitively and on the package
+  // scope too, because one of them is written "@ohif/app".
+  template = template.replace(
+    /content="[^"]*ohif[^"]*"/gi,
+    'content="Medical DICOM Viewer (Web)"'
+  );
+
+  if (template !== before) {
+    fs.writeFileSync(templatePath, template);
+  }
+  info('name and mark applied');
 }
 
 try {
@@ -213,6 +290,9 @@ try {
 
   step('applying the palette');
   applyPalette();
+
+  step('applying the name and mark');
+  applyBranding();
 
   step('registering the plugins with the viewer');
   registerPlugins();

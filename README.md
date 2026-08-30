@@ -1,13 +1,20 @@
-# Radiology workflow for OHIF
+# Medical DICOM Viewer (Web)
 
-An extension and a mode for the [OHIF Viewer](https://github.com/OHIF/Viewers),
-adding the handful of reading-room habits the stock viewer does not cover, shown
-against real de-identified CT and MR studies served from a DICOM archive.
+A reading workspace for CT and MR studies, built as an extension and a mode for
+the [OHIF Viewer](https://github.com/OHIF/Viewers) and shown against real
+de-identified studies served from a DICOM archive.
 
 This repository contains only those two packages and the scripts that assemble a
 working viewer around them. OHIF is not vendored, forked or copied here: it is
 cloned at a pinned commit and this code is linked into its workspace, which is
 the arrangement OHIF documents for out-of-tree plugins.
+
+The interface carries this project's name and mark rather than the viewer's.
+OHIF is MIT licensed and permits that; what it asks is that the copyright travel
+with the work, which it does, here and in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). What is rebranded is the
+interface, not the authorship: the section below says plainly which part is
+OHIF's and which part was written here.
 
 ## What is added, and what is not
 
