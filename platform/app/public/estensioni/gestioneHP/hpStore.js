@@ -381,14 +381,30 @@ const scritturaPreferenzeAPI = async (aetitle, username, body) => {
   }
 };
 
+/**
+ * Salva le preferenze.
+ *
+ * La cache locale viene scritta SEMPRE, anche quando il backend non risponde.
+ * In lettura la cache era gia il ripiego (vedi readPreferenze), ma in scrittura
+ * non lo era: senza backend il salvataggio tornava false e il protocollo andava
+ * perso, cioe la funzione sembrava rotta invece che non sincronizzata.
+ *
+ * Il backend, quando c e, resta la copia autorevole e condivisa fra postazioni.
+ * Il valore restituito dice se la sincronizzazione e riuscita, non se il
+ * salvataggio e avvenuto.
+ */
 const writePreferenze = async payload => {
   const ctx = getContext();
-  const res = await scritturaPreferenzeAPI(ctx.aetitle, ctx.username, payload.json);
-  if (!res) {
-    return false;
+
+  try {
+    localStorage.setItem(localStorageKey(), JSON.stringify(payload.json));
+  } catch (err) {
+    // Finestra privata, o spazio esaurito: resta il tentativo remoto.
+    console.warn('[HP] Impossibile scrivere la cache locale delle preferenze', err);
   }
-  localStorage.setItem(localStorageKey(), JSON.stringify(payload.json));
-  return true;
+
+  const res = await scritturaPreferenzeAPI(ctx.aetitle, ctx.username, payload.json);
+  return Boolean(res);
 };
 
 /* ------------------------------------------------------------------ *
