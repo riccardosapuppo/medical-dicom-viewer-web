@@ -7,9 +7,11 @@ declare module 'dcmjs' {
           dict: Record<string, unknown>;
         };
       };
+      DicomMetaDictionary: {
+        naturalizeDataset(dataset: Record<string, unknown>): Record<string, any>;
+      };
     };
   };
 
   export default dcmjs;
 }
-

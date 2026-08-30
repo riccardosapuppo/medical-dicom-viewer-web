@@ -29,7 +29,7 @@ services:
       orthanc:
         condition: service_healthy
     volumes:
-      - ./dicom/synthetic:/data:ro
+      - ./public/dicom/synthetic:/data:ro
     entrypoint: ["/bin/sh", "-c"]
     command:
       - >-
