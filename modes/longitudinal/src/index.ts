@@ -233,13 +233,6 @@ function modeFactory({ modeConfiguration }) {
         'MontageOff',
       ]);
 
-      // Gate del pulsante "Stampa" della toolbar sullo stesso flag usato in
-      // estensioni/preferiti/preferiti.js (window.config.enablePrintBuilder):
-      // se la stampa è disabilitata da config, NON includiamo PrintStampa
-      // in nessuna sezione primary.
-      const printBtnEntry =
-        (window as any).config?.enablePrintBuilder !== false ? ['PrintStampa'] : [];
-
       //Versione normale o mobile
       if (!window.portableVersion) {
         //Storico
@@ -283,7 +276,6 @@ function modeFactory({ modeConfiguration }) {
             'flipHorizontal',
             'flipVertical',
             'gestioneHP',
-            ...printBtnEntry,
           ]);
         }
         //Mobile
@@ -307,7 +299,6 @@ function modeFactory({ modeConfiguration }) {
             'ScaleOverlay',
             'TransformTools',
             'MoreTools',
-            ...printBtnEntry,
           ]);
         }
         //Versione standard
@@ -342,7 +333,6 @@ function modeFactory({ modeConfiguration }) {
             'ScaleOverlay',
             'MoreTools',
             'gestioneHP',
-            ...printBtnEntry,
             // 'setCamera',
             // 'storeState',
             // 'restoreState',
@@ -372,7 +362,6 @@ function modeFactory({ modeConfiguration }) {
           'hideInfoDicom',
           // 'ReferenceLines',  //Controllare linee riferimento per versione portable, eventuale modifica al modulo cornerstone
           'Reset',
-          ...printBtnEntry,
         ]);
       }
 

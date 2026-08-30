@@ -403,11 +403,6 @@ const GLOBAL_CONFIG_OPTIONS: { key: string; label: string; description: string }
     label: 'Mostra elenco studi',
     description: 'Mostra tutti gli studi presenti nel PACS, con apertura in una nuova scheda.',
   },
-  {
-    key: 'enablePrintBuilder',
-    label: 'Abilita stampa',
-    description: 'Abilita la funzione di stampa dei preferiti, serie e intero studio.',
-  },
 ];
 
 function UserPreferencesModalDefault({ hide }: { hide: () => void }) {

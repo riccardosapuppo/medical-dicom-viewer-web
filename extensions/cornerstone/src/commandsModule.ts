@@ -1506,16 +1506,6 @@ function commandsModule({
         });
       }
     },
-    apriEditorStampa: () => {
-      // openStimulsoftDesigner è esposto da estensioni/preferiti/preferiti.js.
-      // Apre l'editor di stampa (modale Stimulsoft); il selettore interno
-      // (Preferiti/Serie/Studio) gestisce cosa stampare.
-      if (typeof (window as any).openStimulsoftDesigner === 'function') {
-        (window as any).openStimulsoftDesigner();
-      } else {
-        console.warn('Editor di stampa non disponibile (openStimulsoftDesigner non registrato).');
-      }
-    },
     hideInfoDicom: () => {
       //Passo il comando anche all'eventuale iframe storico
       _postToStorico('hideInfoDicom');
@@ -3511,9 +3501,6 @@ function commandsModule({
     },
     gestioneHP: {
       commandFn: actions.gestioneHP,
-    },
-    apriEditorStampa: {
-      commandFn: actions.apriEditorStampa,
     },
     hideInfoDicom: {
       commandFn: actions.hideInfoDicom,

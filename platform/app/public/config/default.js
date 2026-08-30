@@ -117,7 +117,6 @@ window.config = {
     cornerBottomRight: [],
   },
   showStudyList: true,
-  enablePrintBuilder: true,
   // Permette di usare gli strumenti (Pan/WindowLevel/ecc.) direttamente su una
   // viewport non attiva: il primo trascinamento la rende attiva E applica subito
   // lo strumento, evitando il doppio click (attiva-poi-usa). Default OHIF: true.

@@ -108,7 +108,6 @@ module.exports = (env, argv) => {
   const mergedConfig = merge(baseConfig, {
     entry: {
       app: ENTRY_TARGET,
-      printBtn: path.join(__dirname, '../public/estensioni/stampa/printBtn.js'),
       preferitiBtn: path.join(__dirname, '../public/estensioni/preferiti/preferiti.js'),
       tabs: path.join(__dirname, '../public/estensioni/tabsAndExplorer/explorer.js'),
       explorer: path.join(__dirname, '../public/estensioni/tabsAndExplorer/tabs.js'),
@@ -173,22 +172,16 @@ module.exports = (env, argv) => {
             to: `${DIST_DIR}/app-config.js`,
             transform(content) {
               const contentString = content.toString();
-              // window.isSuite: comportamento ORIGINALE del viewer → prod false (usa l'origin
-              // deployata), dev true (in sviluppo il viewer punta al backend suite). La dashboard
-              // PACS Analytics NON usa più isSuite (api.ts usa location.origin), quindi non serve
-              // forzarlo: forzarlo interferirebbe solo col viewer.
+              // window.isSuite dice al viewer se sta girando dentro la pagina ospite che
+              // lo apriva: in sviluppo e' vero, perche' li' parlava col backend della
+              // suite, in produzione e' falso e si usa l'origine da cui e' stato servito.
               const isSuiteValue = isProdBuild ? 'false' : 'true';
-              // enablePrintBuilder resta forzato a false: il generatore di stampa
-              // dipende da una libreria commerciale che non viene distribuita con
-              // questo repository, quindi il pulsante non deve comparire.
-              //
               // showStudyList NON e piu forzato. Nell'impianto originale il viewer
               // veniva aperto dalla pagina ospite, che gli passava lo studio, e un
               // elenco non serviva; qui e il solo modo di entrare, quindi segue il
               // valore del sorgente.
               const updated = contentString
-                .replace(/window\.isSuite\s*=\s*(?:true|false)\s*;/, `window.isSuite = ${isSuiteValue};`)
-                .replace(/(\benablePrintBuilder\s*:\s*)(?:true|false)/, '$1false');
+                .replace(/window\.isSuite\s*=\s*(?:true|false)\s*;/, `window.isSuite = ${isSuiteValue};`);
               return updated;
             },
           },

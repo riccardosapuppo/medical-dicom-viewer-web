@@ -1004,20 +1004,6 @@ const toolbarButtons: Button[] = [
       },
     },
   },
-  {
-    id: 'PrintStampa',
-    uiType: 'ohif.toolButton',
-    props: {
-      icon: 'printer',
-      label: 'Stampa',
-      tooltip: 'Apri editor di stampa',
-      commands: 'apriEditorStampa',
-      evaluate: 'evaluate.action',
-    },
-  },
-
-
-
 ];
 
 export default toolbarButtons;
