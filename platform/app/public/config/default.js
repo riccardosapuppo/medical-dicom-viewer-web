@@ -83,7 +83,7 @@ window.config = {
     cornerBottomLeft: [],
     cornerBottomRight: [],
   },
-  showStudyList: false,
+  showStudyList: true,
   enablePrintBuilder: true,
   // Permette di usare gli strumenti (Pan/WindowLevel/ecc.) direttamente su una
   // viewport non attiva: il primo trascinamento la rende attiva E applica subito
