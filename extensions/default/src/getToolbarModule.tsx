@@ -1,0 +1,81 @@
+import { ToolbarButton as ToolbarButtonLegacy } from '@ohif/ui';
+import { utils } from '@ohif/ui-next';
+
+import ToolbarLayoutSelectorWithServices from './Toolbar/ToolbarLayoutSelector';
+import MontageLayoutSelector from './Toolbar/MontageLayoutSelector';
+
+// legacy
+import ToolbarDividerLegacy from './Toolbar/ToolbarDivider';
+import ToolbarSplitButtonWithServicesLegacy from './Toolbar/ToolbarSplitButtonWithServices';
+import ToolbarButtonGroupWithServicesLegacy from './Toolbar/ToolbarButtonGroupWithServices';
+import { ProgressDropdownWithService } from './Components/ProgressDropdownWithService';
+
+// new
+import ToolButtonListWrapper from './Toolbar/ToolButtonListWrapper';
+import ToolButtonWithShortcut from './Toolbar/ToolButtonWithShortcut';
+import { ToolBoxButtonGroupWrapper, ToolBoxButtonWrapper } from './Toolbar/ToolBoxWrapper';
+
+export default function getToolbarModule({ commandsManager, servicesManager }: withAppTypes) {
+  const { cineService } = servicesManager.services;
+  return [
+    // new
+    {
+      name: 'ohif.toolButton',
+      // Wrapper che accoda la scorciatoia da tastiera corrente al tooltip.
+      defaultComponent: ToolButtonWithShortcut,
+    },
+    {
+      name: 'ohif.toolButtonList',
+      defaultComponent: ToolButtonListWrapper,
+    },
+    {
+      name: 'ohif.toolBoxButtonGroup',
+      defaultComponent: ToolBoxButtonGroupWrapper,
+    },
+    {
+      name: 'ohif.toolBoxButton',
+      defaultComponent: ToolBoxButtonWrapper,
+    },
+    // legacy
+    {
+      name: 'ohif.radioGroup',
+      defaultComponent: ToolbarButtonLegacy,
+    },
+    {
+      name: 'ohif.buttonGroup',
+      defaultComponent: ToolbarButtonGroupWithServicesLegacy,
+    },
+    {
+      name: 'ohif.divider',
+      defaultComponent: ToolbarDividerLegacy,
+    },
+    {
+      name: 'ohif.splitButton',
+      defaultComponent: ToolbarSplitButtonWithServicesLegacy,
+    },
+    // others
+    {
+      name: 'ohif.layoutSelector',
+      defaultComponent: props =>
+        ToolbarLayoutSelectorWithServices({ ...props, commandsManager, servicesManager }),
+    },
+    {
+      name: 'ohif.montageLayoutSelector',
+      defaultComponent: props =>
+        MontageLayoutSelector({ ...props, commandsManager, servicesManager }),
+    },
+    {
+      name: 'ohif.progressDropdown',
+      defaultComponent: ProgressDropdownWithService,
+    },
+    {
+      name: 'evaluate.cine',
+      evaluate: () => {
+        const isToggled = cineService.getState().isCineEnabled;
+        return {
+          className: utils.getToggledClassName(isToggled),
+        };
+      },
+    },
+  ];
+}

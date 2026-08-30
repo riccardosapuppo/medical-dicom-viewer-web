@@ -1,0 +1,140 @@
+.preloader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #53708d;
+  padding: 1px 3px;
+  left: 10px;
+  height: calc(100vh - 48px);
+  width: calc(50% - 12px);
+  position: relative;
+}
+
+.preloader::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  width: 50px;
+  height: 50px;
+  border: 4px solid #2c2c2c;
+  border-top-color: #b71c1c;
+  border-radius: 50%;
+  -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+.storico-same-tab {
+  border: 1px solid #53708d;
+  padding: 1px 3px;
+  margin-left: 10px;
+  height: calc(100vh - 47px);
+
+  .mdv-main-area {
+    height: calc(-51px + 100vh) !important;
+  }
+
+  .mdv-new-panel {
+    .group.inline-flex.flex-row {
+      display: none !important;
+    }
+  }
+
+  /* Controlli finestra stile mac (tabs.js): la finestra dello storico e'
+     un iframe, si chiude col suo pulsante dedicato. */
+  #mdv-window-controls {
+    display: none !important;
+  }
+
+  .mdv-bar {
+    display: none !important;
+  }
+
+  [data-cy='side-panel-header-left'] {
+    display: none !important;
+  }
+
+  .chiudi-modalita-mpr {
+    right: 5px;
+    position: absolute;
+  }
+
+  #preferiti-tools,
+  #editor-tools {
+    width: 40%;
+  }
+
+  /* LABEL STUDI */
+  .text-muted-foreground.flex.items-center.justify-center span {
+    visibility: hidden;
+  }
+  .text-muted-foreground.flex.items-center.justify-center span:after {
+    visibility: visible;
+    content: 'Storico';
+    color: #8a1818;
+    left: -13px;
+    position: relative;
+  }
+}
+
+[data-cy='LayoutMPRStorico'] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+[data-cy='LayoutMPRStorico']::after {
+  content: 'S';
+  position: absolute;
+  bottom: 0px;
+  right: -1px;
+  background-color: #347ba0;
+  color: white;
+  width: 14px;
+  height: 15px;
+  border-radius: 50%;
+  font-size: 8px;
+  text-align: center;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
+.advanced-layout-storico-same-tab {
+  display: none;
+  filter: hue-rotate(205deg);
+}
+
+.standard-layout-storico-same-tab,
+.custom-layout-storico-same-tab {
+  filter: hue-rotate(205deg);
+}
+
+.secondo-mpr-attivo {
+  .standard-layout-storico-same-tab,
+  .custom-layout-storico-same-tab {
+    display: none;
+  }
+  .advanced-layout-storico-same-tab {
+    display: block;
+  }
+  .parent-Crosshairs,
+  .parent-TrackballRotate {
+    display: block;
+  }
+  [data-cy='LayoutMPRStorico'] {
+    background: #1a237e;
+  }
+}
+
+.chiudi-iframe {
+  color: #fff;
+  position: absolute;
+  left: 3px;
+  border: 1px solid #bfbfbf;
+  background: #8a1818;
+  z-index: 99;
+  border-radius: 12px;
+  width: 20px;
+  height: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}

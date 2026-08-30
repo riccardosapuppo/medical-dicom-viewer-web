@@ -1,0 +1,23 @@
+{
+  "Previous": "Test < Previous",
+  "AccessionNumber": "Test Accession #",
+  "Accession": "Test Accession",
+  "Descrizione": "Test Descrizione",
+  "Empty": "Test Empty",
+  "Filter list to 100 studies or less to enable sorting": "Test Filter list to 100 studies or less to enable sorting",
+  "Istanze": "Test Istanze",
+  "ID Paziente": "Test ID Paziente",
+  "Modality": "Test Modality",
+  "Next": "Test Next >",
+  "Nessuno studio disponibile": "Test Nessuno studio disponibile",
+  "Number of studies": "Test Number of studies",
+  "PatientName": "Test PatientName",
+  "Nome paziente": "Test Nome paziente",
+  "Results per page": "Test Results per page",
+  "StudyDate": "Test Data studio",
+  "Study date": "Test Data studio",
+  "Series": "Test Series",
+  "Lista studi": "Test Lista studi",
+  "Study list": "Test Study list",
+  "Upload": "Test Upload"
+}

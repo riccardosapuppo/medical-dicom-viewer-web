@@ -1,0 +1,103 @@
+#editor-tools {
+  position: fixed;
+  top: 0;
+  width: 20%;
+  height: 100%;
+  left: 100%;
+  background: #1a1a1a;
+  padding: 60px 8px;
+  transition: all 0.3s ease-in;
+  border: 1px solid #2f2f2f;
+  color: #fff;
+  z-index: 50;
+}
+
+#editor-tools img {
+  cursor: pointer;
+}
+
+#editor-tools .rimuovi-preferito-btn {
+  background: #b71c1c;
+  width: 100%;
+  margin-top: 2px;
+}
+
+#editor-tools #intestazione {
+  display: flex;
+}
+
+#editor-tools #intestazione img {
+  margin-right: 15px;
+}
+
+#editor-tools #intestazione p {
+  background: #252525;
+  color: #fff;
+  text-transform: uppercase;
+  padding: 0 7px;
+  width: 100%;
+}
+
+.nota-salvata {
+  cursor: pointer;
+  font-size: 0.8rem;
+  top: -7px;
+  position: relative;
+  background: #b71c1c;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+.pulse {
+  -webkit-animation-name: pulse;
+  animation-name: pulse;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+#main-area-editor {
+  margin-top: 20px;
+  height: 100vh;
+}
+
+#salva-testo {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #607d8b;
+  width: 91%;
+  font-size: 0.9rem;
+  border-radius: 3px;
+}
+
+@-webkit-keyframes pulse {
+  0% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    -webkit-transform: scale3d(1.2, 1.2, 1.2);
+    transform: scale3d(1.2, 1.2, 1.2);
+  }
+  100% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}
+@keyframes pulse {
+  0% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    -webkit-transform: scale3d(1.2, 1.2, 1.2);
+    transform: scale3d(1.2, 1.2, 1.2);
+  }
+  100% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}

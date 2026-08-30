@@ -1,0 +1,3 @@
+Si tratta di una copia locale delle cornerstone (solo il pacchetto @cornerstonejs/tools) collegate simbolicamente tramite yarn link.
+Sostituire il contenuto di tools all'interno con uno più aggiornato se necessario ma fare una copia di @cornerstonejs\tools\dist\esm\tools\ReferenceLinesTool.js e
+@cornerstonejs\tools\dist\esm\tools\TrackballRotateTool.js

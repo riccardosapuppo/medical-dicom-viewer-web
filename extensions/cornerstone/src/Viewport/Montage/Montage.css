@@ -1,0 +1,248 @@
+/*
+ * Sottogriglia (Montage) interna a una singola viewport OHIF.
+ * I bordi tra le celle e la cornice esterna rendono evidente che si tratta di
+ * una sottogriglia DENTRO quella viewport (le celle sono viewport collegate via
+ * sincronizzatori WL/VOI/zoom/pan).
+ */
+
+/* Colore delle linee della sottogriglia: lo stesso blu dei bordi della griglia
+ * principale OHIF (#3a3f99), così la separazione è coerente e ben visibile. */
+.montage-grid {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  /* le linee tra le celle: il background si vede attraverso gap e padding */
+  gap: 2px;
+  padding: 2px;
+  background-color: #3a3f99;
+  box-sizing: border-box;
+  overflow: hidden;
+  /* Crea uno stacking context proprio: così gli z-index interni (gutter
+   * scrollbar z-index:1, scrollbar .scroll z-index:7) restano CONFINATI nella
+   * griglia e non "salgono" sopra l'overlay del bordo "viewport attiva" di
+   * ViewportPane (un <div absolute inset-0 border> reso dopo il contenuto).
+   * Senza, il gutter/scrollbar coprivano il bordo rosso sul lato destro. */
+  isolation: isolate;
+}
+
+/* Badge col layout corrente della sottogriglia (es. "2×4"), in alto a destra. */
+.montage-layout-badge {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  z-index: 5;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #cde7ff;
+  background-color: rgba(58, 63, 153, 0.55);
+  pointer-events: none;
+  user-select: none;
+}
+
+.montage-empty {
+  background-color: #000;
+}
+
+/* Descrizione serie (una per sottogriglia, in alto a sinistra).
+ *  - left:34px → NON copre la stellina dei preferiti (in alto a sinistra di ogni
+ *    cella, ~24px), che resta visibile e cliccabile;
+ *  - sfondo OPACO → copre la linea separatore delle celle che eventualmente
+ *    attraversa (prima, semitrasparente, la si vedeva sotto);
+ *  - troncata con ellissi se lunga (titolo completo nel tooltip). */
+.montage-series-badge {
+  position: absolute;
+  top: 4px;
+  left: 34px;
+  z-index: 5;
+  max-width: calc(100% - 140px);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #cde7ff;
+  background-color: #1c1f45;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Solo quando il testo è troncato il badge diventa interattivo (hover) per
+ * mostrare il tooltip. Altrimenti resta pointer-events:none → non intercetta
+ * il mouse e non disturba il lavoro nella viewport. */
+.montage-series-badge--truncated {
+  pointer-events: auto;
+  cursor: help;
+}
+
+/* Tooltip moderno con la descrizione serie completa: nascosto, compare
+ * all'hover del badge troncato (sibling immediato). Sta SOTTO il badge, a
+ * sinistra, e va a capo. Sopra le celle (z-index alto). */
+.montage-series-tooltip {
+  position: absolute;
+  top: 26px;
+  left: 34px;
+  z-index: 20;
+  display: none;
+  max-width: min(280px, calc(100% - 40px));
+  padding: 6px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #e8f1ff;
+  background-color: rgba(20, 22, 48, 0.97);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(120, 140, 220, 0.35);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+.montage-series-badge--truncated:hover + .montage-series-tooltip {
+  display: block;
+}
+
+.montage-cell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 2px;
+  min-height: 2px;
+  background-color: #000;
+  overflow: hidden;
+  /* Niente padding: la Scala di riferimento (verticale a destra) si disegna
+   * SOPRA l'immagine come nelle viewport normali. Lo spazio per righello +
+   * etichetta "NN cm" è riservato dentro l'elemento dal tool stesso
+   * (override di computeScaleBounds in ScaleOverlayTool.js → ~30px a destra),
+   * così niente taglio e niente padding vuoto. */
+}
+
+.montage-cell-element {
+  width: 100%;
+  height: 100%;
+}
+
+.montage-cell-empty {
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+}
+
+/* Evidenzia la cella sotto al puntatore: aiuta a capire quale cella si sta
+ * manipolando (WL/zoom/pan), pur restando tutte sincronizzate. */
+.montage-cell:hover {
+  outline: 1px solid #5a63d6;
+  outline-offset: -1px;
+}
+
+.montage-cell-overlay {
+  position: absolute;
+  bottom: 4px;
+  left: 6px;
+  font-size: 12px;
+  line-height: 1.2;
+  /* Numero istanza in BIANCO (richiesta esplicita), non più azzurrino. L'ombra
+   * resta per la leggibilità sulle celle piccole. */
+  color: #fff;
+  text-shadow: 0 0 3px #000, 0 0 3px #000;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}
+
+/* Stellina "Preferiti" per la singola cella: aggiunge/rimuove l'istanza
+ * mostrata dai preferiti (stesso window.preferiti delle viewport normali).
+ * Visibile in hover sulla cella, e SEMPRE quando l'istanza è già un preferito
+ * (così si vede a colpo d'occhio quali celle sono salvate). */
+.montage-cell-fav {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.35);
+  color: #9ccef9;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease, background-color 0.12s ease;
+}
+
+.montage-cell-fav svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.montage-cell:hover .montage-cell-fav {
+  opacity: 1;
+}
+
+.montage-cell-fav:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #ffd54a;
+}
+
+/* Preferito attivo: sempre visibile e stella piena dorata. */
+.montage-cell-fav.is-fav {
+  opacity: 1;
+  color: #ffc928;
+}
+
+.montage-cell-fav.is-fav svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+/* Scrollbar serie della sottogriglia: stesso stile delle viewport (ImageScrollbar)
+ * ma PIÙ SOTTILE. Override scoped a .montage-grid (specificità maggiore della
+ * regola base). Compare solo quando c'è da scorrere (gestito in React). */
+/* Quando la scrollbar è presente, riserviamo una corsia a destra (padding del
+ * grid) così la barra NON copre il bordo dell'immagine né il numero istanza
+ * delle celle dell'ultima colonna. La barra (`.scroll`, absolute right:0) vive
+ * dentro questa corsia. */
+.montage-grid--scroll {
+  padding-right: 18px;
+}
+/* La corsia della scrollbar NON deve mostrare il blu di sfondo del grid: la
+ * copriamo con un overlay nero (come le celle/viewport), dietro la scrollbar e
+ * sotto la badge del layout. I separatori blu tra le celle restano invariati. */
+.montage-grid--scroll::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  background-color: #000;
+  z-index: 1;
+  pointer-events: none;
+}
+.montage-grid .scroll {
+  padding: 2px;
+  /* Sopra le celle: le celle sono position:relative e, senza z-index esplicito,
+   * dipingerebbero sopra il `.scroll` (absolute) che le precede nel DOM. */
+  z-index: 7;
+}
+/* Eredita track/thumb chiari e sottili dal base (ImageScrollbar.css); accorcia
+ * solo il thumb perché le celle sono più piccole. */
+.montage-grid .scroll .scroll-holder .imageSlider::-webkit-slider-thumb {
+  width: 26px;
+}
+.montage-grid .scroll .scroll-holder .imageSlider::-moz-range-thumb {
+  width: 26px;
+}

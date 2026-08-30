@@ -1,0 +1,422 @@
+#monitor-tools {
+  position: fixed;
+  top: 0;
+  width: 20%;
+  height: 100%;
+  left: 100%;
+  background: #1a1a1a;
+  padding: 60px 8px;
+  transition: all 0.3s ease-in;
+  border: 1px solid #2f2f2f;
+  color: #fff;
+  z-index: 50;
+}
+
+#monitor-tools img {
+  cursor: pointer;
+}
+
+#monitor-tools .rimuovi-preferito-btn {
+  background: #b71c1c;
+  width: 100%;
+  margin-top: 2px;
+}
+
+#monitor-tools #intestazione {
+  display: flex;
+}
+
+#monitor-tools #intestazione img {
+  margin-right: 15px;
+}
+
+#monitor-tools #intestazione p {
+  background: #252525;
+  color: #fff;
+  text-transform: uppercase;
+  padding: 0 7px;
+  width: 100%;
+}
+
+#monitor-tools #checkMonitorButton,
+#monitor-tools #salvaConfigMonitor,
+#monitor-tools #deleteConfigMonitor {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #607d8b;
+  width: 91%;
+  font-size: 0.9rem;
+  border-radius: 3px;
+}
+
+#monitor-tools #checkMonitorButton {
+  bottom: 40px;
+  display: none;
+}
+
+#monitor-tools #salvaConfigMonitor {
+  bottom: 10px;
+}
+
+#monitor-tools #deleteConfigMonitor {
+  bottom: 40px;
+  background: #f44336;
+}
+
+#monitor-tools #scarica-estensione-btn {
+  display: block;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #4caf50;
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#monitor-tools #scarica-estensione-btn:hover {
+  background: #43a047;
+}
+
+#monitor-tools #tutorial-installazione {
+  margin-top: 12px;
+  padding: 10px;
+  background: #252525;
+  border: 1px solid #333;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #ddd;
+}
+
+#monitor-tools #tutorial-installazione .tutorial-titolo {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+#monitor-tools #tutorial-installazione ol {
+  padding-left: 18px;
+  margin: 0;
+  list-style: decimal;
+}
+
+#monitor-tools #tutorial-installazione li {
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+
+#monitor-tools #tutorial-installazione code {
+  display: inline-block;
+  padding: 1px 5px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #a5d6ff;
+}
+
+#monitor-tools #tutorial-installazione code.tutorial-url {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+#monitor-tools #tutorial-installazione code.tutorial-url:hover {
+  background: #2d3748;
+  color: #fff;
+}
+
+/* Modale di benvenuto post-installazione estensione */
+#estensione-welcome-modale {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#estensione-welcome-modale.visibile {
+  opacity: 1;
+}
+
+#estensione-welcome-modale.uscita {
+  opacity: 0;
+}
+
+#estensione-welcome-modale .estensione-welcome-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+#estensione-welcome-modale .estensione-welcome-card {
+  position: relative;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border: 1px solid #374151;
+  border-radius: 14px;
+  padding: 36px 30px 28px;
+  max-width: 440px;
+  width: 90%;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.55);
+  transform: scale(0.85) translateY(12px);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#estensione-welcome-modale.visibile .estensione-welcome-card {
+  transform: scale(1) translateY(0);
+}
+
+#estensione-welcome-modale .estensione-welcome-check {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.2);
+  animation: estensione-welcome-pop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes estensione-welcome-pop {
+  0% {
+    transform: scale(0);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+  }
+  60% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 18px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.2);
+  }
+}
+
+#estensione-welcome-modale h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: #fff;
+  letter-spacing: 0.2px;
+}
+
+#estensione-welcome-modale p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #d1d5db;
+  margin: 0 0 24px;
+}
+
+#estensione-welcome-modale .estensione-welcome-close {
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+#estensione-welcome-modale .estensione-welcome-close:hover {
+  background: #43a047;
+}
+
+#estensione-welcome-modale .estensione-welcome-close:active {
+  transform: scale(0.97);
+}
+
+#monitor-tools #configurazione-div,
+#monitor-tools #imposta-configurazione-div {
+  margin-top: 30px;
+}
+
+#monitor-tools #configurazione-div label,
+#monitor-tools #imposta-configurazione-div label {
+  display: block;
+}
+
+#monitor-tools #imposta-configurazione-div select {
+  color: #333;
+}
+
+.sposta-su-monitor-btn {
+  background: #dbdbdb;
+  color: #000000;
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+#avvisi-gestione-monitor,
+.nessuna-configurazione-salvata {
+  margin: 0;
+  padding: 8px 12px;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: none;
+}
+
+#info-versione-estensione {
+  padding: 5px;
+  color: #1c726f;
+  background-color: #d7f8e7;
+  border-color: #c8f5c6;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  margin-bottom: 10px;
+}
+
+.nessuna-configurazione-salvata {
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 3px;
+}
+
+.warning {
+  padding: 5px;
+  color: #726f1c;
+  background-color: #f8ecd7;
+  border-color: #f5c6cb;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+}
+
+#configurazione-salvata {
+  padding: 0 16px;
+  color: #1c725f;
+  background-color: #d7f8da;
+  border-color: #f5c6cb;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  bottom: 50px;
+  position: absolute;
+  width: 95%;
+  text-align: center;
+  display: none;
+}
+
+#monitor-rilevati {
+  display: none;
+  grid-template-columns: repeat(2, 1fr); /* 2 colonne di larghezza uguale */
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.monitor-div {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  text-align: center;
+  color: #000;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.monitor-div:hover {
+  background-color: #e0f7fa;
+  box-shadow: 0 0 6px 0px #ffffff;
+}
+
+.monitor-div label {
+  display: none;
+}
+
+.monitor-attuale-div {
+  position: relative;
+  padding-top: 25px;
+}
+
+.monitor-attuale-div label {
+  display: block;
+  position: absolute;
+  top: -1px;
+  width: 101%;
+  left: -1px;
+  background: #b71c1c;
+  color: #fff;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.monitor-div:nth-child(1) {
+  background-color: #e0f7fa; /* Azzurro chiaro */
+}
+
+.monitor-div:nth-child(2) {
+  background-color: #e8f5e9; /* Verde menta */
+}
+
+.monitor-div:nth-child(3) {
+  background-color: #fce4ec; /* Rosa pastello */
+}
+
+.monitor-div:nth-child(4) {
+  background-color: #fff3e0; /* Arancione tenue */
+}
+
+.pulse {
+  -webkit-animation-name: pulse;
+  animation-name: pulse;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+#main-area-monitor {
+  margin-top: 20px;
+  height: 100vh;
+}
+
+@-webkit-keyframes pulse {
+  0% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    -webkit-transform: scale3d(1.2, 1.2, 1.2);
+    transform: scale3d(1.2, 1.2, 1.2);
+  }
+  100% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}
+@keyframes pulse {
+  0% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    -webkit-transform: scale3d(1.2, 1.2, 1.2);
+    transform: scale3d(1.2, 1.2, 1.2);
+  }
+  100% {
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}

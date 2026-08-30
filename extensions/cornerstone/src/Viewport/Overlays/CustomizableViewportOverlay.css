@@ -1,0 +1,50 @@
+/*
+custom overlay panels: top-left, top-right, bottom-left and bottom-right
+If any text to be displayed on the overlay is too long to hold on a single
+line, it will be truncated with ellipsis in the end.
+*/
+.viewport-overlay {
+  max-width: 40%;
+}
+.viewport-overlay span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewport-overlay.left-viewport {
+  text-align: left;
+}
+
+.viewport-overlay.right-viewport-scrollbar {
+  text-align: right;
+}
+.viewport-overlay.right-viewport-scrollbar .flex.flex-row {
+  justify-content: flex-end;
+}
+
+.linked-series-badge-wrapper {
+  gap: 4px;
+  padding: 2px 0;
+  /* The parent .viewport-overlay sets pointer-events: none, which would
+     suppress hover and block the Radix tooltip. Re-enable pointer events on
+     the badges so the tooltip can open on hover. */
+  pointer-events: auto;
+}
+
+.linked-series-badge {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  cursor: help;
+  transition: transform 120ms ease-out;
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.linked-series-badge:hover {
+  transform: scale(1.25);
+}

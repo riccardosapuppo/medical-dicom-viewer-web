@@ -1,0 +1,20 @@
+{
+  "AccessionNumber": "Accession #",
+  "ClearFilters": "Azzera Filtri",
+  "Description": "Descrizione",
+  "Empty": "Vuoto",
+  "Filter list to 100 studies or less to enable sorting": "Filtra l'elenco a 100 studi o meno per abilitare l'ordinamento.",
+  "Instances": "Istanze",
+  "Modality": "Modality",
+  "MRN": "ID Paziente",
+  "Next": "Successivo >",
+  "Nessuno studio disponibile": "Nessuno studio disponibile",
+  "Number of studies": "Numero di studi",
+  "Page": "Pagina",
+  "PatientName": "Nome paziente",
+  "Previous": "< Indietro",
+  "Results per page": "Risultati per pagina",
+  "StudyDate": "Data studio",
+  "StudyList": "Lista studi",
+  "Upload": "Upload"
+}

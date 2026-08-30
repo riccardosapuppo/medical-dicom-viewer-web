@@ -1,0 +1,16 @@
+{
+  "Display Set Messages": "Messaggi del Display Set",
+  "1": "Nessuna istanza valida trovata nella serie.",
+  "2": "Il display set ha informazioni di posizione mancanti.",
+  "3": "Il display set non è un volume 3D ricostruibile.",
+  "4": "I display set multi-frame non hanno informazioni sulle misurazioni dei pixel.",
+  "5": "I display set multi-frame non hanno informazioni sull'orientamento.",
+  "6": "I display set multi-frame non hanno informazioni sulla posizione.",
+  "7": "Il display set ha frame mancanti.",
+  "8": "Il display set ha una spaziatura irregolare.",
+  "9": "Il display set ha dimensioni incoerenti tra i frame.",
+  "10": "Il display set ha frame con un numero di componenti incoerente.",
+  "11": "Il display set ha frame con orientamenti incoerenti.",
+  "12": "Il display set ha informazioni di posizione incoerenti.",
+  "13": "Display set non supportato."
+}

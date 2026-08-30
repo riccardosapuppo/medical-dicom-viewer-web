@@ -1,0 +1,368 @@
+.iframe-stampa {
+  background-color: #fff !important;
+  /* background: url('../../assets/logo_mdv.png'); */
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+.iframe-stampa .mdv-selected {
+  border-color: #313131 !important;
+}
+
+.nomore-stampa {
+  -webkit-animation-name: fadeIn2;
+  animation-name: fadeIn2;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+#print-tools {
+  position: fixed;
+  top: 0;
+  width: 20%;
+  height: 100%;
+  left: 80%;
+  background: rgb(233, 233, 233);
+  padding: 20px;
+}
+
+#print-tools #annulla-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background: #b71c1c;
+  color: #fff;
+  margin-right: 10px;
+}
+
+.riquadro-strumenti {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  padding: 7px;
+  margin-bottom: 10px;
+}
+
+.riquadro-strumenti#strumenti-modifica-immagine {
+  flex-direction: row;
+  padding: 0;
+}
+
+.riquadro-strumenti#strumenti-modifica-immagine .active {
+  background-color: #b71c1c;
+}
+
+.riquadro-strumenti#strumenti-modifica-immagine .active img {
+  filter: invert(1);
+}
+
+.riquadro-strumenti#strumenti-modifica-immagine .col {
+  width: 50%;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.riquadro-strumenti#strumenti-modifica-immagine img {
+  width: 21px;
+  margin: auto;
+}
+
+.riquadro-strumenti#intestazione {
+  line-height: 1.3;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.riquadro-strumenti#intestazione #intestazioneInput {
+  margin-right: 8px;
+}
+
+.riquadro-strumenti#misurazioni {
+  line-height: 1.3;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.riquadro-strumenti#misurazioni #misurazioniInput {
+  margin-right: 8px;
+}
+
+#disposizione {
+  display: none;
+}
+#disposizione:focus-visible {
+  outline: unset !important;
+}
+
+#print-tools #print-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background: #b71c1c;
+  color: #fff;
+}
+
+#iframe-print {
+  transition: all 0.3s;
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  top: 0;
+  position: relative;
+}
+#iframe-print.hide {
+  top: -102vh !important;
+}
+
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeIn2 {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fadeIn2 {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeInRight {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+@keyframes fadeInRight {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    -webkit-transform: translate3d(0, 100%, 0);
+    transform: translate3d(0, 100%, 0);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+
+.iframe-stampa .viewport-primo-piano {
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 99;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+.iframe-stampa .mdv-bar {
+  display: none;
+}
+
+.iframe-stampa .mdv-panel {
+  display: none;
+}
+
+.iframe-stampa [data-cy='viewport-grid'] {
+  /* pointer-events: none; */
+}
+
+.iframe-stampa .right-viewport-scrollbar,
+.iframe-stampa .scroll {
+  display: none;
+}
+
+.iframe-stampa {
+  /* width: 80%; */
+  position: relative;
+}
+
+.iframe-stampa .mdv-main-area {
+  /* width: 60.3vh;
+  height: 85vh !important; */
+  top: 5vh;
+  left: 33.5vw;
+}
+
+.iframe-stampa.a3 {
+  zoom: 0.55;
+}
+
+.iframe-stampa.a3-orizzontale {
+  zoom: 0.75;
+}
+
+.iframe-stampa.a3 #print-tools {
+  zoom: 1.6;
+}
+
+.iframe-stampa.a3-orizzontale #print-tools {
+  zoom: 1.2;
+}
+
+.iframe-stampa.a4 {
+  zoom: 0.7;
+}
+
+.iframe-stampa.a4 #print-tools {
+  zoom: 1.3;
+}
+
+.iframe-stampa.a3 .mdv-main-area {
+  width: 297mm;
+  height: 420mm !important;
+}
+
+.iframe-stampa.a3-orizzontale .mdv-main-area {
+  width: 420mm;
+  height: 297mm !important;
+  left: 2vw !important;
+}
+
+.iframe-stampa.a3-orizzontale #info-studio {
+  left: 2vw !important;
+}
+
+.iframe-stampa.a4 .mdv-main-area {
+  width: 210mm;
+  height: 297mm !important;
+}
+
+.iframe-stampa.a4-orizzontale .mdv-main-area {
+  width: 297mm;
+  height: 210mm !important;
+  left: 2vw !important;
+}
+
+.iframe-stampa.a4-orizzontale #info-studio {
+  left: 2vw !important;
+}
+
+.iframe-stampa.nascondi-intestazione-stampa #info-studio {
+  display: none !important;
+}
+
+.iframe-stampa.nascondi-intestazione-stampa .mdv-main-area {
+  /* height: 92.5vh !important;
+  top: 2.5vh; */
+}
+
+.iframe-stampa.nascondi-misurazioni-stampa svg {
+  display: none !important;
+}
+
+.iframe-stampa .pointer-events-auto.flex.items-center {
+  display: none !important;
+}
+
+/*Nascondo le linee di riferimento */
+.iframe-stampa .svg-layer line:last-of-type {
+  display: none;
+}
+
+.iframe-stampa #info-studio {
+  position: fixed;
+  top: 1vh;
+  left: 33.5vw;
+  font-weight: 600;
+}
+
+.iframe-stampa .cornerstone-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media print {
+  body {
+    color: black;
+    background: white;
+  }
+  .iframe-stampa {
+    zoom: 1 !important;
+  }
+  .mdv-bar,
+  button {
+    display: none !important;
+  }
+
+  /* [data-cy='viewport-grid'] .group.h-full.w-full {
+    height: 100px !important;
+    width: 100%;
+  } */
+
+  .cornerstone-canvas {
+    width: 100% !important;
+    height: 100%;
+  }
+
+  .iframe-stampa {
+    width: 100%;
+  }
+
+  #print-tools {
+    display: none;
+  }
+
+  .iframe-stampa .mdv-main-area {
+    top: 3vh;
+    left: 0;
+  }
+
+  .iframe-stampa.nascondi-intestazione-stampa .mdv-main-area {
+    top: 1vh;
+  }
+
+  .iframe-stampa #info-studio {
+    left: 0;
+    top: 0vh;
+  }
+}
