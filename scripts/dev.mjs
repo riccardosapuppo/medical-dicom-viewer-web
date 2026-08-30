@@ -1,20 +1,23 @@
 #!/usr/bin/env node
 /**
- * Starts the OHIF development server with this repository's extension and mode
- * linked in. It is a thin wrapper over the viewer's own dev script; its only
- * job is to fail with a sentence a person can act on when the distribution has
- * not been built yet.
+ * Starts the viewer's development server with this repository's extension and
+ * mode linked in. It is a thin wrapper over the viewer's own dev script; its
+ * jobs are to fail with a sentence a person can act on when the distribution
+ * has not been built yet, and to point the viewer at the local archive.
  */
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { packageManagerFor } from './lib/packageManager.mjs';
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const appDir = path.join(root, '.ohif', 'platform', 'app');
+const ohifDir = path.join(root, '.ohif');
+const appDir = path.join(ohifDir, 'platform', 'app');
 
 if (!fs.existsSync(path.join(appDir, 'node_modules'))) {
-  console.error('The OHIF distribution is not built yet. Run: npm run setup');
+  console.error('The viewer distribution is not built yet. Run: npm run setup');
   process.exit(1);
 }
 
@@ -35,9 +38,7 @@ const environment = {
 
 console.log(`Serving the viewer on http://localhost:3000, reading from ${archive}`);
 
-// The viewer's root dev script delegates to bun, which is not needed to run it;
-// the workspace's own script uses webpack and is what we want.
-const child = spawn('yarn', ['dev'], {
+const child = spawn(packageManagerFor(ohifDir).command('run dev'), [], {
   cwd: appDir,
   env: environment,
   stdio: 'inherit',

@@ -4,6 +4,7 @@ import { id } from './id';
 import registerCursors from './cursors';
 import registerTools from './tools';
 import getCommandsModule from './getCommandsModule';
+import getCustomizationModule from './getCustomizationModule';
 import getToolbarModule from './getToolbarModule';
 import getViewportModule from './getViewportModule';
 import MontageService from './services/MontageService';
@@ -58,6 +59,7 @@ const radiologyWorkflowExtension = {
   getViewportModule,
   getToolbarModule,
   getCommandsModule,
+  getCustomizationModule,
 };
 
 export default radiologyWorkflowExtension;

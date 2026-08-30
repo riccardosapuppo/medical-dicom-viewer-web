@@ -13,14 +13,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { packageManagerFor } from './lib/packageManager.mjs';
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ohifDir = path.join(root, '.ohif');
 
 const OHIF_REPO = 'https://github.com/OHIF/Viewers.git';
-const OHIF_TAG = 'v3.12.12';
+const OHIF_TAG = 'v3.13.0';
 // Pinned so that a fresh clone builds the same viewer this was developed
 // against, even if the tag is ever moved.
-const OHIF_COMMIT = '8509efea265985088163dc7069b8717304fc41a2';
+const OHIF_COMMIT = '7aec1113dceffab51cf011a246774dda889a256b';
 
 const PACKAGES = [
   { dir: path.join('extensions', 'radiology-workflow'), key: 'extensions' },
@@ -30,9 +32,10 @@ const PACKAGES = [
 const step = message => console.log(`\n▸ ${message}`);
 const info = message => console.log(`  ${message}`);
 
-// yarn is a shell script, and a .cmd on Windows, so it needs a shell; git is a
-// real executable and is safer launched without one, because a shell would need
-// the paths quoting and this repository can live under a path containing spaces.
+// Package managers are shell scripts, and .cmd files on Windows, so they need a
+// shell; git is a real executable and is safer launched without one, because a
+// shell would need the paths quoting and this repository can live under a path
+// containing spaces.
 function run(command, args, cwd, { shell = false } = {}) {
   const result = spawnSync(command, args, { cwd, stdio: 'inherit', shell });
   if (result.status !== 0) {
@@ -298,7 +301,15 @@ try {
   registerPlugins();
 
   step('installing dependencies');
-  run('yarn install', [], ohifDir, { shell: true });
+  const packageManager = packageManagerFor(ohifDir);
+  info(`the viewer expects ${packageManager.version}`);
+
+  // The lockfile that ships with the viewer cannot know about the two packages
+  // this repository links into its workspace, so an install that insists the
+  // lockfile is already correct will always refuse. Allowing it to be extended
+  // is the point of linking them; the viewer's own dependencies stay pinned by
+  // the lockfile exactly as published.
+  run(packageManager.command('install --no-frozen-lockfile'), [], ohifDir, { shell: true });
 
   console.log('\nReady. Start the viewer with: npm run dev');
 } catch (error) {

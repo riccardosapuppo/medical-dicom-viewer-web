@@ -1,21 +1,13 @@
-import { ToolbarService } from '@ohif/core';
 import {
   basicLayout,
   basicRoute,
   extensionDependencies as basicExtensionDependencies,
-  initToolGroups,
   mode as basicMode,
   modeInstance as basicModeInstance,
   ohif,
-  onModeEnter as basicOnModeEnter,
-  toolbarButtons as basicToolbarButtons,
-  toolbarSections as basicToolbarSections,
 } from '@ohif/mode-basic';
 
 import { id } from './id';
-import modeToolbarButtons from './toolbarButtons';
-
-const { TOOLBAR_SECTIONS } = ToolbarService;
 
 export const radiologyWorkflow = {
   viewport: 'ohif-extension-radiology-workflow.viewportModule.radiology',
@@ -24,67 +16,6 @@ export const radiologyWorkflow = {
 export const extensionDependencies = {
   ...basicExtensionDependencies,
   'ohif-extension-radiology-workflow': '^1.0.0',
-};
-
-export const toolbarButtons = [...basicToolbarButtons, ...modeToolbarButtons];
-
-/**
- * The row a reading room actually wants in front of it.
- *
- * It is long on purpose. A radiologist reading all day reaches for the same
- * twenty things and wants them under the pointer, not two clicks down a menu;
- * hiding tools behind groups suits somebody opening the viewer once a month,
- * which is not who this is for. What is grouped is grouped because the members
- * are alternatives to each other: measurements, and the transforms.
- *
- * The order is the order of the work. Measure and move first, because that is
- * most of it. Then the window, then what is on screen and how it is reformatted.
- * Then the tools that hold viewports together, then what gets kept.
- */
-export const toolbarSections = {
-  ...basicToolbarSections,
-
-  [TOOLBAR_SECTIONS.primary]: [
-    'MeasurementTools',
-    'Pan',
-    'Zoom',
-    'StackScroll',
-    'WindowLevel',
-    'Magnify',
-    'TransformTools',
-    'invert',
-    'Layout',
-    'LayoutMPR',
-    'Montage',
-    'Stacks',
-    'LayoutPresets',
-    'Crosshairs',
-    'ReferenceCursors',
-    'ImageSliceSync',
-    'ReferenceLines',
-    'ScaleOverlay',
-    'TrackballRotate',
-    'Probe',
-    'Cine',
-    'StudyInformation',
-    'Capture',
-    'MoreTools',
-  ],
-
-  // Rotating and flipping are alternatives to one another and are reached
-  // occasionally, so they are one entry rather than four.
-  TransformTools: ['rotate-right', 'rotate-left', 'flipHorizontal', 'flipVertical', 'Reset'],
-
-  MoreTools: [
-    'Angle',
-    'CobbAngle',
-    'AdvancedMagnify',
-    'CalibrationLine',
-    'WindowLevelRegion',
-    'ImageOverlayViewer',
-    'TagBrowser',
-    'SegmentLabelTool',
-  ],
 };
 
 /**
@@ -113,34 +44,44 @@ export const route = {
   layoutInstance,
 };
 
-/**
- * Reference cursors and the scale overlay ship with Cornerstone but are not
- * registered by OHIF, so they belong to no tool group and a button for either
- * would do nothing. The extension registers the tools; this puts them in the
- * group the viewports use, after the stock groups have been built.
- */
-export function onModeEnter(props: withAppTypes) {
-  basicOnModeEnter.call(this, props);
-
-  const { toolGroupService } = props.servicesManager.services;
-  // The scale starts off: a ruler down every image is useful when asked for and
-  // clutter when not.
-  toolGroupService.addToolsToToolGroup('default', {
-    passive: [{ toolName: 'ReferenceCursors' }],
-    disabled: [{ toolName: 'ScaleOverlay' }],
-  });
-}
-
 export const modeInstance = {
   ...basicModeInstance,
   id,
   routeName: 'radiology',
-  displayName: 'Radiology Workflow',
+  // The study list offers one button per mode and labels it with this. It says
+  // what pressing it does, rather than naming a mode the reader has no reason
+  // to choose between, because this is the only one offered.
+  displayName: 'Open study',
   routes: [route],
   extensions: extensionDependencies,
-  toolbarButtons,
-  toolbarSections,
-  onModeEnter,
+
+  // The toolbar is composed rather than restated: the viewer's own buttons and
+  // layout, then this project's pack on top. A later pack wins per key, so the
+  // primary row and the groups this project defines replace the stock ones
+  // while every button the viewer supplies stays available.
+  toolbarButtons: [
+    { $reference: 'cornerstone.toolbarButtons' },
+    { $reference: 'radiologyWorkflow.toolbarButtons' },
+  ],
+  toolbarSections: [
+    { $reference: 'cornerstone.toolbarSections' },
+    { $reference: 'radiologyWorkflow.toolbarSections' },
+  ],
+
+  // Reference cursors and the scale overlay ship with Cornerstone and are not
+  // registered by the viewer, so they belong to no tool group and a button for
+  // either would do nothing. The extension registers the tools; this puts them
+  // in the group the viewports use. The scale starts off: a ruler down every
+  // image is useful when asked for and clutter when not.
+  toolGroupAdditions: {
+    ...basicModeInstance.toolGroupAdditions,
+    default: [
+      {
+        passive: [{ toolName: 'ReferenceCursors' }],
+        disabled: [{ toolName: 'ScaleOverlay' }],
+      },
+    ],
+  },
 };
 
 const mode = {
@@ -151,4 +92,4 @@ const mode = {
 };
 
 export default mode;
-export { initToolGroups, ohif };
+export { ohif };

@@ -11,8 +11,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { packageManagerFor } from './lib/packageManager.mjs';
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const appDir = path.join(root, '.ohif', 'platform', 'app');
+const ohifDir = path.join(root, '.ohif');
+const appDir = path.join(ohifDir, 'platform', 'app');
 
 if (!fs.existsSync(path.join(appDir, 'node_modules'))) {
   console.error('The OHIF distribution is not built yet. Run: npm run setup');
@@ -27,7 +30,7 @@ const environment = {
   PUBLIC_URL: '/',
 };
 
-const child = spawn('yarn build', [], {
+const child = spawn(packageManagerFor(ohifDir).command('run build'), [], {
   cwd: appDir,
   env: environment,
   stdio: 'inherit',
