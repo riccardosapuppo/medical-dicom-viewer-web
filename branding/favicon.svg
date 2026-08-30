@@ -1,21 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Medical DICOM Viewer">
   <!--
-    A sheet of frames on a light box, with one kept.
+    The window: a circle with one half carried and the other left dark.
 
-    The mark is the montage: a series laid out as a page, and the single amber
-    frame is the one the reader marked to come back to. It is the same amber the
-    interface spends on nothing else, so the icon and the application agree.
+    Setting the window is the first thing done to any study and the gesture the
+    application is built around, and the symbol for it survives being drawn at
+    sixteen pixels, which is the size that decides whether a favicon works. An
+    earlier mark drew the montage as a sheet of eight small frames; at the size
+    of a browser tab it was mush.
+
+    The amber arc is the one warm colour the interface uses, and it means here
+    what it means there: the part the reader has chosen to bring out.
   -->
   <rect width="64" height="64" rx="13" fill="#111418"/>
-  <g fill="#94a3b8">
-    <rect x="12" y="14" width="12" height="10" rx="1.5"/>
-    <rect x="26" y="14" width="12" height="10" rx="1.5"/>
-    <rect x="40" y="14" width="12" height="10" rx="1.5"/>
-    <rect x="12" y="27" width="12" height="10" rx="1.5"/>
-    <rect x="40" y="27" width="12" height="10" rx="1.5"/>
-    <rect x="12" y="40" width="12" height="10" rx="1.5"/>
-    <rect x="26" y="40" width="12" height="10" rx="1.5"/>
-    <rect x="40" y="40" width="12" height="10" rx="1.5"/>
-  </g>
-  <rect x="26" y="27" width="12" height="10" rx="1.5" fill="#f59e0b"/>
+  <circle cx="32" cy="32" r="17" fill="none" stroke="#e2e8f0" stroke-width="5"/>
+  <path d="M32 15 A17 17 0 0 0 32 49 Z" fill="#e2e8f0"/>
+  <path d="M32 12.5 A19.5 19.5 0 0 1 51.5 32" fill="none" stroke="#f59e0b"
+        stroke-width="4.5" stroke-linecap="round"/>
 </svg>
