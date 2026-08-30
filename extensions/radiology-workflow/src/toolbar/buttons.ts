@@ -21,9 +21,12 @@ const overlayListeners = (toolName: string) => ({
 });
 
 const toolbarButtons: Button[] = [
-  // Rotating and flipping belong together and are reached occasionally, so they
-  // are one entry in the row rather than four.
+  // The groups this mode adds. Each holds tools that are alternatives to one
+  // another, so the icon shown for the group — always the member last used — is
+  // a fair summary of what pressing it offers.
   { id: 'TransformTools', uiType: 'ohif.toolButtonList', props: { buttonSection: true } },
+  { id: 'Compare', uiType: 'ohif.toolButtonList', props: { buttonSection: true } },
+  { id: 'Display', uiType: 'ohif.toolButtonList', props: { buttonSection: true } },
 
   {
     // MPR on its own icon rather than buried in the layout menu. Reformatting a
@@ -77,7 +80,10 @@ const toolbarButtons: Button[] = [
     id: 'LayoutPresets',
     uiType: 'ohif.toolButton',
     props: {
-      icon: 'tool-layout',
+      // Not a grid: that is what the layout selector two places to the left
+      // looks like, and pressing this one expecting that is exactly what
+      // happened. A saved arrangement is a list.
+      icon: 'icon-list-view',
       label: 'Arrangements',
       tooltip: 'Save how this study is arranged, and apply it to the next one like it',
       commands: 'showLayoutPresets',
