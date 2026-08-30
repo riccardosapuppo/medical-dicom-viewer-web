@@ -13,6 +13,7 @@
     "build": "node scripts/build.mjs",
     "data": "node scripts/fetch-studies.mjs",
     "data:load": "node scripts/load-orthanc.mjs",
-    "test": "node --test extensions/radiology-workflow/src/**/*.test.ts scripts/lib/*.test.mjs"
+    "test": "node --test extensions/radiology-workflow/src/**/*.test.ts scripts/lib/*.test.mjs",
+    "smoke": "node scripts/smoke.mjs"
   }
 }

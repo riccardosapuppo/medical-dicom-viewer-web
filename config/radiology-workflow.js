@@ -64,26 +64,20 @@ window.config = {
    * is named in the first sentence. Rebranding the interface is not the same as
    * claiming the authorship, and the documentation is explicit about which is
    * which.
+   *
+   * The mark is only the name. A longer one was tried and measured at 220px
+   * against a toolbar whose buttons start at the left edge of the same bar: it
+   * sat underneath them. Anything more than the name belongs in the README,
+   * which is where it can actually be read.
    */
   whiteLabeling: {
     createLogoComponentFn: React =>
       React.createElement(
-        'div',
-        { className: 'flex items-center gap-3' },
-        React.createElement(
-          'span',
-          { className: 'rw-wordmark' },
-          React.createElement('strong', null, 'Medical DICOM Viewer'),
-          React.createElement('span', null, 'Web')
-        ),
-        React.createElement(
-          'span',
-          { className: 'rw-disclaimer hidden md:inline' },
-          'Demonstration on public research images. Not a medical device.'
-        )
+        'span',
+        { className: 'rw-wordmark', title: 'Medical DICOM Viewer (Web)' },
+        React.createElement('strong', null, 'Medical DICOM Viewer')
       ),
   },
-
   /**
    * The viewer's own modal warning is turned off, and the same thing is said in
    * the header instead, where it stays visible rather than being dismissed once
