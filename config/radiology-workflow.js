@@ -49,7 +49,10 @@ window.config = {
   maxNumberOfWebWorkers: 3,
   showLoadingIndicator: true,
   showWarningMessageForCrossOrigin: false,
-  showCPUFallbackMessage: true,
+  // Off: the viewer's own notice names the viewer, in a modal whose text is
+  // barely legible against this palette. The same thing is said below in this
+  // application's words, and the reformat button carries the consequence.
+  showCPUFallbackMessage: false,
   strictZSpacingForVolumeViewport: true,
 
   // Set from the probe above rather than hard-coded: a machine with a GPU keeps

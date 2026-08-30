@@ -24,6 +24,9 @@ const OHIF_TAG = 'v3.13.0';
 // against, even if the tag is ever moved.
 const OHIF_COMMIT = '7aec1113dceffab51cf011a246774dda889a256b';
 
+// Where a fault in this demonstration should be reported.
+const ISSUES_URL = 'https://github.com/riccardosapuppo/medical-dicom-viewer-web/issues';
+
 const PACKAGES = [
   { dir: path.join('extensions', 'radiology-workflow'), key: 'extensions' },
   { dir: path.join('modes', 'radiology-workflow'), key: 'modes' },
@@ -194,6 +197,44 @@ function refuseDuplicateReact() {
   );
 }
 
+/**
+ * Points the error dialog at this project.
+ *
+ * When something throws, the viewer shows a dialog titled "Something went
+ * wrong in OHIF" with a button that files an issue against the viewer. Both
+ * are wrong here: a reader of this demonstration has met a fault in this
+ * project, and the people who maintain the viewer should not receive it.
+ *
+ * The component takes the name from a default prop and the address from a
+ * literal, with no hook for either, so both are rewritten in the clone. The
+ * button is kept: an error worth showing is worth reporting somewhere.
+ */
+function redirectErrorReports() {
+  const file = path.join(
+    ohifDir,
+    "platform", "ui-next", "src", "components", "Errorboundary", "ErrorBoundary.tsx"
+  );
+  if (!fs.existsSync(file)) {
+    throw new Error("the error dialog is no longer where this expects it: " + file);
+  }
+
+  const source = fs.readFileSync(file, "utf8");
+  let patched = source
+    .replace(
+      "https://github.com/OHIF/Viewers/issues/new?template=bug-report.yml",
+      ISSUES_URL
+    )
+    .replace("context = 'OHIF',", "context = 'Medical DICOM Viewer',");
+
+  if (patched === source && !source.includes(ISSUES_URL)) {
+    throw new Error("could not redirect the error dialog; check " + file);
+  }
+  if (patched !== source) {
+    fs.writeFileSync(file, patched);
+  }
+  info("error reports point at this project");
+}
+
 /** Registers the packages with the viewer, which loads only what is listed. */
 function registerPlugins() {
   const configPath = path.join(ohifDir, 'platform', 'app', 'pluginConfig.json');
@@ -327,6 +368,7 @@ try {
 
   step('applying the name and mark');
   applyBranding();
+  redirectErrorReports();
 
   step('registering the plugins with the viewer');
   registerPlugins();
