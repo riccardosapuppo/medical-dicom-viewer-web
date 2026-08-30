@@ -166,6 +166,34 @@ function applyPalette() {
   info('palette applied to the viewer build');
 }
 
+/**
+ * Refuses to build with a second copy of React sitting in this repository.
+ *
+ * The two packages here are linked into the viewer workspace, but their files
+ * still live under this directory, and the bundler resolves a bare import by
+ * walking up from the file that made it. A node_modules here is therefore
+ * found before the one belonging to the viewer, and React resolved from it is
+ * a different instance from the one doing the rendering. The symptom is a
+ * blank viewer and "Cannot read properties of null (reading useState)",
+ * pointing at a component that is perfectly correct.
+ *
+ * Nothing here declares runtime dependencies, so a node_modules in this
+ * directory is always a leftover.
+ */
+function refuseDuplicateReact() {
+  const strays = path.join(root, "node_modules");
+  if (!fs.existsSync(path.join(strays, "react"))) {
+    return;
+  }
+  throw new Error(
+    "a second copy of React is installed at " +
+      strays +
+      ". The bundler resolves the imports of this repository to it rather than " +
+      "to the copy the viewer uses, and hooks then fail at runtime with a null " +
+      "dispatcher. Delete that directory and run this again."
+  );
+}
+
 /** Registers the packages with the viewer, which loads only what is listed. */
 function registerPlugins() {
   const configPath = path.join(ohifDir, 'platform', 'app', 'pluginConfig.json');
@@ -282,6 +310,9 @@ function applyBranding() {
 }
 
 try {
+  step('checking this repository is clean to build from');
+  refuseDuplicateReact();
+
   step('OHIF source');
   cloneOhif();
 
