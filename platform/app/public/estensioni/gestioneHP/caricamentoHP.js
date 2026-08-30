@@ -431,7 +431,7 @@ const caricamentoHP = async () => {
     }
     preferenzeRemote = await letturaPreferenzeAPI(aetitle, username, studyInstanceUID);
     if (!preferenzeRemote || !preferenzeRemote.json) {
-      return console.warn('Non ? stato possibile recuperare le preferenze utente per gli HP');
+      return console.warn('Preferenze utente per gli hanging protocol non recuperate da remoto');
     }
     //A questo punto li setto in localStorage
     localStorage.setItem(preferenzeKey, JSON.stringify(preferenzeRemote.json));
@@ -700,7 +700,7 @@ const caricamentoHP = async () => {
   if (username) {
     preferenzeRemote = await letturaPreferenzeAPI(aetitle, username, studyInstanceUID);
     if (!preferenzeRemote || !preferenzeRemote.json) {
-      return console.warn('Non ? stato possibile recuperare le preferenze utente per gli HP');
+      return console.warn('Preferenze utente per gli hanging protocol non recuperate da remoto');
     }
     //A questo punto li setto in localStorage
     localStorage.setItem(preferenzeKey, JSON.stringify(preferenzeRemote.json));
@@ -724,12 +724,22 @@ async function letturaPreferenzeAPI(aetitle, username, studyInstanceUID) {
     });
 
     if (!apiResponse.ok) {
-      console.error('Errore durante il recupero delle preferenze utente da remoto');
+      console.warn('[HP] Le preferenze utente remote non sono raggiungibili');
       return;
     }
-    return apiResponse.json();
+
+    // La risposta va letta dentro il try, non restituita.
+    //
+    // Un server che non conosce questo indirizzo risponde con la pagina
+    // dell'applicazione e stato 200: ok è vero, il corpo è HTML, e json()
+    // fallisce. Restituendo la promessa il rifiuto usciva dalla funzione senza
+    // passare di qui, arrivava alla console come eccezione non gestita e il
+    // pannello restava fermo su "Caricamento..." invece di ripiegare sulla
+    // cache locale, come chi lo ha chiamato si aspetta.
+    return await apiResponse.json();
   } catch (err) {
-    return console.error('Errore durante il recupero delle preferenze utente da remoto');
+    console.warn('[HP] Preferenze utente remote non disponibili, si usa la cache locale', err);
+    return;
   }
 }
 

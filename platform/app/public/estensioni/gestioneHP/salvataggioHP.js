@@ -779,7 +779,7 @@ async function creaDIV() {
 
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
-    console.warn('Non ? stato possibile recuperare le preferenze utente per gli HP');
+    console.warn('Preferenze utente per gli hanging protocol non recuperate da remoto');
     let cached = {};
     try {
       cached = JSON.parse(localStorage.getItem(`preferenzeUtente-${aetitle}`) || '{}');
@@ -1215,6 +1215,14 @@ async function scritturaPreferenzeAPI(aetitle, username, body) {
     if (!apiResponse.ok) {
       console.error('Errore durante il recupero delle preferenze utente da remoto');
       return;
+    }
+    // Un indirizzo che il server non conosce risponde con la pagina
+    // dell'applicazione e stato 200. Senza guardare il tipo del corpo la
+    // scrittura si dichiarerebbe riuscita, e il pannello direbbe salvato
+    // sul cloud quando non e arrivato niente da nessuna parte.
+    if ((apiResponse.headers.get('content-type') || '').includes('text/html')) {
+      console.warn('[HP] Nessun archivio remoto delle preferenze: resta la copia locale');
+      return null;
     }
     return apiResponse.text();
   } catch (err) {

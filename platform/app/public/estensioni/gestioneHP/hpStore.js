@@ -374,6 +374,14 @@ const scritturaPreferenzeAPI = async (aetitle, username, body) => {
       console.error('[HP] Errore durante la scrittura delle preferenze utente');
       return null;
     }
+    // Un indirizzo che il server non conosce risponde con la pagina
+    // dell'applicazione e stato 200. Senza guardare il tipo del corpo la
+    // scrittura si dichiarerebbe riuscita, e il pannello direbbe salvato
+    // sul cloud quando non e arrivato niente da nessuna parte.
+    if ((apiResponse.headers.get('content-type') || '').includes('text/html')) {
+      console.warn('[HP] Nessun archivio remoto delle preferenze: resta la copia locale');
+      return null;
+    }
     return apiResponse.text();
   } catch (err) {
     console.error('[HP] Errore durante la scrittura delle preferenze utente', err);
