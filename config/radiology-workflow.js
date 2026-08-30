@@ -1,4 +1,36 @@
 /**
+ * Whether this browser will give the viewer a 3D context.
+ *
+ * Image display is built on WebGL. When it is unavailable the rendering
+ * library asks for a context, gets null, and then wraps that null in a Proxy,
+ * which throws "Cannot create proxy with a non-object as target or handler"
+ * over a blank page: an error that says nothing about the cause to anyone who
+ * has not read that library. Asking first, and telling the viewer to draw on
+ * the CPU instead, means the studies still open. Reformatting in three planes
+ * needs the GPU and stays unavailable, which is worth knowing rather than
+ * discovering.
+ *
+ * The usual causes are hardware acceleration turned off in the browser, and
+ * too many live WebGL contexts across open tabs, which browsers cap.
+ */
+const hasWebGL = (() => {
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+})();
+
+if (!hasWebGL) {
+  console.warn(
+    "No WebGL context available: drawing on the CPU. " +
+      "Three-plane reformatting and volume rendering need the GPU and will stay off. " +
+      "Check hardware acceleration in the browser settings, and close other tabs " +
+      "using WebGL, since browsers cap how many contexts may be live at once."
+  );
+}
+/**
  * Viewer configuration for this demonstration.
  *
  * The images are served by the Orthanc container in docker-compose.yml. The
@@ -19,6 +51,10 @@ window.config = {
   showWarningMessageForCrossOrigin: false,
   showCPUFallbackMessage: true,
   strictZSpacingForVolumeViewport: true,
+
+  // Set from the probe above rather than hard-coded: a machine with a GPU keeps
+  // the GPU path, and one without still opens the studies.
+  useCPURendering: !hasWebGL,
 
   /**
    * The application carries its own name, in both the study list and the
