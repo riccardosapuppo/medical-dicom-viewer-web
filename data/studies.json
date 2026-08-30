@@ -1,0 +1,102 @@
+{
+  "readme": "The studies the demonstration loads. Nothing here is committed as pixel data: scripts/fetch-studies.mjs downloads these series from The Cancer Imaging Archive at setup time. They are real clinical acquisitions, de-identified by the archive before publication.",
+  "source": {
+    "archive": "The Cancer Imaging Archive (TCIA)",
+    "api": "https://services.cancerimagingarchive.net/nbia-api/services/v1",
+    "usagePolicy": "https://www.cancerimagingarchive.net/data-usage-policies-and-restrictions/",
+    "note": "Each download carries the collection licence inside it; scripts/fetch-studies.mjs keeps that file next to the images it applies to."
+  },
+  "collections": {
+    "LIDC-IDRI": {
+      "title": "The Lung Image Database Consortium image collection",
+      "license": "CC BY 3.0",
+      "doi": "10.7937/K9/TCIA.2015.LO9QL9SX",
+      "citation": "Armato III, S. G., McLennan, G., Bidaut, L., McNitt-Gray, M. F., Meyer, C. R., Reeves, A. P., Zhao, B., Aberle, D. R., Henschke, C. I., Hoffman, E. A., et al. (2015). Data From LIDC-IDRI. The Cancer Imaging Archive.",
+      "licenseUrl": "http://creativecommons.org/licenses/by/3.0/"
+    },
+    "CPTAC-CCRCC": {
+      "title": "The Clinical Proteomic Tumor Analysis Consortium Clear Cell Renal Cell Carcinoma collection",
+      "license": "CC BY 4.0",
+      "doi": "10.7937/k9/tcia.2018.oblamn27",
+      "citation": "National Cancer Institute Clinical Proteomic Tumor Analysis Consortium (CPTAC). (2018). Radiology Data from the Clinical Proteomic Tumor Analysis Consortium Clear Cell Renal Cell Carcinoma [CPTAC-CCRCC] collection. The Cancer Imaging Archive.",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  },
+  "studies": [
+    {
+      "label": "Chest CT, lung nodule screening",
+      "collection": "LIDC-IDRI",
+      "note": "A single thick-slice chest CT. The long series is what the montage was built for: 134 frames are tedious to scroll and quick to read as a sheet.",
+      "series": [
+        {
+          "description": "Chest CT 2.5 mm",
+          "modality": "CT",
+          "imageCount": 133,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.6279.6001.179049373636438705059720603192"
+        }
+      ]
+    },
+    {
+      "label": "Abdominal CT, multiphase",
+      "collection": "CPTAC-CCRCC",
+      "note": "Pre-contrast, bone kernel and a seven minute delayed phase of one acquisition. Three series of the same anatomy is the case a hanging protocol exists to serve.",
+      "series": [
+        {
+          "description": "Pre contrast",
+          "modality": "CT",
+          "imageCount": 63,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.3320.3273.350342979091646596412909224306"
+        },
+        {
+          "description": "Bone kernel",
+          "modality": "CT",
+          "imageCount": 63,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.3320.3273.136380333208944130888510706844"
+        },
+        {
+          "description": "Post contrast, 7 min",
+          "modality": "CT",
+          "imageCount": 67,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.3320.3273.433328072626744876462719845532"
+        }
+      ]
+    },
+    {
+      "label": "Renal MR",
+      "collection": "CPTAC-CCRCC",
+      "note": "Five sequences in two planes. Different sequences need different window settings, which is what makes this the study to test the viewport tools against.",
+      "series": [
+        {
+          "description": "Cor T2 SSFSE ARC",
+          "modality": "MR",
+          "imageCount": 26,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.6450.2626.101707896235728214203592282512"
+        },
+        {
+          "description": "Cor 2D FIESTA",
+          "modality": "MR",
+          "imageCount": 26,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.6450.2626.207274247661745533103929843493"
+        },
+        {
+          "description": "Ax 2D FIESTA FatSat",
+          "modality": "MR",
+          "imageCount": 27,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.6450.2626.224192678751403877700212486557"
+        },
+        {
+          "description": "Ax T2 FS PROPELLER",
+          "modality": "MR",
+          "imageCount": 27,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.6450.2626.286348599463095473978607242373"
+        },
+        {
+          "description": "Cor LAVA-Flex, water",
+          "modality": "MR",
+          "imageCount": 47,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.6450.2626.291611633932863209590679276555"
+        }
+      ]
+    }
+  ]
+}

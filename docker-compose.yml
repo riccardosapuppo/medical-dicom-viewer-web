@@ -1,13 +1,24 @@
+# The archive the viewer reads from.
+#
+# Only the archive is containerised. The viewer is OHIF, built from the
+# distribution that scripts/setup-ohif.mjs assembles, and is run with
+# `npm run dev`: putting a 200 MB webpack build inside an image would add
+# minutes to every start for no benefit to anyone reading this repository.
 services:
   orthanc:
     image: orthancteam/orthanc:26.4.2
     environment:
       DICOM_WEB_PLUGIN_ENABLED: "true"
-      ORTHANC__NAME: "Synthetic Portfolio Archive"
-      ORTHANC__DICOM_AET: "DEMO_ORTHANC"
+      ORTHANC__NAME: "Radiology workflow demonstration archive"
+      ORTHANC__DICOM_AET: "DEMO"
+      # No authentication and remote access allowed: this holds published,
+      # de-identified images and is meant to be started on a laptop. It is not a
+      # configuration to copy into anything that holds patient data.
       ORTHANC__AUTHENTICATION_ENABLED: "false"
       ORTHANC__REMOTE_ACCESS_ALLOWED: "true"
       ORTHANC__DICOM_WEB__ROOT: "/dicom-web/"
+    ports:
+      - "8042:8042"
     volumes:
       - orthanc-data:/var/lib/orthanc/db
     healthcheck:
@@ -22,37 +33,6 @@ services:
       timeout: 3s
       retries: 24
       start_period: 10s
-
-  seed:
-    image: curlimages/curl:8.12.1
-    depends_on:
-      orthanc:
-        condition: service_healthy
-    volumes:
-      - ./public/dicom/synthetic:/data:ro
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - >-
-        set -eu;
-        for file in $$(find /data -type f -name '*.dcm' | sort); do
-          curl -fsS -X POST -H 'Content-Type: application/dicom' --data-binary "@$${file}" http://orthanc:8042/instances > /dev/null;
-        done;
-        echo 'Synthetic DICOM archive seeded.'
-    restart: "no"
-
-  viewer:
-    build:
-      context: .
-    depends_on:
-      seed:
-        condition: service_completed_successfully
-    ports:
-      - "3000:8080"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8080/healthz > /dev/null || exit 1"]
-      interval: 5s
-      timeout: 3s
-      retries: 12
 
 volumes:
   orthanc-data:

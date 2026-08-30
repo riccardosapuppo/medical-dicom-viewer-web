@@ -22,6 +22,38 @@ const outputRoot = path.join(root, 'data', 'dicom');
 const endpoint = `${manifest.source.api}/getImage`;
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Downloads one archive, retrying on a dropped connection.
+ *
+ * Several hundred megabytes over a public endpoint will occasionally fail
+ * halfway, and a setup step that has to be started again from the beginning
+ * because of one dropped socket is a setup step people stop trusting.
+ */
+async function download(url, attempts = 4) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`the archive answered ${response.status} ${response.statusText}`);
+      }
+      const archive = Buffer.from(await response.arrayBuffer());
+      if (archive.length === 0) {
+        throw new Error('the archive returned an empty response');
+      }
+      return archive;
+    } catch (error) {
+      if (attempt >= attempts) {
+        throw error;
+      }
+      const pause = attempt * 4000;
+      process.stdout.write(`
+    ${error.message}; retrying in ${pause / 1000}s `);
+      await wait(pause);
+    }
+  }
+}
 
 /** A DICOM file carries its magic 128 bytes in, after the preamble. */
 function isDicom(data) {
@@ -41,22 +73,24 @@ async function fetchSeries(series, collection) {
   }
 
   process.stdout.write(`  · ${series.description}: downloading ... `);
-  const response = await fetch(`${endpoint}?SeriesInstanceUID=${series.seriesInstanceUID}`);
-  if (!response.ok) {
-    throw new Error(`the archive answered ${response.status} ${response.statusText}`);
-  }
-  const archive = Buffer.from(await response.arrayBuffer());
-  if (archive.length === 0) {
-    throw new Error('the archive returned an empty response');
-  }
+  const archive = await download(`${endpoint}?SeriesInstanceUID=${series.seriesInstanceUID}`);
 
   const files = unzip(archive);
   const images = files.filter(file => isDicom(file.data));
-  if (images.length !== files.length) {
-    throw new Error(`${files.length - images.length} of the files returned are not DICOM`);
+
+  // The archive ships the collection's licence inside the download. It is kept
+  // next to the images rather than discarded: it is the licence those images
+  // are distributed under, stated by the party distributing them.
+  const licences = files.filter(file => !isDicom(file.data) && /licen[cs]e/i.test(file.name));
+  const unexpected = files.filter(file => !isDicom(file.data) && !licences.includes(file));
+  if (unexpected.length > 0) {
+    throw new Error(`the download contains files that are neither DICOM nor a licence: ${unexpected.map(f => f.name).join(', ')}`);
   }
 
   fs.mkdirSync(target, { recursive: true });
+  for (const licence of licences) {
+    fs.writeFileSync(path.join(outputRoot, collection, 'LICENSE'), licence.data);
+  }
   images
     .sort((a, b) => a.name.localeCompare(b.name, 'en', { numeric: true }))
     .forEach((file, index) => {

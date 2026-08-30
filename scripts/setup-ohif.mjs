@@ -95,6 +95,30 @@ function linkPackage({ dir }) {
   info(`${dir} linked into the workspace`);
 }
 
+/**
+ * Puts this repository's viewer configuration where the build looks for it.
+ * A junction on the whole directory rather than a link per file, because a
+ * symbolic link to a single file needs elevated rights on Windows and a
+ * junction does not.
+ */
+function linkConfig() {
+  const source = path.join(root, 'config');
+  const target = path.join(ohifDir, 'platform', 'app', 'public', 'app-config');
+
+  if (fs.existsSync(target)) {
+    const stat = fs.lstatSync(target);
+    const resolved = stat.isSymbolicLink() ? fs.realpathSync(target) : target;
+    if (path.resolve(resolved) === path.resolve(source)) {
+      info('config already linked');
+      return;
+    }
+    fs.rmSync(target, { recursive: true, force: true });
+  }
+
+  fs.symlinkSync(source, target, process.platform === 'win32' ? 'junction' : 'dir');
+  info('config linked as public/app-config');
+}
+
 /** Registers the packages with the viewer, which loads only what is listed. */
 function registerPlugins() {
   const configPath = path.join(ohifDir, 'platform', 'app', 'pluginConfig.json');
@@ -124,11 +148,14 @@ try {
   step('linking this repository into the OHIF workspace');
   PACKAGES.forEach(linkPackage);
 
+  step('linking the viewer configuration');
+  linkConfig();
+
   step('registering the plugins with the viewer');
   registerPlugins();
 
   step('installing dependencies');
-  run('yarn', ['install'], ohifDir, { shell: true });
+  run('yarn install', [], ohifDir, { shell: true });
 
   console.log('\nReady. Start the viewer with: npm run dev');
 } catch (error) {
