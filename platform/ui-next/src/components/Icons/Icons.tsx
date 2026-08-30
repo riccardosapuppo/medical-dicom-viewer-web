@@ -252,7 +252,7 @@ export const Icons = {
           fontSize: '7px',
           lineHeight: 1,
           letterSpacing: '0.2px',
-          color: '#ff3b3b',
+          color: '#38bdf8',
           backgroundColor: 'rgba(0, 0, 0, 0.82)',
           borderRadius: '3px',
           padding: '1px 2px',

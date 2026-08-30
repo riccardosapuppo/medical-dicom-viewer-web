@@ -1122,7 +1122,7 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
         ? 'Caricamento serie PET/CT...'
         : 'Volume dinamico in caricamento...';
       element.insertAdjacentHTML('afterbegin', `
-        <div style="background: #952c2c;color: #fff;padding: 0 5px; font-size: 0.8rem; z-index: 9999; position:relative" class="tooltip-loading-dynamic">
+        <div style="background: #0ea5e9;color: #fff;padding: 0 5px; font-size: 0.8rem; z-index: 9999; position:relative" class="tooltip-loading-dynamic">
         <p>${label}</p>
         </div>
         `)

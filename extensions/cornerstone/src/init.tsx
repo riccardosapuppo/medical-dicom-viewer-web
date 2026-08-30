@@ -41,8 +41,6 @@ import { usePositionPresentationStore } from './stores/usePositionPresentationSt
 import { useSegmentationPresentationStore } from './stores/useSegmentationPresentationStore';
 import { imageRetrieveMetadataProvider } from '@cornerstonejs/core/utilities';
 import { updateSegmentationStats } from './utils/updateSegmentationStats';
-// Registra window.mdvPrint (sorgente immagini Serie/Studio per l'editor di stampa).
-import { registerMdvPrint } from './utils/mdvPrintSource';
 
 const { registerColormap } = csUtilities.colormap;
 
@@ -117,9 +115,6 @@ export default async function init({
   window.services = servicesManager.services;
   window.extensionManager = extensionManager;
   window.commandsManager = commandsManager;
-
-  // Espone window.mdvPrint (sorgente immagini Serie/Studio per l'editor di stampa).
-  registerMdvPrint();
 
   /**
    * The images are drawn on the processor.
