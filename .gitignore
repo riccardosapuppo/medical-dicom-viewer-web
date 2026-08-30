@@ -1,12 +1,10 @@
 node_modules/
-dist/
 coverage/
-playwright-report/
-test-results/
-.vite/
 *.log
 .DS_Store
 
-
-# OHIF viene scaricato da scripts/setup-ohif.mjs, non versionato
+# The OHIF distribution is cloned by scripts/setup-ohif.mjs, not vendored.
 .ohif/
+
+# Studies are downloaded from the imaging archive by scripts/fetch-studies.mjs.
+data/dicom/

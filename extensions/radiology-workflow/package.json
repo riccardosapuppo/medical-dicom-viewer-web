@@ -1,12 +1,19 @@
 {
-  "name": "@portfolio/ohif-extension-radiology-workflow",
+  "name": "ohif-extension-radiology-workflow",
   "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "main": "src/index.ts",
+  "description": "Reading-room additions for the OHIF Viewer: a paged montage viewport, locally stored hanging protocols, and favourite series.",
+  "license": "MIT",
+  "main": "src/index.tsx",
+  "module": "src/index.tsx",
+  "keywords": [
+    "ohif-extension"
+  ],
   "peerDependencies": {
-    "@ohif/core": "^3.11.0",
-    "react": "^18.3.1"
+    "@ohif/core": "^3.12.0",
+    "@ohif/extension-cornerstone": "^3.12.0",
+    "@ohif/extension-default": "^3.12.0",
+    "@ohif/ui-next": "^3.12.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
-

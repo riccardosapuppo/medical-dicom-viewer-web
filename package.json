@@ -2,37 +2,14 @@
   "name": "medical-dicom-viewer-web",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
-  "scripts": {
-    "start": "docker compose up --build",
-    "dev": "vite --host 0.0.0.0",
-    "generate:dicom": "node scripts/generate-dicom.mjs",
-    "build": "tsc --noEmit && vite build",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "preview": "vite preview --host 0.0.0.0"
-  },
+  "description": "An OHIF extension and mode for reading rooms: a paged montage of a series, saved hanging protocols and a reading list, shown against real de-identified studies.",
+  "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.6"
   },
-  "dependencies": {
-    "@cornerstonejs/core": "3.9.5",
-    "@cornerstonejs/dicom-image-loader": "3.9.5",
-    "@cornerstonejs/tools": "3.9.5",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
-  },
-  "devDependencies": {
-    "@testing-library/jest-dom": "6.6.3",
-    "@testing-library/react": "16.1.0",
-    "@types/node": "22.10.5",
-    "@types/react": "18.3.18",
-    "@types/react-dom": "18.3.5",
-    "@vitejs/plugin-react": "4.3.4",
-    "dcmjs": "^0.45.0",
-    "jsdom": "25.0.1",
-    "typescript": "5.7.2",
-    "vite": "6.0.7",
-    "vitest": "2.1.8"
+  "scripts": {
+    "setup": "node scripts/setup-ohif.mjs",
+    "dev": "node scripts/dev.mjs",
+    "test": "node --test extensions/radiology-workflow/src/**/*.test.ts"
   }
 }
