@@ -3,40 +3,59 @@ import { ToolbarService } from '@ohif/core';
 const { TOOLBAR_SECTIONS } = ToolbarService;
 
 /**
- * The row a reading room wants in front of it.
+ * The row while reading a stack, which is nearly all of the time.
  *
- * An earlier version put twenty-four entries in the row, on the reasoning that
- * a reader wants everything under the pointer. Thirty buttons reached the right
- * edge of a 1600 pixel screen and, worse, became unreadable: a group shows the
- * icon of whichever member was last used, so the measurement group appeared as
- * a ruler and the overflow group as an angle, and both looked like loose tools
- * that had escaped from somewhere.
- *
- * What is in the row now is what gets reached for constantly and is one thing.
- * What is grouped is grouped because its members are alternatives to one
- * another, so the icon standing for a group is always a fair summary of it.
- *
- * The order is the order of the work. Measure and move, then the window, then
- * what is on screen and how it is reformatted, then holding viewports together,
- * then what gets kept.
+ * What is here is reached for constantly and is one thing. What is grouped is
+ * grouped because its members are alternatives to one another, so the icon
+ * standing for a group — always its active member, else its first — is a fair
+ * summary of it. There is no overflow group: a button labelled "more" that
+ * wears the icon of whatever happens to be first in it tells the reader
+ * nothing, and everything worth having fits without one.
  */
+export const readingRow = [
+  'MeasurementTools',
+  'Pan',
+  'Zoom',
+  'StackScroll',
+  'WindowLevel',
+  'TransformTools',
+  'Layout',
+  'LayoutMPR',
+  'Montage',
+  'Stacks',
+  'Compare',
+  'Display',
+  'LayoutPresets',
+  'Capture',
+];
+
+/**
+ * The row once the study is being reformatted.
+ *
+ * Crosshairs act on the reformatting tool group and mean nothing on a stack;
+ * trackball rotation means nothing until there is a volume to rotate. They
+ * appear when they start working and not before, which is the same idea as the
+ * layout selector growing its extra entries at that moment.
+ */
+export const reformattingRow = [
+  'MeasurementTools',
+  'Pan',
+  'Zoom',
+  'WindowLevel',
+  'TransformTools',
+  'Layout',
+  'LayoutMPR',
+  'Stacks',
+  'Crosshairs',
+  'TrackballRotate',
+  'Compare',
+  'Display',
+  'LayoutPresets',
+  'Capture',
+];
+
 const sections = {
-  [TOOLBAR_SECTIONS.primary]: [
-    'MeasurementTools',
-    'Pan',
-    'Zoom',
-    'StackScroll',
-    'WindowLevel',
-    'TransformTools',
-    'Layout',
-    'LayoutMPR',
-    'Montage',
-    'Stacks',
-    'Compare',
-    'Display',
-    'Capture',
-    'MoreTools',
-  ],
+  [TOOLBAR_SECTIONS.primary]: readingRow,
 
   // Everything that puts a number on the image. Angle, Cobb angle, the probe
   // and the calibration line were loose in the row and belong here: they are
@@ -69,19 +88,27 @@ const sections = {
   ],
 
   // Holding several viewports to the same place, which is most of what reading
-  // a multi-series study consists of.
-  Compare: ['Crosshairs', 'ReferenceCursors', 'ImageSliceSync', 'ReferenceLines'],
+  // a multi-series study consists of. Crosshairs are not here: they belong to
+  // the reformatting row, where they work.
+  Compare: ['ReferenceCursors', 'ImageSliceSync', 'ReferenceLines'],
 
-  // What is drawn over the image, rather than what is done to it. The scale
-  // leads it: a group wears the icon of its last used member, and a magnifier
-  // as the group's face reads as a second zoom beside the real one.
+  /**
+   * What is drawn over the image, rather than what is done to it.
+   *
+   * The study text leads it. A group wears its first member's icon, and both of
+   * the obvious alternatives collide with something already in the row: the
+   * scale is a ruler, which is what the measurement group wears, and the
+   * magnifier reads as a second zoom beside the real one.
+   */
   Display: [
-    'ScaleOverlay',
     'StudyInformation',
+    'ScaleOverlay',
     'Magnify',
     'AdvancedMagnify',
     'WindowLevelRegion',
     'ImageOverlayViewer',
+    'Cine',
+    'TagBrowser',
   ],
 
   // Nothing in the corner of the viewport. The stock arrangement puts an
@@ -89,11 +116,7 @@ const sections = {
   // sagittal, coronal and fusion on a viewport that is showing a plain stack.
   // Choosing one asks the graphics context to reformat, which is what the MPR
   // button is for and which fails outright where there is no such context.
-  // Reformatting is one decision on one icon, and this is the other half of
-  // making that true.
   [TOOLBAR_SECTIONS.viewportActionMenu.topLeft]: [],
-
-  MoreTools: ['Cine', 'TrackballRotate', 'LayoutPresets', 'TagBrowser', 'SegmentLabelTool'],
 };
 
 export default sections;

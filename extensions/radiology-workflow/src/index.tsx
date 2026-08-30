@@ -4,6 +4,7 @@ import { id } from './id';
 import registerCursors from './cursors';
 import registerTools from './tools';
 import announceRenderingMode from './renderingMode';
+import followMode from './toolbar/followMode';
 import getCommandsModule from './getCommandsModule';
 import getCustomizationModule from './getCustomizationModule';
 import getToolbarModule from './getToolbarModule';
@@ -42,6 +43,7 @@ const radiologyWorkflowExtension = {
     // The toolbar caches the result of each button's evaluator, so a button
     // that reflects state has to ask for a re-evaluation when that state moves.
     announceRenderingMode(servicesManager);
+    subscriptions.push(followMode(servicesManager));
 
     subscriptions.push(
       montageService.subscribe(
