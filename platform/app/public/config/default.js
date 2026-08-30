@@ -5,6 +5,39 @@ let prefetch = new URLSearchParams(new URL(window.location.href).search).get('pr
 let dicomLoad = new URLSearchParams(new URL(window.location.href).search).get('dicomload');
 let hdnDicomLoad = new URLSearchParams(new URL(window.location.href).search).get('fZG');
 let useCPURendering = new URLSearchParams(new URL(window.location.href).search).get('usecpu');
+/**
+ * Il browser ci da un contesto 3D?
+ *
+ * Il disegno delle immagini passa da WebGL. Dove non c e, il visualizzatore
+ * chiede il contesto, riceve null, e nessuna viewport arriva mai a disegnare:
+ * la schermata di avvio resta ferma su "Quasi pronto" al 100% e non succede
+ * piu niente. Chiedere prima, e ripiegare sul processore, fa aprire gli studi
+ * lo stesso.
+ *
+ * Le cause abituali sono l accelerazione grafica disattivata nel browser e
+ * troppi contesti WebGL vivi fra le schede aperte, che i browser limitano.
+ * La ricostruzione multiplanare resta indisponibile: quella vuole la scheda
+ * grafica.
+ */
+const contestoGrafico = (() => {
+  try {
+    const c = document.createElement('canvas');
+    return Boolean(c.getContext('webgl2') || c.getContext('webgl'));
+  } catch {
+    return false;
+  }
+})();
+
+if (!contestoGrafico) {
+  console.warn(
+    'Nessun contesto WebGL: le immagini vengono disegnate dal processore. ' +
+      'Gli studi si aprono e gli strumenti funzionano; lo scorrimento di una serie ' +
+      'lunga e piu lento e la ricostruzione su tre piani non e disponibile. ' +
+      'Attiva l accelerazione grafica nelle impostazioni del browser e chiudi le ' +
+      'altre schede che la usano.'
+  );
+}
+
 const modality = new URLSearchParams(new URL(window.location.href).search).get('Modality');
 window.mdvStudyInstanceUIDs = new URLSearchParams(new URL(window.location.href).search).get(
   'StudyInstanceUIDs'
@@ -98,7 +131,11 @@ window.config = {
   maxNumberOfWebWorkers: Math.min(Math.max((navigator.hardwareConcurrency || 4) - 1, 2), 7),
   // below flag is for performance reasons, but it might not work for all servers
   showWarningMessageForCrossOrigin: false,
-  showCPUFallbackMessage: true,
+  // Spenta: la finestra del prodotto a monte si intitola col nome di quel
+  // prodotto e scrive il testo in un grigio che su questo tema non si legge.
+  // Lo stesso avviso lo da la sonda in cima a questo file, in console, e il
+  // pulsante di ricostruzione porta la conseguenza scritta sopra di se.
+  showCPUFallbackMessage: false,
   showLoadingIndicator: true,
   experimentalStudyBrowserSort: false,
   strictZSpacingForVolumeViewport: true,
@@ -107,7 +144,8 @@ window.config = {
   allowMultiSelectExport: true,
   useExperimentalUI: true,
   autoImageSliceSync: true,
-  useCPURendering: useCPURendering ? true : false,
+  // Il parametro nell indirizzo lo forza; altrimenti decide la sonda qui sopra.
+  useCPURendering: useCPURendering ? true : !contestoGrafico,
   mdvExtensionBrowserUrl: 'https://chrome.google.com/webstore/detail/REPLACE_ME',
   mostraavvisoEstensioneMdvBrowserNonInstallata: false,
   // Request slots coordinated by SmartImageLoadManager (global TCP budget).

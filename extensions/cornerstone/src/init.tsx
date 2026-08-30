@@ -121,9 +121,46 @@ export default async function init({
   // Espone window.mdvPrint (sorgente immagini Serie/Studio per l'editor di stampa).
   registerMdvPrint();
 
-  if (appConfig.showCPUFallbackMessage && cornerstone.getShouldUseCPURendering()) {
-    _showCPURenderingModal(uiModalService, hangingProtocolService);
+  /**
+   * The images are drawn on the processor.
+   *
+   * It is worth saying so. Scrolling a long series is slower and reformatting on
+   * three planes is unavailable, which is why that button is off — and a button
+   * that is off without a reason reads as broken.
+   *
+   * The upstream modal said the same thing and is disabled in configuration: it
+   * was titled with that product's name and set its text in a grey this theme
+   * does not carry.
+   *
+   * The notice waits for the first viewport to receive data. This runs before
+   * React mounts, and until the message panel is mounted the service still holds
+   * its empty implementation: calling it here writes "show() NOT IMPLEMENTED" to
+   * the console and shows nobody anything.
+   */
+  if (cornerstone.getShouldUseCPURendering()) {
+    if (appConfig.showCPUFallbackMessage) {
+      _showCPURenderingModal(uiModalService, hangingProtocolService);
+    } else {
+      const iscrizione = cornerstoneViewportService.subscribe(
+        cornerstoneViewportService.EVENTS.VIEWPORT_DATA_CHANGED,
+        () => {
+          iscrizione.unsubscribe();
+          uiNotificationService.show({
+            title: 'Immagini disegnate dal processore',
+            message:
+              "Questo browser non fornisce un contesto grafico: gli studi si aprono e gli " +
+              "strumenti funzionano, ma scorrere una serie lunga è più lento e la " +
+              "ricostruzione su tre piani non è disponibile. Si risolve attivando " +
+              "l'accelerazione grafica nelle impostazioni del browser.",
+            type: 'info',
+            duration: 15000,
+            position: 'bottom-right',
+          });
+        }
+      );
+    }
   }
+
   const { getPresentationId: getLutPresentationId } = useLutPresentationStore.getState();
 
   const { getPresentationId: getSegmentationPresentationId } =
