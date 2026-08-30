@@ -62,8 +62,16 @@ const defaultShowHandler = (Shepherd: ShepherdBase) => {
 const customMiddleware = {
   name: 'customOverflowMiddleware',
   async fn(state) {
+    // Il confine e' lo schermo, non <body>.
+    //
+    // Qui il corpo della pagina non coincide con la finestra: il
+    // visualizzatore disegna in un contenitore a posizione fissa e lascia il
+    // corpo senza altezza propria. Misurando l'eccedenza contro quello, la
+    // correzione verticale spingeva ogni passo esattamente sul bordo
+    // inferiore - il riquadro esisteva, per il codice era visibile, e nessuno
+    // lo vedeva.
     const overflow = await detectOverflow(state, {
-      boundary: document.querySelector('body'),
+      rootBoundary: 'viewport',
       padding: 24,
     });
 
@@ -86,6 +94,6 @@ const customMiddleware = {
  * @type {Array<object>}
  */
 
-const middleware = [offset(15), shift(), flip(), customMiddleware];
+const middleware = [offset(15), flip(), shift({ padding: 24 })];
 
 export { hasTourBeenShown, markTourAsShown, middleware, defaultShowHandler };

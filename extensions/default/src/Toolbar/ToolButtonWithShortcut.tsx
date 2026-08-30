@@ -78,12 +78,27 @@ export function getShortcut(props: any, hotkeysManager: any): string | null {
     );
   } else if (commandName) {
     // Bottone-azione: match per commandName (e toolName se specificato).
+    //
+    // Un comando solo puo' servire piu' bottoni: toggleEnabledDisabledToolbar
+    // accende le linee di riferimento e anche la scala, e li distingue con
+    // itemId. Il bottone pero' passa il comando come stringa, senza opzioni,
+    // quindi il confronto per solo commandName trovava la prima scorciatoia
+    // della lista e la mostrava a entrambi: la scala dichiarava shift+l, che
+    // accende un'altra cosa.
+    //
+    // Quando la scorciatoia dice a quale voce si riferisce, quella voce deve
+    // essere questo bottone.
+    const idBottone = commandOptions?.itemId ?? props.id;
     match = list.find(d => {
       if (d.commandName !== commandName) {
         return false;
       }
       const wantTool = commandOptions?.toolName;
-      return !wantTool || d.commandOptions?.toolName === wantTool;
+      if (wantTool && d.commandOptions?.toolName !== wantTool) {
+        return false;
+      }
+      const suQuale = d.commandOptions?.itemId;
+      return !suQuale || suQuale === idBottone;
     });
   }
 

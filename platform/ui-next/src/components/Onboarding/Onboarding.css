@@ -10,8 +10,40 @@
   @apply flex flex-col gap-[8px] p-[12px];
 }
 
+/*
+ * Il riquadro sta al centro, e ce lo mettiamo noi.
+ *
+ * La libreria di posizionamento non scrive mai niente su questo elemento:
+ * niente stile in linea, nessun attributo di piazzamento, nessuna classe di
+ * centratura. Restando a posizione assoluta senza coordinate, finisce dove lo
+ * lascia il flusso - cioe' subito sotto tutto il resto, un pixel oltre il
+ * bordo inferiore. Il riquadro esisteva, il codice lo dava per visibile, e
+ * chi apriva il visualizzatore vedeva solo la pagina velata al settanta per
+ * cento senza niente da leggere e niente da chiudere.
+ *
+ * Cinque schede al centro vanno bene anche meglio di cinque fumetti appesi a
+ * pulsanti da ventotto pixel: il testo e' lungo, e i pulsanti li indica
+ * comunque il testo.
+ */
 .shepherd-element {
-  @apply !bg-popover !max-w-[260px];
+  @apply !bg-popover !max-w-[420px];
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(420px, calc(100vw - 48px)) !important;
+  max-height: calc(100vh - 48px) !important;
+  overflow-y: auto !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 55%) !important;
+  /* Sopra il velo: a posizione fissa il riquadro finiva sotto. */
+  z-index: 10001 !important;
+}
+
+/* Senza un bersaglio a cui puntare, la freccia non ha verso. */
+.shepherd-arrow {
+  display: none !important;
 }
 
 .shepherd-text {

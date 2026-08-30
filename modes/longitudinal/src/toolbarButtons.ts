@@ -672,6 +672,7 @@ const toolbarButtons: Button[] = [
     props: {
       icon: 'mprDirect',
       label: 'MPR',
+      tooltip: 'Ricostruzione su tre piani',
       commands: 'mprDirectClick',
       evaluate: {
         name: 'evaluate.displaySetIsReconstructable',
@@ -945,6 +946,7 @@ const toolbarButtons: Button[] = [
     props: {
       icon: 'hpIcon',
       label: 'Hanging Protocol',
+      tooltip: 'Salva e riapplica la disposizione delle viewport',
       commands: 'gestioneHP',
       evaluate: 'evaluate.action',
     },
@@ -956,6 +958,7 @@ const toolbarButtons: Button[] = [
       icon: 'hideInfoDicom',
       type: 'toggle',
       label: 'Nascondi info nelle viewport',
+      tooltip: 'Nascondi i dati sovrimpressi alle immagini',
       commands: 'hideInfoDicom',
       evaluate: 'evaluate.action',
     },

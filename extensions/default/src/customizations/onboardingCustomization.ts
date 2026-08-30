@@ -1,208 +1,89 @@
-function waitForElement(selector, maxAttempts = 20, interval = 25) {
-  return new Promise(resolve => {
-    let attempts = 0;
+/**
+ * Il giro guidato che si apre alla prima apertura di uno studio.
+ *
+ * Quello a monte raccontava il visualizzatore originale in inglese e si
+ * agganciava a bottoni che questo progetto ha spostato. Peggio: cercava il suo
+ * primo appiglio per mezzo secondo, mentre qui lo studio ci mette una ventina di
+ * secondi ad arrivare. Non trovandolo mostrava comunque il passo, ma senza un
+ * elemento accanto a cui stare finiva appena sotto il bordo dello schermo:
+ * invisibile, con la pagina velata al settanta per cento e nessun modo di
+ * chiuderlo. Era la prima cosa che vedeva chi apriva il progetto.
+ *
+ * Questo racconta invece le quattro cose che questo visualizzatore ha in piu',
+ * aspetta che ci sia davvero qualcosa da indicare, e si chiude da solo se dopo
+ * un minuto non e' comparso niente.
+ */
 
-    const checkForElement = setInterval(() => {
-      const element = document.querySelector(selector);
-
-      if (element || attempts >= maxAttempts) {
-        clearInterval(checkForElement);
-        resolve();
-      }
-
-      attempts++;
-    }, interval);
-  });
-}
+/** I due pulsanti di un passo, nuovi per ogni passo. */
+const prosegui = () => [
+  {
+    text: 'Chiudi',
+    action() {
+      this.complete();
+    },
+    secondary: true,
+  },
+  {
+    text: 'Avanti',
+    action() {
+      this.next();
+    },
+  },
+];
 
 export default {
   'ohif.tours': [
     {
       id: 'basicViewerTour',
       route: '/viewer',
+      // Il giro non parte finche non c e una viewport da indicare. Vedi
+      // Onboarding.tsx: Shepherd risolve i bersagli quando il giro parte, e
+      // qui lo studio arriva dall archivio una ventina di secondi dopo.
+      waitFor: '.viewport-element',
       steps: [
         {
-          id: 'scroll',
-          title: 'Scrolling Through Images',
-          text: 'You can scroll through the images using the mouse wheel or scrollbar.',
-          attachTo: {
-            element: '.viewport-element',
-            on: 'top',
-          },
-          advanceOn: {
-            selector: '.cornerstone-viewport-element',
-            event: 'CORNERSTONE_TOOLS_MOUSE_WHEEL',
-          },
-          beforeShowPromise: () => waitForElement('.viewport-element'),
+          id: 'scorrimento',
+          title: 'Scorrere la serie',
+          text: 'La rotellina del mouse passa da un immagine all altra. Sul bordo destro della viewport la barra dice a che punto sei.',
+          buttons: prosegui(),
         },
         {
-          id: 'zoom',
-          title: 'Zooming In and Out',
-          text: 'You can zoom the images using the right click.',
-          attachTo: {
-            element: '.viewport-element',
-            on: 'left',
-          },
-          advanceOn: {
-            selector: '.cornerstone-viewport-element',
-            event: 'CORNERSTONE_TOOLS_MOUSE_UP',
-          },
-          beforeShowPromise: () => waitForElement('.viewport-element'),
+          id: 'sottogriglia',
+          title: 'La sottogriglia',
+          text: 'Divide una viewport in righe e colonne, ognuna su un immagine diversa della stessa serie: serve a leggere una serie lunga senza scorrerla una fetta per volta. Le celle condividono la cache e gli strumenti, quindi luminosita, zoom e spostamento restano in passo fra loro.',
+          buttons: prosegui(),
         },
         {
-          id: 'pan',
-          title: 'Panning the Image',
-          text: 'You can pan the images using the middle click.',
-          attachTo: {
-            element: '.viewport-element',
-            on: 'top',
-          },
-          advanceOn: {
-            selector: '.cornerstone-viewport-element',
-            event: 'CORNERSTONE_TOOLS_MOUSE_UP',
-          },
-          beforeShowPromise: () => waitForElement('.viewport-element'),
+          id: 'mpr',
+          title: 'Ricostruzione su tre piani',
+          text: 'Apre assiale, sagittale e coronale della stessa serie, con i mirini agganciati fra loro. E una modalita a se: mentre e accesa il selettore dei layout cambia voci, e si esce dal pulsante Chiudi in alto a sinistra. Ha bisogno di una scheda grafica: senza, il pulsante resta spento e dice perche.',
+          buttons: prosegui(),
         },
         {
-          id: 'windowing',
-          title: 'Adjusting Window Level',
-          text: 'You can modify the window level using the left click.',
-          attachTo: {
-            element: '.viewport-element',
-            on: 'left',
-          },
-          advanceOn: {
-            selector: '.cornerstone-viewport-element',
-            event: 'CORNERSTONE_TOOLS_MOUSE_UP',
-          },
-          beforeShowPromise: () => waitForElement('.viewport-element'),
+          id: 'hanging',
+          title: 'Salvare la disposizione',
+          text: 'Cattura come stai guardando lo studio - la griglia, quale serie sta dove, la finestra di ogni viewport - e la ripropone al prossimo studio dello stesso tipo. La puoi legare a questo studio, a questo tipo di esame o a tutta la modality.',
+          buttons: prosegui(),
         },
         {
-          id: 'length',
-          title: 'Using the Measurement Tools',
-          text: 'You can measure the length of a region using the Length tool.',
-          attachTo: {
-            element: '[data-cy="MeasurementTools-split-button-primary"]',
-            on: 'bottom',
-          },
-          advanceOn: {
-            selector: '[data-cy="MeasurementTools-split-button-primary"]',
-            event: 'click',
-          },
-          beforeShowPromise: () =>
-            waitForElement('[data-cy="MeasurementTools-split-button-primary]'),
-        },
-        {
-          id: 'drawAnnotation',
-          title: 'Drawing Length Annotations',
-          text: 'Use the length tool on the viewport to measure the length of a region.',
-          attachTo: {
-            element: '.viewport-element',
-            on: 'right',
-          },
-          advanceOn: {
-            selector: 'body',
-            event: 'event::measurement_added',
-          },
-          beforeShowPromise: () => waitForElement('.viewport-element'),
-        },
-        {
-          id: 'trackMeasurement',
-          title: 'Tracking Measurements in the Panel',
-          text: 'Click yes to track the measurements in the measurement panel.',
-          attachTo: {
-            element: '[data-cy="prompt-begin-tracking-yes-btn"]',
-            on: 'bottom',
-          },
-          advanceOn: {
-            selector: '[data-cy="prompt-begin-tracking-yes-btn"]',
-            event: 'click',
-          },
-          beforeShowPromise: () => waitForElement('[data-cy="prompt-begin-tracking-yes-btn"]'),
-        },
-        {
-          id: 'openMeasurementPanel',
-          title: 'Opening the Measurements Panel',
-          text: 'Click the measurements button to open the measurements panel.',
-          attachTo: {
-            element: '#trackedMeasurements-btn',
-            on: 'left-start',
-          },
-          advanceOn: {
-            selector: '#trackedMeasurements-btn',
-            event: 'click',
-          },
-          beforeShowPromise: () => waitForElement('#trackedMeasurements-btn'),
-        },
-        {
-          id: 'scrollAwayFromMeasurement',
-          title: 'Scrolling Away from a Measurement',
-          text: 'Scroll the images using the mouse wheel away from the measurement.',
-          attachTo: {
-            element: '.viewport-element',
-            on: 'left',
-          },
-          advanceOn: {
-            selector: '.cornerstone-viewport-element',
-            event: 'CORNERSTONE_TOOLS_MOUSE_WHEEL',
-          },
-          beforeShowPromise: () => waitForElement('.viewport-element'),
-        },
-        {
-          id: 'jumpToMeasurement',
-          title: 'Jumping to Measurements in the Panel',
-          text: 'Click the measurement in the measurement panel to jump to it.',
-          attachTo: {
-            element: '[data-cy="data-row"]',
-            on: 'left-start',
-          },
-          advanceOn: {
-            selector: '[data-cy="data-row"]',
-            event: 'click',
-          },
-          beforeShowPromise: () => waitForElement('[data-cy="data-row"]'),
-        },
-        {
-          id: 'changeLayout',
-          title: 'Changing Layout',
-          text: 'You can change the layout of the viewer using the layout button.',
-          attachTo: {
-            element: '[data-cy="Layout"]',
-            on: 'bottom',
-          },
-          advanceOn: {
-            selector: '[data-cy="Layout"]',
-            event: 'click',
-          },
-          beforeShowPromise: () => waitForElement('[data-cy="Layout"]'),
-        },
-        {
-          id: 'selectLayout',
-          title: 'Selecting the MPR Layout',
-          text: 'Select the MPR layout to view the images in MPR mode.',
-          attachTo: {
-            element: '[data-cy="MPR"]',
-            on: 'left-start',
-          },
-          advanceOn: {
-            selector: '[data-cy="MPR"]',
-            event: 'click',
-          },
-          beforeShowPromise: () => waitForElement('[data-cy="MPR"]'),
+          id: 'preferiti',
+          title: 'I preferiti',
+          text: 'La stella in alto a destra di ogni viewport segna l immagine. Quelle segnate finiscono nel pannello di destra, da riprendere quando si scrive il referto.',
+          buttons: [
+            {
+              text: 'Ho capito',
+              action() {
+                this.complete();
+              },
+            },
+          ],
         },
       ],
       tourOptions: {
         useModalOverlay: true,
         defaultStepOptions: {
-          buttons: [
-            {
-              text: 'Skip all',
-              action() {
-                this.complete();
-              },
-              secondary: true,
-            },
-          ],
+          cancelIcon: { enabled: true },
+          scrollTo: false,
         },
       },
     },

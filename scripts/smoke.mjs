@@ -178,6 +178,16 @@ const broken = await page.evaluate(() =>
 );
 check('every image resolves to an image', broken.length === 0, broken.join(', '));
 
+// The guided tour opens over a first visit and dims the page behind it, which
+// is right for a reader and wrong for a screenshot of the viewer.
+await page.evaluate(() => {
+  const chiudi = [...document.querySelectorAll('.shepherd-button')].find(b =>
+    /Chiudi|Ho capito/.test(b.innerText)
+  );
+  chiudi?.click();
+});
+await page.waitForTimeout(1500);
+
 await page.screenshot({ path: path.join(shots, 'viewer.png') });
 
 console.log(`\nUncaught errors: ${problems.length}`);

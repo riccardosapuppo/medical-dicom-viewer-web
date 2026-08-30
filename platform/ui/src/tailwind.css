@@ -2062,20 +2062,30 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   border-color: rgb(135 135 135 / 70%) !important;
 }
 
+/*
+ * Il giro guidato sta sulla superficie scura come tutto il resto.
+ *
+ * Era una scheda di colore pieno: il marchio applicato all'intero riquadro,
+ * che sul tema chiaro di partenza reggeva e qui, sopra immagini in scala di
+ * grigi, e' la cosa piu' accesa dello schermo. L'accento resta dove serve a
+ * qualcosa: il titolo, e il pulsante che porta avanti.
+ */
 .shepherd-element {
-  .shepherd-title,
-  button.shepherd-button,
+  color: #e2e8f0 !important;
+  .shepherd-title {
+    color: #38bdf8 !important;
+  }
+  .shepherd-text {
+    color: #cbd5e1 !important;
+  }
   .shepherd-progress {
-    color: #e0f2fe !important;
+    color: #64748b !important;
   }
-  background-color: rgb(14, 165, 233) !important;
-  color: #fff !important;
-  .shepherd-header {
-    background-color: rgb(14, 165, 233) !important;
-    color: #fff !important;
+  .shepherd-cancel-icon {
+    color: #94a3b8 !important;
   }
-  .shepherd-arrow::before {
-    background-color: rgb(14, 165, 233) !important;
+  .shepherd-cancel-icon:hover {
+    color: #e2e8f0 !important;
   }
 }
 
