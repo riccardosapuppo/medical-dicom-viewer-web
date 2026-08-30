@@ -36,6 +36,7 @@ export async function loadCornerstoneRuntime(): Promise<CornerstoneRuntime> {
 
     return {
       core,
+      dicomLoader,
       tools,
       toolNames: cornerstoneToolNames,
     };
@@ -46,6 +47,7 @@ export async function loadCornerstoneRuntime(): Promise<CornerstoneRuntime> {
 
 export type CornerstoneRuntime = {
   core: typeof import('@cornerstonejs/core');
+  dicomLoader: typeof import('@cornerstonejs/dicom-image-loader');
   tools: typeof import('@cornerstonejs/tools');
   toolNames: typeof cornerstoneToolNames;
 };

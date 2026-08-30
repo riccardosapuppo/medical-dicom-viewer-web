@@ -10,6 +10,7 @@ import type { Types } from '@cornerstonejs/core';
 import type { PrimaryViewerTool } from './cornerstoneTools';
 import { isCornerstonePrimaryTool } from './cornerstoneTools';
 import { loadCornerstoneRuntime, type CornerstoneRuntime } from './cornerstoneRuntime';
+import { dicomWebFrameImageId, parseSopInstanceUID, querySeriesMetadata } from './dicomWeb';
 import type { StudySeries } from './study';
 
 export interface ViewportPresentation {
@@ -33,6 +34,7 @@ export interface CornerstoneViewportHandle {
 }
 
 interface CornerstoneViewportProps {
+  studyInstanceUID: string;
   series: StudySeries;
   activeTool: PrimaryViewerTool;
   initialIndex: number;
@@ -49,6 +51,7 @@ export const CornerstoneViewport = forwardRef<CornerstoneViewportHandle, Corners
   function CornerstoneViewport(
     {
       series,
+      studyInstanceUID,
       activeTool,
       initialIndex,
       onIndexChange,
@@ -71,8 +74,8 @@ export const CornerstoneViewport = forwardRef<CornerstoneViewportHandle, Corners
     const viewportId = `radiology-viewport-${identity}`;
     const toolGroupId = `radiology-tools-${identity}`;
     const imageIds = useMemo(
-      () => series.imagePaths.map(path => `wadouri:${new URL(path, window.location.origin).href}`),
-      [series.imagePaths]
+      () => series.sopInstanceUIDs.map(sopInstanceUID => dicomWebFrameImageId(window.location.origin, studyInstanceUID, series.seriesInstanceUID, sopInstanceUID)),
+      [series.seriesInstanceUID, series.sopInstanceUIDs, studyInstanceUID]
     );
 
     callbacksRef.current = { onIndexChange, onPresentationChange, onAnnotationCountChange, onReady, onError };
@@ -202,6 +205,21 @@ export const CornerstoneViewport = forwardRef<CornerstoneViewportHandle, Corners
 
         activatePrimaryTool(activeToolRef.current);
 
+        const metadata = await querySeriesMetadata(studyInstanceUID, series.seriesInstanceUID);
+        const imageIdBySopInstanceUID = new Map(
+          series.sopInstanceUIDs.map((sopInstanceUID, index) => [sopInstanceUID, imageIds[index]])
+        );
+        metadata.forEach(instanceMetadata => {
+          const sopInstanceUID = parseSopInstanceUID(instanceMetadata);
+          const imageId = sopInstanceUID ? imageIdBySopInstanceUID.get(sopInstanceUID) : undefined;
+          if (imageId) {
+            runtime.dicomLoader.wadors.metaDataManager.add(
+              imageId,
+              instanceMetadata as unknown as import('@cornerstonejs/dicom-image-loader').Types.WADORSMetaData
+            );
+          }
+        });
+
         const handleImageRendered = () => {
           callbacksRef.current.onIndexChange(viewport.getCurrentImageIdIndex());
           readPresentation();
@@ -241,7 +259,7 @@ export const CornerstoneViewport = forwardRef<CornerstoneViewportHandle, Corners
         viewportRef.current = undefined;
         engineRef.current = undefined;
       };
-    }, [imageIds, renderingEngineId, toolGroupId, viewportId]);
+    }, [imageIds, renderingEngineId, series.seriesInstanceUID, series.sopInstanceUIDs, studyInstanceUID, toolGroupId, viewportId]);
 
     useEffect(() => {
       const element = elementRef.current as (HTMLDivElement & { activatePrimaryTool?: (tool: PrimaryViewerTool) => void }) | null;

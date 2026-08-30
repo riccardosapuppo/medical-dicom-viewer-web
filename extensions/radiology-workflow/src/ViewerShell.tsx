@@ -275,6 +275,7 @@ export function ViewerShell({ study }: { study: Study }) {
                 <div className={isActive ? 'viewport active-viewport' : 'viewport'} key={`${montageLayout}-${gridLayout}-${series.seriesInstanceUID}-${viewportIndex}`} onPointerDown={() => setActiveViewport(viewportIndex)}>
                   <CornerstoneViewport
                     ref={handle => { viewportRefs.current[viewportIndex] = handle; }}
+                    studyInstanceUID={study.studyInstanceUID}
                     series={series}
                     activeTool={activeTool}
                     initialIndex={viewportSlice}
