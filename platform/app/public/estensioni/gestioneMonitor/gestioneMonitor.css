@@ -269,9 +269,10 @@
 .nessuna-configurazione-salvata {
   margin: 0;
   padding: 8px 12px;
-  color: #721c24;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
+  color: #fca5a5;
+  background-color: #1a1f26;
+  border: 1px solid #7f1d1d;
+  border-left-width: 3px;
   border-radius: 4px;
   text-align: center;
   font-weight: 600;
@@ -281,10 +282,10 @@
 
 #info-versione-estensione {
   padding: 5px;
-  color: #1c726f;
-  background-color: #d7f8e7;
-  border-color: #c8f5c6;
-  border: 1px solid transparent;
+  color: #86efac;
+  background-color: #1a1f26;
+  border: 1px solid #14532d;
+  border-left-width: 3px;
   border-radius: 0.25rem;
   margin-bottom: 10px;
 }
@@ -297,19 +298,19 @@
 
 .warning {
   padding: 5px;
-  color: #726f1c;
-  background-color: #f8ecd7;
-  border-color: #f5c6cb;
-  border: 1px solid transparent;
+  color: #fcd34d;
+  background-color: #1a1f26;
+  border: 1px solid #78350f;
+  border-left-width: 3px;
   border-radius: 0.25rem;
 }
 
 #configurazione-salvata {
   padding: 0 16px;
-  color: #1c725f;
-  background-color: #d7f8da;
-  border-color: #f5c6cb;
-  border: 1px solid transparent;
+  color: #86efac;
+  background-color: #1a1f26;
+  border: 1px solid #14532d;
+  border-left-width: 3px;
   border-radius: 0.25rem;
   bottom: 50px;
   position: absolute;
@@ -419,4 +420,19 @@
     -webkit-transform: scale3d(1, 1, 1);
     transform: scale3d(1, 1, 1);
   }
+}
+
+#dove-estensione {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  color: #94a3b8;
+  background-color: #1a1f26;
+  border: 1px solid #272e38;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+#dove-estensione code {
+  color: #38bdf8;
 }

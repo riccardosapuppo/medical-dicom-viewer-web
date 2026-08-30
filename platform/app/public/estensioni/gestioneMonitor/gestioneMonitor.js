@@ -67,15 +67,15 @@ async function monitorMainFunc() {
            <div id="main-area-monitor">
            <p style="${versioneEstensioneInstallata !== '' ? 'display:block' : 'display:none'}" id="info-versione-estensione">Versione estensione del browser: ${versioneEstensioneInstallata}</p>
             <p id="avvisi-gestione-monitor"></p>
-            <a id="scarica-estensione-btn" href="/extension" style="display:${versioneEstensioneInstallata === '' ? 'block' : 'none'}">Scarica estensione</a>
+            <p id="dove-estensione" style="display:${versioneEstensioneInstallata === '' ? 'block' : 'none'}">L'estensione è nel repository, in <code>estensione-browser/</code></p>
             <div id="tutorial-installazione" style="display:${versioneEstensioneInstallata === '' ? 'block' : 'none'}">
               <p class="tutorial-titolo">Come installarla:</p>
               <ol>
-                <li>Decomprimi lo zip scaricato in una cartella sul computer</li>
+                <li>Trova la cartella <code>estensione-browser</code> nel repository che hai clonato</li>
                 <li>Copia <code class="tutorial-url" data-url="chrome://extensions">chrome://extensions</code> (o <code class="tutorial-url" data-url="edge://extensions">edge://extensions</code> su Edge) e incollalo nella barra degli indirizzi</li>
                 <li>Attiva la <b>Modalità sviluppatore</b> (interruttore in alto a destra)</li>
                 <li>Clicca su <b>Carica estensione non pacchettizzata</b></li>
-                <li>Seleziona la cartella decompressa al passo 1 — l'estensione si attiverà subito, senza ricaricare la pagina</li>
+                <li>Seleziona la cartella del passo 1 — l'estensione si attiverà subito, senza ricaricare la pagina</li>
               </ol>
             </div>
             <button id="checkMonitorButton">Rileva monitor</button>
@@ -85,21 +85,6 @@ async function monitorMainFunc() {
   `;
 
   document.body.insertAdjacentHTML('beforeend', monitorToolsHtml);
-  const scaricaEstensioneBtn = document.getElementById('scarica-estensione-btn');
-  if (scaricaEstensioneBtn) {
-    scaricaEstensioneBtn.addEventListener('click', e => {
-      e.preventDefault();
-      const url = scaricaEstensioneBtn.getAttribute('href');
-      let iframe = document.getElementById('scarica-estensione-iframe');
-      if (!iframe) {
-        iframe = document.createElement('iframe');
-        iframe.id = 'scarica-estensione-iframe';
-        iframe.style.display = 'none';
-        document.body.appendChild(iframe);
-      }
-      iframe.src = url;
-    });
-  }
   document.querySelectorAll('#tutorial-installazione .tutorial-url').forEach(el => {
     el.addEventListener('click', () => {
       const testo = el.dataset.url || el.textContent;
@@ -518,7 +503,7 @@ window.addEventListener('message', event => {
           versionInfo.textContent = `Versione estensione del browser: ${versioneEstensioneInstallata}`;
           versionInfo.style.display = 'block';
         }
-        const downloadBtn = document.getElementById('scarica-estensione-btn');
+        const downloadBtn = document.getElementById('dove-estensione');
         if (downloadBtn) {
           downloadBtn.style.display = 'none';
         }
@@ -666,7 +651,7 @@ function gestisciEstensioneRimossa() {
     versionInfo.style.display = 'none';
     versionInfo.textContent = '';
   }
-  const downloadBtn = document.getElementById('scarica-estensione-btn');
+  const downloadBtn = document.getElementById('dove-estensione');
   if (downloadBtn) {
     downloadBtn.style.display = 'block';
   }

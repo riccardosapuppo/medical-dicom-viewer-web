@@ -166,6 +166,18 @@ const series = await page.evaluate(
 );
 check('the series panel is populated', series >= 3, `${series} mentions`);
 
+// A missing file is not a 404 here. The development server answers an address
+// it does not know with the application's own page, at status 200, so an <img>
+// pointing at a file nobody ever added receives HTML and draws as a broken
+// frame. Three icons shipped that way, and so did a script that stopped the
+// page. Nothing reports it: the request succeeded.
+const broken = await page.evaluate(() =>
+  [...document.querySelectorAll('img')]
+    .filter(i => i.complete && i.naturalWidth === 0 && i.src)
+    .map(i => i.src.split('/').pop())
+);
+check('every image resolves to an image', broken.length === 0, broken.join(', '));
+
 await page.screenshot({ path: path.join(shots, 'viewer.png') });
 
 console.log(`\nUncaught errors: ${problems.length}`);
