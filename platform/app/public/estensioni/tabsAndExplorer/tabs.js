@@ -209,14 +209,20 @@ function buildPatientTabDescription() {
   return accession ? `${patientName} — ${accession}` : patientName;
 }
 
+/** Scrive l etichetta, e dice se ormai dice qualcosa. */
 function updatePatientTabDescription() {
   const titleNode = document.querySelector('#explorer-tab-btn .patient-title');
   if (!titleNode) {
     return false;
   }
-  const accession = getAccessionForTab();
-  titleNode.textContent = buildPatientTabDescription();
-  return Boolean(accession);
+  const descrizione = buildPatientTabDescription();
+  titleNode.textContent = descrizione;
+  // Riuscita vuol dire "identifica lo studio", non "ha trovato l accession".
+  //
+  // Prima si fermava solo quando arrivava l accession, che uno studio puo
+  // legittimamente non avere - LIDC-IDRI-0001 nell archivio dimostrativo non ce
+  // l ha - quindi per quelli non riusciva mai e l etichetta restava "Studio".
+  return descrizione !== 'Studio';
 }
 
 function clearPatientTabInfoRefresh() {
@@ -228,14 +234,26 @@ function clearPatientTabInfoRefresh() {
 
 function startPatientTabInfoRefresh() {
   clearPatientTabInfoRefresh();
+  // L attesa va misurata su quanto ci mette uno studio ad arrivare.
+  //
+  // Erano trenta tentativi da 350 millisecondi: dieci secondi e mezzo. Uno
+  // studio dall archivio ne impiega venti o trenta, quindi il giro finiva
+  // prima che i dati del paziente esistessero, e l etichetta restava "Studio"
+  // per sempre.
+  const ATTESA_MASSIMA_MS = 60000;
+  const PASSO_MS = 350;
   let attempts = 0;
   patientTabInfoRefreshIntervalId = setInterval(() => {
     attempts += 1;
-    const resolvedAccession = updatePatientTabDescription();
-    if (resolvedAccession || attempts >= 30 || !document.getElementById('explorer-tab-btn')) {
+    const identificato = updatePatientTabDescription();
+    if (
+      identificato ||
+      attempts * PASSO_MS >= ATTESA_MASSIMA_MS ||
+      !document.getElementById('explorer-tab-btn')
+    ) {
       clearPatientTabInfoRefresh();
     }
-  }, 350);
+  }, PASSO_MS);
 }
 
 function setInputValue(input, value) {
@@ -1325,6 +1343,16 @@ function showIframeForTab(iframeId) {
 
   pendingIframeId = null;
   activeIframeId = resolvedIframeId;
+
+  // Chi guarda una scheda esterna non deve vedere la barra di questa pagina.
+  //
+  // Ogni scheda e un visualizzatore intero in un iframe, e questa pagina e a
+  // sua volta un visualizzatore: aperta una scheda ci sono due barre identiche
+  // sovrapposte, e i comandi finiscono su quella sotto, cioe sul visualizzatore
+  // che non si sta guardando.
+  const schedaEsterna =
+    resolvedIframeId !== 'none' && String(resolvedIframeId).startsWith('mdv-dynamic-iframe-');
+  document.body.classList.toggle('mdv-scheda-esterna', schedaEsterna);
   // Nascondi tutti gli iframe dinamici
   document.querySelectorAll('[id^="mdv-dynamic-iframe"]').forEach(ifr => {
     ifr.style.opacity = '0';

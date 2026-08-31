@@ -899,6 +899,25 @@ body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] > .ohif-scrollbar {
   }
 }
 
+/* Mentre si guarda una scheda esterna, questa pagina si fa da parte.
+   La sua barra degli strumenti e il suo visualizzatore restano montati - chiudere
+   la scheda deve riportarli com'erano - ma non si vedono e non ricevono comandi,
+   altrimenti si preme un pulsante e ne risponde un altro visualizzatore. */
+/* .mdv-bar e la barra intera, e sta a z-index 20: batte l iframe della scheda,
+   che sta a 1. Era lei a intercettare i click, non la testata che contiene -
+   misurato chiedendo alla pagina cosa c e sotto il pixel del pulsante. */
+body.mdv-scheda-esterna .mdv-bar,
+body.mdv-scheda-esterna .mdv-main-area {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* La barra delle schede resta: e l'unico modo di tornare indietro. */
+body.mdv-scheda-esterna #mdv-tab-container {
+  visibility: visible;
+  pointer-events: auto;
+}
+
 /* Il marchio sta nella testata, non sotto.
    Qui c'era top: 65px, che scavalcava la centratura verticale della barra e
    spingeva il marchio fuori, a galleggiare sopra la pagina: misurato, la barra
