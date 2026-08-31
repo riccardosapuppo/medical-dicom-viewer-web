@@ -903,8 +903,14 @@ body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] > .ohif-scrollbar {
   top: 65px;
 }
 
+/* Il marchio si misura in ALTEZZA, non in larghezza.
+   La barra e' alta una quarantina di pixel: vincolando la larghezza, un
+   marchio piu' largo che alto ci finisce dentro per caso, e uno tagliato
+   diversamente no. Con max-width: 200 questo veniva alto cinquantadue e
+   sbordava sotto, addosso al titolo della pagina e al pannello. */
 .logo {
-  max-width: 200px;
+  max-height: 26px;
+  width: auto;
 }
 
 .tip-custom-layout {
@@ -2104,6 +2110,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
     flex-wrap: wrap !important;
   }
   .logo {
+    max-height: 22px;
     max-width: 18vw;
   }
 }
