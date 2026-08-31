@@ -67,7 +67,6 @@ window.isSuiteRuntime = window.isSuite || /(^|\.)suite\./i.test(window.location.
 // ancora sul PACS del centro. Sull'installazione del centro la tab non serve.
 window.storicoRemoto = window.isSuiteRuntime;
 window.portableVersion = false;
-window.gestioneMultiMonitor = true;
 window.mostraErroriFrontend = false //Qualcosa è andato storto errore
 
 // The demonstration archive, served by Orthanc and reached through the

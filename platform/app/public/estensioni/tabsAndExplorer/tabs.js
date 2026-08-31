@@ -392,7 +392,13 @@ function preloadEmptyIframe() {
     localStorage.setItem("aetitle", aetitle);
   }
 
-  iframe.src = window.location.origin + `/viewer/`;
+  // La scheda nuova si apre sulla LISTA STUDI, non sul visualizzatore.
+  //
+  // Puntava a /viewer/, che nell'installazione ospite era la lista e qui e' la
+  // rotta del visualizzatore: senza uno studio nell indirizzo caricava una
+  // pagina nera, e il "+" sembrava rotto. La lista sta alla radice, dove la
+  // mette routerBasename.
+  iframe.src = window.location.origin + ((window.PUBLIC_URL || '/').replace(/\/*$/, '/'));
   iframe.dataset.loaded = 'true';
 
   iframe.style.position = 'absolute';
@@ -491,7 +497,6 @@ let activeIframeId = null;
 let pendingIframeId = null;
 let loadingNotificationTimeoutId = null;
 const openStudyTabsById = new Map();
-let mdvExtensionDetected = false;
 
 function getExistingTabForStudy(studyId) {
   if (!studyId) {
@@ -745,121 +750,6 @@ function startTabsInitWatcher() {
 //   CREA CONTAINER + TABS
 // ========================
 
-function injectMacWindowControls() {
-  //Nello storico affiancato la finestra e' un iframe dentro lo studio
-  //principale: i controlli finestra (chiudi tab / fullscreen) non hanno senso
-  //e si sovrappongono al pulsante di chiusura dello storico.
-  if (window.location.href.includes('storico=same-tab')) return;
-  if (document.getElementById('mdv-window-controls')) return;
-
-  const leftPanel = document.getElementById('viewerLayoutResizableLeftPanel');
-  if (!leftPanel) return;
-
-  const controls = document.createElement('div');
-  controls.id = 'mdv-window-controls';
-  controls.style.display = 'flex';
-  controls.style.alignItems = 'center';
-  controls.style.flexWrap = 'nowrap';
-  controls.style.gap = '6px';
-  controls.style.padding = '6px 8px';
-  controls.style.width = 'max-content';
-  // controls.style.background = 'rgb(7 7 7)';
-  controls.style.position = 'absolute';
-  controls.style.top = '8px';
-  controls.style.left = '3px';
-  controls.style.zIndex = '100000';
-
-  const colors = ['#ff5f57', '#febc2e', '#28c840'];
-  const actions = ['close-tab', 'disabled', 'toggle-fullscreen'];
-  const symbols = ['x', '-', '+'];
-  colors.forEach((color, index) => {
-    const btn = document.createElement('span');
-    btn.style.display = 'inline-block';
-    btn.style.flex = '0 0 13px';
-    btn.style.minWidth = '13px';
-    btn.style.maxWidth = '13px';
-    btn.style.flexShrink = '0';
-    btn.style.width = '13px';
-    btn.style.height = '13px';
-    btn.style.borderRadius = '50%';
-    btn.style.background = color;
-    btn.style.boxShadow = '0 0 0 1px rgba(0,0,0,0.4) inset';
-    btn.style.position = 'relative';
-    btn.style.cursor = 'pointer';
-    btn.dataset.action = actions[index];
-
-    const symbol = document.createElement('span');
-    symbol.textContent = symbols[index];
-    symbol.style.position = 'absolute';
-    symbol.style.top = '0';
-    symbol.style.left = '0';
-    symbol.style.width = '100%';
-    symbol.style.height = '100%';
-    symbol.style.lineHeight = '12px';
-    symbol.style.fontSize = '11px';
-    symbol.style.textAlign = 'center';
-    symbol.style.color = '#4a4a4a';
-    symbol.style.fontWeight = '700';
-    symbol.style.opacity = '0';
-    symbol.style.pointerEvents = 'none';
-    btn.appendChild(symbol);
-
-    btn.addEventListener('mouseenter', () => {
-      symbol.style.opacity = '1';
-    });
-    btn.addEventListener('mouseleave', () => {
-      symbol.style.opacity = '0';
-    });
-
-    if (actions[index] === 'disabled') {
-      btn.style.opacity = '0.5';
-      btn.style.cursor = 'default';
-    } else if (actions[index] === 'toggle-fullscreen') {
-      btn.addEventListener('click', () => {
-        if (document.fullscreenElement) {
-          document.exitFullscreen().catch(() => { });
-          return;
-        }
-
-        if (mdvExtensionDetected) {
-          requestExtensionToggleFullscreen();
-          return;
-        }
-
-        if (isBrowserFullscreen()) {
-          requestExtensionExitFullscreen();
-          return;
-        }
-
-        document.documentElement.requestFullscreen().catch(() => { });
-      });
-    } else if (actions[index] === 'close-tab') {
-      btn.addEventListener('click', () => {
-        closeAllTabsAndShowExplorer();
-      });
-    }
-
-    controls.appendChild(btn);
-  });
-
-  document.body.appendChild(controls);
-
-  const updateControlsPosition = () => {
-    // Placeholder hook: keep observers active for future position updates.
-  };
-
-  requestAnimationFrame(updateControlsPosition);
-  window.addEventListener('resize', updateControlsPosition);
-
-  const leftPanelResizeObserver = new ResizeObserver(updateControlsPosition);
-  leftPanelResizeObserver.observe(leftPanel);
-
-  const leftPanelMutationObserver = new MutationObserver(updateControlsPosition);
-  leftPanelMutationObserver.observe(leftPanel, {
-    attributes: true,
-    attributeFilter: ['style', 'class'],
-  });
-}
 
 function injectTabs(target) {
   console.log('tabs');
@@ -971,8 +861,6 @@ function injectTabs(target) {
   document.querySelector(".mdv-main-area").insertAdjacentElement('beforebegin', container);
   updatePatientTabDescription();
   startPatientTabInfoRefresh();
-
-  injectMacWindowControls();
 
   if (layoutPanel) {
     const updateContainerLeft = () => {
@@ -1518,8 +1406,5 @@ window.addEventListener("message", (event) => {
       el => el.contentWindow === event.source
     );
     markIframeReady(iframe);
-  }
-  if (event.data?.type === 'fromExtension') {
-    mdvExtensionDetected = true;
   }
 });
