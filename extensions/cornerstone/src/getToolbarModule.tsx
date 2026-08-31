@@ -143,6 +143,25 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
       },
     },
     {
+      // Acceso o spento secondo la classe sul corpo della pagina.
+      //
+      // Il pulsante che nasconde i dati sovrimpressi era dichiarato toggle ma
+      // valutato con evaluate.action, che risponde sempre e solo "non
+      // disabilitato": premendolo le scritte sparivano e il pulsante restava
+      // identico, quindi non c'era modo di sapere in che stato si fosse se non
+      // guardando le immagini.
+      //
+      // Lo stato vero e' la classe che il comando mette e toglie, quindi la si
+      // legge da li.
+      name: 'evaluate.classeSulCorpo',
+      evaluate: ({ button }) => {
+        const classe = button?.commandOptions?.classe ?? 'hide-info-dicom';
+        return {
+          className: utils.getToggledClassName(document.body.classList.contains(classe)),
+        };
+      },
+    },
+    {
       // Disabilita un bottone quando la viewport attiva è in modalità Sottogriglia
       // (Montage). Usato per i tool non applicabili alla montage (es. Cine).
       name: 'evaluate.cornerstone.disabledInMontage',

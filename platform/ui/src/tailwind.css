@@ -920,13 +920,13 @@ body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] > .ohif-scrollbar {
   background-color: transparent !important;
 }
 
-[data-cy='StackScroll'] img {
-  filter: none;
-}
 
-[data-cy='hideInfoDicom'] img {
-  filter: invert(1);
-}
+
+/* L'icona e' gia' disegnata per il fondo scuro.
+   Qui c'era filter: invert(1), scritto per l'icona di prima, che era scura su
+   chiaro. Con questa faceva il contrario: il tratto chiaro diventava quasi
+   nero e l'ambra della sbarra diventava blu notte, quindi del disegno si
+   vedeva solo la sbarra obliqua, storta di colore. */
 
 .hide-info-dicom {
   .overlay-info-dicom {
@@ -937,9 +937,12 @@ body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] > .ohif-scrollbar {
   }
 }
 
-[data-cy='StackScroll'][data-active='true'] img {
-  filter: brightness(0) saturate(100%) invert(14%) sepia(89%) saturate(3061%)
-    hue-rotate(344deg) brightness(84%) contrast(96%);
+/* Lo stato attivo si imposta, non si ricava da una catena di filtri.
+   Questa catena tingeva l'icona del rosso aziendale, ed essendo un filtro e non
+   un colore non compariva in nessuna ricerca di colori: e' sopravvissuta a tre
+   passate di ritinta. L'icona ora disegna con currentColor. */
+[data-cy='StackScroll'][data-active='true'] {
+  color: #38bdf8;
 }
 
 [data-cy='panelSegmentation-btn'] .bg-customblue-40,

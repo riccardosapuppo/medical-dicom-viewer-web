@@ -207,8 +207,8 @@ import ChevronLeft from './Sources/ChevronLeft';
 import StatusAlert from './Sources/StatusAlert';
 import notificationWarning from '../../../assets/icons/warning.png';
 import mprDirect from '../../../assets/icons/mpr.png';
-import toolStackScroll from '../../../assets/icons/tool-stack-scroll.svg';
-import hideInfoDicom from '../../../assets/icons/tool-hide-info-dicom.svg';
+import { ToolStackScrollWheel } from './Sources/ToolStackScrollWheel';
+import { ToolHideOverlayInfo } from './Sources/ToolHideOverlayInfo';
 import storicoExpand from '../../../assets/icons/storico-expand.svg';
 import storicoSameWindow from '../../../assets/icons/storico-same-window.svg';
 import storicoNewWindow from '../../../assets/icons/storico-new-window.svg';
@@ -262,18 +262,11 @@ export const Icons = {
       </span>
     </span>
   ),
-  toolStackScroll: (props: ImageIconProps) => (
-    <ImageWrapper
-      src={toolStackScroll}
-      {...props}
-    />
-  ),
-  hideInfoDicom: (props: ImageIconProps) => (
-    <ImageWrapper
-      src={hideInfoDicom}
-      {...props}
-    />
-  ),
+  // Queste due sono SVG in linea e non immagini: disegnano con currentColor,
+  // quindi la barra le accende impostando un colore invece di tingerle con un
+  // filtro. Vedi i due file in Sources/ per il perche'.
+  toolStackScroll: ToolStackScrollWheel,
+  hideInfoDicom: ToolHideOverlayInfo,
   storicoExpand: (props: ImageIconProps) => (
     <ImageWrapper
       src={storicoExpand}

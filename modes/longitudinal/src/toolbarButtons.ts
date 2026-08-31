@@ -960,7 +960,7 @@ const toolbarButtons: Button[] = [
       label: 'Nascondi info nelle viewport',
       tooltip: 'Nascondi i dati sovrimpressi alle immagini',
       commands: 'hideInfoDicom',
-      evaluate: 'evaluate.action',
+      evaluate: 'evaluate.classeSulCorpo',
     },
   },
   {
