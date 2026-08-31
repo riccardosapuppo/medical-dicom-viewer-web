@@ -119,8 +119,27 @@ const StudyItem = ({
     studyInstanceUID !== undefined && studyInstanceUID !== null && studyInstanceUID !== '';
   const resolvedDescription = resolveStudyDescription({ description, isStorico, displaySets });
 
+  /**
+   * Apre la riga dello studio storico, mostrandone le anteprime.
+   *
+   * Risaliva tre genitori a partire da e.target e cliccava il primo bottone
+   * che trovava. Ma e.target e cio che si e cliccato davvero: premendo il
+   * disegno dentro il pulsante e non il suo bordo, si parte dallo <svg> e tre
+   * genitori piu su si finisce da un altra parte. Il pulsante sembrava morto,
+   * e a volte lo era: ritrovava se stesso.
+   *
+   * e.currentTarget e sempre il pulsante, comunque lo si sia colpito. Da li si
+   * risale al gruppo delle tre icone e si prende la maniglia dell'accordion,
+   * che nel DOM viene prima.
+   */
   const espandi = e => {
-    e.target.parentElement.parentElement.parentElement.querySelector('button').click();
+    const gruppo = e.currentTarget.closest('.open-storico-modes');
+    const maniglia = gruppo?.parentElement?.querySelector('button');
+    if (!maniglia || maniglia === e.currentTarget) {
+      console.warn('[storico] maniglia di apertura non trovata');
+      return;
+    }
+    maniglia.click();
   };
 
   const isLoadingStoricoDisplaySets =

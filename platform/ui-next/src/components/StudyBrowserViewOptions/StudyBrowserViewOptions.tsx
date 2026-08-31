@@ -43,6 +43,15 @@ export function StudyBrowserViewOptions({ tabs, onSelectTab, activeTabName }: wi
   //   </div>
   // ); window.portableVersion ? (
 
+  // Una linguetta sola non e una scelta.
+  //
+  // Quando il paziente non ha esami precedenti resta il solo "Studio attuale":
+  // un pulsante gia acceso, che porta dove si e gia. Occupa una fascia alta
+  // quarantotto pixel sopra l'elenco delle serie per non dire niente.
+  if (!tabs || tabs.length < 2) {
+    return null;
+  }
+
   return (
     !window.portableVersion && (
       <div>
