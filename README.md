@@ -1,16 +1,21 @@
 # Medical DICOM Viewer (Web)
 
-A diagnostic image viewer for CT and MR studies, built as a fork of the
-[OHIF Viewer](https://github.com/OHIF/Viewers) at 3.10.0-beta.129 and extended
-with the tools a reading room needs and the stock viewer does not have.
+A diagnostic viewer for CT and MR studies, with the tools a reading room needs
+and an open-source viewer does not ship: a subgrid that turns one viewport into
+a light box, hanging protocols a radiologist saves and gets back on the next
+study of the same kind, a reading list, prior studies alongside the current one,
+and two Cornerstone tools wired up here because upstream leaves them out —
+including patches to the drawing library itself.
 
-OHIF is MIT licensed and both copyright notices travel with this copy, in
-[LICENSE](LICENSE). What is upstream and what was written here is set out below,
-because a fork that does not say so is asking to be misread.
+It is a fork of the [OHIF Viewer](https://github.com/OHIF/Viewers) at
+3.10.0-beta.129, and it says so on purpose. OHIF is MIT licensed and both
+copyright notices travel with this copy, in [LICENSE](LICENSE). What comes from
+upstream and what was written here is set out below, in full: a fork that does
+not draw that line is asking to be misread.
 
 ![The study list](docs/study-list.png)
 
-## What was added on top of the viewer
+## What this adds to the viewer
 
 **A subgrid inside a viewport.** One viewport divides into rows and columns of
 cells, each showing a different image of the same series, all sharing the pixel
@@ -45,6 +50,29 @@ into the drawing library rather than worked around above it.
 
 **A guided tour of all of the above**, in the language of the interface, shown
 once on the first study opened.
+
+## Underneath
+
+Most of the work is not in the feature list. Making a viewer built to sit
+inside another application run on its own meant finding, and fixing, every
+place it assumed a host page was there to answer for it.
+
+**Patched drawing tools.** Reference lines that stayed confined to one study,
+and changes to the trackball, are patched into Cornerstone itself rather than
+worked around above it — linked in place of the published packages, so the fix
+is where the behaviour is.
+
+**It degrades instead of breaking.** Without a graphics context the images are
+drawn on the processor and the viewer says so, in its own words; reformatting
+is off and explains why rather than failing when pressed. With no archive
+running, the notice names the archive it could not reach and how to start one.
+A saved arrangement is kept locally when there is no backend to synchronise to.
+
+**Three checks that drive a real browser**, in [scripts/](scripts/), because
+nearly everything that went wrong here answered "yes" to whether it works:
+`smoke` opens a study, `layout` reports text drawn over text and controls off
+screen at two window sizes, and `controls` presses every control this fork adds
+and reports what raises, what changes and what does nothing at all.
 
 ## Running it
 
