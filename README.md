@@ -1,11 +1,16 @@
 # Medical DICOM Viewer (Web)
 
-A diagnostic viewer for CT and MR studies, with the tools a reading room needs
-and an open-source viewer does not ship: a subgrid that turns one viewport into
-a light box, hanging protocols a radiologist saves and gets back on the next
-study of the same kind, a reading list, prior studies alongside the current one,
-and two Cornerstone tools wired up here because upstream leaves them out —
-including patches to the drawing library itself.
+A diagnostic DICOM viewer with the tools a reading room needs and an
+open-source viewer does not ship: a subgrid that turns one viewport into a light
+box, hanging protocols a radiologist saves and gets back on the next study of
+the same kind, a reading list, prior studies alongside the current one, and two
+Cornerstone tools wired up here because upstream leaves them out — including
+patches to the drawing library itself.
+
+It opens whatever DICOM an archive holds. Nothing in it decides by modality:
+ultrasound, radiography, mammography and the rest open like anything else. The
+studies below happen to be CT and MR because that is what was loaded to
+demonstrate it, not because those are what it reads.
 
 It is a fork of the [OHIF Viewer](https://github.com/OHIF/Viewers) at
 3.10.0-beta.129, and it says so on purpose. OHIF is MIT licensed and both
@@ -90,7 +95,8 @@ yarn dev                      # the viewer, on http://localhost:3000
 ## The studies
 
 Three real, de-identified clinical studies from
-[The Cancer Imaging Archive](https://www.cancerimagingarchive.net/): a chest CT,
+[The Cancer Imaging Archive](https://www.cancerimagingarchive.net/). They are a
+sample chosen to exercise the viewer, not the range of what it opens: a chest CT,
 a three-phase abdominal CT, and a five-sequence renal MR. Nothing is committed
 here — a script fetches them, and keeps the licence file the archive ships beside
 the images.
