@@ -1715,10 +1715,18 @@ function commandsModule({
             storeState();
             //Verifico che la serie selezionata su cui attivare l'mpr sia dello studio attuale o magari dello storico così la clicco subito dopo l'attivazione
             if (!document.body.classList.contains('storico-same-tab')) {
-              if (displaySets[0].studyInstanceUid !== window.mdvStudyInstanceUIDs) {
-                document.querySelectorAll('.qualestudio-btn')[1].click();
-              } else {
-                document.querySelectorAll('.qualestudio-btn')[0].click();
+              // Le linguette di studio ci sono solo quando c e uno storico.
+              //
+              // Servono a scegliere in quale elenco cercare la miniatura della
+              // serie. Se il paziente non ha esami precedenti non vengono
+              // disegnate affatto, e qui si chiamava click() su undefined:
+              // l attivazione dell MPR si fermava con un TypeError, e il
+              // pulsante sembrava non fare niente.
+              const linguetteStudio = document.querySelectorAll('.qualestudio-btn');
+              if (linguetteStudio.length > 1) {
+                const quale =
+                  displaySets[0].studyInstanceUid !== window.mdvStudyInstanceUIDs ? 1 : 0;
+                linguetteStudio[quale].click();
               }
             }
             //Dopo il click della tab corretta applico un timeout
@@ -1735,7 +1743,10 @@ function commandsModule({
                 if (!ActiveThumbnail) {
                   //Se non trovo ActiveThumbnail, è probabile che non mi trovo nella tab corrispondente
                   //(o sono in storico sul cloud o studio attuale) e ActiveThumbnail si potrebbe trovare in una delle due (tab inattiva)
-                  document.querySelector('.inactive-tab-study').click();
+                  //
+                  // La linguetta inattiva esiste solo se ce ne sono due. Senza
+                  // storico non c e, e qui si chiamava click() su null.
+                  document.querySelector('.inactive-tab-study')?.click();
                   setTimeout(() => {
                     ActiveThumbnail = document.querySelector(
                       `#thumbnail-${window.instanceUIDMPRDaCliccare} img`
