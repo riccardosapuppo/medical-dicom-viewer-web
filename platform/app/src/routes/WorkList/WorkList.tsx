@@ -170,10 +170,14 @@ function WorkList({
   };
 
   // Set body style
+  //
+  // mdv-lista-studi dice CHE PAGINA e questa. bg-black la mettono anche il
+  // visualizzatore e la pagina dei file locali, quindi non distingue niente: le
+  // regole appese a quella finivano anche altrove.
   useEffect(() => {
-    document.body.classList.add('bg-black');
+    document.body.classList.add('bg-black', 'mdv-lista-studi');
     return () => {
-      document.body.classList.remove('bg-black');
+      document.body.classList.remove('bg-black', 'mdv-lista-studi');
     };
   }, []);
 

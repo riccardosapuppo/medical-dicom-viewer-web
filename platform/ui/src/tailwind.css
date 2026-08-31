@@ -938,13 +938,13 @@ body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] > .ohif-scrollbar {
    Senza questo il marchio resta a otto pixel dal bordo mentre il contenuto
    comincia a duecentosettantacinque: due allineamenti diversi nella stessa
    schermata. */
-body.bg-black .logo-container {
+body.mdv-lista-studi .logo-container {
   left: 50%;
   transform: translate(-640px, -50%);
 }
 
 @media (max-width: 1340px) {
-  body.bg-black .logo-container {
+  body.mdv-lista-studi .logo-container {
     left: 1.5rem;
     transform: translateY(-50%);
   }
