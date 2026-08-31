@@ -899,9 +899,71 @@ body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] > .ohif-scrollbar {
   }
 }
 
-.logo-container {
-  top: 65px;
+/* Il marchio sta nella testata, non sotto.
+   Qui c'era top: 65px, che scavalcava la centratura verticale della barra e
+   spingeva il marchio fuori, a galleggiare sopra la pagina: misurato, la barra
+   finisce a 48 e il marchio cominciava a 48. Senza questa riga torna al centro
+   di cio' che lo contiene, che e' dove stava andando da solo. */
+
+/* E la barra si vede che e' una barra: un gradino sopra il fondo della pagina,
+   chiusa da un filo. Prima era nera su nero e conteneva solo un marchio senza
+   casa. */
+.mdv-testata {
+  background-color: #0b0d10;
+  border-bottom: 1px solid #1c222b;
 }
+
+/* Filtri ed elenco sono un oggetto solo.
+   Erano due blocchi neri su una pagina nera - contenitori che non si vedono - e
+   la colonna centrale si leggeva come testo appoggiato al vuoto. */
+.mdv-pannello-lista {
+  background-color: #0d1014;
+  border: 1px solid #1c222b;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Il blocco dei filtri si stacca dalle righe che filtra.
+   Dentro lo stesso pannello, un gradino piu' scuro: prima aveva lo stesso fondo
+   dei dati e si leggeva come una quarta riga della tabella. */
+.mdv-pannello-lista thead {
+  background-color: #0a0c0f;
+}
+
+/* La pagina della lista studi allinea la testata al corpo.
+   La classe bg-black sul body la mette la lista studi e solo lei (vedi
+   WorkList.tsx), quindi la regola vale li' e non nel visualizzatore, dove la
+   barra e' a tutta larghezza perche' contiene la barra degli strumenti.
+
+   Senza questo il marchio resta a otto pixel dal bordo mentre il contenuto
+   comincia a duecentosettantacinque: due allineamenti diversi nella stessa
+   schermata. */
+body.bg-black .logo-container {
+  left: 50%;
+  transform: translate(-640px, -50%);
+}
+
+@media (max-width: 1340px) {
+  body.bg-black .logo-container {
+    left: 1.5rem;
+    transform: translateY(-50%);
+  }
+}
+
+/* L'elenco NON riempie la finestra, ed e' una scelta.
+
+   Ci ho provato: con tre studi il pannello finiva a meta' schermo e sotto
+   restava il nero. Ma l'altezza si ferma su una scatola con display: table -
+   il contenitore interno dell'area scorrevole - e forzandola la tabella
+   distribuiva lo spazio fra intestazione e righe, staccando i filtri dai dati
+   con trecento pixel di vuoto in mezzo. Peggio del problema.
+
+   Un pannello che sta stretto ai suoi dati, su un fondo che gli fa spazio, si
+   legge come una scheda posata. Un pannello alto quanto lo schermo con dentro
+   un buco si legge come un errore. Restano tre studi: sono tre.
+
+   Se un giorno l'elenco dovesse riempire davvero, la strada e' cambiare il
+   contenitore dell'area scorrevole, non tirare la tabella. */
 
 /* Il marchio si misura in ALTEZZA, non in larghezza.
    La barra e' alta una quarantina di pixel: vincolando la larghezza, un

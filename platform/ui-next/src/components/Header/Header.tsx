@@ -55,7 +55,7 @@ function Header({
       isSticky={isSticky}
       {...props}
     >
-      <div className="relative h-[48px] items-center">
+      <div className="mdv-testata relative h-[48px] items-center">
         <div className="absolute left-0 top-1/2 flex -translate-y-1/2 items-center logo-container">
           <div
             className={classNames(
