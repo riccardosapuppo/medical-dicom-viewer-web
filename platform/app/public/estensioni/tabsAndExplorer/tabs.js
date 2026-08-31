@@ -12,6 +12,27 @@ if (window.self === window.top) {
 
 const isStudyListEnabled = window?.config?.showStudyList !== false;
 
+/**
+ * I piani di sovrapposizione, in un posto solo.
+ *
+ * Erano numeri sparsi - 99999, 100000, 999999, 9999999 - scelti ciascuno per
+ * vincere contro qualcosa, senza un ordine scritto da nessuna parte. Bastava
+ * abbassarne uno per rompere un rapporto che nessuno sapeva esistesse: la
+ * barra delle schede portata sotto il contenuto faceva sparire la scheda
+ * selezionata dietro il proprio iframe, che comincia sei pixel piu in alto.
+ *
+ * I suggerimenti della barra strumenti si disegnano a 50: qualunque cosa
+ * debba lasciarli leggere deve stare sotto quel numero.
+ */
+const PIANI = {
+  nascosto: -1,
+  contenuto: 1,
+  barraSchede: 10,
+  schedaPaziente: 11,
+  modale: 100,
+};
+
+
 const iframeSpinnerById = new Map();
 const iframeLoadTimeoutById = new Map();
 const iframeLoadErrorById = new Map();
@@ -99,7 +120,7 @@ function markIframeReady(iframe) {
   } else if (activeIframeId === iframe.id) {
     iframe.style.opacity = '1';
     iframe.style.pointerEvents = 'auto';
-    iframe.style.zIndex = '99999';
+    iframe.style.zIndex = String(PIANI.contenuto);
   }
 }
 
@@ -433,7 +454,7 @@ function preloadEmptyIframe() {
   // NASCOSTO MA ATTIVO (NO display:none!)
   iframe.style.opacity = '0';
   iframe.style.pointerEvents = 'none';
-  iframe.style.zIndex = '-1';
+  iframe.style.zIndex = String(PIANI.nascosto);
 
   document.body.appendChild(iframe);
 
@@ -490,7 +511,7 @@ function openRouteInModal(url) {
   modal.style.height = '100vh';
   modal.style.background = 'rgba(0,0,0,0.65)';
   modal.style.backdropFilter = 'blur(4px)';
-  modal.style.zIndex = '999999';
+  modal.style.zIndex = String(PIANI.modale);
   modal.style.display = 'flex';
   modal.style.alignItems = 'center';
   modal.style.justifyContent = 'center';
@@ -862,7 +883,7 @@ function injectTabs(target) {
   plusTab.style.fontWeight = 'bold';
   plusTab.style.borderRadius = '4px';
   plusTab.style.userSelect = 'none';
-  plusTab.style.zIndex = '10';
+  plusTab.style.zIndex = String(PIANI.barraSchede);
   plusTab.style.whiteSpace = 'nowrap';
 
   plusTab.addEventListener('mouseenter', () => {
@@ -968,7 +989,7 @@ function injectTabs(target) {
       patientTab.style.opacity = '0';
       patientTab.style.display = 'none';
       patientTab.style.pointerEvents = 'none';
-      patientTab.style.zIndex = '-1';
+      patientTab.style.zIndex = String(PIANI.nascosto);
       patientTab.dataset.visible = "false";
 
       //Se ho chiuso la tab principale e ho solo una tab iframe, nascondo il pulsante chiudi da qui
@@ -1065,7 +1086,7 @@ function hidePatientTab() {
   patientTab.style.opacity = '0';
   patientTab.style.display = 'none';
   patientTab.style.pointerEvents = 'none';
-  patientTab.style.zIndex = '-1';
+  patientTab.style.zIndex = String(PIANI.nascosto);
   patientTab.dataset.visible = "false";
 }
 
@@ -1155,13 +1176,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   tab.style.cursor = 'pointer';
   tab.style.userSelect = 'none';
   tab.style.whiteSpace = 'nowrap';
-  // Sopra il contenuto, sotto i suggerimenti.
-  //
-  // Era 9999999, che copriva i tooltip della barra degli strumenti (disegnati a
-  // 50): passando il mouse su uno strumento il riquadro si apriva dietro la
-  // linguetta e non si vedeva. Una barra deve stare sopra le immagini, non
-  // sopra tutto.
-  tab.style.zIndex = '10';
+  tab.style.zIndex = String(PIANI.barraSchede);
   tab.style.transition = 'background 0.2s';
   tab.style.border = '1px solid transparent';
 
@@ -1240,7 +1255,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   iframe.style.border = 'none';
   iframe.style.opacity = '0';
   iframe.style.pointerEvents = 'none';
-  iframe.style.zIndex = '99999';
+  iframe.style.zIndex = String(PIANI.contenuto);
 
   document.body.appendChild(iframe);
 
@@ -1314,7 +1329,7 @@ function showIframeForTab(iframeId) {
   document.querySelectorAll('[id^="mdv-dynamic-iframe"]').forEach(ifr => {
     ifr.style.opacity = '0';
     ifr.style.pointerEvents = 'none';
-    ifr.style.zIndex = '-1';
+    ifr.style.zIndex = String(PIANI.nascosto);
   });
 
   // Reset grafico tab dinamiche
@@ -1338,7 +1353,7 @@ function showIframeForTab(iframeId) {
     if (resolvedIframeId === 'mdv-dynamic-iframe-empty' || iframe.dataset.loaded === 'true') {
       iframe.style.opacity = '1';
       iframe.style.pointerEvents = 'auto';
-      iframe.style.zIndex = '99999';
+      iframe.style.zIndex = String(PIANI.contenuto);
     }
   }
 
@@ -1360,7 +1375,7 @@ function showIframeForTab(iframeId) {
     patientTab.style.opacity = '1';
     patientTab.style.display = 'block';
     patientTab.style.pointerEvents = 'auto';
-    patientTab.style.zIndex = '100000';
+    patientTab.style.zIndex = String(PIANI.schedaPaziente);
     patientTab.dataset.visible = "true";
   } else {
     // Se l’iframe NON è quello del pulsante +, nascondo la tab principale
@@ -1369,7 +1384,7 @@ function showIframeForTab(iframeId) {
 
       // patientTab.style.opacity = '0';
       // patientTab.style.pointerEvents = 'none';
-      // patientTab.style.zIndex = '-1';
+      // patientTab.style.zIndex = String(PIANI.nascosto);
       // patientTab.dataset.visible = "false";
 
     }
@@ -1378,7 +1393,7 @@ function showIframeForTab(iframeId) {
 
       patientTab.style.opacity = '1';
       patientTab.style.pointerEvents = 'auto';
-      patientTab.style.zIndex = '100000';
+      patientTab.style.zIndex = String(PIANI.schedaPaziente);
       patientTab.dataset.visible = "true";
 
     }
@@ -1387,7 +1402,7 @@ function showIframeForTab(iframeId) {
 
       patientTab.style.opacity = '1';
       patientTab.style.pointerEvents = 'auto';
-      patientTab.style.zIndex = '100000';
+      patientTab.style.zIndex = String(PIANI.schedaPaziente);
       patientTab.dataset.visible = "true";
 
     }
@@ -1428,7 +1443,7 @@ function removeDynamicTab(tab) {
     const patientTab = document.getElementById('explorer-tab-btn');
     patientTab.style.opacity = '1';
     patientTab.style.pointerEvents = 'auto';
-    patientTab.style.zIndex = '100000';
+    patientTab.style.zIndex = String(PIANI.schedaPaziente);
     patientTab.dataset.visible = "true";
     updatePatientCloseButton();
     return;
