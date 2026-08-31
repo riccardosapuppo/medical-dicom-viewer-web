@@ -649,10 +649,25 @@ const LINKED_SERIES_PALETTE = [
   '#FF8A65', // coral
 ];
 
-function hashSyncIdToColor(syncId: string): string {
+/**
+ * Un colore per ogni INSIEME di viewport che si muovono insieme.
+ *
+ * Prima la chiave era l'id del sincronizzatore, e di sincronizzatori ce n'e'
+ * uno: "collega serie" ci mette dentro tutte le viewport, e quale coppia si
+ * muova davvero lo decide dopo il controllo di complanarita'. Con una chiave
+ * sola uscivano tutti i pallini dello stesso colore, cioe' il pallino diceva
+ * che cinque serie scorrono insieme mentre ne scorrono due con due e una con
+ * una.
+ *
+ * La chiave e' l'insieme ordinato dei partecipanti. Chi si muove con gli stessi
+ * ha lo stesso colore; chi si muove con altri ne ha un altro. Ed e' stabile:
+ * ordinare rende la chiave indipendente da chi la calcola, quindi due viewport
+ * dello stesso gruppo arrivano allo stesso colore ciascuna per conto suo.
+ */
+function hashSyncIdToColor(chiave: string): string {
   let hash = 0;
-  for (let i = 0; i < syncId.length; i++) {
-    hash = (hash * 31 + syncId.charCodeAt(i)) | 0;
+  for (let i = 0; i < chiave.length; i++) {
+    hash = (hash * 31 + chiave.charCodeAt(i)) | 0;
   }
   const index = Math.abs(hash) % LINKED_SERIES_PALETTE.length;
   return LINKED_SERIES_PALETTE[index];
@@ -825,7 +840,8 @@ function LinkedSeriesBadgeOverlayItem(props: OverlayItemProps) {
 
   const linkInfo = groups.map(g => ({
     id: g.id,
-    color: hashSyncIdToColor(g.id),
+    // L'insieme di chi si muove insieme, ordinato: questa viewport e i suoi pari.
+    color: hashSyncIdToColor([viewportId, ...g.peers].sort().join('|')),
     others: g.peers.map(vpId => describeViewport(vpId)),
   }));
 
