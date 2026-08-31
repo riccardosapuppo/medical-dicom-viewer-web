@@ -383,27 +383,6 @@ const buildSelectionsFromConfig = (config, options: OverlayTagOption[]): Overlay
 };
 
 // Base URL del backend del viewer (coerente col resto del file).
-const getViewerApiBase = () =>
-  window?.isSuite ? 'http://localhost:3000' : window.location.origin;
-
-// L'utente admin si riconosce dal parametro URL ?User=admin (gia' salvato in
-// window.mdvUsername dal config). Solo per lui compare la tab "Impostazioni Globali".
-const isAdminUser = () =>
-  (window.mdvUsername || new URLSearchParams(window.location.search).get('User')) === 'admin';
-
-// Sblocco della tab admin: persiste finche' la pagina non viene ricaricata
-// (variabile a livello di modulo -> si azzera al reload, come richiesto).
-const adminGlobalSession = { unlocked: false, password: '' };
-
-// Flag globali configurabili dalla tab admin. La chiave deve combaciare con
-// quella in app-config.js; etichette e descrizioni sono in italiano.
-const GLOBAL_CONFIG_OPTIONS: { key: string; label: string; description: string }[] = [
-  {
-    key: 'showStudyList',
-    label: 'Mostra elenco studi',
-    description: 'Mostra tutti gli studi presenti nel PACS, con apertura in una nuova scheda.',
-  },
-];
 
 function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
   const { hotkeysManager, servicesManager } = useSystem();
@@ -429,14 +408,6 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
   const [activeTab, setActiveTab] = useState('hotkeys');
   const defaultOverlayConfigRef = useRef<ViewportOverlayTagsConfig | null>(null);
 
-  // --- Tab admin "Impostazioni Globali" ---
-  const isAdmin = isAdminUser();
-  const [adminUnlocked, setAdminUnlocked] = useState(adminGlobalSession.unlocked);
-  const [adminPasswordInput, setAdminPasswordInput] = useState('');
-  const [adminError, setAdminError] = useState('');
-  const [adminVerifying, setAdminVerifying] = useState(false);
-  const [globalSettings, setGlobalSettings] = useState<Record<string, boolean>>({});
-  const [globalSettingsLoaded, setGlobalSettingsLoaded] = useState(false);
 
   const overlayOptionsMap = useMemo(() => {
     const map = new Map<string, OverlayTagOption>();
@@ -554,104 +525,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
     };
   }, []);
 
-  // Carica i flag globali dal backend una volta sbloccata la tab admin.
-  useEffect(() => {
-    if (!isAdmin || !adminUnlocked || globalSettingsLoaded) {
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const apiUrl = `${getViewerApiBase()}/viewer/userdata/admin/global-config?cacheBuster=${Date.now()}`;
-        const response = await fetch(apiUrl);
-        if (response.ok) {
-          const data = await response.json();
-          if (!cancelled && data?.settings) {
-            setGlobalSettings(data.settings);
-            setGlobalSettingsLoaded(true);
-          }
-        }
-      } catch (err) {
-        console.warn('Impossibile caricare le impostazioni globali', err);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [isAdmin, adminUnlocked, globalSettingsLoaded]);
 
-  const verifyAdminPassword = async () => {
-    if (!adminPasswordInput) {
-      return;
-    }
-    setAdminVerifying(true);
-    setAdminError('');
-    try {
-      const response = await fetch(`${getViewerApiBase()}/viewer/userdata/admin/verify-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: adminPasswordInput }),
-      });
-      if (response.ok) {
-        adminGlobalSession.unlocked = true;
-        adminGlobalSession.password = adminPasswordInput;
-        setAdminUnlocked(true);
-        setAdminPasswordInput('');
-      } else {
-        setAdminError('Password non valida');
-      }
-    } catch (err) {
-      setAdminError('Errore di connessione');
-    } finally {
-      setAdminVerifying(false);
-    }
-  };
-
-  const onGlobalSettingChange = (key: string, value: boolean) => {
-    setGlobalSettings(prev => ({ ...prev, [key]: value }));
-  };
-
-  const saveGlobalSettings = async () => {
-    const uiNotificationService = servicesManager?.services?.uiNotificationService;
-    try {
-      const response = await fetch(`${getViewerApiBase()}/viewer/userdata/admin/global-config`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: adminGlobalSession.password, settings: globalSettings }),
-      });
-      if (!response.ok) {
-        uiNotificationService?.show?.({
-          title: 'Impostazioni Globali',
-          message:
-            response.status === 401
-              ? 'Password scaduta: ricarica la pagina e riprova'
-              : 'Errore durante il salvataggio',
-          type: 'error',
-        });
-        return;
-      }
-      // Aggiorno anche window.config per coerenza, ma alcune opzioni hanno
-      // effetto solo dopo il ricaricamento della pagina.
-      const win = window as any;
-      if (win.config) {
-        Object.entries(globalSettings).forEach(([key, value]) => {
-          win.config[key] = value;
-        });
-      }
-      uiNotificationService?.show?.({
-        title: 'Impostazioni Globali',
-        message: 'Impostazioni salvate. Ricarica la pagina per applicarle.',
-        type: 'success',
-      });
-    } catch (err) {
-      console.warn('Impossibile salvare le impostazioni globali', err);
-      uiNotificationService?.show?.({
-        title: 'Impostazioni Globali',
-        message: 'Errore durante il salvataggio',
-        type: 'error',
-      });
-    }
-  };
 
   const onLanguageChangeHandler = (value: string) => {
     setState(state => ({ ...state, languageValue: value }));
@@ -832,9 +706,6 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
     applyViewportOverlayTags(overlayTags);
     await saveViewportOverlayTags(overlayTags);
 
-    if (isAdmin && adminUnlocked && globalSettingsLoaded) {
-      await saveGlobalSettings();
-    }
 
     hotkeysModule.stopRecord();
     hotkeysModule.unpause();
@@ -884,14 +755,6 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
             >
               Preferenze Viewport
             </TabsTrigger>
-            {isAdmin && (
-              <TabsTrigger
-                value="global"
-                data-cy="global"
-              >
-                Impostazioni Globali
-              </TabsTrigger>
-            )}
           </TabsList>
 
           <TabsContent value="hotkeys">
@@ -982,65 +845,6 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
             </div>
           </TabsContent>
 
-          {isAdmin && (
-            <TabsContent value="global">
-              <UserPreferencesModal.SubHeading>Impostazioni Globali</UserPreferencesModal.SubHeading>
-              {!adminUnlocked ? (
-                <form
-                  className="flex max-w-sm flex-col gap-3 pt-2"
-                  onSubmit={event => {
-                    event.preventDefault();
-                    verifyAdminPassword();
-                  }}
-                >
-                  <div className="text-muted-foreground text-sm">
-                    Inserisci la password amministratore per accedere alle impostazioni globali.
-                  </div>
-                  <Input
-                    type="password"
-                    autoFocus
-                    placeholder="Password"
-                    value={adminPasswordInput}
-                    onChange={event => setAdminPasswordInput(event.target.value)}
-                  />
-                  {adminError && <div className="text-sm text-red-500">{adminError}</div>}
-                  <Button
-                    type="submit"
-                    disabled={adminVerifying || !adminPasswordInput}
-                    className="self-start"
-                  >
-                    {adminVerifying ? 'Verifica...' : 'Sblocca'}
-                  </Button>
-                </form>
-              ) : (
-                <div className="flex flex-col gap-2 pt-2">
-                  <div className="text-muted-foreground mb-1 text-sm">
-                    Abilita o disabilita le funzionalità globali di questa installazione. Alcune
-                    opzioni richiedono il ricaricamento della pagina per avere effetto.
-                  </div>
-                  <div className="divide-input flex flex-col divide-y">
-                    {GLOBAL_CONFIG_OPTIONS.map(option => (
-                      <div
-                        key={option.key}
-                        className="flex items-center justify-between gap-4 py-3"
-                      >
-                        <div className="flex flex-col">
-                          <Label className="text-foreground text-base">{option.label}</Label>
-                          <span className="text-muted-foreground text-xs">
-                            {option.description}
-                          </span>
-                        </div>
-                        <Switch
-                          checked={Boolean(globalSettings[option.key])}
-                          onCheckedChange={value => onGlobalSettingChange(option.key, value)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </TabsContent>
-          )}
         </Tabs>
       </UserPreferencesModal.Body>
       <FooterAction className="border-input -mx-4 -mb-4 rounded-b-lg border-t bg-black/20 px-4 pb-4 pt-3">
