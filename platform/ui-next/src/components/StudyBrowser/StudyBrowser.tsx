@@ -208,8 +208,18 @@ const StudyBrowser = ({
         <div
           className={`bg-bkg-low shrink-0 ${isBottomDocked ? 'mdv-study-browser-options' : ''}`}
         >
+          {/* La fascia esiste per le linguette, e senza quelle non ha nulla dentro.
+
+              Era alta quarantotto pixel fissi. Quando il paziente non ha esami
+              precedenti le linguette non si disegnano, e restava una striscia
+              vuota sopra l'elenco delle serie: misurata, zero figli.
+
+              Collassa invece di sparire perche il comando di ordinamento vive qui
+              dentro: non disegna niente (vedi il return anticipato in
+              StudyBrowserSort) ma tiene gli effetti che ordinano le serie, e
+              toglierlo dall albero li spegnerebbe. */}
           <div
-            className={`tab-studio-mdv w-100 bg-bkg-low flex h-[48px] items-center justify-center gap-[10px] py-[10px] ${isBottomDocked ? 'mdv-study-browser-options-tabs' : ''}`}
+            className={`tab-studio-mdv w-100 bg-bkg-low flex items-center justify-center gap-[10px] ${tabs.length > 1 ? 'h-[48px] py-[10px]' : 'h-0 overflow-hidden p-0'} ${isBottomDocked ? 'mdv-study-browser-options-tabs' : ''}`}
           >
             <>
               <StudyBrowserViewOptions

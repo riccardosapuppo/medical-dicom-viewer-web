@@ -909,7 +909,7 @@ body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] > .ohif-scrollbar {
    diversamente no. Con max-width: 200 questo veniva alto cinquantadue e
    sbordava sotto, addosso al titolo della pagina e al pannello. */
 .logo {
-  max-height: 26px;
+  max-height: 34px;
   width: auto;
 }
 
@@ -2110,7 +2110,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
     flex-wrap: wrap !important;
   }
   .logo {
-    max-height: 22px;
+    max-height: 28px;
     max-width: 18vw;
   }
 }

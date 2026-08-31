@@ -39,16 +39,36 @@ if (!contestoGrafico) {
 }
 
 const modality = new URLSearchParams(new URL(window.location.href).search).get('Modality');
-window.mdvStudyInstanceUIDs = new URLSearchParams(new URL(window.location.href).search).get(
-  'StudyInstanceUIDs'
-);
-window.mdvStudyDescription = new URLSearchParams(new URL(window.location.href).search).get(
-  'StudyDescription'
-);
-window.mdvModality = new URLSearchParams(new URL(window.location.href).search).get('Modality');
-window.mdvAETitle = new URLSearchParams(new URL(window.location.href).search).get('aetitle');
-window.mdvUsername = new URLSearchParams(new URL(window.location.href).search).get('User');
-window.mdvToken = new URLSearchParams(new URL(window.location.href).search).get('Token');
+/**
+ * Quello che sta nell'indirizzo si legge al momento in cui serve.
+ *
+ * Erano sei costanti calcolate qui, una volta, quando questo file viene
+ * valutato. Ma il visualizzatore naviga DENTRO la pagina: arrivando dalla lista
+ * studi l'indirizzo cambia e quelle costanti no, quindi restano ferme a com'era
+ * la pagina all'apertura - e sulla lista studi non c'e' nessuno studio, quindi
+ * restano vuote.
+ *
+ * Tredici punti del codice le leggono. Con il valore fermo, ognuno di quei
+ * tredici sbagliava a modo suo: ogni serie si marchiava STORICO da sola, e la
+ * riga dello studio corrente mostrava i comandi riservati agli studi
+ * precedenti. Correggerli uno per uno vuol dire correggerne dodici e
+ * dimenticarne uno: la lettura si aggiusta qui, e valgono tutti.
+ */
+[
+  ['mdvStudyInstanceUIDs', 'StudyInstanceUIDs'],
+  ['mdvStudyDescription', 'StudyDescription'],
+  ['mdvModality', 'Modality'],
+  ['mdvAETitle', 'aetitle'],
+  ['mdvUsername', 'User'],
+  ['mdvToken', 'Token'],
+].forEach(([nome, parametro]) => {
+  Object.defineProperty(window, nome, {
+    get() {
+      return new URLSearchParams(window.location.search).get(parametro);
+    },
+    configurable: true,
+  });
+});
 let origin = window.location.origin;
 
 // Qui non c e nessuna pagina ospite.

@@ -173,7 +173,14 @@ function getAccessionForTab() {
 }
 
 function buildPatientTabDescription() {
-  const patientName = getPatientNameForTab() || 'Studio';
+  // "Studio" era un ripiego pigro: e' quello che si leggeva sulla linguetta
+  // finche' i dati del paziente non arrivavano, e per uno studio che il nome
+  // paziente non ce l'ha - LIDC-IDRI-0001 nell'archivio dimostrativo - restava
+  // per sempre. Meglio l'identificativo del paziente, che c'e' sempre.
+  const patientName =
+    getPatientNameForTab() ||
+    getQueryParamCaseInsensitive('PatientID', 'patientId', 'mrn') ||
+    'Studio';
   const accession = getAccessionForTab();
   // Quando l accession non c e non si scrive "- N/A": una scheda che dichiara
   // di non sapere una cosa occupa spazio per non dire niente, e allunga
@@ -455,6 +462,19 @@ function openRouteInModal(url) {
   } catch (_) {
     studyId = null;
   }
+  // Lo studio gia aperto si mostra, non si riapre.
+  //
+  // Il controllo guardava solo le schede create da qui, e non quella del
+  // paziente, che e la prima e non passa da questa funzione. Riaprendo dalla
+  // lista lo studio che si stava gia guardando si otteneva una seconda scheda
+  // dello stesso studio, indistinguibile dalla prima.
+  const studioDellaScheda = window.mdvStudyInstanceUIDs;
+  const patientTab = document.getElementById('explorer-tab-btn');
+  if (studyId && studioDellaScheda && studyId === studioDellaScheda && patientTab) {
+    patientTab.click();
+    return;
+  }
+
   const existingTab = studyId ? getExistingTabForStudy(studyId) : null;
   if (existingTab?.dataset?.iframeId) {
     showIframeForTab(existingTab.dataset.iframeId);
@@ -842,7 +862,7 @@ function injectTabs(target) {
   plusTab.style.fontWeight = 'bold';
   plusTab.style.borderRadius = '4px';
   plusTab.style.userSelect = 'none';
-  plusTab.style.zIndex = '999999';
+  plusTab.style.zIndex = '10';
   plusTab.style.whiteSpace = 'nowrap';
 
   plusTab.addEventListener('mouseenter', () => {
@@ -1089,6 +1109,19 @@ window.openStudyInInternalTab = function (url, options = {}) {
   } catch (_) {
     studyId = null;
   }
+  // Lo studio gia aperto si mostra, non si riapre.
+  //
+  // Il controllo guardava solo le schede create da qui, e non quella del
+  // paziente, che e la prima e non passa da questa funzione. Riaprendo dalla
+  // lista lo studio che si stava gia guardando si otteneva una seconda scheda
+  // dello stesso studio, indistinguibile dalla prima.
+  const studioDellaScheda = window.mdvStudyInstanceUIDs;
+  const patientTab = document.getElementById('explorer-tab-btn');
+  if (studyId && studioDellaScheda && studyId === studioDellaScheda && patientTab) {
+    patientTab.click();
+    return;
+  }
+
   const existingTab = studyId ? getExistingTabForStudy(studyId) : null;
   if (existingTab?.dataset?.iframeId) {
     showIframeForTab(existingTab.dataset.iframeId);
@@ -1122,7 +1155,13 @@ window.openStudyInInternalTab = function (url, options = {}) {
   tab.style.cursor = 'pointer';
   tab.style.userSelect = 'none';
   tab.style.whiteSpace = 'nowrap';
-  tab.style.zIndex = '9999999';
+  // Sopra il contenuto, sotto i suggerimenti.
+  //
+  // Era 9999999, che copriva i tooltip della barra degli strumenti (disegnati a
+  // 50): passando il mouse su uno strumento il riquadro si apriva dietro la
+  // linguetta e non si vedeva. Una barra deve stare sopra le immagini, non
+  // sopra tutto.
+  tab.style.zIndex = '10';
   tab.style.transition = 'background 0.2s';
   tab.style.border = '1px solid transparent';
 

@@ -390,15 +390,9 @@ const storicoLabelItem = {
       return true;
     }
 
-    // Gli studi aperti si leggono dall indirizzo ADESSO, non da una variabile
-    // fissata al caricamento della pagina.
-    //
-    // Quella variabile viene scritta una volta sola, quando il file di
-    // configurazione viene valutato. Arrivando dalla lista studi la navigazione
-    // avviene dentro la pagina: l indirizzo cambia, la variabile no, e resta
-    // vuota. Confrontando con il vuoto ogni serie risultava "di un altro
-    // studio", e lo studio corrente si marchiava STORICO da solo.
-    const aperti = new URLSearchParams(window.location.search).get('StudyInstanceUIDs');
+    // window.mdvStudyInstanceUIDs rilegge l indirizzo a ogni accesso: vedi la
+    // definizione in public/config/default.js.
+    const aperti = window.mdvStudyInstanceUIDs;
     if (!aperti) {
       return false;
     }
