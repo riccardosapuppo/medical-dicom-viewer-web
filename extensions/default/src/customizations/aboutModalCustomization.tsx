@@ -8,19 +8,37 @@ function AboutModalDefault() {
   const versionNumber = process.env.VERSION_NUMBER;
   const commitHash = process.env.COMMIT_HASH;
 
-  const [main, beta] = versionNumber.split('-');
+  // La versione di questo progetto, e la versione da cui parte.
+  //
+  // Lo split sul trattino resta perche' e' cosi' che si separa un pre-rilascio
+  // (1.2.0-rc.1), ma la base del fork non passa piu' di qui: e' un fatto
+  // diverso, e messa nel numero lo spezzava a meta'.
+  const [main, prerilascio] = String(versionNumber).split('-');
+  const baseFork = '3.10.0-beta.129';
 
   return (
     <AboutModal className="w-[400px]">
       <AboutModal.ProductName>Medical DICOM Viewer</AboutModal.ProductName>
       <AboutModal.ProductVersion>{main}</AboutModal.ProductVersion>
-      {beta && <AboutModal.ProductBeta>{beta.replace('beta', 'prod')}</AboutModal.ProductBeta>}
+      {/* La parte dopo il trattino si mostra com e. Qui la parola "beta"
+          veniva riscritta in "prod" per non metterla davanti a un cliente:
+          su un fork dichiarato serve solo a far sembrare stabile una
+          versione che stabile non e. */}
+      {prerilascio && <AboutModal.ProductBeta>{prerilascio}</AboutModal.ProductBeta>}
 
       <AboutModal.Body>
         {/* <AboutModal.DetailItem
           label="Commit Hash"
           value={commitHash}
         /> */}
+        <AboutModal.DetailItem
+          label="Basato su"
+          value={`OHIF Viewer ${baseFork}`}
+        />
+        <AboutModal.DetailItem
+          label="Revisione"
+          value={commitHash || '-'}
+        />
         <AboutModal.DetailItem
           label="Browser corrente & SO"
           value={`${browser}, ${os}`}

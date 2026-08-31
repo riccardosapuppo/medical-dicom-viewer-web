@@ -69,14 +69,9 @@ class WriteVersionPlugin {
         finalVersion = String(version_number).trim();
       }
 
-      // Sostituisci "beta" con "prod" se presente
-      const updatedVersion = finalVersion.includes('beta')
-        ? finalVersion.replace('beta', 'prod')
-        : finalVersion;
-
-      // Scrivi il numero di versione nel file version.txt
-      fs.writeFileSync(versionFilePath, `Version: ${updatedVersion}`, 'utf8');
-      console.log('Versione aggiornata (dist/version.txt):', updatedVersion);
+      // La versione si scrive com e. Qui "beta" veniva riscritto in "prod".
+      fs.writeFileSync(versionFilePath, `Version: ${finalVersion}`, 'utf8');
+      console.log('Versione (dist/version.txt):', finalVersion);
     });
   }
 }
@@ -109,7 +104,7 @@ module.exports = (env, argv) => {
     if (version_number.includes('_')) {
       version_number = version_number.split('_')[0]
     }
-    version_number = `${version_number.replace(/\s+/g, '').replace('beta', 'prod')}_${formattedDateTime}`;
+    version_number = `${version_number.replace(/\s+/g, '')}_${formattedDateTime}`;
     fs.writeFileSync(path.join(__dirname, '../../../version.txt'), version_number, 'utf8');
   }
 
