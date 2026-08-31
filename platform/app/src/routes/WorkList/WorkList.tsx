@@ -382,7 +382,10 @@ function WorkList({
             openStudyInInternalTab: (u: string, meta: Record<string, string>) => void;
           }
         ).openStudyInInternalTab(url, {
-          title: `${patientName} — ${accession}`,
+          // Senza accession non si scrive il separatore: la scheda finiva con un
+          // trattino appeso al nulla, e a volte mandava a capo la crocetta di
+          // chiusura.
+          title: accession ? `${patientName} — ${accession}` : patientName,
           tooltip: `Paziente: ${patientName}
 Descrizione: ${description}
 Accession: ${accession}

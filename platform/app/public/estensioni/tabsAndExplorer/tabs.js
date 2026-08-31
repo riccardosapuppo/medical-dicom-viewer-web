@@ -173,9 +173,12 @@ function getAccessionForTab() {
 }
 
 function buildPatientTabDescription() {
-  const patientName = getPatientNameForTab() || 'N/A';
-  const accession = getAccessionForTab() || 'N/A';
-  return `${patientName} - ${accession}`;
+  const patientName = getPatientNameForTab() || 'Studio';
+  const accession = getAccessionForTab();
+  // Quando l accession non c e non si scrive "- N/A": una scheda che dichiara
+  // di non sapere una cosa occupa spazio per non dire niente, e allunga
+  // l etichetta fino a mandare a capo la crocetta di chiusura.
+  return accession ? `${patientName} — ${accession}` : patientName;
 }
 
 function updatePatientTabDescription() {
@@ -313,11 +316,23 @@ function startQuickDateFilterWatcher() {
 }
 
 if (window.self !== window.top) {
+  // Pronto vuol dire "ha disegnato qualcosa", non "e' la lista studi".
+  //
+  // Cercava solo i segni della lista: le colonne Accession e PatientID, o la
+  // tabella dei risultati. Una scheda che apre uno STUDIO pero' carica il
+  // visualizzatore, dove quei tre non compaiono mai. Il segnale non partiva, e
+  // dopo venticinque secondi scattava il timeout con "Errore caricamento
+  // studio. Verifica disponibilita studio/token/aetitle" - che manda a cercare
+  // un guasto dove non c'e'.
   const readyInterval = setInterval(() => {
-    const hasAccession = document.querySelector('[title="Accession"]');
-    const hasPatientId = document.querySelector('[title="PatientID"]');
-    const hasStudyList = document.querySelector('[data-cy="study-list-results"]');
-    if (hasAccession || hasPatientId || hasStudyList) {
+    const listaPronta =
+      document.querySelector('[title="Accession"]') ||
+      document.querySelector('[title="PatientID"]') ||
+      document.querySelector('[data-cy="study-list-results"]');
+    const visualizzatorePronto =
+      document.querySelector('.viewport-element') ||
+      document.querySelector('[data-cy="viewport-grid"] canvas');
+    if (listaPronta || visualizzatorePronto) {
       clearInterval(readyInterval);
       window.parent.postMessage({ type: 'mdv-iframe-ready' }, '*');
     }
@@ -713,6 +728,17 @@ function stopTabsInitWatcher() {
 }
 
 function tryInitTabs() {
+  // Dentro un iframe la barra non si costruisce affatto.
+  //
+  // Prima veniva costruita e poi nascosta con un display:none iniettato
+  // dall'esterno. Se l'iniezione arrivava tardi - o non arrivava - ogni scheda
+  // aperta mostrava la propria barra con il proprio "+", e ci si ritrovava con
+  // un piu' per ogni studio aperto e le crocette accavallate in alto.
+  if (window.self !== window.top) {
+    stopTabsInitWatcher();
+    return;
+  }
+
   if (document.getElementById('mdv-tab-container')) {
     stopTabsInitWatcher();
     return;
