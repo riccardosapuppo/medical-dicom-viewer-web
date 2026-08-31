@@ -40,7 +40,28 @@ const readOptional = name => {
 };
 
 const VERSION_NUMBER = readOptional('version.txt');
-const COMMIT_HASH = readOptional('commit.txt');
+
+/**
+ * La revisione da cui questa build e' stata fatta.
+ *
+ * Era un file versionato, quindi fermo alla revisione in cui qualcuno l'aveva
+ * scritto: o si aggiorna a mano a ogni commit, o dice il falso. Chiederlo a git
+ * lo rende sempre vero. Un archivio scaricato come zip non ha git: in quel caso
+ * resta il file, se c'e', e altrimenti niente - un banner senza revisione non
+ * e' un motivo per fermare una build.
+ */
+const commitHash = () => {
+  try {
+    return require('child_process')
+      .execSync('git rev-parse --short HEAD', { cwd: path.join(__dirname, '..'), stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim();
+  } catch {
+    return readOptional('commit.txt');
+  }
+};
+
+const COMMIT_HASH = commitHash();
 
 //
 dotenv.config();

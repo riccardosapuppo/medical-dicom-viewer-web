@@ -22,11 +22,21 @@ const HTML_TEMPLATE = process.env.HTML_TEMPLATE || 'index.html';
 const PUBLIC_URL = process.env.PUBLIC_URL || '/';
 const APP_CONFIG = process.env.APP_CONFIG || 'config/default.js';
 
-// proxy settings
-const PROXY_TARGET = process.env.PROXY_TARGET;
-const PROXY_DOMAIN = process.env.PROXY_DOMAIN;
-const PROXY_PATH_REWRITE_FROM = process.env.PROXY_PATH_REWRITE_FROM;
-const PROXY_PATH_REWRITE_TO = process.env.PROXY_PATH_REWRITE_TO;
+// Instradamento verso l archivio.
+//
+// I valori predefiniti sono quelli dell archivio che questo repository avvia
+// con docker compose: Orthanc sulla 8042, che espone DICOMweb sotto
+// /dicom-web, mentre la configurazione del visualizzatore chiede /pacs/dicom-web.
+//
+// Erano tutti e quattro senza ripiego, e chi seguiva il README con "yarn dev"
+// otteneva un server senza inoltro: ogni richiesta di studi tornava indietro
+// dal server di sviluppo invece che dall archivio, e la sola cosa che si
+// vedeva era un avviso di sorgente dati irraggiungibile. Le variabili
+// d ambiente restano, per puntare altrove.
+const PROXY_TARGET = process.env.PROXY_TARGET || '/pacs/dicom-web';
+const PROXY_DOMAIN = process.env.PROXY_DOMAIN || 'http://localhost:8042';
+const PROXY_PATH_REWRITE_FROM = process.env.PROXY_PATH_REWRITE_FROM || '/pacs/dicom-web';
+const PROXY_PATH_REWRITE_TO = process.env.PROXY_PATH_REWRITE_TO || '/dicom-web';
 
 const OHIF_PORT = Number(process.env.OHIF_PORT || 3000);
 const ENTRY_TARGET = process.env.ENTRY_TARGET || `${SRC_DIR}/index.js`;

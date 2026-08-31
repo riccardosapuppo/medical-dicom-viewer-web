@@ -85,3 +85,6 @@ cloud-client-id.json
 platform/app/dist/
 .dev.log
 .install.log
+
+# Timbro di build: si ricava da git, non si versiona.
+commit.txt

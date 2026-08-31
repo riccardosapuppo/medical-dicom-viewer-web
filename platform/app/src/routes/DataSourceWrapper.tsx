@@ -197,16 +197,35 @@ function DataSourceWrapper(props: withAppTypes) {
             return;
           }
 
+          // Il testo prendeva il colore da chi lo conteneva, e su questo tema
+          // usciva grigio scuro su nero: il riquadro compariva praticamente
+          // vuoto. I colori qui sono quelli del tema, dichiarati.
+          //
+          // E dice cosa fare. Chi apre il progetto per la prima volta trova
+          // questo avviso quando l archivio non e' avviato, e sapere che si
+          // avvia con docker compose vale piu che sapere il nome interno
+          // della sorgente.
           servicesManager.services.uiModalService.show({
-            title: 'Data Source Connection Error',
+            title: 'Archivio non raggiungibile',
             content: () => {
               return (
-                <div>
-                  <p className="text-red-600">Error: {e.message}</p>
-                  <p>
-                    Please ensure the following data source is configured correctly or is running:
+                <div className="text-foreground">
+                  <p className="text-base">
+                    Il visualizzatore non riesce a interrogare{' '}
+                    <span className="text-primary font-medium">{friendlyName}</span>.
                   </p>
-                  <div className="mt-2 font-bold">{friendlyName}</div>
+                  <p className="text-muted-foreground mt-3 text-base">
+                    Se stai provando il progetto in locale, l'archivio si avvia con{" "}
+                    <code className="text-primary">docker compose up -d</code> e si riempie con{" "}
+                    <code className="text-primary">npm run data</code> e{" "}
+                    <code className="text-primary">npm run data:load</code>.
+                  </p>
+                  <p className="text-muted-foreground mt-3 text-sm">
+                    {/* Il token destructive e' un rosso da fondo chiaro: hsl(0 63% 31%)
+                        su questo nero e' quasi invisibile. Qui serve un rosso che si
+                        legga sul fondo scuro. */}
+                    Dettaglio: <span className="text-[#fca5a5]">{e.message}</span>
+                  </p>
                 </div>
               );
             },

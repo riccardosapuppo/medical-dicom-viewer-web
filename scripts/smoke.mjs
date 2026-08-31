@@ -148,18 +148,26 @@ const toolbar = await page.evaluate(
 );
 check('the toolbar is present', toolbar > 10, `${toolbar} buttons`);
 
-// Every icon in this project is cut at the size it is used, because nothing
-// sizes them: they are placed as plain images and drawn at whatever they
-// intrinsically are. One at ninety-six pixels sat over the middle of the study.
+// Most icons here are placed as plain images with nothing sizing them, so they
+// draw at whatever they intrinsically are. One cut at ninety-six pixels sat
+// over the middle of the study.
+//
+// So the fault is not "large" — the wordmark is deliberately cut at twice the
+// size it is shown, to stay sharp on a dense display. The fault is large AND
+// unconstrained: an image whose drawn width equals its natural width is one
+// nobody sized, and if that comes out big, it came out big by accident.
 const oversized = await page.evaluate(() =>
   [...document.querySelectorAll('img')]
     // Only the icons. Thumbnails arrive as data URIs and are meant to be large,
     // which an earlier version of this check reported as a fault.
     .filter(i => /\/assets\//.test(i.src) && !i.src.startsWith('data:'))
-    .filter(i => i.naturalWidth > 64 && i.getBoundingClientRect().width > 64)
-    .map(i => i.src.split('/').pop())
+    .filter(i => {
+      const drawn = i.getBoundingClientRect().width;
+      return drawn > 64 && Math.abs(drawn - i.naturalWidth) < 1;
+    })
+    .map(i => `${i.src.split('/').pop()} at ${Math.round(i.getBoundingClientRect().width)}px`)
 );
-check('no icon is drawn oversized', oversized.length === 0, oversized.join(', '));
+check('nothing is drawn big by accident', oversized.length === 0, oversized.join(', '));
 
 const series = await page.evaluate(
   () => ((document.body.innerText || '').match(/Pre Contrast|BONE|po 7min/g) || []).length

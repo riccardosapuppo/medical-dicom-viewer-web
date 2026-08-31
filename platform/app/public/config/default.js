@@ -243,7 +243,7 @@ window.config = {
       namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
       sourceName: 'dicomweb',
       configuration: {
-        friendlyName: 'AWS S3 Static wado server',
+        friendlyName: 'Archivio DICOMweb locale',
         name: 'aws',
         // qidoRoot: '/pacs/dicom-web',
         qidoRoot: qidoRoot,
