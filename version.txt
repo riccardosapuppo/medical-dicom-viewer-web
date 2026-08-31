@@ -1,1 +1,1 @@
-1.0.0 · OHIF 3.10.0-beta.129
+1.0.0 (fork di OHIF 3.10.0-beta.129)

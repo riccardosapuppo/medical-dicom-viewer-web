@@ -81,9 +81,13 @@ const AboutModal = ({ buildNumber, versionNumber, commitHash }) => {
           value="http://localhost:3000/"
           link="http://localhost:3000/"
         />
+        {/* La versione si mostra com'e'. Qui c'era una sostituzione che
+            riscriveva "beta" in "prod", per non mettere davanti a un cliente una
+            versione dichiarata beta: travestiva una beta di monte da versione
+            stabile, che e' l'unica cosa che questa riga non deve fare. */}
         <Row
           title={t('Versione')}
-          value={versionNumber.includes('beta') ? versionNumber.replace('beta', 'prod') : versionNumber}
+          value={versionNumber}
         />
         {buildNumber && (
           <Row
