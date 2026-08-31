@@ -114,9 +114,6 @@ for (const [nome, selettore] of CONTROLS) {
     (e.closest('button,[role="button"]') || e).click();
     return true;
   }, selettore);
-  await page.waitForTimeout(4500);
-
-  const dopo = await page.evaluate(() => document.body.innerText || '');
   // Un effetto puo' essere testo che compare O testo che sparisce: il comando
   // che nasconde i dati sovrimpressi fa esattamente il secondo, e giudicarlo
   // solo sulle righe nuove lo faceva sembrare morto.
@@ -125,13 +122,25 @@ for (const [nome, selettore] of CONTROLS) {
       .split(/\r?\n/)
       .map(r => r.trim())
       .filter(Boolean);
-  const nuoveRighe = spezza(dopo).filter(r => !prima.includes(r));
-  const sparite = spezza(prima).filter(r => !dopo.includes(r));
-  const comparso = nuoveRighe.length
-    ? nuoveRighe.slice(0, 2).join(' | ')
-    : sparite.length
-      ? `sparite ${sparite.length} righe: ${sparite.slice(0, 2).join(' | ')}`
-      : '';
+
+  // Si guarda DURANTE l'attesa, non alla fine.
+  //
+  // Un avviso passeggero - "Aggiunto ai preferiti" dura pochi secondi - puo'
+  // essere gia' sparito quando si confronta lo stato finale: il comando
+  // risultava morto una volta su due. Un controllo che si contraddice insegna a
+  // ignorarlo, il che e' peggio che non averlo.
+  let comparso = '';
+  for (let i = 0; i < 12 && !comparso; i++) {
+    await page.waitForTimeout(500);
+    const ora = await page.evaluate(() => document.body.innerText || '');
+    const nuoveRighe = spezza(ora).filter(r => !prima.includes(r));
+    const sparite = spezza(prima).filter(r => !ora.includes(r));
+    comparso = nuoveRighe.length
+      ? nuoveRighe.slice(0, 2).join(' | ')
+      : sparite.length
+        ? `sparite ${sparite.length} righe: ${sparite.slice(0, 2).join(' | ')}`
+        : '';
+  }
 
   // Un errore in console e' un guasto quanto un'eccezione: e' cosi' che si e'
   // manifestato l'MPR rotto, mentre questo conteggio diceva zero.
