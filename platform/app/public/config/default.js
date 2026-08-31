@@ -46,13 +46,17 @@ const modality = new URLSearchParams(new URL(window.location.href).search).get('
  * valutato. Ma il visualizzatore naviga DENTRO la pagina: arrivando dalla lista
  * studi l'indirizzo cambia e quelle costanti no, quindi restano ferme a com'era
  * la pagina all'apertura - e sulla lista studi non c'e' nessuno studio, quindi
- * restano vuote.
+ * restano vuote. Tredici punti del codice le leggono, e con il valore fermo
+ * ognuno sbagliava a modo suo.
  *
- * Tredici punti del codice le leggono. Con il valore fermo, ognuno di quei
- * tredici sbagliava a modo suo: ogni serie si marchiava STORICO da sola, e la
- * riga dello studio corrente mostrava i comandi riservati agli studi
- * precedenti. Correggerli uno per uno vuol dire correggerne dodici e
- * dimenticarne uno: la lettura si aggiusta qui, e valgono tutti.
+ * Restano scrivibili, e questo conta quanto il resto: sei punti negli hanging
+ * protocol posano qui la descrizione dell'esame e la modality quando
+ * l'indirizzo non le porta, ricavandole dai metadati DICOM. Rendendole di sola
+ * lettura quel codice sollevava e il pannello non si apriva piu.
+ *
+ * Precedenza: prima l'indirizzo, poi l'ultimo valore posato. E il valore posato
+ * si dimentica appena l'indirizzo cambia, altrimenti si torna al problema di
+ * partenza per un'altra strada.
  */
 [
   ['mdvStudyInstanceUIDs', 'StudyInstanceUIDs'],
@@ -62,9 +66,20 @@ const modality = new URLSearchParams(new URL(window.location.href).search).get('
   ['mdvUsername', 'User'],
   ['mdvToken', 'Token'],
 ].forEach(([nome, parametro]) => {
+  let posato;
+  let posatoSu;
+
   Object.defineProperty(window, nome, {
     get() {
-      return new URLSearchParams(window.location.search).get(parametro);
+      const daIndirizzo = new URLSearchParams(window.location.search).get(parametro);
+      if (daIndirizzo) {
+        return daIndirizzo;
+      }
+      return posatoSu === window.location.href ? posato : null;
+    },
+    set(valore) {
+      posato = valore;
+      posatoSu = window.location.href;
     },
     configurable: true,
   });
