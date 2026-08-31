@@ -180,20 +180,13 @@ module.exports = (env, argv) => {
           {
             from: `${PUBLIC_DIR}/${APP_CONFIG}`,
             to: `${DIST_DIR}/app-config.js`,
-            transform(content) {
-              const contentString = content.toString();
-              // window.isSuite dice al viewer se sta girando dentro la pagina ospite che
-              // lo apriva: in sviluppo e' vero, perche' li' parlava col backend della
-              // suite, in produzione e' falso e si usa l'origine da cui e' stato servito.
-              const isSuiteValue = isProdBuild ? 'false' : 'true';
-              // showStudyList NON e piu forzato. Nell'impianto originale il viewer
-              // veniva aperto dalla pagina ospite, che gli passava lo studio, e un
-              // elenco non serviva; qui e il solo modo di entrare, quindi segue il
-              // valore del sorgente.
-              const updated = contentString
-                .replace(/window\.isSuite\s*=\s*(?:true|false)\s*;/, `window.isSuite = ${isSuiteValue};`);
-              return updated;
-            },
+            // Il file di configurazione viene copiato e basta.
+            //
+            // Qui c'era una riscrittura che a ogni build cambiava tre valori: isSuite,
+            // showStudyList e il generatore di stampa. Erano tutti e tre modi di
+            // adattare il visualizzatore alla pagina ospite che lo apriva, e quella
+            // pagina non fa parte di questo repository. Il sorgente e' la sola
+            // versione della verita': quello che c'e' scritto e' quello che gira.
           },
           {
             from: path.join(__dirname, '../build-tools/web.config'),

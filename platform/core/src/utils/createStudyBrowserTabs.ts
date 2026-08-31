@@ -216,6 +216,12 @@ export function createStudyBrowserTabs(
   if (window.storicoRemoto && inSuite() && (window as any).storicoRemotoDisponibile) {
     return tabsStoricoRemoto;
   } else {
-    return tabs;
+    // La tab dello storico compare se lo storico c e.
+    //
+    // Prima c era sempre, e quando il paziente non aveva esami precedenti
+    // offriva una scheda che diceva solo "Nessuno storico". Una linguetta che
+    // non porta da nessuna parte fa perdere un click a tutti quelli che la
+    // provano, e non aggiunge niente a chi lo sapeva gia.
+    return tabs.filter(tab => tab.name === 'primary' || tab.studies.length > 0);
   }
 }

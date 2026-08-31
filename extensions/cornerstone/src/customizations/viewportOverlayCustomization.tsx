@@ -382,11 +382,29 @@ const storicoLabelItem = {
   label: '',
   title: 'Storico Label',
   color: '#81d4fa',
-  condition: ({ referenceInstance }) =>
-    ((referenceInstance?.StudyInstanceUID &&
-      referenceInstance?.StudyInstanceUID !== window.mdvStudyInstanceUIDs) ||
-      window.sonoUnoStorico === true) &&
-    !window.portableVersion,
+  condition: ({ referenceInstance }) => {
+    if (window.portableVersion) {
+      return false;
+    }
+    if (window.sonoUnoStorico === true) {
+      return true;
+    }
+
+    // Gli studi aperti si leggono dall indirizzo ADESSO, non da una variabile
+    // fissata al caricamento della pagina.
+    //
+    // Quella variabile viene scritta una volta sola, quando il file di
+    // configurazione viene valutato. Arrivando dalla lista studi la navigazione
+    // avviene dentro la pagina: l indirizzo cambia, la variabile no, e resta
+    // vuota. Confrontando con il vuoto ogni serie risultava "di un altro
+    // studio", e lo studio corrente si marchiava STORICO da solo.
+    const aperti = new URLSearchParams(window.location.search).get('StudyInstanceUIDs');
+    if (!aperti) {
+      return false;
+    }
+    const suo = referenceInstance?.StudyInstanceUID;
+    return Boolean(suo) && !aperti.split(',').includes(suo);
+  },
   contentF: ({ referenceInstance }) => 'STORICO',
 };
 

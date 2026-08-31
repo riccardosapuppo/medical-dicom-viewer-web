@@ -51,7 +51,14 @@ window.mdvUsername = new URLSearchParams(new URL(window.location.href).search).g
 window.mdvToken = new URLSearchParams(new URL(window.location.href).search).get('Token');
 let origin = window.location.origin;
 
-window.isSuite = true;
+// Qui non c e nessuna pagina ospite.
+//
+// Questo interruttore diceva al visualizzatore di stare dentro la suite che lo
+// apriva, e da li dipendevano l origine a cui chiedere le cose, la tab dello
+// storico "sul cloud" e il resto. Standalone e falso, e resta falso: la
+// forzatura che lo rimetteva a vero in sviluppo e stata tolta dalla
+// configurazione di build, perche non c e piu niente da cui distinguersi.
+window.isSuite = false;
 // Attenzione: in build di produzione webpack forza window.isSuite = false ANCHE sul deploy
 // della suite (li' basta l'origin deployata). Per capire a runtime se siamo davvero nella
 // suite serve quindi guardare l'hostname, non il solo flag di build.
