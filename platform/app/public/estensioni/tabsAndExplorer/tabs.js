@@ -164,8 +164,21 @@ function getQueryParamCaseInsensitive(...keys) {
   return '';
 }
 
+/**
+ * L accession letta da cio che e disegnato, come ultima risorsa.
+ *
+ * Cerca un elemento il cui title parli di accession e ne legge il testo. Va
+ * pero tenuta fuori dalla barra delle linguette: ogni linguetta di studio porta
+ * come title il riassunto costruito dalla lista, che contiene la riga
+ * "Accession: ...". Senza questa esclusione la linguetta del paziente si
+ * prendeva l accession di un ALTRO studio aperto, e due schede diverse
+ * mostravano lo stesso numero - erano lo stesso studio a vedersi, e non lo era.
+ */
 function getAccessionFromDom() {
-  const nodesWithTitle = Array.from(document.querySelectorAll('[title]'));
+  const barraSchede = document.getElementById('mdv-tab-container');
+  const nodesWithTitle = Array.from(document.querySelectorAll('[title]')).filter(
+    node => !barraSchede || !barraSchede.contains(node)
+  );
   for (const node of nodesWithTitle) {
     const title = normalizeInfoText(node.getAttribute('title'));
     if (!title || !title.toLowerCase().includes('accession')) {
@@ -250,11 +263,8 @@ function updatePatientTabDescription() {
   // quando li ha entrambi, o quando scade il tempo.
   const descrizione = buildPatientTabDescription();
   titleNode.textContent = descrizione;
-  // Riuscita vuol dire "identifica lo studio", non "ha trovato l accession".
-  //
-  // Prima si fermava solo quando arrivava l accession, che uno studio puo
-  // legittimamente non avere - LIDC-IDRI-0001 nell archivio dimostrativo non ce
-  // l ha - quindi per quelli non riusciva mai e l etichetta restava "Studio".
+  // Riuscita vuol dire che l etichetta e completa: identita e accession.
+  // Chi non ha ne l una ne l altra si ferma comunque allo scadere del tempo.
   return Boolean(getPatientNameForTab() || getPatientIdForTab()) && Boolean(getAccessionForTab());
 }
 
@@ -504,11 +514,18 @@ function preloadEmptyIframe() {
   // sempre.
   startIframeReadyTimeout(iframeId, 'Lista studi');
 
+  // La scheda della lista occupa la finestra come tutte le altre.
+  //
+  // Era inchiodata a 43 pixel dall alto, perche una volta sotto ci stava la
+  // barra della pagina ospite. Adesso quella barra si nasconde quando una
+  // scheda e aperta, quindi restavano quarantatre pixel vuoti in cima con la
+  // striscia delle linguette a galleggiarci sopra: e quello che si vedeva
+  // comparire "a pezzi", ed era sempre uguale.
   iframe.style.position = 'absolute';
-  iframe.style.top = '43px';
+  iframe.style.top = '0';
   iframe.style.left = '0';
   iframe.style.width = '100%';
-  iframe.style.height = 'calc(100% - 43px)';
+  iframe.style.height = '100%';
   iframe.style.border = 'none';
 
   // NASCOSTO MA ATTIVO (NO display:none!)
