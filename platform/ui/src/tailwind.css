@@ -907,7 +907,14 @@ body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] > .ohif-scrollbar {
    che sta a 1. Era lei a intercettare i click, non la testata che contiene -
    misurato chiedendo alla pagina cosa c e sotto il pixel del pulsante. */
 body.mdv-scheda-esterna .mdv-bar,
-body.mdv-scheda-esterna .mdv-main-area {
+body.mdv-scheda-esterna .mdv-main-area,
+/* E anche quello che questa pagina monta direttamente sul corpo.
+   Menu, finestre e suggerimenti di Radix vivono fuori da .mdv-main-area, a
+   z-index 50: uno solo di essi aperto coprirebbe sia l iframe della scheda
+   (piano 1) sia la barra delle linguette (piano 10), lasciando senza modo di
+   tornare indietro. */
+body.mdv-scheda-esterna > [data-radix-popper-content-wrapper],
+body.mdv-scheda-esterna > [role="dialog"] {
   visibility: hidden;
   pointer-events: none;
 }

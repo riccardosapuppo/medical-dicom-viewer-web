@@ -89,7 +89,13 @@ function markIframeFailed(iframeId, message) {
 
   const tab = document.querySelector(`.mdv-dynamic-tab[data-iframe-id="${iframeId}"]`);
   if (tab) {
-    tab.style.border = '1px solid #38bdf8';
+    // Una scheda fallita non deve avere il bordo della scheda attiva.
+    //
+    // Ritingendo il rosso di marchio in azzurro ho dato a questo bordo lo
+    // stesso colore che segna la scheda selezionata: le due si distinguevano
+    // solo per lo sfondo. Il rosso qui vuol dire "e andata storta", ed e uno
+    // dei casi in cui il rosso resta.
+    tab.style.border = '1px solid #fca5a5';
     tab.style.background = 'rgb(40 15 15)';
     tab.title = message;
   }
@@ -184,6 +190,22 @@ function getPatientNameForTab() {
   );
 }
 
+/**
+ * L identificativo del paziente, che c e anche quando il nome non c e.
+ *
+ * Il DICOM puo non avere PatientName - LIDC-IDRI-0001 nell archivio
+ * dimostrativo non ce l ha - ma PatientID viene riempito sempre. Sta in
+ * window.mdvPatientInfo, posato dall intestazione; cercarlo nei parametri
+ * dell indirizzo, come facevo prima, non poteva funzionare: l indirizzo del
+ * visualizzatore in questo progetto porta solo StudyInstanceUIDs.
+ */
+function getPatientIdForTab() {
+  return (
+    normalizeInfoText(window.mdvPatientInfo?.PatientID) ||
+    getQueryParamCaseInsensitive('PatientID', 'patientId', 'mrn')
+  );
+}
+
 function getAccessionForTab() {
   return (
     normalizeInfoText(window.mdvStudyInfo?.AccessionNumber) ||
@@ -193,20 +215,24 @@ function getAccessionForTab() {
   );
 }
 
+/**
+ * L etichetta della scheda: chi e il paziente, e quale esame.
+ *
+ * Sono i due dati con cui si riconosce uno studio in un elenco di lavoro, ed e
+ * la forma del progetto da cui questo deriva. Avevo messo un ripiego, "Studio",
+ * che per uno studio senza nome paziente - LIDC-IDRI-0001 nell archivio
+ * dimostrativo non ce l ha - restava li per sempre: la scheda non diceva piu
+ * quale studio fosse, e due schede diverse si leggevano uguali.
+ *
+ * Il nome, se manca, cede all identificativo del paziente, che c e sempre ed e
+ * quello che l intestazione mostra comunque. Il trattino si scrive solo se c e
+ * qualcosa da separare: senza accession finiva appeso al nulla e faceva andare
+ * a capo la crocetta di chiusura.
+ */
 function buildPatientTabDescription() {
-  // "Studio" era un ripiego pigro: e' quello che si leggeva sulla linguetta
-  // finche' i dati del paziente non arrivavano, e per uno studio che il nome
-  // paziente non ce l'ha - LIDC-IDRI-0001 nell'archivio dimostrativo - restava
-  // per sempre. Meglio l'identificativo del paziente, che c'e' sempre.
-  const patientName =
-    getPatientNameForTab() ||
-    getQueryParamCaseInsensitive('PatientID', 'patientId', 'mrn') ||
-    'Studio';
+  const patientName = getPatientNameForTab() || getPatientIdForTab();
   const accession = getAccessionForTab();
-  // Quando l accession non c e non si scrive "- N/A": una scheda che dichiara
-  // di non sapere una cosa occupa spazio per non dire niente, e allunga
-  // l etichetta fino a mandare a capo la crocetta di chiusura.
-  return accession ? `${patientName} — ${accession}` : patientName;
+  return [patientName, accession].filter(Boolean).join(' — ') || 'Studio in apertura';
 }
 
 /** Scrive l etichetta, e dice se ormai dice qualcosa. */
@@ -215,6 +241,13 @@ function updatePatientTabDescription() {
   if (!titleNode) {
     return false;
   }
+  // L etichetta si riscrive sempre col meglio disponibile; il valore
+  // restituito dice se c e ancora qualcosa da aspettare.
+  //
+  // Fermarsi al primo dato utile era troppo presto: nome e accession arrivano
+  // in momenti diversi - l accession un commit React prima - quindi bastava il
+  // nome perche il giro finisse e l accession non comparisse mai. Si ferma
+  // quando li ha entrambi, o quando scade il tempo.
   const descrizione = buildPatientTabDescription();
   titleNode.textContent = descrizione;
   // Riuscita vuol dire "identifica lo studio", non "ha trovato l accession".
@@ -222,7 +255,7 @@ function updatePatientTabDescription() {
   // Prima si fermava solo quando arrivava l accession, che uno studio puo
   // legittimamente non avere - LIDC-IDRI-0001 nell archivio dimostrativo non ce
   // l ha - quindi per quelli non riusciva mai e l etichetta restava "Studio".
-  return descrizione !== 'Studio';
+  return Boolean(getPatientNameForTab() || getPatientIdForTab()) && Boolean(getAccessionForTab());
 }
 
 function clearPatientTabInfoRefresh() {
@@ -460,7 +493,16 @@ function preloadEmptyIframe() {
   // pagina nera, e il "+" sembrava rotto. La lista sta alla radice, dove la
   // mette routerBasename.
   iframe.src = window.location.origin + ((window.PUBLIC_URL || '/').replace(/\/*$/, '/'));
-  iframe.dataset.loaded = 'true';
+
+  // Pronto lo dice la pagina dentro, non noi qui.
+  //
+  // Veniva marcata pronta nell istante in cui l iframe viene creato, prima di
+  // avere caricato qualunque cosa: premendo il "+" si rivelava una pagina che
+  // stava ancora disegnando, e il contenuto compariva a pezzi. Il segnale vero
+  // e il messaggio mdv-iframe-ready, lo stesso che usano le schede di studio.
+  // Il tempo massimo evita che un segnale mancato lasci il "+" in attesa per
+  // sempre.
+  startIframeReadyTimeout(iframeId, 'Lista studi');
 
   iframe.style.position = 'absolute';
   iframe.style.top = '43px';
@@ -595,7 +637,15 @@ function getExistingTabForStudy(studyId) {
 }
 
 if (window.self === window.top) {
-  window.mdvIsStudyOpenInTab = studyId => Boolean(getExistingTabForStudy(studyId));
+  // Aperto vuol dire anche "e quello di questa pagina".
+//
+// La lista usa questo per segnare le righe gia aperte. Guardava solo le schede
+// create qui, quindi lo studio della linguetta paziente non risultava aperto -
+// e cliccandolo non succedeva quello che la riga prometteva, perche la
+// deduplicazione lo riconosce e riporta alla sua linguetta.
+window.mdvIsStudyOpenInTab = studyId =>
+  Boolean(getExistingTabForStudy(studyId)) ||
+  Boolean(studyId && studyId === window.mdvStudyInstanceUIDs);
 }
 
 function notifyOpenTabsChange() {
@@ -1335,7 +1385,13 @@ function showIframeForTab(iframeId) {
     );
     return;
   }
-  if (iframe && resolvedIframeId !== 'mdv-dynamic-iframe-empty' && iframe.dataset.loaded !== 'true') {
+  // Anche la scheda del "+" si mostra quando ha finito di disegnare.
+  //
+  // Era l'unica esentata: veniva rivelata subito, cosi' la pagina si svuotava e
+  // il suo contenuto compariva a pezzi. Aspetta lo stesso segnale delle altre -
+  // il messaggio mdv-iframe-ready che ogni scheda manda quando ha disegnato -
+  // e lo scambio diventa uno solo.
+  if (iframe && iframe.dataset.loaded !== 'true') {
     pendingIframeId = resolvedIframeId;
     showLoadingNotification();
     return;
@@ -1378,7 +1434,7 @@ function showIframeForTab(iframeId) {
 
   // Mostra iframe selezionato
   if (iframe) {
-    if (resolvedIframeId === 'mdv-dynamic-iframe-empty' || iframe.dataset.loaded === 'true') {
+    if (iframe.dataset.loaded === 'true') {
       iframe.style.opacity = '1';
       iframe.style.pointerEvents = 'auto';
       iframe.style.zIndex = String(PIANI.contenuto);
