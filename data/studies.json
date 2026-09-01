@@ -20,6 +20,13 @@
       "doi": "10.7937/k9/tcia.2018.oblamn27",
       "citation": "National Cancer Institute Clinical Proteomic Tumor Analysis Consortium (CPTAC). (2018). Radiology Data from the Clinical Proteomic Tumor Analysis Consortium Clear Cell Renal Cell Carcinoma [CPTAC-CCRCC] collection. The Cancer Imaging Archive.",
       "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    "CMMD": {
+      "title": "The Chinese Mammography Database",
+      "license": "CC BY 4.0",
+      "doi": "10.7937/tcia.eqde-4b16",
+      "citation": "Cui, C., Li, L., Cai, H., Fan, Z., Zhang, L., Dan, T., Li, J., & Wang, J. (2021). The Chinese Mammography Database (CMMD): An online mammography database with biopsy confirmed types for machine diagnosis of breast. The Cancer Imaging Archive.",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
     }
   },
   "studies": [
@@ -95,6 +102,19 @@
           "modality": "MR",
           "imageCount": 47,
           "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.6450.2626.291611633932863209590679276555"
+        }
+      ]
+    },
+    {
+      "label": "Screening mammogram, four views",
+      "collection": "CMMD",
+      "note": "Two projections of each breast, which is what a screening study is. It is here because it is nothing like the others: eight bits rather than sixteen, no rescale to Hounsfield units, no slice geometry, and an image large enough that the viewport has to fit it rather than fill with it.",
+      "series": [
+        {
+          "description": "Mammogram, four views",
+          "modality": "MG",
+          "imageCount": 4,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.1239.1759.115060983843511037348481244160"
         }
       ]
     }

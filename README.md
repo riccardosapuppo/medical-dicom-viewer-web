@@ -20,6 +20,10 @@ not draw that line is asking to be misread.
 
 ![The study list](docs/study-list.png)
 
+A study open, with a length measured on it:
+
+![A study open, with a measurement](docs/measurement.png)
+
 ## What this adds to the viewer
 
 **A subgrid inside a viewport.** One viewport divides into rows and columns of
@@ -73,11 +77,17 @@ is off and explains why rather than failing when pressed. With no archive
 running, the notice names the archive it could not reach and how to start one.
 A saved arrangement is kept locally when there is no backend to synchronise to.
 
-**Three checks that drive a real browser**, in [scripts/](scripts/), because
-nearly everything that went wrong here answered "yes" to whether it works:
-`smoke` opens a study, `layout` reports text drawn over text and controls off
-screen at two window sizes, and `controls` presses every control this fork adds
-and reports what raises, what changes and what does nothing at all.
+**Three checks that drive a real browser**, because nearly everything that went
+wrong here answered "yes" to whether it works:
+
+```
+npm run check:smoke        # opens a study, draws a measurement, leaves the screenshots
+npm run check:layout       # text drawn over text, controls off screen, at two window sizes
+npm run check:controls     # presses every control this fork adds, one at a time
+```
+
+`check:smoke` is also where the pictures in this README come from, so they are
+always the current build rather than something taken by hand months ago.
 
 ## Running it
 
@@ -86,7 +96,7 @@ real studies to put in it.
 
 ```
 docker compose up -d          # the archive
-npm run data                  # fetch the studies, about 220 MB
+npm run data                  # fetch the studies: 113 MB down, 240 MB on disk
 npm run data:load             # load them into the archive
 yarn install                  # once
 yarn dev                      # the viewer, on http://localhost:3000
@@ -94,21 +104,39 @@ yarn dev                      # the viewer, on http://localhost:3000
 
 ## The studies
 
-Three real, de-identified clinical studies from
+Four real, de-identified clinical studies from
 [The Cancer Imaging Archive](https://www.cancerimagingarchive.net/). They are a
-sample chosen to exercise the viewer, not the range of what it opens: a chest CT,
-a three-phase abdominal CT, and a five-sequence renal MR. Nothing is committed
-here — a script fetches them, and keeps the licence file the archive ships beside
-the images.
+sample chosen to exercise the viewer, not the range of what it opens — nothing
+in the viewer decides by modality. Nothing is committed here: a script fetches
+them, and keeps the licence file the archive ships beside the images.
+
+| Study | Collection | Images |
+| --- | --- | --- |
+| Chest CT, lung nodule screening | LIDC-IDRI | 133 |
+| Abdominal CT, multiphase | CPTAC-CCRCC | 193 |
+| Renal MR, five sequences | CPTAC-CCRCC | 153 |
+| Screening mammogram, four views | CMMD | 4 |
+
+Three collections for four studies — two of them come from CPTAC-CCRCC, and a
+licence belongs to a collection rather than to a study:
 
 | Collection | Licence | DOI |
 | --- | --- | --- |
 | LIDC-IDRI | CC BY 3.0 | `10.7937/K9/TCIA.2015.LO9QL9SX` |
 | CPTAC-CCRCC | CC BY 4.0 | `10.7937/k9/tcia.2018.oblamn27` |
+| CMMD | CC BY 4.0 | `10.7937/tcia.eqde-4b16` |
+
+The mammogram earns its place by being unlike the other three: eight bits
+rather than sixteen, no rescale to Hounsfield units, no slice geometry to sort
+by, and a 2294 by 1914 image that the viewport has to fit rather than fill
+with. Every one of those is a way a viewer built and tested on CT quietly
+stops being right.
 
 The licence a collection is distributed under is taken from the file inside the
 download rather than from the web page, which lists several because it covers
-several kinds of data.
+several kinds of data. The DOI is the one thing that cannot come from the
+download: it is on the collection page, and it is cited above so the data can
+be found again.
 
 ## What this is not
 

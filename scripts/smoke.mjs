@@ -198,6 +198,72 @@ await page.waitForTimeout(1500);
 
 await page.screenshot({ path: path.join(shots, 'viewer.png') });
 
+// A measurement, drawn the way a radiologist draws one.
+//
+// This is a check as well as a picture: the length tool is Cornerstone's, but
+// the reference lines and the trackball around it are patched here, and a tool
+// that arms without drawing is the failure those patches could produce. Nothing
+// else in this file presses a tool that leaves something behind.
+const viewport = await page.locator('[data-cy="viewport-pane"]').first().boundingBox();
+
+if (!viewport) {
+  check('the viewport has a box to draw in', false);
+} else {
+  // Into the middle of the stack, where there is anatomy rather than the apex.
+  await page.mouse.move(viewport.x + viewport.width / 2, viewport.y + viewport.height / 2);
+  for (let i = 0; i < 55; i++) {
+    await page.mouse.wheel(0, 120);
+  }
+  await page.waitForTimeout(2500);
+
+  await page.locator('[data-cy="Length"]').first().click();
+  await page.waitForTimeout(800);
+
+  const from = { x: viewport.x + viewport.width * 0.42, y: viewport.y + viewport.height * 0.46 };
+  const to = { x: viewport.x + viewport.width * 0.58, y: viewport.y + viewport.height * 0.52 };
+
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move(to.x, to.y, { steps: 14 });
+  await page.mouse.up();
+  await page.waitForTimeout(2500);
+
+  // The label is drawn in an SVG overlay over the canvas, so it has to be read
+  // with textContent: innerText does not see inside an SVG, and the first
+  // version of this check reported nothing while a green "116 mm" sat on the
+  // image. The number has no decimals either, which the first regular
+  // expression also insisted on.
+  // The label is drawn in an SVG overlay over the canvas, so it is read from
+  // the SVG text nodes and not from the page.
+  //
+  // Two earlier versions of this got it wrong in ways worth remembering.
+  // innerText does not see inside an SVG, so the check reported nothing while
+  // a green label sat on the image. And reading textContent off the whole body
+  // concatenates every string in the document, which produced "67116 mm" out of
+  // two unrelated numbers running together.
+  const labels = await page.evaluate(() =>
+    [...document.querySelectorAll('svg text, svg tspan')].map(node => (node.textContent ?? '').trim())
+  );
+
+  const label = labels.find(text => text.endsWith('mm'));
+  const millimetres = label ? Number.parseFloat(label) : 0;
+
+  check(
+    'the length tool measured something',
+    millimetres > 0,
+    millimetres > 0 ? `${millimetres} mm` : 'no length in millimetres appeared'
+  );
+  // A length across an abdomen is tens of millimetres. A tool reading pixels as
+  // millimetres, or missing the pixel spacing, lands orders of magnitude out.
+  check(
+    'and the length is a plausible distance across a body',
+    millimetres > 20 && millimetres < 500,
+    `${millimetres} mm`
+  );
+
+  await page.screenshot({ path: path.join(shots, 'measurement.png') });
+}
+
 console.log(`\nUncaught errors: ${problems.length}`);
 problems.slice(0, 10).forEach(problem => console.log(`  ${problem}`));
 

@@ -74,7 +74,12 @@
     "lerna:cache": "./netlify-lerna-cache.sh",
     "lerna:restore": "./netlify-lerna-restore.sh",
     "lerna:customVersion": "node version.mjs",
-    "link-list": "npm ls --depth=0 --link=true"
+    "link-list": "npm ls --depth=0 --link=true",
+    "data": "node scripts/fetch-studies.mjs",
+    "data:load": "node scripts/load-orthanc.mjs",
+    "check:smoke": "node scripts/smoke.mjs",
+    "check:layout": "node scripts/layout.mjs",
+    "check:controls": "node scripts/controls.mjs"
   },
   "dependencies": {
     "@babel/helper-hoist-variables": "^7.24.7",

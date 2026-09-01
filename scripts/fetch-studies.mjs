@@ -4,7 +4,7 @@
  * Archive.
  *
  * The images are real clinical acquisitions that the archive de-identified
- * before publishing them; both collections are Creative Commons Attribution,
+ * before publishing them; every collection is Creative Commons Attribution,
  * and the attribution they require is in data/studies.json and in the README.
  * Nothing is committed to this repository: the files land in data/dicom/, which
  * is ignored, so a clone stays small and the licence terms stay simple.
