@@ -27,6 +27,13 @@
       "doi": "10.7937/tcia.eqde-4b16",
       "citation": "Cui, C., Li, L., Cai, H., Fan, Z., Zhang, L., Dan, T., Li, J., & Wang, J. (2021). The Chinese Mammography Database (CMMD): An online mammography database with biopsy confirmed types for machine diagnosis of breast. The Cancer Imaging Archive.",
       "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    "CMB-BRCA": {
+      "title": "Cancer Moonshot Biobank — Breast Cancer",
+      "license": "CC BY 4.0",
+      "doi": "10.7937/dx22-8j71",
+      "citation": "National Cancer Institute Clinical Proteomic Tumor Analysis Consortium. (2022). Cancer Moonshot Biobank - Breast Cancer Collection (CMB-BRCA). The Cancer Imaging Archive.",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
     }
   },
   "studies": [
@@ -115,6 +122,31 @@
           "modality": "MG",
           "imageCount": 4,
           "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.1239.1759.115060983843511037348481244160"
+        }
+      ]
+    },
+    {
+      "label": "Bilateral mammogram, three named series",
+      "collection": "CMB-BRCA",
+      "note": "A screening study whose views are separate series rather than frames of one, which is how most archives store them and the layout a viewer has to be right about. Sixteen bits, with pixel spacing, so it also measures properly - unlike the CMMD study beside it.",
+      "series": [
+        {
+          "description": "L MLO C-View",
+          "modality": "MG",
+          "imageCount": 1,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.131124697671325632926232203920426442906"
+        },
+        {
+          "description": "R MLO C-View",
+          "modality": "MG",
+          "imageCount": 1,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.128776425093663790577008150653050175437"
+        },
+        {
+          "description": "L CC C-View",
+          "modality": "MG",
+          "imageCount": 1,
+          "seriesInstanceUID": "1.3.6.1.4.1.14519.5.2.1.97763871926997221036836907851387981229"
         }
       ]
     }

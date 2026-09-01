@@ -115,10 +115,12 @@ function LoadingIndicatorProgress({ className, textBlock, progress }) {
         <span></span>
       </div>
 
-      {/* Numero di versione fisso in basso alla finestra. */}
+      {/* Versione e autore, in basso alla finestra. Chi guarda una schermata
+          di caricamento la guarda per intero: e il posto dove chiedersi di chi
+          e questo programma. */}
       {version && (
         <div className="fixed bottom-3 left-0 right-0 text-center text-[11px] tracking-wide text-white/35">
-          v{version}
+          v{version} · Sviluppato da Riccardo Sapuppo
         </div>
       )}
     </div>

@@ -89,6 +89,17 @@ npm run check:controls     # presses every control this fork adds, one at a time
 `check:smoke` is also where the pictures in this README come from, so they are
 always the current build rather than something taken by hand months ago.
 
+**A VOI function that is declared but not applied.** A mammogram opened washed
+out — the air around the breast at 29% grey instead of black — and the overlay
+reported a window of 589 that appears nowhere in the file, which declares 256.
+The file asks for a **sigmoid** VOI, and the renderer takes the sigmoid to work
+out the range it will draw and then draws that range **linearly**. The number
+589 is the span between the 1% and 99% points of a sigmoid curve, presented as
+if it were a window width. Declaring only the VOI functions that are actually
+applied puts it back to the 256 the file asks for: black background, full
+contrast, and a readout that matches the data. Measured, not judged by eye —
+the background went from 29% to 0%.
+
 ## Running it
 
 The viewer reads from an archive over DICOMweb. The demonstration ships one, and
@@ -104,20 +115,21 @@ yarn dev                      # the viewer, on http://localhost:3000
 
 ## The studies
 
-Four real, de-identified clinical studies from
+Five real, de-identified clinical studies from
 [The Cancer Imaging Archive](https://www.cancerimagingarchive.net/). They are a
 sample chosen to exercise the viewer, not the range of what it opens — nothing
 in the viewer decides by modality. Nothing is committed here: a script fetches
 them, and keeps the licence file the archive ships beside the images.
 
-| Study | Collection | Images |
-| --- | --- | --- |
-| Chest CT, lung nodule screening | LIDC-IDRI | 133 |
-| Abdominal CT, multiphase | CPTAC-CCRCC | 193 |
-| Renal MR, five sequences | CPTAC-CCRCC | 153 |
-| Screening mammogram, four views | CMMD | 4 |
+| Study | Collection | Series | Images |
+| --- | --- | --- | --- |
+| Chest CT, lung nodule screening | LIDC-IDRI | 1 | 133 |
+| Abdominal CT, multiphase | CPTAC-CCRCC | 3 | 193 |
+| Renal MR, five sequences | CPTAC-CCRCC | 5 | 153 |
+| Screening mammogram, four views | CMMD | 1 | 4 |
+| Bilateral mammogram, three named series | CMB-BRCA | 3 | 3 |
 
-Three collections for four studies — two of them come from CPTAC-CCRCC, and a
+Five studies from four collections — two of them come from CPTAC-CCRCC, and a
 licence belongs to a collection rather than to a study:
 
 | Collection | Licence | DOI |
@@ -125,12 +137,15 @@ licence belongs to a collection rather than to a study:
 | LIDC-IDRI | CC BY 3.0 | `10.7937/K9/TCIA.2015.LO9QL9SX` |
 | CPTAC-CCRCC | CC BY 4.0 | `10.7937/k9/tcia.2018.oblamn27` |
 | CMMD | CC BY 4.0 | `10.7937/tcia.eqde-4b16` |
+| CMB-BRCA | CC BY 4.0 | `10.7937/dx22-8j71` |
 
-The mammogram earns its place by being unlike the other three: eight bits
-rather than sixteen, no rescale to Hounsfield units, no slice geometry to sort
-by, and a 2294 by 1914 image that the viewport has to fit rather than fill
-with. Every one of those is a way a viewer built and tested on CT quietly
-stops being right.
+The two mammograms are here because they break assumptions the CT and MR
+studies never test, and they break different ones. The CMMD study is eight bits
+rather than sixteen, has no rescale to Hounsfield units, no slice geometry, no
+pixel spacing, and declares a **sigmoid** VOI — it found a real defect, below.
+The CMB-BRCA study stores each view as its own series rather than as frames of
+one, which is how most archives arrange a screening study and the layout a
+viewer has to be right about.
 
 The licence a collection is distributed under is taken from the file inside the
 download rather than from the web page, which lists several because it covers
@@ -138,6 +153,18 @@ several kinds of data. The DOI is the one thing that cannot come from the
 download: it is on the collection page, and it is cited above so the data can
 be found again.
 
+### Names, and what was left alone
+
+The identifiers these collections publish — LIDC-IDRI-0001, C3N-00310,
+MSB-01799 — are what makes an image traceable back to the archive it came from,
+and the attribution above refers to them. They are kept exactly as published.
+
+What they are not is a name. In a worklist the name column is the first thing
+read, and a column of catalogue numbers does not say "a person whose identity
+was removed" — it says the software failed to fill the field in. So each
+patient is shown as *Anonymized, Patient 01* and so on, substituted on the way
+into the archive and never on disk: the downloaded files stay byte for byte
+what the collection published.
 ## What this is not
 
 **Not a medical device, and not for diagnosis.** It reads published research

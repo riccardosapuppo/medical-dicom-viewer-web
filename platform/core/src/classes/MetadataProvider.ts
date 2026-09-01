@@ -555,10 +555,32 @@ class MetadataProvider {
           }
         }
 
+        // Una funzione VOI non lineare si dichiara solo se il renderer la
+        // applica davvero.
+        //
+        // Cornerstone accetta SIGMOID, e con essa calcola l'intervallo come il
+        // tratto fra l'1% e il 99% della curva — su una mammografia con WC 128 e
+        // WW 256 diventa [-166, 422] — ma poi disegna quell'intervallo in modo
+        // LINEARE. Il risultato e' misurabile: l'aria, che nel file vale 0,
+        // finisce al 29% del bianco invece che al 12% che darebbe la sigmoide
+        // vera. L'immagine e' slavata, lo sfondo grigio, e la barra in basso
+        // riporta "W 589", una larghezza che nel file non compare da nessuna
+        // parte.
+        //
+        // Dichiarando solo cio' che viene applicato, l'intervallo torna a essere
+        // quello che il file chiede — 0..255, che il file stesso descrive come
+        // "Full width of 8 bit data" — e l'immagine viene resa come la intendeva
+        // chi l'ha prodotta.
+        const APPLICATE = ['LINEAR', 'LINEAR_EXACT'];
+        const funzioneApplicata =
+          typeof VOILUTFunction === 'string' && APPLICATE.includes(VOILUTFunction.toUpperCase())
+            ? VOILUTFunction
+            : undefined;
+
         metadata = {
           windowCenter: wcOut,
           windowWidth: wwOut,
-          voiLUTFunction: VOILUTFunction,
+          ...(funzioneApplicata ? { voiLUTFunction: funzioneApplicata } : {}),
         };
 
         // [MDV-DEBUG-ADC] log VOI_LUT per serie multiframe ADC (una volta per serie+frame)

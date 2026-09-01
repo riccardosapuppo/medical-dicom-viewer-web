@@ -32,6 +32,10 @@ function AboutModalDefault() {
           value={commitHash}
         /> */}
         <AboutModal.DetailItem
+          label="Sviluppato da"
+          value="Riccardo Sapuppo"
+        />
+        <AboutModal.DetailItem
           label="Basato su"
           value={`OHIF Viewer ${baseFork}`}
         />
