@@ -100,18 +100,39 @@ applied puts it back to the 256 the file asks for: black background, full
 contrast, and a readout that matches the data. Measured, not judged by eye —
 the background went from 29% to 0%.
 
+## Before you start
+
+- **Node.js 20** or newer. The fork inherits `>=18` from upstream OHIF; 20 is
+  what this is built and checked on.
+- **Yarn 1.x** (Classic), not npm. OHIF is a Lerna monorepo with a `yarn.lock`,
+  and installing it with npm produces a different tree that does not build.
+  `npm install -g yarn` if you do not have it.
+- **Docker**, with the Compose plugin. The archive is
+  [Orthanc](https://www.orthanc-server.com/) in a container — nothing to install
+  for it, and nothing left behind afterwards but one named volume.
+- **About 350 MB of disk and a connection**, once, for the studies. They are not
+  committed here: a script fetches them from The Cancer Imaging Archive.
+
+Nothing else. No database of your own, no DICOM toolkit, no account anywhere.
+
 ## Running it
 
 The viewer reads from an archive over DICOMweb. The demonstration ships one, and
 real studies to put in it.
 
 ```
+git clone https://github.com/riccardosapuppo/medical-dicom-viewer-web
+cd medical-dicom-viewer-web
+
 docker compose up -d          # the archive
-npm run data                  # fetch the studies: 113 MB down, 240 MB on disk
-npm run data:load             # load them into the archive
-yarn install                  # once
+yarn data                     # fetch the studies: 113 MB down, 240 MB on disk
+yarn data:load                # load them into the archive
+yarn install                  # once, and it is a big install
 yarn dev                      # the viewer, on http://localhost:3000
 ```
+
+`docker compose down -v` puts the machine back as it was, archive volume
+included.
 
 ## The studies
 
