@@ -3,7 +3,31 @@ declare global {
     erroriFetch: (error: unknown) => void;
     // StudyInstanceUIDs dell'URL, valorizzato in config/default.js
     mdvStudyInstanceUIDs?: string;
+    config?: { fetchErrorMessage?: string };
   }
+}
+
+/**
+ * Che cosa dire quando le immagini non arrivano.
+ *
+ * "Sessione scaduta" e' vero dove c'e' una sessione: qui davanti a un archivio
+ * che risponde solo a chi ha ancora un token, un fallimento sulle immagini e'
+ * quasi sempre quello. Ma questa stessa pagina gira anche dentro
+ * l'applicazione desktop, che legge una cartella da un disco e non ha nessuna
+ * sessione da far scadere — e li' quella frase e' semplicemente falsa, scritta
+ * a tutto schermo sopra uno studio che un attimo prima si vedeva.
+ *
+ * Cosi' il messaggio lo decide chi ospita la pagina, e il valore predefinito
+ * resta quello di prima.
+ */
+const MESSAGGIO_PREDEFINITO = 'Sessione scaduta';
+
+/** Il messaggio finisce dentro dell'HTML, quindi non ci entra come markup. */
+function testo(valore: string): string {
+  return valore
+    .split('&').join('&amp;')
+    .split('<').join('&lt;')
+    .split('>').join('&gt;');
 }
 
 window.erroriFetch = error => {
@@ -30,6 +54,8 @@ window.erroriFetch = error => {
     message.includes("Couldn't retrieve") &&
     message.includes('frames/')
   ) {
+    const messaggio = testo(window.config?.fetchErrorMessage || MESSAGGIO_PREDEFINITO);
+
     document.body.insertAdjacentHTML(
       'beforeend',
       `
@@ -47,7 +73,7 @@ window.erroriFetch = error => {
         font-size: 2em;
         z-index: 9999;
       ">
-        <p>Sessione scaduta</p>
+        <p>${messaggio}</p>
       </div>
     `
     );
