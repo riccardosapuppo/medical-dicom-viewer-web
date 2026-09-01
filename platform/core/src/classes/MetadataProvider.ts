@@ -408,21 +408,6 @@ class MetadataProvider {
       case WADO_IMAGE_LOADER_TAGS.VOI_LUT_MODULE:
         const { WindowCenter, WindowWidth, VOILUTFunction } = instance;
         if (WindowCenter == null || WindowWidth == null) {
-          // [MDV-DEBUG-ADC] log quando VOI manca su serie multiframe ADC
-          if (
-            (instance.NumberOfFrames > 1 || instance.PerFrameFunctionalGroupsSequence) &&
-            /ADC/i.test(instance.SeriesDescription || '')
-          ) {
-            console.warn('[MDV][VOI_LUT_MODULE] missing WC/WW on multiframe ADC', {
-              SeriesDescription: instance.SeriesDescription,
-              SOPClassUID: instance.SOPClassUID,
-              NumberOfFrames: instance.NumberOfFrames,
-              frameNumber: instance.frameNumber,
-              hasPerFrame: !!instance.PerFrameFunctionalGroupsSequence,
-              hasShared: !!instance.SharedFunctionalGroupsSequence,
-              instanceKeys: Object.keys(instance).slice(0, 40),
-            });
-          }
           return;
         }
         const windowCenter = Array.isArray(WindowCenter) ? WindowCenter : [WindowCenter];
@@ -555,80 +540,39 @@ class MetadataProvider {
           }
         }
 
-        // Una funzione VOI non lineare si dichiara solo se il renderer la
-        // applica davvero.
+        // A non-linear VOI function is declared only if the renderer really
+        // applies it.
         //
-        // Cornerstone accetta SIGMOID, e con essa calcola l'intervallo come il
-        // tratto fra l'1% e il 99% della curva — su una mammografia con WC 128 e
-        // WW 256 diventa [-166, 422] — ma poi disegna quell'intervallo in modo
-        // LINEARE. Il risultato e' misurabile: l'aria, che nel file vale 0,
-        // finisce al 29% del bianco invece che al 12% che darebbe la sigmoide
-        // vera. L'immagine e' slavata, lo sfondo grigio, e la barra in basso
-        // riporta "W 589", una larghezza che nel file non compare da nessuna
-        // parte.
+        // Cornerstone accepts SIGMOID, and computes the range from it as the
+        // span between the 1st and 99th percentiles of the curve — on a
+        // mammogram with WC 128 and WW 256 that becomes [-166, 422] — and then
+        // draws that range LINEARLY. The result is measurable: air, which is 0
+        // in the file, lands at 29% of white instead of the 12% a real sigmoid
+        // would give. The image is washed out, the background grey, and the bar
+        // along the bottom reads "W 589" — a width that appears nowhere in the
+        // file.
         //
-        // Dichiarando solo cio' che viene applicato, l'intervallo torna a essere
-        // quello che il file chiede — 0..255, che il file stesso descrive come
-        // "Full width of 8 bit data" — e l'immagine viene resa come la intendeva
-        // chi l'ha prodotta.
-        const APPLICATE = ['LINEAR', 'LINEAR_EXACT'];
-        const funzioneApplicata =
-          typeof VOILUTFunction === 'string' && APPLICATE.includes(VOILUTFunction.toUpperCase())
+        // Declaring only what is actually applied puts the range back to what
+        // the file asks for: 0..255, which the file itself describes as "Full
+        // width of 8 bit data", and the image is rendered as whoever produced
+        // it intended.
+        const APPLIED_AS_WRITTEN = ['LINEAR', 'LINEAR_EXACT'];
+        const appliedFunction =
+          typeof VOILUTFunction === 'string' && APPLIED_AS_WRITTEN.includes(VOILUTFunction.toUpperCase())
             ? VOILUTFunction
             : undefined;
 
         metadata = {
           windowCenter: wcOut,
           windowWidth: wwOut,
-          ...(funzioneApplicata ? { voiLUTFunction: funzioneApplicata } : {}),
+          ...(appliedFunction ? { voiLUTFunction: appliedFunction } : {}),
         };
 
-        // [MDV-DEBUG-ADC] log VOI_LUT per serie multiframe ADC (una volta per serie+frame)
-        if (
-          (instance.NumberOfFrames > 1 || instance.PerFrameFunctionalGroupsSequence) &&
-          /ADC/i.test(instance.SeriesDescription || '')
-        ) {
-          window.MdvAdcDebug ??= { voi: {}, modality: {} };
-          const key = `${instance.SeriesInstanceUID}#${instance.frameNumber ?? 1}`;
-          if (!window.MdvAdcDebug.voi[key]) {
-            window.MdvAdcDebug.voi[key] = {
-              SeriesDescription: instance.SeriesDescription,
-              SOPClassUID: instance.SOPClassUID,
-              frameNumber: instance.frameNumber,
-              WindowCenter,
-              WindowWidth,
-              VOILUTFunction,
-              metadataReturned: metadata,
-              RescaleSlope: instance.RescaleSlope,
-              RescaleIntercept: instance.RescaleIntercept,
-              RescaleType: instance.RescaleType,
-              SmallestImagePixelValue: instance.SmallestImagePixelValue,
-              LargestImagePixelValue: instance.LargestImagePixelValue,
-              BitsStored: instance.BitsStored,
-              PixelRepresentation: instance.PixelRepresentation,
-            };
-            console.log('[MDV][VOI_LUT_MODULE][ADC]', key, window.MdvAdcDebug.voi[key]);
-          }
-        }
 
         break;
       case WADO_IMAGE_LOADER_TAGS.MODALITY_LUT_MODULE:
         const { RescaleIntercept, RescaleSlope } = instance;
         if (RescaleIntercept === undefined || RescaleSlope === undefined) {
-          // [MDV-DEBUG-ADC] log quando rescale manca su serie multiframe ADC -> render saturato bianco
-          if (
-            (instance.NumberOfFrames > 1 || instance.PerFrameFunctionalGroupsSequence) &&
-            /ADC/i.test(instance.SeriesDescription || '')
-          ) {
-            console.warn('[MDV][MODALITY_LUT_MODULE] missing RescaleSlope/Intercept on multiframe ADC', {
-              SeriesDescription: instance.SeriesDescription,
-              frameNumber: instance.frameNumber,
-              hasPerFrame: !!instance.PerFrameFunctionalGroupsSequence,
-              hasShared: !!instance.SharedFunctionalGroupsSequence,
-              RescaleSlope,
-              RescaleIntercept,
-            });
-          }
           return;
         }
 
@@ -638,25 +582,6 @@ class MetadataProvider {
           rescaleType: instance.RescaleType,
         };
 
-        // [MDV-DEBUG-ADC] log Modality LUT per serie multiframe ADC (una volta per serie+frame)
-        if (
-          (instance.NumberOfFrames > 1 || instance.PerFrameFunctionalGroupsSequence) &&
-          /ADC/i.test(instance.SeriesDescription || '')
-        ) {
-          window.MdvAdcDebug ??= { voi: {}, modality: {} };
-          const key = `${instance.SeriesInstanceUID}#${instance.frameNumber ?? 1}`;
-          if (!window.MdvAdcDebug.modality[key]) {
-            window.MdvAdcDebug.modality[key] = {
-              SeriesDescription: instance.SeriesDescription,
-              frameNumber: instance.frameNumber,
-              RescaleSlope,
-              RescaleIntercept,
-              RescaleType: instance.RescaleType,
-              metadataReturned: metadata,
-            };
-            console.log('[MDV][MODALITY_LUT_MODULE][ADC]', key, window.MdvAdcDebug.modality[key]);
-          }
-        }
         break;
       case WADO_IMAGE_LOADER_TAGS.SOP_COMMON_MODULE:
         metadata = {
