@@ -1,0 +1,82 @@
+# What can be checked on a clone in seconds, and is checked.
+#
+# This is a fork of a large monorepo. Installing and building it takes tens of
+# minutes and needs a DICOM archive running to prove much, so a workflow that
+# tried would be slow, flaky, and eventually ignored — and a check nobody
+# believes is worse than no check at all.
+#
+# So this checks the two things that break here silently, both of which have
+# broken here before: the manifest of demonstration studies, which is what the
+# download reads and what the README's attribution table is copied from, and
+# whether the commands the README tells people to run exist at all.
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  manifest:
+    name: the studies manifest says what it must
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: every study names a collection, a licence and a DOI
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+
+            const manifest = JSON.parse(fs.readFileSync("data/studies.json", "utf8"));
+            const wrong = [];
+
+            for (const [name, collection] of Object.entries(manifest.collections)) {
+              if (!collection.license) wrong.push(`${name}: no licence`);
+              if (!collection.doi) wrong.push(`${name}: no DOI`);
+              if (!collection.citation) wrong.push(`${name}: no citation`);
+            }
+
+            for (const study of manifest.studies) {
+              if (!manifest.collections[study.collection]) {
+                wrong.push(`${study.label}: collection ${study.collection} is not described`);
+              }
+              for (const series of study.series) {
+                if (!series.seriesInstanceUID) wrong.push(`${study.label}: a series with no UID`);
+                if (!(series.imageCount > 0)) wrong.push(`${study.label}: a series with no images`);
+              }
+            }
+
+            if (wrong.length) {
+              console.error(wrong.join("\n"));
+              process.exit(1);
+            }
+
+            const series = manifest.studies.reduce((n, s) => n + s.series.length, 0);
+            console.log(`${manifest.studies.length} studies, ${series} series, every one attributed`);
+          '
+
+      - name: the commands the README names exist
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+
+            const scripts = Object.keys(JSON.parse(fs.readFileSync("package.json", "utf8")).scripts ?? {});
+            const readme = fs.readFileSync("README.md", "utf8");
+
+            const named = new Set([...readme.matchAll(/npm run ([a-z0-9:-]+)/g)].map(m => m[1]));
+            const missing = [...named].filter(name => !scripts.includes(name));
+
+            if (missing.length) {
+              console.error(`the README names commands that do not exist: ${missing.join(", ")}`);
+              process.exit(1);
+            }
+
+            console.log(`${named.size} commands named in the README, all of them real`);
+          '

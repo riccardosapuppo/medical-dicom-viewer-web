@@ -1,0 +1,15 @@
+# Riscontri veri che non sono segreti, e perché.
+#
+# Questo è un fork, e un fork si porta dietro i file di chi sta a monte. Le
+# righe qui sotto sono percorsi che il cancello di pubblicazione può smettere
+# di segnalare, con il motivo accanto: sono tutti file di OHIF, pubblici, con
+# valori di esempio dentro.
+#
+# Non vale per i nomi aziendali e per le chiavi vere: quelli bloccano comunque,
+# da qualunque file, ed è giusto così.
+
+platform/app/.recipes/*        # ricette docker di OHIF: password e segreti di esempio, pubblici a monte
+platform/app/public/oidc-client.min.js   # libreria minificata: contiene setPassword e accessToken come nomi di funzione
+platform/app/public/html-templates/rollbar.html   # modello dimostrativo di OHIF, con il suo token pubblico
+platform/app/.webpack/webpack.pwa.js   # un host di sviluppo commentato, a monte
+platform/core/src/utils/resolveObjectPath.test.js   # 10.0.0.1 è il dato di una prova, a monte
