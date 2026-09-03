@@ -114,10 +114,11 @@ the background went from 29% to 0%.
   rounded. They are not committed here: a script fetches them from The Cancer
   Imaging Archive. The figure was 350 MB until the mammograms were added and
   nobody re-measured; it is the folder `du -sh data` reports.
-- **A large `node_modules` on top of that.** No figure is given because none was
-  measured that could be trusted: on Windows a recursive size of a Lerna
-  monorepo's modules folder is defeated by path length and quietly under-reports.
-  A number nobody could reproduce is worse than saying it is big.
+- **1.3 GB of `node_modules`** on top of that, once, after `yarn install` — this
+  is a Lerna monorepo with Cornerstone and two patched packages in it. Measured
+  with `du -sh node_modules`, which is worth naming: a recursive size taken
+  through the Windows API reported **1 MB** for the same folder, because it gives
+  up on long paths and says so to nobody.
 
 Nothing else. No database of your own, no DICOM toolkit, no account anywhere.
 
