@@ -110,8 +110,14 @@ the background went from 29% to 0%.
 - **Docker**, with the Compose plugin. The archive is
   [Orthanc](https://www.orthanc-server.com/) in a container — nothing to install
   for it, and nothing left behind afterwards but one named volume.
-- **About 350 MB of disk and a connection**, once, for the studies. They are not
-  committed here: a script fetches them from The Cancer Imaging Archive.
+- **113 MB down and 268 MB in `data/`**, once, for the studies — measured, not
+  rounded. They are not committed here: a script fetches them from The Cancer
+  Imaging Archive. The figure was 350 MB until the mammograms were added and
+  nobody re-measured; it is the folder `du -sh data` reports.
+- **A large `node_modules` on top of that.** No figure is given because none was
+  measured that could be trusted: on Windows a recursive size of a Lerna
+  monorepo's modules folder is defeated by path length and quietly under-reports.
+  A number nobody could reproduce is worse than saying it is big.
 
 Nothing else. No database of your own, no DICOM toolkit, no account anywhere.
 
@@ -125,14 +131,21 @@ git clone https://github.com/riccardosapuppo/medical-dicom-viewer-web
 cd medical-dicom-viewer-web
 
 docker compose up -d          # the archive
-yarn data                     # fetch the studies: 113 MB down, 240 MB on disk
-yarn data:load                # load them into the archive
 yarn install                  # once, and it is a big install
+yarn data                     # fetch the studies: 113 MB down, 268 MB in data/
+yarn data:load                # load them into the archive
 yarn dev                      # the viewer, on http://localhost:3000
 ```
 
+`yarn install` is third and not fourth, which is the order that works: the load
+step reads each file with `dicom-parser` before sending it, so on a fresh clone
+it cannot run until the modules are there. In the order this README gave until
+now, **step three died** — and nothing noticed, because everybody who ran it
+already had `node_modules`.
+
 `docker compose down -v` puts the machine back as it was, archive volume
-included.
+included; `rm -rf node_modules data` takes the rest — `data/` is where both the
+downloaded images and `studies.json` live.
 
 ## The studies
 

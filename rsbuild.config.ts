@@ -158,7 +158,9 @@ export default defineConfig({
     },
     // Configure history API fallback
     historyApiFallback: {
-      disableDotRule: true,
+      // No `disableDotRule` here either — see the note in
+      // platform/app/.webpack/webpack.pwa.js. A request that names a file and
+      // has no such file must be a 404, never the application at 200.
       index: `${PUBLIC_URL}index.html`,
     },
   },

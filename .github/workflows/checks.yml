@@ -21,6 +21,11 @@ jobs:
   manifest:
     name: the studies manifest says what it must
     runs-on: ubuntu-latest
+    # A job that hangs is worse than one that fails: it stays amber for six
+    # hours and nobody looks at it, while a red one sends an email. Learned
+    # from a Windows job that sat in_progress for two hours after every one
+    # of its checks had passed.
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4

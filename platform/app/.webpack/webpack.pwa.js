@@ -251,7 +251,12 @@ module.exports = (env, argv) => {
       //public: 'http://localhost:' + 3000,
       //writeToDisk: true,
       historyApiFallback: {
-        disableDotRule: true,
+        // `disableDotRule: true` stood here, and it turns off the one guard
+        // that keeps a request NAMING A FILE out of the single-page fallback.
+        // With it on, `/ngsw.json` or `/main.old.js` came back as index.html
+        // with a 200 — a missing file that looks like a working page, and a
+        // service worker handed the application in place of its own manifest.
+        // A path with a dot in it now falls through to a real 404.
         index: PUBLIC_URL + 'index.html',
       },
       devMiddleware: {
