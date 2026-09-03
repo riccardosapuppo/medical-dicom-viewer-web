@@ -75,7 +75,31 @@ jobs:
             const scripts = Object.keys(JSON.parse(fs.readFileSync("package.json", "utf8")).scripts ?? {});
             const readme = fs.readFileSync("README.md", "utf8");
 
-            const named = new Set([...readme.matchAll(/npm run ([a-z0-9:-]+)/g)].map(m => m[1]));
+            // `yarn <script>` as well as `npm run <script>`. This page tells
+            // people to use yarn — installing with npm produces a tree that
+            // does not build — so a pattern that only knew "npm run" found
+            // nothing the day the README was made consistent with itself, and
+            // would have reported success for ever after.
+            // yarn`s own subcommands are not scripts. `yarn install` is the
+            // first line of the quickstart and would otherwise be reported as a
+            // command the package does not have.
+            const yarnItself = new Set([
+              "install", "add", "remove", "upgrade", "why", "info", "link",
+              "cache", "init", "pack", "publish", "config", "run", "workspaces",
+            ]);
+
+            const named = new Set(
+              [...readme.matchAll(/(?:npm run|yarn)\s+([a-z0-9:-]+)/g)]
+                .map(m => m[1])
+                .filter(name => !yarnItself.has(name))
+            );
+
+            // A check that passes by finding nothing is worse than no check.
+            if (named.size < 5) {
+              console.error(`only ${named.size} commands found in the README — has the pattern stopped matching?`);
+              process.exit(1);
+            }
+
             const missing = [...named].filter(name => !scripts.includes(name));
 
             if (missing.length) {

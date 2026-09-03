@@ -227,7 +227,10 @@ module.exports = (env, argv) => {
       open: true,
       port: OHIF_PORT,
       headers: {
-        'Cache-Control': 'no-store', // Disabilita la cache durante lo sviluppo
+        // Nothing the development server hands out is stored. A stale bundle
+        // in front of a viewer whose data source has moved on is a morning
+        // spent debugging code that is not running any more.
+        'Cache-Control': 'no-store',
       },
       // host: '192.168.18.134',
       client: {
@@ -244,6 +247,14 @@ module.exports = (env, argv) => {
             index: ['index.json.gz', 'index.mht.gz'],
             redirect: true,
             setHeaders,
+            // `Cache-Control: no-store` above is not enough on its own: these
+            // two are separate options, both default to on, and a response
+            // carrying either is a response a browser may revalidate and be
+            // told 304 — which is the stale page the header was meant to stop.
+            // `lastModified` in particular is the one everybody forgets,
+            // because turning off `etag` feels like it covered it.
+            etag: false,
+            lastModified: false,
           },
           publicPath: '/viewer-testdata',
         },

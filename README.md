@@ -81,10 +81,15 @@ A saved arrangement is kept locally when there is no backend to synchronise to.
 wrong here answered "yes" to whether it works:
 
 ```
-npm run check:smoke        # opens a study, draws a measurement, leaves the screenshots
-npm run check:layout       # text drawn over text, controls off screen, at two window sizes
-npm run check:controls     # presses every control this fork adds, one at a time
+yarn check:smoke           # opens a study, draws a measurement, leaves the screenshots
+yarn check:layout          # text drawn over text, controls off screen, at two window sizes
+yarn check:controls        # presses every control this fork adds, one at a time
 ```
+
+`yarn`, not `npm` — this page says two paragraphs down that installing with npm
+produces a tree that does not build, and then named its own checks as `npm run`.
+Both commands reach the same scripts, but a README that contradicts itself is
+one somebody follows in the wrong half.
 
 `check:smoke` is also where the pictures in this README come from, so they are
 always the current build rather than something taken by hand months ago.
