@@ -13,10 +13,15 @@
  *
  *   npm install --no-save playwright-core
  *   node scripts/layout.mjs
+ *
+ * Against the viewer and the loaded archive already running — see
+ * scripts/lib/viewerReady.mjs.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { requireViewer } from './lib/viewerReady.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const VIEWER = process.env.VIEWER_URL ?? 'http://localhost:3000';
@@ -155,6 +160,8 @@ function rileva(altezzaFinestra) {
 
   return [...new Set(guai)];
 }
+
+await requireViewer(VIEWER);
 
 const browser = await chromium.launch({
   executablePath: findChromium(),

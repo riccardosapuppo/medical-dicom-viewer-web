@@ -91,6 +91,21 @@ produces a tree that does not build, and then named its own checks as `npm run`.
 Both commands reach the same scripts, but a README that contradicts itself is
 one somebody follows in the wrong half.
 
+None of the three starts anything. They attach to what **Running it** below
+leaves running — the archive up, the studies loaded into it, and `yarn dev`
+serving on port 3000 — and they need a browser to drive, which `yarn install`
+does not bring because nothing else here uses one:
+
+```
+npm install --no-save playwright-core
+npx playwright install chromium
+```
+
+Run a check without one of those and it stops in about a second naming the piece
+that is missing and the command that supplies it, rather than spending ninety
+seconds on a navigation that was never going to arrive. `VIEWER_URL` points them
+somewhere other than `http://localhost:3000`.
+
 `check:smoke` is also where the pictures in this README come from, so they are
 always the current build rather than something taken by hand months ago.
 

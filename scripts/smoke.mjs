@@ -16,10 +16,15 @@
  * Needs a browser to drive:
  *   npm install --no-save playwright-core
  *   npx playwright install chromium
+ *
+ * And needs the viewer and the loaded archive already running — see
+ * scripts/lib/viewerReady.mjs, which says which and refuses to start otherwise.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { requireViewer } from './lib/viewerReady.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const shots = path.join(root, 'docs');
@@ -84,6 +89,8 @@ const record = (text, fatal = true) => {
     list.push(line);
   }
 };
+
+await requireViewer(VIEWER);
 
 const browser = await chromium.launch({
   executablePath: findChromium(),
