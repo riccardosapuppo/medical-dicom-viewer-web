@@ -1,9 +1,12 @@
 # The archive the viewer reads from.
 #
-# Only the archive is containerised. The viewer is OHIF, built from the
-# distribution that scripts/setup-ohif.mjs assembles, and is run with
-# `npm run dev`: putting a 200 MB webpack build inside an image would add
-# minutes to every start for no benefit to anyone reading this repository.
+# Only the archive is containerised. The viewer is this repository, built and
+# served by `yarn dev` — yarn and not npm, because this is a Lerna monorepo
+# with a yarn.lock and npm resolves it into a tree that does not build. Putting
+# a 200 MB webpack build inside an image would add minutes to every start for no
+# benefit to anyone reading this repository.
+#
+# Start this first: the load step needs the archive already answering.
 services:
   orthanc:
     image: orthancteam/orthanc:26.4.2
