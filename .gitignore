@@ -32,10 +32,6 @@ yarn-error.log
 *.code-workspace
 .directory
 
-# Credenziali Gmail OAuth2 della dashboard cloud (NON committare segreti)
-cloud-monitor/gmail-oauth2.json
-gmail-oauth2.json
-
 # Common Example Data Directories
 sampledata/
 example/deps/
@@ -65,21 +61,8 @@ tests/playwright-report/
 /blob-report/
 /playwright/.cache/
 
-# PACS Analytics: la cartella mockup è solo riferimento locale, non va versionata
-PacsAnalyticsDashboard/mockup/
-PacsAnalyticsDashboard/mockup/**
-.pacs-analytics-elev.json
-.pacs-analytics-elev-manual.json
-
-# Identita univoca di questa installazione per il cloud monitor: generata a
-# runtime e diversa su ogni macchina, versionarla causerebbe clientId duplicati.
-cloud-client-id.json
-
 # Pacchetti temporanei prodotti dalla build (interrotta o in corso)
 *.7z.tmp
-
-# Dipendenze installate a runtime dal backend (token storico remoto)
-.deps-storico-remoto/
 
 # Build output and logs of this working copy
 platform/app/dist/
