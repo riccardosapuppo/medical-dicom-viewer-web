@@ -176,11 +176,12 @@ module.exports = (env, argv) => {
             to: `${DIST_DIR}/app-config.js`,
             // Il file di configurazione viene copiato e basta.
             //
-            // Qui c'era una riscrittura che a ogni build cambiava tre valori: isSuite,
-            // showStudyList e il generatore di stampa. Erano tutti e tre modi di
-            // adattare il visualizzatore alla pagina ospite che lo apriva, e quella
-            // pagina non fa parte di questo repository. Il sorgente e' la sola
-            // versione della verita': quello che c'e' scritto e' quello che gira.
+            // Qui c'era una riscrittura che a ogni build cambiava tre valori:
+            // l'appartenenza alla pagina ospite, showStudyList e il generatore di
+            // stampa. Erano tutti e tre modi di adattare il visualizzatore alla pagina
+            // che lo apriva, e quella pagina non fa parte di questo repository. Il
+            // sorgente e' la sola versione della verita': quello che c'e' scritto e'
+            // quello che gira.
           },
           {
             from: path.join(__dirname, '../build-tools/web.config'),

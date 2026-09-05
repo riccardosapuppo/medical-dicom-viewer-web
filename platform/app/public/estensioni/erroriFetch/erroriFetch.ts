@@ -36,9 +36,9 @@ window.erroriFetch = error => {
     return;
   }
   // L'overlay a tutto schermo blocca la sessione: ha senso solo se a fallire e' lo studio
-  // effettivamente aperto. Se l'errore riguarda una serie dello storico (sul cloud o
-  // remoto) l'utente sta solo sfogliando, e bloccarlo sarebbe sbagliato oltre che
-  // fuorviante: un centro irraggiungibile non e' una sessione scaduta.
+  // effettivamente aperto. Se l'errore riguarda una serie dello storico l'utente sta
+  // solo sfogliando, e bloccarlo sarebbe sbagliato oltre che fuorviante: uno studio
+  // precedente che non arriva non e' una sessione scaduta.
   const studyUIDDallErrore = message.match(/studies\/([0-9.]+)/);
   if (studyUIDDallErrore) {
     const studiPrimari = `${window.mdvStudyInstanceUIDs || ''}`

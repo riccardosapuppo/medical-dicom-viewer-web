@@ -11,7 +11,6 @@ import { useTrackedMeasurements } from '../../getContextModule';
 import { Separator } from '@ohif/ui-next';
 import { PanelStudyBrowserHeader, MoreDropdownMenu } from '@ohif/extension-default';
 import { defaultActionIcons, defaultViewPresets } from './constants';
-import axios from 'axios';
 
 let primoAvvio = true
 const cacheThumbnails = {}
@@ -47,10 +46,6 @@ const shouldHideThumbnail = ds => {
   return false;
 };
 
-let erroreStudiRemoti = false;
-// Esito della verifica "esiste un centro remoto per questa partizione?", per aetitle.
-// Vive quanto la pagina: se il pannello si rimonta non si rifa' la chiamata.
-const centroRemotoConfigurato = new Map();
 const mostraPrimoStudioStorico = true;
 const INVALID_STUDY_DESCRIPTION_VALUES = new Set([
   'no data studio',
@@ -239,14 +234,8 @@ export default function PanelStudyBrowserTracking({
     ...(StudyInstanceUIDs || []).map(normalizeStudyInstanceUID).filter(Boolean),
   ]);
   const [studyDisplayList, setStudyDisplayList] = useState([]);
-  // Storico remoto: 'idle' (mai cercato) | 'loading' | 'done' | 'error'
-  const [statoStoricoRemoto, setStatoStoricoRemoto] = useState('idle');
-  // Storico sul cloud / locale: 'idle' | 'loading' | 'done'
+  // Storico locale: 'idle' | 'loading' | 'done'
   const [statoStorico, setStatoStorico] = useState('idle');
-  // Esiste un centro remoto configurato per la partizione corrente? Serve solo a far
-  // ridisegnare le tab quando la verifica risponde.
-  const [centroRemotoPresente, setCentroRemotoPresente] = useState(false);
-  const storicoRemotoControllatoRef = useRef(false);
   const [hasLoadedViewports, setHasLoadedViewports] = useState(false);
   const [displaySets, setDisplaySets] = useState([]);
   const [displaySetsLoadingState, setDisplaySetsLoadingState] = useState({});
@@ -332,166 +321,6 @@ export default function PanelStudyBrowserTracking({
 
   const { trackedSeries } = trackedMeasurements.context;
 
-  // La tab "Storico remoto" compare solo se per l'aetitle dell'URL esiste davvero un centro
-  // configurato in remotePeers. Una sola chiamata per partizione, non bloccante: il viewer
-  // continua a caricare e la tab si aggiunge appena arriva la risposta.
-  useEffect(() => {
-    if (!window.storicoRemoto) {
-      return;
-    }
-
-    const aetitle = `${window.mdvAETitle || ''}`.trim();
-    if (!aetitle) {
-      window.storicoRemotoDisponibile = false;
-      return;
-    }
-
-    if (centroRemotoConfigurato.has(aetitle)) {
-      window.storicoRemotoDisponibile = centroRemotoConfigurato.get(aetitle);
-      setCentroRemotoPresente(centroRemotoConfigurato.get(aetitle));
-      return;
-    }
-
-    let annullato = false;
-    const base = `${window.qidoUrl || ''}`.replace(/\/qido\/?$/, '');
-    if (!base) {
-      return;
-    }
-
-    axios
-      .get(`${base}/storico-remoto/disponibile`, {
-        params: { aetitle },
-        withCredentials: false,
-      })
-      .then(risposta => {
-        const disponibile = !!risposta?.data?.disponibile;
-        centroRemotoConfigurato.set(aetitle, disponibile);
-        if (!annullato) {
-          window.storicoRemotoDisponibile = disponibile;
-          setCentroRemotoPresente(disponibile);
-        }
-      })
-      .catch(err => {
-        // Solo un "no" esplicito del backend nasconde la tab. Se l'endpoint non c'e'
-        // (backend non aggiornato/riavviato) o la rete fallisce, si torna al comportamento
-        // precedente e la tab resta: meglio una tab che dira' "Offline" che una funzione
-        // sparita senza spiegazione.
-        const rispostaEsplicita = err?.response?.status === 200;
-        const disponibile = !rispostaEsplicita;
-        console.warn(
-          `Storico remoto: verifica configurazione non riuscita (${
-            err?.response?.status || 'nessuna risposta'
-          }); tab ${disponibile ? 'mostrata comunque' : 'nascosta'}`,
-          err
-        );
-        centroRemotoConfigurato.set(aetitle, disponibile);
-        if (!annullato) {
-          window.storicoRemotoDisponibile = disponibile;
-          setCentroRemotoPresente(disponibile);
-        }
-      });
-
-    return () => {
-      annullato = true;
-    };
-  }, []);
-
-  // ---- Storico remoto (solo suite) -------------------------------------------------
-  // La ricerca parte al CLICK sulla tab, non all'apertura dello studio: un centro
-  // irraggiungibile non deve rallentare il caricamento dello studio corrente.
-  const buildQidoUrlRemoto = () => {
-    const base = window.qidoUrlDefinitivo;
-    if (!base) {
-      return '';
-    }
-    const url = base.replace('/qido/', '/qido-remoto/');
-    // L'aetitle identifica il centro da interrogare: se la query non lo porta gia',
-    // uso quello con cui e' stato aperto il viewer.
-    if (!/[?&]aetitle=/i.test(url) && window.mdvAETitle) {
-      return `${url}${url.includes('?') ? '&' : '?'}aetitle=${encodeURIComponent(
-        window.mdvAETitle
-      )}`;
-    }
-    return url;
-  };
-
-  // window.qidoUrlDefinitivo viene popolato da StaticWadoClient quando parte la query per
-  // PatientID: cliccando subito sulla tab puo' non essere ancora pronta, e dichiarare il
-  // centro "Offline" sarebbe falso. Quindi la si attende, restando in "Ricerca in corso".
-  const attendiQidoUrlRemoto = async (timeoutMs = 15000) => {
-    const scadenza = Date.now() + timeoutMs;
-    let url = buildQidoUrlRemoto();
-    while (!url && Date.now() < scadenza) {
-      await new Promise(resolve => setTimeout(resolve, 200));
-      url = buildQidoUrlRemoto();
-    }
-    return url;
-  };
-
-  const storicoRemoto = async () => {
-    if (storicoRemotoControllatoRef.current) {
-      return;
-    }
-    storicoRemotoControllatoRef.current = true;
-    setStatoStoricoRemoto('loading');
-
-    const qidoUrl = await attendiQidoUrlRemoto();
-    if (!qidoUrl) {
-      console.warn('Storico remoto: query QIDO del paziente non disponibile');
-      erroreStudiRemoti = true;
-      storicoRemotoControllatoRef.current = false;
-      setStatoStoricoRemoto('error');
-      return;
-    }
-
-    try {
-      const apiResponse = await axios.get(qidoUrl, {
-        withCredentials: false, // Simile a credentials: 'omit'
-      });
-
-      const response = Array.isArray(apiResponse.data) ? apiResponse.data : [];
-      console.log('storico remoto ', response);
-
-      const studiRemotiGrezzi = response.map(a => {
-        const remoteDescription = normalizeStudyDescription(getDicomTagValue(a, '00081030'));
-        const remoteModalities = getDicomTagValues(a, '00080061').join('\\');
-        return {
-          studyInstanceUid: getDicomTagValue(a, '0020000D'),
-          date: getDicomTagValue(a, '00080020'),
-          time: getDicomTagValue(a, '00080030'),
-          accession: getDicomTagValue(a, '00080050'),
-          mrn: getDicomTagValue(a, '00100020'),
-          patientName: getDicomTagValue(a, '00100010'),
-          instances: getDicomTagValue(a, '00201208'),
-          // Il marcatore |Remoto| e' quello che createStudyBrowserTabs usa per spostare
-          // lo studio nella tab dedicata invece che nello storico sul cloud.
-          description: `${remoteDescription || ''} |Remoto|`.trim(),
-          modalities: remoteModalities || getDicomTagValue(a, '00080060'),
-        };
-      });
-
-      const actuallyMappedStudies = _mapDataSourceStudies(studiRemotiGrezzi).map(qidoStudy => {
-        return {
-          studyInstanceUid: normalizeStudyInstanceUID(qidoStudy.StudyInstanceUID),
-          date: formatDate(qidoStudy.StudyDate),
-          description: normalizeStudyDescription(qidoStudy.StudyDescription),
-          modalities: qidoStudy.ModalitiesInStudy,
-          numInstances: qidoStudy.NumInstances,
-        };
-      });
-
-      erroreStudiRemoti = false;
-      setStudyDisplayList(prevStudies => upsertStudies(prevStudies, actuallyMappedStudies));
-      setStatoStoricoRemoto('done');
-    } catch (err) {
-      erroreStudiRemoti = true;
-      // Un centro momentaneamente offline deve poter essere ritentato riaprendo la tab.
-      storicoRemotoControllatoRef.current = false;
-      console.warn('Non è stato possibile recuperare lo storico remoto: ', err);
-      setStatoStoricoRemoto('error');
-    }
-  };
-
   useEffect(() => {
     setActiveTabName(studyMode);
   }, [studyMode]);
@@ -532,7 +361,6 @@ export default function PanelStudyBrowserTracking({
       });
 
       setStudyDisplayList(prevStudies => upsertStudies(prevStudies, actuallyMappedStudies));
-      // Lo storico remoto NON viene cercato qui: parte al click sulla relativa tab.
     }
 
     const studyUIDs = (StudyInstanceUIDs || []).map(normalizeStudyInstanceUID).filter(Boolean);
@@ -541,8 +369,8 @@ export default function PanelStudyBrowserTracking({
     }
 
     // Stato del caricamento storico: alimenta il badge "Ricerca in corso" della tab
-    // "Storico sul cloud"/"Storico locale". allSettled perche' una query fallita non deve
-    // lasciare il badge acceso per sempre.
+    // "Storico locale". allSettled perche' una query fallita non deve lasciare il badge
+    // acceso per sempre.
     setStatoStorico('loading');
     Promise.allSettled(studyUIDs.map(sid => fetchStudiesForPatient(sid))).then(() =>
       setStatoStorico('done')
@@ -893,12 +721,6 @@ export default function PanelStudyBrowserTracking({
       return;
     }
 
-    // 'remoteAll' e' legittimamente vuota finche' la ricerca sul centro non ha risposto
-    // (parte al click): non va abbandonata, altrimenti il click sulla tab rimbalza indietro.
-    if (activeTabName === 'remoteAll') {
-      return;
-    }
-
     // Idem per una tab aperta esplicitamente dall'utente: se e' vuota di solito lo storico
     // sta ancora caricando, e riportarlo indietro gli farebbe perdere il click.
     if (tabSceltaDaUtenteRef.current === activeTabName) {
@@ -1016,72 +838,57 @@ export default function PanelStudyBrowserTracking({
     }
   }, [expandedStudyInstanceUIDs, jumpToDisplaySet, tabs]);
 
-  // Badge di stato in cima alla lista della tab remota. E' manipolazione DOM diretta come
+  // Badge di stato in cima alla lista dello storico. E' manipolazione DOM diretta come
   // il resto di questo pannello, perche' si innesta nella scrollbar renderizzata da StudyBrowser.
   const disegnaBadgeStorico = () => {
     const contenitore = document.querySelector('.ohif-scrollbar');
     if (!contenitore) {
       return;
     }
-    const esistente = document.getElementById('storico-remoto');
+    const esistente = document.getElementById('stato-storico');
     if (esistente) {
       esistente.remove();
+    }
+
+    if (activeTabName !== 'all') {
+      return;
     }
 
     let testo;
     let classe = '';
 
-    if (activeTabName === 'remoteAll') {
-      const numeroStudiRemoti = Array.isArray(window.studiRemoti) ? window.studiRemoti.length : 0;
-      if (statoStoricoRemoto === 'loading') {
-        testo = 'Ricerca in corso';
-        classe = 'loading';
-      } else if (statoStoricoRemoto === 'error') {
-        testo = 'Offline';
-        classe = 'error';
-      } else if (!numeroStudiRemoti) {
-        // Centro raggiungibile ma niente da mostrare: o non ha storico per questo paziente,
-        // o quello che ha e' gia' tutto presente sul cloud (il backend lo filtra).
-        testo = 'Nessuno storico remoto';
-      } else {
-        testo = 'Online';
-      }
-    } else if (activeTabName === 'all') {
-      // Storico sul cloud / locale: badge durante la ricerca, poi solo se la tab e' rimasta
-      // vuota (altrimenti la lista parla da se' e il badge sparisce).
-      if (statoStorico === 'loading') {
-        testo = 'Ricerca in corso';
-        classe = 'loading';
-      } else {
-        const tabStorico = tabs.find(tab => tab.name === 'all');
-        if (tabStorico?.studies?.length) {
-          return;
-        }
-        testo = window.isSuiteRuntime ? 'Nessuno storico sul cloud' : 'Nessuno storico locale';
-      }
+    // Badge durante la ricerca, poi solo se la tab e' rimasta vuota (altrimenti la lista
+    // parla da se' e il badge sparisce).
+    if (statoStorico === 'loading') {
+      testo = 'Ricerca in corso';
+      classe = 'loading';
     } else {
-      return;
+      const tabStorico = tabs.find(tab => tab.name === 'all');
+      if (tabStorico?.studies?.length) {
+        return;
+      }
+      testo = 'Nessuno storico locale';
     }
 
     contenitore.insertAdjacentHTML(
       'afterbegin',
-      `<div class="${classe}" id="storico-remoto"><p>${testo}</p></div>`
+      `<div class="${classe}" id="stato-storico"><p>${testo}</p></div>`
     );
   };
 
-  // Il badge va ridisegnato quando una delle due ricerche cambia stato mentre la relativa
-  // tab e' gia' aperta (es. lo storico finisce di caricare e "Ricerca in corso" sparisce).
+  // Il badge va ridisegnato quando la ricerca cambia stato mentre la tab e' gia' aperta
+  // (es. lo storico finisce di caricare e "Ricerca in corso" sparisce).
   useEffect(() => {
     disegnaBadgeStorico();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statoStoricoRemoto, statoStorico, activeTabName, studyDisplayList, centroRemotoPresente]);
+  }, [statoStorico, activeTabName, studyDisplayList]);
 
   const onClickedtabName = clickedTabName => {
     tabSceltaDaUtenteRef.current = clickedTabName;
     try {
       // document.querySelector('[data-cy="FixReferenceLines"]').style.display = 'none'
-      if (document.getElementById('storico-remoto')) {
-        document.getElementById('storico-remoto').remove();
+      if (document.getElementById('stato-storico')) {
+        document.getElementById('stato-storico').remove();
       }
       if (document.querySelector('.ohif-scrollbar .bg-black')) {
         document.querySelector('.ohif-scrollbar .bg-black').style.display = 'block';
@@ -1099,12 +906,6 @@ export default function PanelStudyBrowserTracking({
       //   mostraPrimoStudioStorico = false;
       // }
 
-      if (clickedTabName === 'remoteAll') {
-        // Prima apertura della tab: e' qui che parte l'interrogazione del centro.
-        if (!storicoRemotoControllatoRef.current) {
-          storicoRemoto();
-        }
-      }
       // Il badge lo ridisegna l'effetto su activeTabName: qui quello nuovo non e' ancora
       // stato applicato, quindi disegnarlo adesso userebbe la tab precedente.
     } catch (err) {
@@ -1333,121 +1134,6 @@ function _getComponentType(ds) {
   }
 
   return 'thumbnailTracked';
-}
-
-/**
- *
- * @param {string[]} primaryStudyInstanceUIDs
- * @param {object[]} studyDisplayList
- * @param {string} studyDisplayList.studyInstanceUid
- * @param {string} studyDisplayList.date
- * @param {string} studyDisplayList.description
- * @param {string} studyDisplayList.modalities
- * @param {number} studyDisplayList.numInstances
- * @param {object[]} displaySets
- * @returns tabs - The prop object expected by the StudyBrowser component
- */
-function _createStudyBrowserTabs(
-  primaryStudyInstanceUIDs,
-  studyDisplayList,
-  displaySets,
-  hangingProtocolService
-) {
-  const primaryStudies = [];
-  const recentStudies = [];
-  let allStudies = [];
-  let studiRemoti = [];
-
-  // Iterate over each study...
-  studyDisplayList.forEach(study => {
-    // Find it's display sets
-    const displaySetsForStudy = displaySets.filter(
-      ds => ds.StudyInstanceUID === study.studyInstanceUid
-    );
-
-    // Sort them
-    const dsSortFn = hangingProtocolService.getDisplaySetSortFunction();
-    displaySetsForStudy.sort(dsSortFn);
-
-    /* Sort by series number, then by series date
-      displaySetsForStudy.sort((a, b) => {
-        if (a.seriesNumber !== b.seriesNumber) {
-          return a.seriesNumber - b.seriesNumber;
-        }
-
-        const seriesDateA = Date.parse(a.seriesDate);
-        const seriesDateB = Date.parse(b.seriesDate);
-
-        return seriesDateA - seriesDateB;
-      });
-    */
-
-    // Map the study to it's tab/view representation
-    const tabStudy = Object.assign({}, study, {
-      displaySets: displaySetsForStudy,
-    });
-
-    // Add the "tab study" to the 'primary', 'recent', and/or 'all' tab group(s)
-    if (primaryStudyInstanceUIDs.includes(study.studyInstanceUid)) {
-      primaryStudies.push(tabStudy);
-      allStudies.push(tabStudy);
-    } else {
-      // TODO: Filter allStudies to dates within one year of current date
-      recentStudies.push(tabStudy);
-      allStudies.push(tabStudy);
-    }
-  });
-
-  allStudies = allStudies.filter(study => {
-    if (study.description.includes('|Remoto|')) {
-      study.description = study.description.replace('|Remoto|', '');
-      studiRemoti.push(study);
-      return false; // Esclude l'elemento da allStudies
-    }
-    return true; // Mantiene l'elemento in allStudies
-  });
-
-  if (studiRemoti.length === 0) {
-    studiRemoti = [
-      {
-        studyInstanceUid: '',
-        date: '',
-        description: 'Nessuno storico remoto',
-        modalities: '',
-        numInstances: 0,
-        displaySets: [],
-      },
-    ];
-  }
-  window.studiRemoti = JSON.parse(JSON.stringify(studiRemoti));
-
-  // Newest first
-  const _byDate = (a, b) => {
-    const dateA = Date.parse(a);
-    const dateB = Date.parse(b);
-
-    return dateB - dateA;
-  };
-
-  const tabs = [
-    {
-      name: 'primary',
-      label: 'Studio attuale',
-      studies: primaryStudies.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
-    },
-    {
-      name: 'recent',
-      label: 'Storico locale',
-      studies: recentStudies.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
-    },
-    {
-      name: 'remoteAll',
-      label: 'Storico remoto',
-      studies: allStudies.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
-    },
-  ];
-
-  return tabs;
 }
 
 function _findTabAndStudyOfDisplaySet(displaySetInstanceUID, tabs) {

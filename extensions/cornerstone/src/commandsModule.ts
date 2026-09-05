@@ -1742,7 +1742,7 @@ function commandsModule({
                 );
                 if (!ActiveThumbnail) {
                   //Se non trovo ActiveThumbnail, è probabile che non mi trovo nella tab corrispondente
-                  //(o sono in storico sul cloud o studio attuale) e ActiveThumbnail si potrebbe trovare in una delle due (tab inattiva)
+                  //(o sono nello storico o nello studio attuale) e ActiveThumbnail si potrebbe trovare in una delle due (tab inattiva)
                   //
                   // La linguetta inattiva esiste solo se ce ne sono due. Senza
                   // storico non c e, e qui si chiamava click() su null.

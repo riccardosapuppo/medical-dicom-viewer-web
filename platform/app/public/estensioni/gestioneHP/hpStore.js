@@ -356,7 +356,7 @@ export const readPreferenze = async () => {
 };
 
 const scritturaPreferenzeAPI = async (aetitle, username, body) => {
-  const origin = window.isSuite ? 'http://localhost:3000' : window.location.origin;
+  const origin = window.location.origin;
   const apiUrl = `${origin}/viewer/userdata/${aetitle}/?user=${username}`;
   try {
     const apiResponse = await fetch(apiUrl, {
@@ -377,7 +377,7 @@ const scritturaPreferenzeAPI = async (aetitle, username, body) => {
     // Un indirizzo che il server non conosce risponde con la pagina
     // dell'applicazione e stato 200. Senza guardare il tipo del corpo la
     // scrittura si dichiarerebbe riuscita, e il pannello direbbe salvato
-    // sul cloud quando non e arrivato niente da nessuna parte.
+    // sul server quando non e arrivato niente da nessuna parte.
     if ((apiResponse.headers.get('content-type') || '').includes('text/html')) {
       console.warn('[HP] Nessun archivio remoto delle preferenze: resta la copia locale');
       return null;

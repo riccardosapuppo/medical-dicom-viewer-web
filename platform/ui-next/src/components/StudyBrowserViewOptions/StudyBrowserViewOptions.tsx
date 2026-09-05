@@ -59,10 +59,9 @@ export function StudyBrowserViewOptions({ tabs, onSelectTab, activeTabName }: wi
           {tabs.map(tab => {
             const { name, label, studies } = tab;
             const isActive = activeTabName === name;
-            // Nessuna tab viene disabilitata: una lista vuota di solito significa solo che
-            // lo storico non ha ancora finito di caricare (o, per 'remoteAll', che la
-            // ricerca sul centro parte proprio al click). Disabilitare il bottone faceva
-            // perdere il primo click senza dare alcun riscontro all'utente.
+            // Nessuna tab viene disabilitata: una lista vuota di solito significa solo
+            // che lo storico non ha ancora finito di caricare. Disabilitare il bottone
+            // faceva perdere il primo click senza dare alcun riscontro all'utente.
             const isDisabled = false;
             const baseClasses = `${label && label.replace(/\s+/g, '').toLowerCase()} qualestudio-btn leading-none font-sans text-center justify-center items-center outline-none transition duration-300 ease-in-out focus:outline-none text-primary-light hover:bg-primary-light hover:text-black focus:text-black focus:bg-primary-light active:opacity-80 bg-black inline-flex border outline-none border border-r-0 last:border-r border border-secondary-light first:rounded-l-md last:rounded-r-md min-w-18 p-2 text-base text-white border-l-0 last:border-r-0`;
             return (
@@ -70,7 +69,6 @@ export function StudyBrowserViewOptions({ tabs, onSelectTab, activeTabName }: wi
                 key={name}
                 onClick={() => handleTabChange(name)}
                 disabled={isDisabled}
-                // className={`${baseClasses} rounded border px-4 py-2 ${isActive ? 'bg-blue-500 font-bold text-white' : 'bg-gray-700 text-white'} ${!isDisabled && window.studiRemoti[0].description === 'Nessuno storico remoto' ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-400'}`}
                 className={`${baseClasses} rounded border px-4 py-2 ${isActive ? 'active-tab-study bg-blue-500 font-bold text-white hover:!text-black focus:!text-black' : 'inactive-tab-study bg-gray-700 text-white'}`}
               >
                 {label}

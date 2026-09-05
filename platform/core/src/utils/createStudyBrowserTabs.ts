@@ -72,13 +72,6 @@ const _timestampStudio = value => {
   return formattata.isValid() ? formattata.valueOf() : Date.parse(testo);
 };
 
-// In build di produzione webpack forza window.isSuite = false anche sul deploy della suite:
-// il flag affidabile a runtime e' window.isSuiteRuntime (impostato in config/default.js).
-const inSuite = () =>
-  (window as any).isSuiteRuntime !== undefined
-    ? !!(window as any).isSuiteRuntime
-    : !!(window as any).isSuite;
-
 export function createStudyBrowserTabs(
   primaryStudyInstanceUIDs,
   studyDisplayList,
@@ -86,8 +79,7 @@ export function createStudyBrowserTabs(
   recentTimeframeMS = 31536000000
 ) {
   const primaryStudies = [];
-  let allStudies = [];
-  let studiRemoti = [];
+  const allStudies = [];
 
   studyDisplayList.forEach(study => {
     const displaySetsForStudy = displaySets.filter(
@@ -114,20 +106,6 @@ export function createStudyBrowserTabs(
     }
   });
 
-  allStudies = allStudies.filter(study => {
-    const studyDescription = normalizeText(study.description);
-    if (studyDescription.includes('|Remoto|')) {
-      study.description = studyDescription.replace('|Remoto|', '').trim();
-      studiRemoti.push(study);
-      return false; // Esclude l'elemento da allStudies
-    }
-    return true; // Mantiene l'elemento in allStudies
-  });
-
-  // Nessun placeholder fittizio: la tab remota resta cliccabile anche a lista vuota
-  // (vedi StudyBrowserViewOptions) e a comunicare lo stato ci pensa il badge.
-  window.studiRemoti = JSON.parse(JSON.stringify(studiRemoti));
-
   const primaryStudiesTimestamps = primaryStudies
     .filter(study => study.date)
     .map(study => _timestampStudio(study.date))
@@ -150,7 +128,7 @@ export function createStudyBrowserTabs(
   // Le date arrivano gia' formattate per la UI ("27-giu-2024", dipende dalla lingua) oppure
   // grezze dal DICOM ("20240627"): su entrambe Date.parse restituisce NaN, quindi il
   // comparatore era invalido e l'ordinamento di fatto non avveniva. moment le interpreta
-  // usando il locale attivo. Stesso criterio per tutte le tab, remota compresa.
+  // usando il locale attivo. Stesso criterio per entrambe le tab.
   const _byDate = (a, b) => {
     const dateA = _timestampStudio(a);
     const dateB = _timestampStudio(b);
@@ -176,52 +154,16 @@ export function createStudyBrowserTabs(
     },
     {
       name: 'all',
-      label: inSuite() ? 'Storico sul cloud' : 'Storico locale',
+      label: 'Storico locale',
       studies: allStudies.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
     },
   ];
 
-  //Tabs con storico remoto
-  const tabsStoricoRemoto = [
-    {
-      name: 'primary',
-      label: 'Studio attuale',
-      studies: primaryStudies.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
-    },
-    // {
-    //   name: 'recent',
-    //   label: 'Storico sul cloud',
-    //   studies: recentStudies.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
-    // },
-    {
-      name: 'all',
-      label: inSuite() ? 'Storico sul cloud' : 'Storico locale',
-      studies: allStudies.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
-    },
-    // {
-    //   name: 'all',
-    //   label: 'All',
-    //   studies: allStudies.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
-    // },
-    {
-      name: 'remoteAll',
-      label: 'Storico remoto',
-      studies: studiRemoti.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
-    },
-  ];
-
-  // La tab "Storico remoto" ha senso solo dalla suite (sull'installazione del centro lo
-  // storico e' gia' tutto locale) E solo se per la partizione dell'URL esiste davvero un
-  // centro in "remotePeers": la verifica la fa il pannello, qui si legge solo l'esito.
-  if (window.storicoRemoto && inSuite() && (window as any).storicoRemotoDisponibile) {
-    return tabsStoricoRemoto;
-  } else {
-    // La tab dello storico compare se lo storico c e.
-    //
-    // Prima c era sempre, e quando il paziente non aveva esami precedenti
-    // offriva una scheda che diceva solo "Nessuno storico". Una linguetta che
-    // non porta da nessuna parte fa perdere un click a tutti quelli che la
-    // provano, e non aggiunge niente a chi lo sapeva gia.
-    return tabs.filter(tab => tab.name === 'primary' || tab.studies.length > 0);
-  }
+  // La tab dello storico compare se lo storico c e.
+  //
+  // Prima c era sempre, e quando il paziente non aveva esami precedenti
+  // offriva una scheda che diceva solo "Nessuno storico". Una linguetta che
+  // non porta da nessuna parte fa perdere un click a tutti quelli che la
+  // provano, e non aggiunge niente a chi lo sapeva gia.
+  return tabs.filter(tab => tab.name === 'primary' || tab.studies.length > 0);
 }

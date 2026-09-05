@@ -123,7 +123,7 @@ const StudyBrowser = ({
   const storicoStudies: any[] = storicoTab?.studies ?? [];
   const isStoricoActive = activeTabName !== 'primary';
 
-  // In bottom mode, quando clicco "Storico sul cloud" con più studi, apri popover
+  // In bottom mode, quando clicco "Storico locale" con più studi, apri popover
   const handleBottomTabClick = (tabName: string) => {
     if (isBottomDocked && tabName !== 'primary') {
       const tab = (tabs as any[]).find(t => t.name === tabName);

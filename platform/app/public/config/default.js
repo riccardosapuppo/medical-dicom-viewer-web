@@ -86,21 +86,16 @@ const modality = new URLSearchParams(new URL(window.location.href).search).get('
 });
 let origin = window.location.origin;
 
-// Qui non c e nessuna pagina ospite.
+// Qui non c'e' nessuna pagina ospite, e non c'e' nessun secondo archivio.
 //
-// Questo interruttore diceva al visualizzatore di stare dentro la suite che lo
-// apriva, e da li dipendevano l origine a cui chiedere le cose, la tab dello
-// storico "sul cloud" e il resto. Standalone e falso, e resta falso: la
-// forzatura che lo rimetteva a vero in sviluppo e stata tolta dalla
-// configurazione di build, perche non c e piu niente da cui distinguersi.
-window.isSuite = false;
-// Attenzione: in build di produzione webpack forza window.isSuite = false ANCHE sul deploy
-// della suite (li' basta l'origin deployata). Per capire a runtime se siamo davvero nella
-// suite serve quindi guardare l'hostname, non il solo flag di build.
-window.isSuiteRuntime = window.isSuite || /(^|\.)suite\./i.test(window.location.hostname);
-// Tab "Storico remoto": ha senso solo dalla suite, dove lo storico del paziente puo' essere
-// ancora sul PACS del centro. Sull'installazione del centro la tab non serve.
-window.storicoRemoto = window.isSuiteRuntime;
+// Tre interruttori vivevano qui: uno diceva al visualizzatore di stare dentro
+// l'applicazione che lo apriva, e da li' dipendeva l'origine a cui chiedere le
+// cose; gli altri due accendevano una terza scheda che cercava lo storico del
+// paziente su un secondo archivio, interrogandolo attraverso un backend. Ne'
+// quella pagina ne' quel backend fanno parte di questo repository, quindi sono
+// spariti gli interruttori e non solo i loro valori: lasciarli a falso avrebbe
+// tenuto in piedi del codice che nessuno puo' accendere, e quindi nessuno puo'
+// provare.
 window.portableVersion = false;
 window.mostraErroriFrontend = false //Qualcosa è andato storto errore
 

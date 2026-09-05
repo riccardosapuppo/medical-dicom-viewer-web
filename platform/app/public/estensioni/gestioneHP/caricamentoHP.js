@@ -708,7 +708,7 @@ const caricamentoHP = async () => {
 };
 
 async function letturaPreferenzeAPI(aetitle, username, studyInstanceUID) {
-  const origin = window.isSuite ? 'http://localhost:3000' : window.location.origin;
+  const origin = window.location.origin;
   const apiUrl = `${origin}/viewer/userdata/${aetitle}/?user=${username}&StudyInstanceUIDs=${studyInstanceUID}&cacheBuster=${new Date().getTime()}`;
 
   try {

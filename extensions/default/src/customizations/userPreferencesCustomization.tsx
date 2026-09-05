@@ -471,13 +471,6 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
   useEffect(() => {
     let cancelled = false;
 
-    const getViewerApiBase = () => {
-      if (window?.isSuite) {
-        return 'http://localhost:3000';
-      }
-      return window.location.origin;
-    };
-
     const loadOverlayPreferences = async () => {
       const defaultConfig =
         window?.mdvDefaultViewportOverlayTags || window?.config?.viewportOverlayTags;
@@ -495,7 +488,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
         const username = window.mdvUsername || urlParams.get('User');
         const aetitle = window.mdvAETitle || urlParams.get('aetitle');
         if (username && aetitle) {
-          const apiUrl = `${getViewerApiBase()}/viewer/userdata/${aetitle}/viewport-overlay?user=${username}&cacheBuster=${Date.now()}`;
+          const apiUrl = `${window.location.origin}/viewer/userdata/${aetitle}/viewport-overlay?user=${username}&cacheBuster=${Date.now()}`;
           const response = await fetch(apiUrl);
           if (response.ok) {
             const data = await response.json();
@@ -628,12 +621,6 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
 
   const saveViewportOverlayTags = async overlayTags => {
     const uiNotificationService = servicesManager?.services?.uiNotificationService;
-    const getViewerApiBase = () => {
-      if (window?.isSuite) {
-        return 'http://localhost:3000';
-      }
-      return window.location.origin;
-    };
 
     try {
       const urlParams = new URLSearchParams(window.location.search);
@@ -649,7 +636,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
         }
         return;
       }
-      const apiUrl = `${getViewerApiBase()}/viewer/userdata/${aetitle}/viewport-overlay?user=${username}`;
+      const apiUrl = `${window.location.origin}/viewer/userdata/${aetitle}/viewport-overlay?user=${username}`;
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

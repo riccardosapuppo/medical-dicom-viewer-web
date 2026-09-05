@@ -109,11 +109,6 @@ export default class StaticWadoClient extends api.DICOMwebClient {
     if (!queryParams) {
       return searchResult;
     }
-    const queryString = new URLSearchParams(queryParams).toString();
-    if (!window.qidoUrlDefinitivo && queryString.includes('00100020=')) {
-      window.qidoUrlDefinitivo = `${window.qidoUrl}/studies?${queryString}`;
-    }
-
     const lowerParams = this.toLowerParams(queryParams);
     const filtered = searchResult.filter(study => {
       for (const key of Object.keys(StaticWadoClient.studyFilterKeys)) {
