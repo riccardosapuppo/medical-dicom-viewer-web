@@ -4,8 +4,8 @@ A diagnostic DICOM viewer with the tools a reading room needs and an
 open-source viewer does not ship: a subgrid that turns one viewport into a light
 box, hanging protocols a radiologist saves and gets back on the next study of
 the same kind, a reading list, prior studies alongside the current one, and two
-Cornerstone tools wired up here because upstream leaves them out — including
-patches to the drawing library itself.
+Cornerstone tools wired up here because upstream leaves them out, plus patches
+to the drawing library itself.
 
 It opens whatever DICOM an archive holds. Nothing in it decides by modality:
 ultrasound, radiography, mammography and the rest open like anything else. The
@@ -67,9 +67,9 @@ inside another application run on its own meant finding, and fixing, every
 place it assumed a host page was there to answer for it.
 
 **Patched drawing tools.** Reference lines that stayed confined to one study,
-and changes to the trackball, are patched into Cornerstone itself rather than
-worked around above it — linked in place of the published packages, so the fix
-is where the behaviour is.
+and changes to the trackball, are patched into Cornerstone itself and linked in
+place of the published packages, so the fix is where the behaviour is, not
+worked around above it.
 
 **It degrades instead of breaking.** Without a graphics context the images are
 drawn on the processor and the viewer says so, in its own words; reformatting
@@ -86,8 +86,9 @@ yarn check:layout          # text drawn over text, controls off screen, at two w
 yarn check:controls        # presses every control this fork adds, one at a time
 ```
 
-`yarn`, not `npm` — this page says two paragraphs down that installing with npm
-produces a tree that does not build, and then named its own checks as `npm run`.
+`yarn`, not `npm`, since this page says two paragraphs down that installing
+with npm produces a tree that does not build, and then named its own checks as
+`npm run`.
 Both commands reach the same scripts, but a README that contradicts itself is
 one somebody follows in the wrong half.
 
@@ -110,15 +111,16 @@ somewhere other than `http://localhost:3000`.
 always the current build rather than something taken by hand months ago.
 
 **A VOI function that is declared but not applied.** A mammogram opened washed
-out — the air around the breast at 29% grey instead of black — and the overlay
-reported a window of 589 that appears nowhere in the file, which declares 256.
+out, with the air around the breast at 29% grey instead of black, and the
+overlay reported a window of 589 that appears nowhere in the file, which
+declares 256.
 The file asks for a **sigmoid** VOI, and the renderer takes the sigmoid to work
 out the range it will draw and then draws that range **linearly**. The number
 589 is the span between the 1% and 99% points of a sigmoid curve, presented as
 if it were a window width. Declaring only the VOI functions that are actually
 applied puts it back to the 256 the file asks for: black background, full
-contrast, and a readout that matches the data. Measured, not judged by eye —
-the background went from 29% to 0%.
+contrast, and a readout that matches the data. Measured, not judged by eye, the
+background went from 29% to 0%.
 
 ## Before you start
 
@@ -128,15 +130,15 @@ the background went from 29% to 0%.
   and installing it with npm produces a different tree that does not build.
   `npm install -g yarn` if you do not have it.
 - **Docker**, with the Compose plugin. The archive is
-  [Orthanc](https://www.orthanc-server.com/) in a container — nothing to install
-  for it, and nothing left behind afterwards but one named volume.
-- **113 MB down and 268 MB in `data/`**, once, for the studies — measured, not
-  rounded. They are not committed here: a script fetches them from The Cancer
+  [Orthanc](https://www.orthanc-server.com/) in a container, with nothing to
+  install and nothing left behind afterwards but one named volume.
+- **113 MB down and 268 MB in `data/`**, once, for the studies (measured, not
+  rounded). They are not committed here: a script fetches them from The Cancer
   Imaging Archive. The figure was 350 MB until the mammograms were added and
   nobody re-measured; it is the folder `du -sh data` reports.
-- **1.3 GB of `node_modules`** on top of that, once, after `yarn install` — this
-  is a Lerna monorepo with Cornerstone and two patched packages in it. Measured
-  with `du -sh node_modules`, which is worth naming: a recursive size taken
+- **1.3 GB of `node_modules`** on top of that, once, after `yarn install` on a
+  Lerna monorepo with Cornerstone and two patched packages in it. Measured with
+  `du -sh node_modules`, which is worth naming: a recursive size taken
   through the Windows API reported **1 MB** for the same folder, because it gives
   up on long paths and says so to nobody.
 
@@ -161,20 +163,20 @@ yarn dev                      # the viewer, on http://localhost:3000
 `yarn install` is third and not fourth, which is the order that works: the load
 step reads each file with `dicom-parser` before sending it, so on a fresh clone
 it cannot run until the modules are there. In the order this README gave until
-now, **step three died** — and nothing noticed, because everybody who ran it
+now, **step three died** and nothing noticed, because everybody who ran it
 already had `node_modules`.
 
 `docker compose down -v` puts the machine back as it was, archive volume
-included; `rm -rf node_modules data` takes the rest — `data/` is where both the
-downloaded images and `studies.json` live.
+included; `rm -rf node_modules data` takes the rest, `data/` holding both the
+downloaded images and `studies.json`.
 
 ## The studies
 
 Five real, de-identified clinical studies from
 [The Cancer Imaging Archive](https://www.cancerimagingarchive.net/). They are a
-sample chosen to exercise the viewer, not the range of what it opens — nothing
-in the viewer decides by modality. Nothing is committed here: a script fetches
-them, and keeps the licence file the archive ships beside the images.
+sample chosen to exercise the viewer, not the range of what it opens, since
+nothing in the viewer decides by modality. Nothing is committed here: a script
+fetches them, and keeps the licence file the archive ships beside the images.
 
 | Study | Collection | Series | Images |
 | --- | --- | --- | --- |
@@ -184,7 +186,7 @@ them, and keeps the licence file the archive ships beside the images.
 | Screening mammogram, four views | CMMD | 1 | 4 |
 | Bilateral mammogram, three named series | CMB-BRCA | 3 | 3 |
 
-Five studies from four collections — two of them come from CPTAC-CCRCC, and a
+Five studies from four collections, because two come from CPTAC-CCRCC, and a
 licence belongs to a collection rather than to a study:
 
 | Collection | Licence | DOI |
@@ -197,7 +199,8 @@ licence belongs to a collection rather than to a study:
 The two mammograms are here because they break assumptions the CT and MR
 studies never test, and they break different ones. The CMMD study is eight bits
 rather than sixteen, has no rescale to Hounsfield units, no slice geometry, no
-pixel spacing, and declares a **sigmoid** VOI — it found a real defect, below.
+pixel spacing, and declares a **sigmoid** VOI, which found a real defect,
+below.
 The CMB-BRCA study stores each view as its own series rather than as frames of
 one, which is how most archives arrange a screening study and the layout a
 viewer has to be right about.
@@ -210,16 +213,16 @@ be found again.
 
 ### Names, and what was left alone
 
-The identifiers these collections publish — LIDC-IDRI-0001, C3N-00310,
-MSB-01799 — are what makes an image traceable back to the archive it came from,
+The identifiers these collections publish (LIDC-IDRI-0001, C3N-00310,
+MSB-01799) are what makes an image traceable back to the archive it came from,
 and the attribution above refers to them. They are kept exactly as published.
 
 What they are not is a name. In a worklist the name column is the first thing
-read, and a column of catalogue numbers does not say "a person whose identity
-was removed" — it says the software failed to fill the field in. So each
-patient is shown as *Anonymized, Patient 01* and so on, substituted on the way
-into the archive and never on disk: the downloaded files stay byte for byte
-what the collection published.
+read, and a column of catalogue numbers says the software failed to fill the
+field in, not "a person whose identity was removed". So each patient is shown
+as *Anonymized, Patient 01* and so on, substituted on the way into the archive
+and never on disk: the downloaded files stay byte for byte what the collection
+published.
 ## What this is not
 
 **Not a medical device, and not for diagnosis.** It reads published research
@@ -244,8 +247,8 @@ department's workload rather than about reading images, and read it from an
 endpoint that is not here either.
 
 **The interface is in Italian**, as it was written, and so are the comments in
-the parts I wrote — changing them would make this repository disagree with the
-copy that runs. The commit history is in English.
+the parts I wrote, because changing them would make this repository disagree
+with the copy that runs. The commit history is in English.
 
 ## Layout
 
