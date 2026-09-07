@@ -47,6 +47,13 @@ function AboutModalDefault() {
           label="Browser corrente & SO"
           value={`${browser}, ${os}`}
         />
+        {/* Da dove viene. Chi apre il visualizzatore da un link non legge mai il
+            README, e questa e' la sola schermata del prodotto che parla della
+            sua provenienza: sta qui, sotto il resto, e non in cima a una pagina. */}
+        <div className="text-muted-foreground max-w-[22rem] pt-4 text-xs leading-relaxed">
+          A demonstration — an independent reconstruction of a production system I
+          designed and developed.
+        </div>
         {/* <AboutModal.SocialItem
           icon="SocialGithub"
           url="OHIF/Viewers"

@@ -258,3 +258,21 @@ data/              which studies to fetch, and their attribution
 scripts/           fetching the studies, loading the archive, the smoke check
 docs/              screenshots, produced by the smoke check rather than by hand
 ```
+
+## Production reconstruction
+
+This repository is an independent reconstruction of a production system I
+designed and developed.
+
+Confidentiality and intellectual property constraints mean the original cannot
+be published. The additions here were built again over a public checkout of the
+same upstream viewer so they could be shown and run, preserving the core
+architecture, workflows and technical challenges of the production solution,
+with newly written code and fictional data.
+
+No proprietary source code, confidential data or client assets from the
+original system are included in this repository.
+
+Only that second sentence differs from the notice every other repository in
+this portfolio carries, and it differs because this one is a declared fork:
+the additions were rebuilt over the same public upstream, not from nothing.
