@@ -32,10 +32,6 @@ function AboutModalDefault() {
           value={commitHash}
         /> */}
         <AboutModal.DetailItem
-          label="Sviluppato da"
-          value="Riccardo Sapuppo"
-        />
-        <AboutModal.DetailItem
           label="Basato su"
           value={`OHIF Viewer ${baseFork}`}
         />
@@ -51,8 +47,22 @@ function AboutModalDefault() {
             README, e questa e' la sola schermata del prodotto che parla della
             sua provenienza: sta qui, sotto il resto, e non in cima a una pagina. */}
         <div className="text-muted-foreground max-w-[22rem] pt-4 text-xs leading-relaxed">
-          A demonstration — an independent reconstruction of a production system I
-          designed and developed.
+          A demonstration. It reconstructs a production system I designed and
+          developed; the original cannot be published, so this one was written
+          from scratch.
+        </div>
+        {/* La firma sta qui sotto e non piu' fra le voci in alto: il nome porta
+            al profilo, e una voce etichetta/valore non puo' contenere un link. */}
+        <div className="text-muted-foreground max-w-[22rem] pt-2 text-xs leading-relaxed">
+          Developed by{' '}
+          <a
+            href="https://github.com/riccardosapuppo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary focus-visible:ring-ring rounded-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-1"
+          >
+            Riccardo Sapuppo
+          </a>
         </div>
         {/* <AboutModal.SocialItem
           icon="SocialGithub"
