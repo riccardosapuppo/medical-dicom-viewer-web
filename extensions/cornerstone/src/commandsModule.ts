@@ -109,7 +109,7 @@ function _postToStorico(message: unknown) {
   try {
     iframeStorico.contentWindow.postMessage(message, window.location.origin);
   } catch (err) {
-    console.warn('Storico: inoltro comando fallito', err);
+    console.warn('Priors: forwarding the command failed', err);
   }
 }
 
@@ -140,10 +140,10 @@ function commandsModule({
   }
 
   /**
-   * Se la viewport attiva è in modalità Sottogriglia (Montage), restituisce le
+   * Se la viewport attiva è in modalità Subgrid (Montage), restituisce le
    * cornerstone-viewport di TUTTE le celle (più la "primary" = cella 0, che ha
    * l'id della viewport OHIF). Serve per applicare invert/rotate/flip/reset a
-   * tutte le celle insieme (coerenza visiva della sottogriglia). Altrimenti null.
+   * tutte le celle insieme (coerenza visiva della subgrid). Altrimenti null.
    */
   function _getMontageCells() {
     const activeViewportId = viewportGridService.getActiveViewportId();
@@ -151,7 +151,7 @@ function commandsModule({
     if (vp?.viewportOptions?.montage?.enabled !== true) {
       return null;
     }
-    // Le celle vivono nell'engine DEDICATO della sottogriglia (non nel principale).
+    // Le celle vivono nell'engine DEDICATO della subgrid (non nel principale).
     const re = getRenderingEngine(`ohif-montage-${activeViewportId}`);
     if (!re) {
       return null;
@@ -226,9 +226,9 @@ function commandsModule({
         const overlay = document.createElement('div');
         overlay.className = 'mdv-mip-rotate-overlay';
         overlay.innerHTML = `
-          <button class="mdv-mip-rotate-btn" data-dir="-1" type="button" title="Ruota a sinistra">◀</button>
+          <button class="mdv-mip-rotate-btn" data-dir="-1" type="button" title="Rotate left">◀</button>
           <span class="mdv-mip-rotate-angle">0°</span>
-          <button class="mdv-mip-rotate-btn" data-dir="1" type="button" title="Ruota a destra">▶</button>
+          <button class="mdv-mip-rotate-btn" data-dir="1" type="button" title="Rotate right">▶</button>
         `;
         overlay.style.cssText = [
           'position:absolute',
@@ -524,7 +524,7 @@ function commandsModule({
 
   const actions = {
     /**
-     * Sceglie il layout della sottogriglia in base al numero di immagini della
+     * Sceglie il layout della subgrid in base al numero di immagini della
      * serie, con un massimo di 8 celle (grid il più possibile "quadrata" ma in
      * orizzontale: rows <= cols).
      */
@@ -559,7 +559,7 @@ function commandsModule({
     },
 
     /**
-     * Attiva/disattiva la Sottogriglia (Montage) sulla viewport attiva.
+     * Attiva/disattiva la Subgrid (Montage) sulla viewport attiva.
      * Senza rows/cols espliciti sceglie il layout in automatico in base al
      * numero di istanze della serie (max 8 celle). Non crea viewport OHIF
      * aggiuntive: imposta solo viewportOptions.montage.
@@ -604,7 +604,7 @@ function commandsModule({
       });
     },
 
-    /** Disattiva la sottogriglia sulla viewport attiva (torna allo stack). */
+    /** Disattiva la subgrid sulla viewport attiva (torna allo stack). */
     disableMontage: () => {
       const activeViewportId = viewportGridService.getActiveViewportId();
       const { viewports } = viewportGridService.getState();
@@ -629,7 +629,7 @@ function commandsModule({
     },
 
     /**
-     * Imposta il layout della sottogriglia (righe×colonne) sulla viewport attiva,
+     * Imposta il layout della subgrid (righe×colonne) sulla viewport attiva,
      * attivando la montage se non già attiva.
      */
     setMontageLayout: ({ rows, cols }) => {
@@ -1283,15 +1283,15 @@ function commandsModule({
 
       // Modo canonico OHIF: getToolGroup(undefined) risolve internamente il
       // toolGroup della viewport ATTIVA (gestisce anche le celle della
-      // sottogriglia). Ne ricaviamo l'id stringa.
+      // subgrid). Ne ricaviamo l'id stringa.
       const activeToolGroup = toolGroupService.getToolGroup(toolGroupId);
       const activeId = activeToolGroup?.id;
       if (!activeToolGroup) {
         return;
       }
 
-      // In contesto viewport normale/sottogriglia sincronizziamo lo stato del
-      // tool tra i toolGroup 'default' e 'montage' (la Scala di riferimento si
+      // In contesto viewport normale/subgrid sincronizziamo lo stato del
+      // tool tra i toolGroup 'default' e 'montage' (la Scale di riferimento si
       // attiva/disattiva INSIEME su viewport normali e celle). Altrove (es. MPR)
       // agiamo solo sull'attivo. I tool presenti solo in 'default'
       // (ReferenceLines, ecc.) non vengono toccati nella montage (`hasTool`=false).
@@ -1324,7 +1324,7 @@ function commandsModule({
         nextEnabled ? tg.setToolEnabled(toolName) : tg.setToolDisabled(toolName);
       });
 
-      // Notifica la Sottogriglia per ri-allineare lo stato della Scala (padding).
+      // Notifica la Subgrid per ri-allineare lo stato della Scale (padding).
       try {
         window.dispatchEvent(new Event('mdv-tool-toggled'));
       } catch (e) {
@@ -1588,7 +1588,7 @@ function commandsModule({
           restoreState();
           window.mprIsActive = false;
 
-          // Ritorno alla visualizzazione normale: se i Cursori di riferimento
+          // Ritorno alla visualizzazione normale: se i Reference cursors
           // erano attivi prima di entrare in MPR, li riattiviamo (deferito per
           // dare tempo a restoreState di ricostruire le viewport/toolgroup).
           try {
@@ -1648,7 +1648,7 @@ function commandsModule({
 
         //Attivazione MPR
 
-        // Entrando in MPR si usa il Crosshair: se i Cursori di riferimento
+        // Entrando in MPR si usa il Crosshair: se i Reference cursors
         // erano attivi nella visualizzazione normale li disattiviamo (e
         // ripristiniamo il tool primario precedente, es. Window/Level).
         // Ricordiamo lo stato per riattivarli al ritorno in modalità normale.
@@ -1711,7 +1711,7 @@ function commandsModule({
               });
               return;
             }
-            //Salva stato attuale
+            //Save stato attuale
             storeState();
             //Verifico che la serie selezionata su cui attivare l'mpr sia dello studio attuale o magari dello storico così la clicco subito dopo l'attivazione
             if (!document.body.classList.contains('storico-same-tab')) {
@@ -2209,7 +2209,7 @@ function commandsModule({
           })
           .filter(preset => preset !== null);
       } catch (err) {
-        console.error('Errore attivazione MPR: ', err);
+        console.error('Could not switch to MPR: ', err);
       }
     },
     toggleCrosshairs: ({ toolGroupIds = ['mpr'] }: { toolGroupIds?: string[] } = {}) => {
@@ -2333,7 +2333,7 @@ function commandsModule({
         const modalities = new Set((displaySets || []).map((ds: any) => ds.Modality));
         if (!modalities.has('PT') || !modalities.has('CT')) {
           uiNotif.show({
-            title: 'PET/CT non disponibile',
+            title: 'PET/CT is not available',
             message: 'Lo studio deve contenere serie PT e CT per attivare questa vista.',
             type: 'warning',
             duration: 4000,
@@ -2434,7 +2434,7 @@ function commandsModule({
           applyPtct();
         }
       } catch (err) {
-        console.error('Errore attivazione PET/CT: ', err);
+        console.error('Could not switch to PET/CT: ', err);
       }
     },
     rotateViewport: ({ rotation }) => {
@@ -3374,7 +3374,7 @@ function commandsModule({
         measurementService.remove(activeAnnotationUID);
       });
     },
-    // ESC ("Elimina ultima misurazione"):
+    // ESC ("Delete the last measurement"):
     //  1) se c'è un disegno IN CORSO (handle in posizionamento), lo annulla
     //     (cornerstone `cancelActiveManipulations`, che ritorna l'UID annullato);
     //  2) altrimenti elimina l'ULTIMA misurazione creata (la più recente).
@@ -3391,7 +3391,7 @@ function commandsModule({
         }
       };
 
-      // 1) Annulla un eventuale disegno in corso (anche nelle celle montage).
+      // 1) Cancel un eventuale disegno in corso (anche nelle celle montage).
       let cancelled = false;
       const montage = _getMontageCells();
       if (montage) {

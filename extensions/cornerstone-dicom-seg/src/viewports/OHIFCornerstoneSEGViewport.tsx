@@ -362,7 +362,7 @@ function OHIFCornerstoneSEGViewport(props: withAppTypes) {
             className="h-full w-full"
             totalNumbers={processingProgress.totalSegments}
             percentComplete={processingProgress.percentComplete}
-            loadingText="Caricamento della segmentazione..."
+            loadingText="Loading the segmentation..."
           />
         )}
         {getCornerstoneViewport()}

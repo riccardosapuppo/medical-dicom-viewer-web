@@ -487,7 +487,7 @@ const buildGridIconHtml = ({ rows, columns }) => {
 
 const resolveSeriesLabel = (rule, fallbackIndex) => {
   if (!rule) {
-    return { label: 'Serie non definita' };
+    return { label: 'Series not set' };
   }
   const attribute = rule.attribute;
   const constraint = rule.constraint || {};
@@ -510,7 +510,7 @@ const resolveSeriesLabel = (rule, fallbackIndex) => {
     const seriesNumber = displaySet?.SeriesNumber || displaySet?.instances?.[0]?.SeriesNumber;
     if (seriesDescription || seriesNumber !== undefined) {
       const numberText =
-        seriesNumber !== undefined && seriesNumber !== null ? `Serie ${seriesNumber}` : 'Serie';
+        seriesNumber !== undefined && seriesNumber !== null ? `Series ${seriesNumber}` : 'Series';
       const descrText = seriesDescription ? ` ${seriesDescription}` : '';
       return { label: `${numberText}${descrText}`.trim() };
     }
@@ -518,7 +518,7 @@ const resolveSeriesLabel = (rule, fallbackIndex) => {
 
   if (attribute === 'SeriesDescription') {
     if (value) {
-      return { label: `Serie ${value}` };
+      return { label: `Series ${value}` };
     }
     if (typeof fallbackIndex === 'number') {
       const displaySetService = window.servicesManager?.services?.displaySetService;
@@ -530,13 +530,13 @@ const resolveSeriesLabel = (rule, fallbackIndex) => {
         const dsDesc = ds?.SeriesDescription || ds?.instances?.[0]?.SeriesDescription;
         const dsNum = ds?.SeriesNumber || ds?.instances?.[0]?.SeriesNumber;
         if (dsDesc || dsNum !== undefined) {
-          const numberText = dsNum !== undefined && dsNum !== null ? `Serie ${dsNum}` : 'Serie';
+          const numberText = dsNum !== undefined && dsNum !== null ? `Series ${dsNum}` : 'Series';
           const descrText = dsDesc ? ` ${dsDesc}` : '';
           return { label: `${numberText}${descrText}`.trim() };
         }
       }
     }
-    return { label: 'Serie senza descrizione' };
+    return { label: 'Series with no description' };
   }
   if (attribute === 'SeriesNumber') {
     if (value !== '' && value !== undefined && value !== null) {
@@ -546,17 +546,17 @@ const resolveSeriesLabel = (rule, fallbackIndex) => {
       const match = displaySets?.find(ds => String(ds.SeriesNumber) === String(value));
       const desc = match?.SeriesDescription || match?.instances?.[0]?.SeriesDescription;
       if (desc) {
-        return { label: `Serie ${value} ${desc}` };
+        return { label: `Series ${value} ${desc}` };
       }
-      return { label: `Serie ${value}` };
+      return { label: `Series ${value}` };
     }
-    return { label: 'Serie' };
+    return { label: 'Series' };
   }
 
   if (value) {
-    return { label: `${attribute || 'Serie'} ${value}`.trim() };
+    return { label: `${attribute || 'Series'} ${value}`.trim() };
   }
-  return { label: attribute || 'Serie' };
+  return { label: attribute || 'Series' };
 };
 
 const buildSavedConfigHtml = (tipo, entry) => {
@@ -576,10 +576,10 @@ const buildSavedConfigHtml = (tipo, entry) => {
     tipo === 'studioSpecifico'
       ? 'Attivi per: Studio specifico'
       : tipo === 'descrizioneEsame'
-        ? 'Attivi per: Descrizione esame'
+        ? 'Active for: exam description'
         : tipo === 'modality'
           ? 'Attivi per: Modality'
-          : 'Configurazione';
+          : 'Configuration';
 
   const typeValue =
     tipo === 'studioSpecifico'
@@ -595,7 +595,7 @@ const buildSavedConfigHtml = (tipo, entry) => {
       ${buildGridIconHtml({ rows, columns })}
       <div>
         <div style="font-weight:600;color:#e5e5e5;">${typeLabel}${typeValue ? `: ${typeValue}` : ''}</div>
-        <div style="color:#b3b3b3;">Griglia: ${columns}x${rows}</div>
+        <div style="color:#b3b3b3;">Grid: ${columns}x${rows}</div>
       </div>
     </div>
   `;
@@ -657,7 +657,7 @@ function hpAttualmenteSalvati() {
   try {
     cachedPreferences = JSON.parse(cachedRaw);
   } catch (err) {
-    console.warn('Preferenze utente HP non valide in cache locale', err);
+    console.warn('The cached hanging protocol preferences are not valid', err);
     return configAttiva;
   }
 
@@ -705,34 +705,34 @@ async function creaDIV() {
 
   <div style="margin-top:12px;border-top:1px solid #212832;padding-top:10px;">
     <button id="toggle-hp-saved-config" style="background:#1f1f1f;border:1px solid #333;color:#e5e5e5;padding:6px 10px;border-radius:4px;cursor:pointer;">
-      Vedi configurazione salvata
+      Show the saved configuration
     </button>
     <div id="hp-saved-config-body" style="display:none;margin-top:10px;"></div>
   </div>
 
   <div style="display:flex;margin-top: 10px;">
   <div class="opzione-hp">
-  <h3 style>Salva configurazione attuale solo per questo <span style="color:#38bdf8">studio</span></h3>
+  <h3 style>Save the configuration attuale solo per questo <span style="color:#38bdf8">studio</span></h3>
   <p>Gli Hanging Protocol si applicheranno solo a questo specifico studio</p>
   <p style="color:red;display:none" id="hp-studiospecifico-presente">Hai attualmente una configurazione salvata solo per questo studio </p>
-  <button id="save-hp-config-actual-study">${configAttiva.includes('studioSpecifico') ? 'Sovrascrivi config. attuale' : 'Salva solo per questo studio'}</button>
+  <button id="save-hp-config-actual-study">${configAttiva.includes('studioSpecifico') ? 'Overwrite the current configuration' : 'Save for this study only'}</button>
   <button style=${configAttiva.includes('studioSpecifico') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-actual-study">Elimina configurazione salvata</button>
   </div>
 
   <div class="opzione-hp">
-  <h3>Salva configurazione attuale solo per questo tipo di <span style="color:#38bdf8">esame</span></h3>
+  <h3>Save the configuration attuale solo per questo tipo di <span style="color:#38bdf8">esame</span></h3>
   <p>Gli Hanging Protocol si applicheranno a tutti gli esami con descrizione <span style="font-weight: 600;">${studyDescription}</span></p>
   <p style="color:red;display:none" id="hp-descrizioneesame-presente">Hai attualmente una configurazione salvata per tutti gli esami con descrizione "${studyDescription}" </p>
   <p style="color:red;display:none" id="esame-senza-nome">Questo esame non ha un nome, se salvi la configurazione quest'ultima si applicherà a tutti gli esami senza nome. </p>
-  <button id="save-hp-config-exam">${configAttiva.includes('descrizioneEsame') ? 'Sovrascrivi config. attuale' : 'Salva per questo tipo di esame'} </button>
+  <button id="save-hp-config-exam">${configAttiva.includes('descrizioneEsame') ? 'Overwrite the current configuration' : 'Save for this kind of exam'} </button>
   <button style=${configAttiva.includes('descrizioneEsame') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-exam">Elimina configurazione salvata</button>
   </div>
 
   <div style="margin-right:0" class="opzione-hp">
-  <h3>Salva configurazione attuale per questa <span style="color:#38bdf8">modality</span></h3>
+  <h3>Save the configuration attuale per questa <span style="color:#38bdf8">modality</span></h3>
   <p>Gli Hanging Protocol si applicheranno a tutti gli esami con modality <span style="font-weight: 600;">${modality}</span></p>
   <p style="color:red;display:none" id="hp-modality-presente">Hai attualmente una configurazione salvata per questa modality</p>
-  <button id="save-hp-config-modality">${configAttiva.includes('modality') ? 'Sovrascrivi config. attuale' : 'Salva per questa modality'}</button>
+  <button id="save-hp-config-modality">${configAttiva.includes('modality') ? 'Overwrite the current configuration' : 'Save for this modality'}</button>
   <button style=${configAttiva.includes('modality') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-modality">Elimina configurazione salvata</button>
   </div>
 
@@ -772,19 +772,19 @@ async function creaDIV() {
       const isHidden = savedConfigBody.style.display === 'none' || !savedConfigBody.style.display;
       savedConfigBody.style.display = isHidden ? 'block' : 'none';
       toggleSavedConfigBtn.textContent = isHidden
-        ? 'Nascondi configurazione salvata'
-        : 'Vedi configurazione salvata';
+        ? 'Hide the saved configuration'
+        : 'Show the saved configuration';
     });
   }
 
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
-    console.warn('Preferenze utente per gli hanging protocol non recuperate da remoto');
+    console.warn('The remote hanging protocol preferences were not fetched');
     let cached = {};
     try {
       cached = JSON.parse(localStorage.getItem(`preferenzeUtente-${aetitle}`) || '{}');
     } catch (err) {
-      console.warn('Preferenze utente HP in cache locale non valide', err);
+      console.warn('The cached hanging protocol preferences are not valid', err);
     }
     renderSavedConfig(cached);
   } else {
@@ -799,7 +799,7 @@ async function componiHP(modalita) {
   //Ottengo gli HP aggiornati in tempo reale
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
-    return console.warn('Non è stato possibile recuperare le preferenze utente per gli HP');
+    return console.warn('The hanging protocol preferences could not be fetched');
   }
   const preferenzeRemote = ensurePreferenzePayload(preferenzeRemoteRaw);
   const attualiHP = preferenzeRemote.json.hp;
@@ -822,7 +822,7 @@ async function componiHP(modalita) {
         mdvHP.displaySetSelectors[displaySetKey].seriesMatchingRules = [{}];
       }
       istanzeSpecifiche.push(null);
-      serieLabels.push('Serie');
+      serieLabels.push('Series');
       i += 1;
       return;
     }
@@ -894,19 +894,19 @@ async function componiHP(modalita) {
     istanzeSpecifiche.push(numeroIstanza);
     const seriesLabel = (() => {
       if (descrizioneSerie && seriesNumber != null) {
-        return `Serie ${seriesNumber} ${descrizioneSerie}`;
+        return `Series ${seriesNumber} ${descrizioneSerie}`;
       }
       if (descrizioneSerie) {
-        return `Serie ${descrizioneSerie}`;
+        return `Series ${descrizioneSerie}`;
       }
       if (seriesNumber != null) {
-        return `Serie ${seriesNumber}`;
+        return `Series ${seriesNumber}`;
       }
-      return 'Serie';
+      return 'Series';
     })();
     serieLabels.push(seriesLabel);
     const displaySetKey = `DisplaySet${i}`;
-    //Serie (se salvo come studio specifico mi vado a settare la SeriesInstanceUID piuttosto che la SeriesDescription)
+    //Series (se salvo come studio specifico mi vado a settare la SeriesInstanceUID piuttosto che la SeriesDescription)
     const usaSeriesNumber = modalita !== 'specificStudy' && !descrizioneSerie && seriesNumber != null;
     const attributoMatch =
       modalita === 'specificStudy'
@@ -944,7 +944,7 @@ async function componiHP(modalita) {
 async function saveSpecificStudy() {
   const configAttiva = hpAttualmenteSalvati();
   if (configAttiva.includes('studioSpecifico')) {
-    if (!confirm('Sicuro di voler sovrascrivere la configurazione attuale?') == true) {
+    if (!confirm('Overwrite the current configuration?') == true) {
       return;
     }
   }
@@ -974,14 +974,14 @@ async function saveSpecificStudy() {
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
-    return console.warn('Non è stato possibile salvare le preferenze utente per gli HP');
+    return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
   localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   document.getElementById('menu-hp').remove();
   uiNotificationService.show({
     title: 'Hanging protocol',
-    message: `Hanging protocol salvati`,
+    message: `Hanging protocols saved`,
     type: 'success',
   });
 }
@@ -989,7 +989,7 @@ async function saveSpecificStudy() {
 async function saveConfigExam() {
   const configAttiva = hpAttualmenteSalvati();
   if (configAttiva.includes('descrizioneEsame')) {
-    if (!confirm('Sicuro di voler sovrascrivere la configurazione attuale?') == true) {
+    if (!confirm('Overwrite the current configuration?') == true) {
       return;
     }
   }
@@ -1018,7 +1018,7 @@ async function saveConfigExam() {
     serieLabels: serieLabels,
   };
   if (index !== -1) {
-    // Sovrascrivi l'oggetto esistente
+    // Overwrite l'oggetto esistente
     attualiHP.nomeEsame[index] = entry;
   } else {
     // Aggiungi il nuovo oggetto all'array
@@ -1030,14 +1030,14 @@ async function saveConfigExam() {
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
-    return console.warn('Non è stato possibile salvare le preferenze utente per gli HP');
+    return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
   localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   document.getElementById('menu-hp').remove();
   uiNotificationService.show({
     title: 'Hanging protocol',
-    message: `Hanging protocol salvati`,
+    message: `Hanging protocols saved`,
     type: 'success',
   });
 }
@@ -1045,7 +1045,7 @@ async function saveConfigExam() {
 async function saveConfigModality() {
   const configAttiva = hpAttualmenteSalvati();
   if (configAttiva.includes('modality')) {
-    if (!confirm('Sicuro di voler sovrascrivere la configurazione attuale?') == true) {
+    if (!confirm('Overwrite the current configuration?') == true) {
       return;
     }
   }
@@ -1074,7 +1074,7 @@ async function saveConfigModality() {
     serieLabels: serieLabels,
   };
   if (index !== -1) {
-    // Sovrascrivi l'oggetto esistente
+    // Overwrite l'oggetto esistente
     attualiHP.modality[index] = entry;
   } else {
     // Aggiungi il nuovo oggetto all'array
@@ -1086,26 +1086,26 @@ async function saveConfigModality() {
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
-    return console.warn('Non è stato possibile salvare le preferenze utente per gli HP');
+    return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
   localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   document.getElementById('menu-hp').remove();
   uiNotificationService.show({
     title: 'Hanging protocol',
-    message: `Hanging protocol salvati`,
+    message: `Hanging protocols saved`,
     type: 'success',
   });
 }
 
 async function deleteConfigSpecificStudy() {
-  if (!confirm('Sicuro di voler eliminare la configurazione attuale?') == true) {
+  if (!confirm('Delete the current configuration?') == true) {
     return;
   }
   //Ottengo gli HP aggiornati in tempo reale
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
-    return console.warn('Non è stato possibile recuperare le preferenze utente per gli HP');
+    return console.warn('The hanging protocol preferences could not be fetched');
   }
   const preferenzeRemote = ensurePreferenzePayload(preferenzeRemoteRaw);
   const attualiHP = preferenzeRemote.json.hp;
@@ -1114,26 +1114,26 @@ async function deleteConfigSpecificStudy() {
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
-    return console.warn('Non è stato possibile salvare le preferenze utente per gli HP');
+    return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
   localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   uiNotificationService.show({
     title: 'Hanging protocol',
-    message: `Configurazione eliminata`,
+    message: `Configuration deleted`,
     type: 'error',
   });
   document.getElementById('menu-hp').remove();
 }
 
 async function deleteConfigExam() {
-  if (!confirm('Sicuro di voler eliminare la configurazione attuale?') == true) {
+  if (!confirm('Delete the current configuration?') == true) {
     return;
   }
   //Ottengo gli HP aggiornati in tempo reale
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
-    return console.warn('Non è stato possibile recuperare le preferenze utente per gli HP');
+    return console.warn('The hanging protocol preferences could not be fetched');
   }
   const preferenzeRemote = ensurePreferenzePayload(preferenzeRemoteRaw);
   const attualiHP = preferenzeRemote.json.hp;
@@ -1147,26 +1147,26 @@ async function deleteConfigExam() {
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
-    return console.warn('Non è stato possibile salvare le preferenze utente per gli HP');
+    return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
   localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   uiNotificationService.show({
     title: 'Hanging protocol',
-    message: `Configurazione eliminata`,
+    message: `Configuration deleted`,
     type: 'error',
   });
   document.getElementById('menu-hp').remove();
 }
 
 async function deleteConfigModality() {
-  if (!confirm('Sicuro di voler eliminare la configurazione attuale?') == true) {
+  if (!confirm('Delete the current configuration?') == true) {
     return;
   }
   //Ottengo gli HP aggiornati in tempo reale
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
-    return console.warn('Non è stato possibile recuperare le preferenze utente per gli HP');
+    return console.warn('The hanging protocol preferences could not be fetched');
   }
   const preferenzeRemote = ensurePreferenzePayload(preferenzeRemoteRaw);
   const attualiHP = preferenzeRemote.json.hp;
@@ -1179,13 +1179,13 @@ async function deleteConfigModality() {
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
-    return console.warn('Non è stato possibile salvare le preferenze utente per gli HP');
+    return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
   localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   uiNotificationService.show({
     title: 'Hanging protocol',
-    message: `Configurazione eliminata`,
+    message: `Configuration deleted`,
     type: 'error',
   });
   document.getElementById('menu-hp').remove();
@@ -1213,7 +1213,7 @@ async function scritturaPreferenzeAPI(aetitle, username, body) {
     });
 
     if (!apiResponse.ok) {
-      console.error('Errore durante il recupero delle preferenze utente da remoto');
+      console.error('Fetching the remote user preferences failed');
       return;
     }
     // Un indirizzo che il server non conosce risponde con la pagina
@@ -1221,12 +1221,12 @@ async function scritturaPreferenzeAPI(aetitle, username, body) {
     // scrittura si dichiarerebbe riuscita, e il pannello direbbe salvato
     // sul server quando non e arrivato niente da nessuna parte.
     if ((apiResponse.headers.get('content-type') || '').includes('text/html')) {
-      console.warn('[HP] Nessun archivio remoto delle preferenze: resta la copia locale');
+      console.warn('[HP] No remote preference store: the local copy stands');
       return null;
     }
     return apiResponse.text();
   } catch (err) {
-    return console.error('Errore durante il recupero delle preferenze utente da remoto');
+    return console.error('Fetching the remote user preferences failed');
   }
 }
 

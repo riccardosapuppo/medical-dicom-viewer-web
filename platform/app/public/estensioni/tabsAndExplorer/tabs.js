@@ -42,7 +42,7 @@ function showStudyLoadErrorNotification(message) {
   const uiNotificationService = window?.servicesManager?.services?.uiNotificationService;
   if (uiNotificationService?.show) {
     uiNotificationService.show({
-      title: 'Errore caricamento studio',
+      title: 'The study could not be loaded',
       message,
       type: 'error',
     });
@@ -345,8 +345,8 @@ function injectQuickDateFilter() {
     { value: '', label: 'Seleziona' },
     { value: 'today', label: 'Oggi' },
     { value: 'week', label: 'Ultima settimana' },
-    { value: 'month', label: 'Ultimo mese' },
-    { value: 'year', label: 'Ultimo anno' },
+    { value: 'month', label: 'Last month' },
+    { value: 'year', label: 'Last year' },
   ];
   options.forEach(opt => {
     const option = document.createElement('option');
@@ -685,7 +685,7 @@ function showLoadingNotification() {
   if (uiNotificationService?.show) {
     uiNotificationService.show({
       title: 'Studio',
-      message: 'Studio in caricamento...',
+      message: 'Loading the study...',
       type: 'warning',
     });
     loadingNotificationTimeoutId = setTimeout(() => {
@@ -695,7 +695,7 @@ function showLoadingNotification() {
   }
 
   // Fallback minimal (no service available)
-  console.warn('Studio in caricamento');
+  console.warn('Loading the study');
   loadingNotificationTimeoutId = setTimeout(() => {
     loadingNotificationTimeoutId = null;
   }, 1500);
@@ -1205,7 +1205,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   const container = document.getElementById('mdv-tab-container');
   if (!container) return;
 
-  // Chiudi eventuali modali
+  // Close eventuali modali
   const existing = document.getElementById('mdv-modal');
   if (existing) existing.remove();
 
@@ -1398,7 +1398,7 @@ function showIframeForTab(iframeId) {
     pendingIframeId = null;
     showStudyLoadErrorNotification(
       iframeLoadErrorById.get(resolvedIframeId) ||
-      'Impossibile completare il caricamento dello studio.'
+      'The study could not be loaded.'
     );
     return;
   }

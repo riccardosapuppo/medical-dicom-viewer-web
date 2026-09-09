@@ -106,7 +106,7 @@ const StudyBrowser = ({
     }
   }, [activeTabName, expandedStudyInstanceUIDs, isBottomDocked, onClickStudy, tabs]);
 
-  // Chiudi popover storico quando clicco fuori
+  // Close popover storico quando clicco fuori
   useEffect(() => {
     if (!storicoPickerOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -123,7 +123,7 @@ const StudyBrowser = ({
   const storicoStudies: any[] = storicoTab?.studies ?? [];
   const isStoricoActive = activeTabName !== 'primary';
 
-  // In bottom mode, quando clicco "Storico locale" con più studi, apri popover
+  // In bottom mode, quando clicco "Local priors" con più studi, apri popover
   const handleBottomTabClick = (tabName: string) => {
     if (isBottomDocked && tabName !== 'primary') {
       const tab = (tabs as any[]).find(t => t.name === tabName);
@@ -236,7 +236,7 @@ const StudyBrowser = ({
               onClick={() => disableMPRView()}
               className="chiudi-modalita-mpr float-right"
             >
-              Chiudi
+              Close
             </span>
           </div>
         </div>
@@ -322,7 +322,7 @@ const StudyBrowser = ({
                       if (tip) { tip.remove(); (e.currentTarget as any)._tooltip = null; }
                     }}
                   >
-                    {study.description || 'Studio senza descrizione'}
+                    {study.description || 'Study with no description'}
                   </div>
                   <div style={{ fontSize: '10px', color: '#888', marginTop: '2px' }}>
                     {study.date || '-'}

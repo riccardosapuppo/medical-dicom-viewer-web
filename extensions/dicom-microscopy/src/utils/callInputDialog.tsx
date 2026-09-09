@@ -12,7 +12,7 @@ import { Input, Dialog, ButtonEnums } from '@ohif/ui';
  */
 export default function callInputDialog({
   uiDialogService,
-  title = 'Annotazione',
+  title = 'Annotation',
   defaultValue = '',
   callback = (value: string, action: string) => { },
 }) {
@@ -43,8 +43,8 @@ export default function callInputDialog({
         noCloseButton: true,
         onClose: () => uiDialogService.dismiss({ id: dialogId }),
         actions: [
-          { id: 'cancel', text: 'Annulla', type: ButtonEnums.type.secondary },
-          { id: 'save', text: 'Salva', type: ButtonEnums.type.primary },
+          { id: 'cancel', text: 'Cancel', type: ButtonEnums.type.secondary },
+          { id: 'save', text: 'Save', type: ButtonEnums.type.primary },
         ],
         onSubmit: onSubmitHandler,
         body: ({ value, setValue }) => {

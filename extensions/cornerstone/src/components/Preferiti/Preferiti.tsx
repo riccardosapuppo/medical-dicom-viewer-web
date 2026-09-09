@@ -66,7 +66,7 @@ export async function captureImageFromImageId(imageId, viewport) {
   return canvas.toDataURL('image/png');
 }
 
-// Cattura il viewport completo con le annotazioni.
+// Capture il viewport completo con le annotazioni.
 // Base: render del canvas Cornerstone (stessa geometria del viewport).
 // Overlay: layer SVG annotation con computed style inline.
 //
@@ -609,7 +609,7 @@ async function recapturePreferitoForViewport(
       return false;
     }
 
-    // Cattura clean alla risoluzione DICOM nativa (per backward compat)
+    // Capture clean alla risoluzione DICOM nativa (per backward compat)
     const cleanUrl = await captureImageFromImageId(currentImageId, viewport);
     if (!cleanUrl) return false;
 
@@ -951,7 +951,7 @@ export function Preferiti({
               `
             <div class="col">
             <img onclick="window.viewPreferitoPopup('${preferito.DataUrl}')" src=${preferito.DataUrl} />
-            <p>Serie ${preferito.NumeroSerie} - ${preferito.DescrizioneSerie}</p>
+            <p>Series ${preferito.NumeroSerie} - ${preferito.DescrizioneSerie}</p>
             <p>N¶ø istanza: ${preferito.NumeroIstanza}</p>
             <button class="rimuovi-preferito-btn" onclick="window.rimuoviPreferito('${preferito.SOPInstanceUID}')">Rimuovi</button>
             </div>
@@ -989,7 +989,7 @@ export function Preferiti({
       //         `
       //       <div class="col">
       //       <img onclick="window.viewPreferitoPopup('${imgData}')" src=${imgData} />
-      //       <p>Serie ${NumeroSerie} - ${DescrizioneSerie}</p>
+      //       <p>Series ${NumeroSerie} - ${DescrizioneSerie}</p>
       //       <p>N¶ø istanza: ${NumeroIstanza}</p>
       //       <button class="rimuovi-preferito-btn" onclick="window.rimuoviPreferito('${SOPInstanceUID}')">Rimuovi</button>
       //       </div>
@@ -999,7 +999,7 @@ export function Preferiti({
       //   });
       // }
 
-      //Cattura del canvas senza misurazioni e altro anzichÇ¸ di tutta la div
+      //Capture del canvas senza misurazioni e altro anzichÇ¸ di tutta la div
       if (!isPreferito && checked && document.getElementById('preferiti-btn')) {
         const viewport = cornerstoneViewportService.getCornerstoneViewport(viewportId);
         const SOPInstanceUID = sopUID;
@@ -1014,7 +1014,7 @@ export function Preferiti({
           return;
         }
 
-        // Cattura ANCHE una versione con le annotazioni (misurazioni
+        // Capture ANCHE una versione con le annotazioni (misurazioni
         // length/area/...) componendo il canvas + il layer SVG. Best-effort:
         // se fallisce ricadiamo sul DataUrl pulito così il print builder
         // continua a funzionare anche senza annotazioni.
@@ -1079,7 +1079,7 @@ export function Preferiti({
             `
         <div class="col">
         <img onclick="window.viewPreferitoPopup('${imgData}')" src=${imgData} />
-        <p>Serie ${NumeroSerie} - ${DescrizioneSerie}</p>
+        <p>Series ${NumeroSerie} - ${DescrizioneSerie}</p>
         <p>N¶ø istanza: ${NumeroIstanza}</p>
         <button class="rimuovi-preferito-btn" onclick="window.rimuoviPreferito('${SOPInstanceUID}')">Rimuovi</button>
         </div>
@@ -1091,7 +1091,7 @@ export function Preferiti({
 
         uiNotificationService.show({
           title: 'Preferiti',
-          message: `Aggiunto ai preferiti`,
+          message: `Added to favourites`,
           type: 'success',
         });
         window.dispatchEvent(new Event('mdv-preferiti-updated'));
@@ -1131,10 +1131,10 @@ export function Preferiti({
     >
       <div className="mr-2 w-[28px]"></div>
       {/* <button onClick={onSetPreferito}>
-        {!isAlreadyPreferito ? 'Aggiungi ai preferiti' : 'Rimuovi'}
+        {!isAlreadyPreferito ? 'Add to favourites' : 'Rimuovi'}
       </button> */}
       <SwitchButton
-        label={!isPreferito ? 'Aggiungi ai preferiti' : 'Rimuovi dai preferiti'}
+        label={!isPreferito ? 'Add to favourites' : 'Remove from favourites'}
         checked={isPreferito}
         onChange={e => {
           void onSetPreferito(e);

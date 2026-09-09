@@ -3,7 +3,7 @@ import { Types } from '@ohif/core';
 const frameView4x4: Types.HangingProtocol.Protocol = {
   id: '@ohif/frameView',
   description: 'Frame view for the active series',
-  name: 'Modalità Frame (Serie attiva) 4x4',
+  name: 'Frame mode, active series, 4x4',
   icon: 'tool-stack-scroll',
   isPreset: true,
   toolGroupIds: ['default'],

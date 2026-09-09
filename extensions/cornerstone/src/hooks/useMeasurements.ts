@@ -13,7 +13,7 @@ function mapMeasurementToDisplay(measurement, displaySetService) {
   const { findingSites, finding, label: baseLabel, displayText: baseDisplayText } = measurement;
 
   const firstSite = findingSites?.[0];
-  const label = baseLabel || finding?.text || firstSite?.text || '(Nessuna etichetta)';
+  const label = baseLabel || finding?.text || firstSite?.text || '(No label)';
 
   // Initialize displayText with the structure used in Length.ts and CobbAngle.ts
   const displayText = {

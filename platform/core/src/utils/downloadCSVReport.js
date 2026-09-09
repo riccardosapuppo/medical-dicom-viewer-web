@@ -9,7 +9,7 @@ export default function downloadCSVReport(measurementData) {
 
   const columns = [
     'Patient ID',
-    'Nome paziente',
+    'Patient name',
     'StudyInstanceUID',
     'SeriesInstanceUID',
     'SOPInstanceUID',
@@ -87,7 +87,7 @@ function _getCommonRowItems(measurement, seriesMetadata) {
 
   return {
     'Patient ID': firstInstance.PatientID, // Patient ID
-    'Nome paziente': formatPN(firstInstance.PatientName) || '', // Nome paziente
+    'Patient name': formatPN(firstInstance.PatientName) || '', // Patient name
     StudyInstanceUID: measurement.referenceStudyUID, // StudyInstanceUID
     SeriesInstanceUID: measurement.referenceSeriesUID, // SeriesInstanceUID
     SOPInstanceUID: measurement.SOPInstanceUID, // SOPInstanceUID

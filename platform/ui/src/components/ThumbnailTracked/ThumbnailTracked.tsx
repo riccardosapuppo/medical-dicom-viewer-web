@@ -53,8 +53,8 @@ function ThumbnailTracked({
                   <span>
                     <span className="text-white">
                       {isTracked
-                        ? t('Ci sono misurazioni effettuate in questa serie')
-                        : t('Non ci sono ancora misurazioni effettuate in questa serie')}
+                        ? t('This series has measurements on it')
+                        : t('This series has no measurements yet')}
                     </span>
                   </span>
                 </div>

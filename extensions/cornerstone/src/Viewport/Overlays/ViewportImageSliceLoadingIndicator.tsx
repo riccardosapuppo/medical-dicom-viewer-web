@@ -77,7 +77,7 @@ function ViewportImageSliceLoadingIndicator({ viewportData, element }) {
   //     // interacting with the mouse, since scrolling should propagate to the viewport underneath
   //     <div className="pointer-events-none absolute top-0 left-0 h-full w-full bg-black opacity-50">
   //       <div className="transparent flex h-full w-full items-center justify-center">
-  //         <p className="text-primary-light text-xl font-light">Caricamento...</p>
+  //         <p className="text-primary-light text-xl font-light">Loading...</p>
   //       </div>
   //     </div>
   //   );

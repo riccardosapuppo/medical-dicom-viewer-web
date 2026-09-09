@@ -427,7 +427,7 @@ const commandsModule = ({
             : // Use the previous viewport for the given position
             preOneUpViewport;
 
-          // Preserva la Sottogriglia (Montage) salvata prima del one-up: lo spread
+          // Preserva la Subgrid (Montage) salvata prima del one-up: lo spread
           // della viewport aggiornata via Hanging Protocol sovrascrive
           // viewportOptions perdendo `montage`. La riapplichiamo dalla viewport
           // memorizzata per questa posizione.

@@ -56,7 +56,7 @@ function getPanelModule({ commandsManager, extensionManager, servicesManager }) 
       name: 'petSUV',
       iconName: 'tab-patient-info',
       iconLabel: 'Patient Info',
-      label: 'Info paziente',
+      label: 'Patient info',
       component: wrappedPanelPetSuv,
     },
     {

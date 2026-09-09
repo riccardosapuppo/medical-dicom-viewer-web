@@ -1,11 +1,11 @@
 /*
- * Sottogriglia (Montage) interna a una singola viewport OHIF.
+ * Subgrid (Montage) interna a una singola viewport OHIF.
  * I bordi tra le celle e la cornice esterna rendono evidente che si tratta di
- * una sottogriglia DENTRO quella viewport (le celle sono viewport collegate via
+ * una subgrid DENTRO quella viewport (le celle sono viewport collegate via
  * sincronizzatori WL/VOI/zoom/pan).
  */
 
-/* Colore delle linee della sottogriglia: lo stesso blu dei bordi della griglia
+/* Colore delle linee della subgrid: lo stesso blu dei bordi della griglia
  * principale OHIF (#3a3f99), così la separazione è coerente e ben visibile. */
 .montage-grid {
   position: relative;
@@ -26,7 +26,7 @@
   isolation: isolate;
 }
 
-/* Badge col layout corrente della sottogriglia (es. "2×4"), in alto a destra. */
+/* Badge col layout corrente della subgrid (es. "2×4"), in alto a destra. */
 .montage-layout-badge {
   position: absolute;
   top: 4px;
@@ -47,7 +47,7 @@
   background-color: #000;
 }
 
-/* Descrizione serie (una per sottogriglia, in alto a sinistra).
+/* Descrizione serie (una per subgrid, in alto a sinistra).
  *  - left:34px → NON copre la stellina dei preferiti (in alto a sinistra di ogni
  *    cella, ~24px), che resta visibile e cliccabile;
  *  - sfondo OPACO → copre la linea separatore delle celle che eventualmente
@@ -117,7 +117,7 @@
   min-height: 2px;
   background-color: #000;
   overflow: hidden;
-  /* Niente padding: la Scala di riferimento (verticale a destra) si disegna
+  /* Niente padding: la Scale di riferimento (verticale a destra) si disegna
    * SOPRA l'immagine come nelle viewport normali. Lo spazio per righello +
    * etichetta "NN cm" è riservato dentro l'elemento dal tool stesso
    * (override di computeScaleBounds in ScaleOverlayTool.js → ~30px a destra),
@@ -208,7 +208,7 @@
   stroke: currentColor;
 }
 
-/* Scrollbar serie della sottogriglia: stesso stile delle viewport (ImageScrollbar)
+/* Scrollbar serie della subgrid: stesso stile delle viewport (ImageScrollbar)
  * ma PIÙ SOTTILE. Override scoped a .montage-grid (specificità maggiore della
  * regola base). Compare solo quando c'è da scorrere (gestito in React). */
 /* Quando la scrollbar è presente, riserviamo una corsia a destra (padding del

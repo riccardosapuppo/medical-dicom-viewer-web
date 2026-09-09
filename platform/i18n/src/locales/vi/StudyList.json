@@ -1,7 +1,7 @@
 {
   "AccessionNumber": "Mã phiểu",
   "Empty": "Rỗng",
-  "ID Paziente": "Mã Bệnh nhân",
+  "MRN": "Mã Bệnh nhân",
   "Modality": "Thiết bị",
   "PatientName": "Tên Bệnh nhân",
   "StudyDate": "Ngày chụp",

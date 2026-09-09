@@ -255,7 +255,7 @@ function ToolbarLayoutSelectorWithServices({
         document.body.classList.remove('caricamento-layout-mpr');
       }, 500);
     } catch (err) {
-      console.error('Errore attivazione MPR: ', err);
+      console.error('Could not switch to MPR: ', err);
     }
   };
 
@@ -335,7 +335,7 @@ function ToolbarLayoutSelectorWithServices({
               {showLayoutPresetsForStorico && (
                 <LayoutSelector.PresetSection
                   className={`standard-layout standard-layout-storico`}
-                  title='Standard - Studio precedente'>
+                  title='Standard, prior study'>
                   {commonPresets.map((preset, index) => (
                     <LayoutSelector.Preset
                       key={`advanced-preset-${index}`}
@@ -367,7 +367,7 @@ function ToolbarLayoutSelectorWithServices({
 
               {advancedPresets.length > 0 && (
                 <LayoutSelector.PresetSection className={`advanced-layout advanced-layout-storico`}
-                  title='Avanzato - Studio precedente'>
+                  title='Advanced, prior study'>
                   {advancedPresets.map((preset, index) => (
                     <LayoutSelector.Preset
                       key={`advanced-preset-${index}`}

@@ -43,22 +43,22 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
 
   const menuOptions = [
     {
-      title: t('Info versione'),
+      title: t('Header:Info'),
       icon: 'info',
       onClick: () =>
         show({
           content: AboutModal,
-          title: t('Info versione'),
+          title: t('Header:Info'),
           containerClassName: 'max-w-md',
         }),
     },
     {
-      title: 'Impostazioni e preferenze',
+      title: t('Header:Preferences'),
       icon: 'settings',
       onClick: () =>
         show({
           content: UserPreferencesModal,
-          title: 'Impostazioni e preferenze',
+          title: t('Header:Preferences'),
           containerClassName: 'flex max-w-4xl p-6 flex-col',
         }),
     },

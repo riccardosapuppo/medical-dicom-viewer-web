@@ -96,21 +96,21 @@ const UserPreferences = ({
           onClick={onResetHandler}
           disabled={disabled}
         >
-          {t('Ripristina predefiniti')}
+          {t('Reset to defaults')}
         </Button>
         <div className="flex flex-row">
           <Button
             type={ButtonEnums.type.secondary}
             onClick={onCancelHandler}
           >
-            {t('Annulla')}
+            {t('Cancel')}
           </Button>
           <Button
             disabled={state.isDisabled}
             className="ml-2"
             onClick={onSubmitHandler}
           >
-            {t('Salva')}
+            {t('Save')}
           </Button>
         </div>
       </div>

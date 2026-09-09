@@ -43,7 +43,7 @@ const moreTools = [
         // createButton({
         //   id: 'rotate-right',
         //   icon: 'tool-rotate-right',
-        //   label: 'Ruota a destra',
+        //   label: 'Rotate right',
         //   tooltip: 'Rotate +90',
         //   commands: 'rotateViewportCW',
         //   evaluate: 'evaluate.action',
@@ -51,7 +51,7 @@ const moreTools = [
         // createButton({
         //   id: 'flipHorizontal',
         //   icon: 'tool-flip-horizontal',
-        //   label: 'Inverti orizzontalmente',
+        //   label: 'Flip horizontally',
         //   tooltip: 'Flip Horizontally',
         //   commands: 'flipViewportHorizontal',
         //   evaluate: ['evaluate.viewportProperties.toggle', 'evaluate.not3D'],
@@ -59,8 +59,8 @@ const moreTools = [
         // createButton({
         //   id: 'ReferenceLines',
         //   icon: 'tool-referenceLines',
-        //   label: 'Linee di riferimento',
-        //   tooltip: 'mostra inee di riferimento',
+        //   label: 'Reference lines',
+        //   tooltip: 'Show the reference lines',
         //   commands: 'toggleEnabledDisabledToolbar',
         //   listeners: {
         //     [ViewportGridService.EVENTS.ACTIVE_VIEWPORT_ID_CHANGED]: ReferenceLinesListeners,
@@ -72,7 +72,7 @@ const moreTools = [
           id: 'ImageOverlayViewer',
           icon: 'toggle-dicom-overlay',
           label: 'Image Overlay',
-          tooltip: 'Attiva/Disattiva Image Overlay',
+          tooltip: 'Turn the image overlay on or off',
           commands: 'toggleEnabledDisabledToolbar',
           evaluate: [
             'evaluate.cornerstoneTool.toggle',
@@ -85,7 +85,7 @@ const moreTools = [
         // createButton({
         //   id: 'StackScroll',
         //   icon: 'tool-stack-scroll',
-        //   label: 'Scorrimento con mouse',
+        //   label: 'Stack scroll',
         //   tooltip: 'Stack Scroll',
         //   commands: setToolActiveToolbar,
         //   evaluate: 'evaluate.cornerstoneTool',
@@ -93,7 +93,7 @@ const moreTools = [
         // createButton({
         //   id: 'invert',
         //   icon: 'tool-invert',
-        //   label: 'Inverti',
+        //   label: 'Invert',
         //   tooltip: 'Invert Colors',
         //   commands: 'invertViewport',
         //   evaluate: 'evaluate.viewportProperties.toggle',
@@ -101,7 +101,7 @@ const moreTools = [
         // createButton({
         //   id: 'Probe',
         //   icon: 'tool-probe',
-        //   label: 'Sonda',
+        //   label: 'Probe',
         //   tooltip: 'Probe',
         //   commands: setToolActiveToolbar,
         //   evaluate: 'evaluate.cornerstoneTool',
@@ -117,7 +117,7 @@ const moreTools = [
         // createButton({
         //   id: 'Angle',
         //   icon: 'tool-angle',
-        //   label: 'Angolo',
+        //   label: 'Angle',
         //   tooltip: 'Angle',
         //   commands: setToolActiveToolbar,
         //   evaluate: 'evaluate.cornerstoneTool',
@@ -125,7 +125,7 @@ const moreTools = [
         // createButton({
         //   id: 'CobbAngle',
         //   icon: 'icon-tool-cobb-angle',
-        //   label: 'Angolo di Cobb',
+        //   label: 'Cobb angle',
         //   tooltip: 'Cobb Angle',
         //   commands: setToolActiveToolbar,
         //   evaluate: 'evaluate.cornerstoneTool',
@@ -133,7 +133,7 @@ const moreTools = [
         // createButton({
         //   id: 'Magnify',
         //   icon: 'tool-magnify',
-        //   label: "Lente d'ingrandimento",
+        //   label: "Magnify",
         //   tooltip: 'Zoom-in',
         //   commands: setToolActiveToolbar,
         //   evaluate: 'evaluate.cornerstoneTool',
@@ -141,8 +141,8 @@ const moreTools = [
         createButton({
           id: 'CalibrationLine',
           icon: 'tool-calibration',
-          label: 'Calibrazione',
-          tooltip: 'Calibrazione',
+          label: 'Calibration',
+          tooltip: 'Calibration',
           commands: setToolActiveToolbar,
           evaluate: [
             'evaluate.cornerstoneTool',
@@ -162,8 +162,8 @@ const moreTools = [
         createButton({
           id: 'AdvancedMagnify',
           icon: 'icon-tool-loupe',
-          label: "Sonda con lente d'ingrandimento",
-          tooltip: 'Sonda con lente d\'ingrandimento',
+          label: "Magnify probe",
+          tooltip: 'Probe con lente d\'ingrandimento',
           commands: 'toggleActiveDisabledToolbar',
           evaluate: [
             'evaluate.cornerstoneTool.toggle.ifStrictlyDisabled',
@@ -176,7 +176,7 @@ const moreTools = [
         // createButton({
         //   id: 'UltrasoundDirectionalTool',
         //   icon: 'icon-tool-ultrasound-bidirectional',
-        //   label: 'Ultrasuono direzionale',
+        //   label: 'Ultrasound directional',
         //   tooltip: 'Ultrasound Directional',
         //   commands: setToolActiveToolbar,
         //   evaluate: ['evaluate.cornerstoneTool', 'evaluate.isUS'],

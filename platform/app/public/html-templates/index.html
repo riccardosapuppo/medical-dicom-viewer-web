@@ -190,7 +190,7 @@
       src="<%= PUBLIC_URL %>app-config.js<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
     ></script>
     <!--
-      Override "Impostazioni Globali" (tab admin). Script SINCRONO servito dal
+      Override "Global settings" (tab admin). Script SINCRONO servito dal
       backend: applica i flag effettivi a window.config PRIMA dei bundle e delle
       estensioni (preferiti.js/tabs.js leggono window.config al load). Deve stare
       DOPO app-config.js e PRIMA degli entry. Il backend risponde no-store; se non

@@ -2,8 +2,8 @@ import React from 'react';
 import type { IconProps } from '../types';
 
 /**
- * Icona "Sottogriglia (Montage)": un riquadro viewport (bordo spesso) suddiviso
- * internamente in più celle (linee sottili) → comunica una sottogriglia DENTRO
+ * Icona "Subgrid (Montage)": un riquadro viewport (bordo spesso) suddiviso
+ * internamente in più celle (linee sottili) → comunica una subgrid DENTRO
  * una singola viewport, non un nuovo layout della griglia principale.
  */
 export const ToolMontage = (props: IconProps) => (
@@ -41,7 +41,7 @@ export const ToolMontage = (props: IconProps) => (
         strokeWidth="1"
         opacity="0.85"
       ></rect>
-      {/* Celle interne (2x2) = la sottogriglia dentro la cella */}
+      {/* Celle interne (2x2) = la subgrid dentro la cella */}
       <g fill="currentColor">
         <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"></rect>
         <rect x="15" y="7.5" width="5.5" height="5.5" rx="1"></rect>

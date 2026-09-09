@@ -75,7 +75,7 @@ const { DicomMetaDictionary } = dcmjs?.data || {};
 const BASE_OVERLAY_OPTIONS: OverlayTagOption[] = [
   {
     key: NONE_KEY,
-    label: 'Nessuno',
+    label: 'None',
     config: null,
   },
   {
@@ -255,10 +255,10 @@ const buildAllDicomOptions = (): OverlayTagOption[] => {
 const ALL_DICOM_OPTIONS = buildAllDicomOptions();
 
 const CORNER_CONFIGS = [
-  { key: 'cornerTopLeft', label: 'Angolo alto sinistra' },
-  { key: 'cornerTopRight', label: 'Angolo alto destra' },
-  { key: 'cornerBottomLeft', label: 'Angolo basso sinistra' },
-  { key: 'cornerBottomRight', label: 'Angolo basso destra' },
+  { key: 'cornerTopLeft', label: 'Top left' },
+  { key: 'cornerTopRight', label: 'Top right' },
+  { key: 'cornerBottomLeft', label: 'Bottom left' },
+  { key: 'cornerBottomRight', label: 'Bottom right' },
 ];
 
 const normalizeTagItem = (item: OverlayTagConfig | null) => {
@@ -498,7 +498,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
           }
         }
       } catch (err) {
-        console.warn('Impossibile caricare le preferenze viewport', err);
+        console.warn('The viewport preferences could not be loaded', err);
       }
 
       if (cancelled) {
@@ -629,7 +629,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
       if (!username || !aetitle) {
         if (uiNotificationService?.show) {
           uiNotificationService.show({
-            title: 'Preferenze viewport',
+            title: 'Viewport preferences',
             message: 'Username o AETitle mancante',
             type: 'error',
           });
@@ -646,8 +646,8 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
       if (!response.ok) {
         if (uiNotificationService?.show) {
           uiNotificationService.show({
-            title: 'Preferenze viewport',
-            message: `Errore salvataggio (HTTP ${response.status})`,
+            title: 'Viewport preferences',
+            message: `Saving failed (HTTP ${response.status})`,
             type: 'error',
           });
         }
@@ -660,23 +660,23 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
         cached.viewportOverlayTags = overlayTags;
         localStorage.setItem(cacheKey, JSON.stringify(cached));
       } catch (err) {
-        console.warn('Impossibile aggiornare la cache locale delle preferenze', err);
+        console.warn('The local preference cache could not be updated', err);
       }
 
       if (uiNotificationService?.show) {
         uiNotificationService.show({
-          title: 'Preferenze viewport',
-          message: 'Preferenze salvate',
+          title: 'Viewport preferences',
+          message: 'Preferences saved',
           type: 'success',
         });
       }
     } catch (err) {
-      console.warn('Impossibile salvare le preferenze viewport', err);
+      console.warn('The viewport preferences could not be saved', err);
       const uiNotificationService = servicesManager?.services?.uiNotificationService;
       if (uiNotificationService?.show) {
         uiNotificationService.show({
-          title: 'Preferenze viewport',
-          message: 'Errore salvataggio',
+          title: 'Viewport preferences',
+          message: 'Saving failed',
           type: 'error',
         });
       }
@@ -734,7 +734,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
               value="hotkeys"
               data-cy="hotkeys"
             >
-              {t('Scorciatoie tastiera')}
+              {t('Keyboard shortcuts')}
             </TabsTrigger>
             <TabsTrigger
               value="viewport"
@@ -746,7 +746,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
 
           <TabsContent value="hotkeys">
             <UserPreferencesModal.SubHeading>
-              {t('Scorciatoie tastiera')}
+              {t('Keyboard shortcuts')}
             </UserPreferencesModal.SubHeading>
             <UserPreferencesModal.HotkeysGrid>
               {Object.entries(state.hotkeyDefinitions).map(([id, definition]) => (
@@ -797,7 +797,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
                                     label: option.label,
                                   }))
                             }
-                            placeholder="Seleziona tag"
+                            placeholder="Select a tag"
                             value={fixedItem ? fixedItem.key : value}
                             onValueChange={newValue =>
                               updateOverlaySelection(
@@ -815,7 +815,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
                             }
                             buttonClassName="w-full justify-between"
                             contentClassName="w-[320px] p-0"
-                            emptyLabel="Nessun tag trovato."
+                            emptyLabel="No tag found."
                             disabled={Boolean(fixedItem)}
                           />
                           {isTruncated && (

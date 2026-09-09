@@ -64,7 +64,7 @@ Stack: ${error.stack}
     toast.error(title, {
       description: subtitle,
       action: {
-        label: t('Mostra dettagli'),
+        label: t('Show the details'),
         onClick: () => setShowDetails(true),
       },
       duration: 0,

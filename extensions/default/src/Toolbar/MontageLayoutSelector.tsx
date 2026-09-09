@@ -1,5 +1,5 @@
-// Split button per la Sottogriglia (Montage).
-//  - ICONA (sinistra): attiva/disattiva la sottogriglia col layout CONSIGLIATO
+// Split button per la Subgrid (Montage).
+//  - ICONA (sinistra): attiva/disattiva la subgrid col layout CONSIGLIATO
 //    (automatico in base al numero di istanze della serie, max 8) → `toggleMontage`.
 //    Ri-clic = disattiva.
 //  - FRECCETTA (destra): apre il selettore righe×colonne in stile "layout"
@@ -26,7 +26,7 @@ function MontageLayoutSelector({
   commandsManager,
   servicesManager,
   // Stato dalla valutazione del bottone (evaluate.cornerstone.montage):
-  // isActive → sottogriglia attiva; disabled → serie non idonea (non-stack).
+  // isActive → subgrid attiva; disabled → serie non idonea (non-stack).
   isActive = false,
   disabled = false,
   disabledText,
@@ -90,7 +90,7 @@ function MontageLayoutSelector({
               size="icon"
               disabled={disabled}
               onClick={onToggle}
-              aria-label="Sottogriglia"
+              aria-label="Subgrid"
               className={cx(
                 'h-10 w-10 bg-transparent !rounded-l-lg !rounded-r-none',
                 utils.getToggledClassName(isActive),
@@ -108,8 +108,8 @@ function MontageLayoutSelector({
         <TooltipContent side="bottom">
           <div>
             {isActive
-              ? 'Sottogriglia attiva (clic per disattivare)'
-              : 'Sottogriglia: layout consigliato in base al numero di immagini (clic per attivare)'}
+              ? 'Subgrid attiva (clic per disattivare)'
+              : 'Subgrid: layout consigliato in base al numero di immagini (clic per attivare)'}
           </div>
           {disabled && disabledText && <div className="text-muted-foreground">{disabledText}</div>}
         </TooltipContent>
@@ -140,7 +140,7 @@ function MontageLayoutSelector({
           </Button>
         </LayoutSelector.Trigger>
         <LayoutSelector.Content>
-          {/* Sinistra - preset Standard */}
+          {/* Left - preset Standard */}
           <div className="bg-popover flex flex-col gap-2.5 rounded-lg p-2">
             <LayoutSelector.PresetSection
               className="montage-standard-layout"
@@ -157,7 +157,7 @@ function MontageLayoutSelector({
             </LayoutSelector.PresetSection>
           </div>
 
-          {/* Destra - griglia Personalizzato */}
+          {/* Right - griglia Personalizzato */}
           <div className="bg-muted flex flex-col gap-2.5 border-l-2 border-solid border-black p-2">
             <div className="montage-custom-layout">
               <div className="text-muted-foreground text-xs">Personalizzato</div>

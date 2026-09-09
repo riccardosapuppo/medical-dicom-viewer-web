@@ -81,7 +81,7 @@ function PanelStudyBrowser({
       console.warn(error);
       uiNotificationService.show({
         title: 'Selezione serie',
-        message: 'Il display set selezionato non può essere aggiunto alla viewport.',
+        message: 'The selected display set cannot be added to the viewport.',
         type: 'info',
         duration: 3000,
       });

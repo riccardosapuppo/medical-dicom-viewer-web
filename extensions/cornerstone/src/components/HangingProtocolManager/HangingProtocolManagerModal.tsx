@@ -33,7 +33,7 @@ type CaptureOptions = {
 };
 
 const TOGGLES: Array<{ key: keyof CaptureOptions; label: string; hint: string }> = [
-  { key: 'series', label: 'Serie', hint: 'Aggancia ogni viewport alla sua serie' },
+  { key: 'series', label: 'Series', hint: 'Aggancia ogni viewport alla sua serie' },
   { key: 'instance', label: 'Istanza specifica', hint: "L'immagine/slice visualizzata" },
   { key: 'windowLevel', label: 'Window Level', hint: 'Luminosità/contrasto (WW/WC)' },
   { key: 'zoomPan', label: 'Zoom / Pan', hint: 'Inquadratura corrente' },
@@ -101,9 +101,9 @@ function Chip({ children, tone = 'default' }: { children: React.ReactNode; tone?
 
 function CapturedChips({ captured, hasMontage }: { captured: CaptureOptions; hasMontage?: boolean }) {
   const chips = [
-    captured.grid !== false && 'Griglia',
-    hasMontage && 'Sottogriglia',
-    captured.series && 'Serie',
+    captured.grid !== false && 'Grid',
+    hasMontage && 'Subgrid',
+    captured.series && 'Series',
     captured.instance && 'Istanza',
     captured.windowLevel && 'WL',
     captured.zoomPan && 'Zoom',
@@ -188,12 +188,12 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
     }
     if (scope === 'descrizioneEsame') {
       // Confronto NORMALIZZATO, coerente con save/delete/caricamento: così il pulsante
-      // mostra "Sovrascrivi" (e chiede conferma) anche per un'entry legacy senza nome.
+      // mostra "Overwrite" (e chiede conferma) anche per un'entry legacy senza nome.
       const target = normalizza(ctx.studyDescription);
       return (hp.nomeEsame || []).some((i: any) => normalizza(i?.nomeEsame) === target);
     }
     // Chiave CANONICA (insieme ordinato), coerente con saveConfig/deleteConfig/dedup:
-    // "Sovrascrivi" appare solo se esiste una config della STESSA combinazione di modality
+    // "Overwrite" appare solo se esiste una config della STESSA combinazione di modality
     // → il salvataggio la sovrascrive davvero (niente doppione), e combinazioni diverse
     // ma sovrapposte (es. 'PT\CT' vs 'CT') restano config distinte.
     const target = canonModalityKey(ctx.modality);
@@ -209,10 +209,10 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
     try {
       const res = await saveConfig(scope, captureOptions);
       if (res?.ok) {
-        notify('Configurazione salvata', 'success');
+        notify('Configuration saved', 'success');
         await refresh();
       } else {
-        notify(res?.reason || 'Salvataggio non riuscito', 'error');
+        notify(res?.reason || 'Saving failed', 'error');
       }
     } finally {
       setBusy(false);
@@ -221,7 +221,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
 
   const onSaveClick = () => {
     if (modalityMissing) {
-      notify('Modality non disponibile per questo studio', 'error');
+      notify('This study has no such modality', 'error');
       return;
     }
     if (existsForScope) {
@@ -236,10 +236,10 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
     try {
       const res = await deleteConfig(item.scope, item.key);
       if (res?.ok) {
-        notify('Configurazione eliminata', 'info');
+        notify('Configuration deleted', 'info');
         await refresh();
       } else {
-        notify(res?.reason || 'Eliminazione non riuscita', 'error');
+        notify(res?.reason || 'Deleting failed', 'error');
       }
     } finally {
       setBusy(false);
@@ -251,10 +251,10 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
     try {
       const res = applyConfigNow(item.entry, { gridOnly });
       if (res?.ok) {
-        notify(gridOnly ? 'Griglia caricata' : 'Configurazione caricata', 'success');
+        notify(gridOnly ? 'Grid loaded' : 'Configuration loaded', 'success');
         hide();
       } else {
-        notify(res?.reason || 'Caricamento non riuscito', 'error');
+        notify(res?.reason || 'Loading failed', 'error');
       }
     } finally {
       setBusy(false);
@@ -285,7 +285,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
           )}
         </div>
         <div className="text-muted-foreground mt-0.5 text-xs">
-          Griglia {item.layout.columns}×{item.layout.rows}
+          Grid {item.layout.columns}×{item.layout.rows}
         </div>
         <div className="mt-1">
           <CapturedChips
@@ -296,7 +296,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
         {!manage && !item.applicable && (
           <div className="text-destructive mt-1 flex items-center gap-1 text-xs">
             <Icons.StatusWarning className="h-3.5 w-3.5" />
-            {item.missingSeries} serie non disponibili in questo studio
+            {item.missingSeries} no series available in questo studio
           </div>
         )}
       </div>
@@ -351,7 +351,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
 
       {/* Sezione salvataggio */}
       <section className="border-input rounded-md border p-3">
-        <h3 className="mb-3 text-base font-semibold">Salva la visualizzazione attuale</h3>
+        <h3 className="mb-3 text-base font-semibold">Save la visualizzazione attuale</h3>
 
         <Tabs
           value={scope}
@@ -397,7 +397,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
             {modalityMissing && (
               <p className="text-destructive flex items-center gap-1 text-sm">
                 <Icons.StatusWarning className="h-4 w-4" />
-                Modality non disponibile per questo studio.
+                This study has no such modality.
               </p>
             )}
           </TabsContent>
@@ -427,7 +427,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
           </div>
           <div className="border-input rounded-md border p-3">
             <p className="text-muted-foreground mb-2 text-xs">
-              La griglia (e l'eventuale sottogriglia) viene sempre salvata. Scegli cos'altro includere:
+              The grid, and the subgrid if there is one, is always saved. Choose what else to include:
             </p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {TOGGLES.map(t => (
@@ -461,14 +461,14 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
                 disabled={busy}
                 onClick={() => setConfirmOverwrite(false)}
               >
-                Annulla
+                Cancel
               </Button>
               <Button
                 variant="destructive"
                 disabled={busy}
                 onClick={doSave}
               >
-                Sovrascrivi
+                Overwrite
               </Button>
             </>
           ) : (
@@ -476,7 +476,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
               disabled={busy || modalityMissing}
               onClick={onSaveClick}
             >
-              {existsForScope ? 'Sovrascrivi configurazione' : 'Salva configurazione'}
+              {existsForScope ? 'Overwrite the configuration' : 'Save the configuration'}
             </Button>
           )}
         </div>
@@ -501,8 +501,8 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
               onClick={() => setShowOthers(s => !s)}
             >
               {showOthers
-                ? '▾ Nascondi altre configurazioni'
-                : `▸ Altre configurazioni salvate (${otherList.length}) — gestione`}
+                ? '▾ Hide the other configurations'
+                : `▸ Other saved configurations (${otherList.length})`}
             </button>
             {showOthers && (
               <>
@@ -524,7 +524,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
           variant="secondary"
           onClick={hide}
         >
-          Chiudi
+          Close
         </Button>
       </div>
     </div>

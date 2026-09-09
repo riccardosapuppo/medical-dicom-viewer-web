@@ -1,5 +1,5 @@
 /**
- * Tipi e helper per la "Sottogriglia (Montage)" interna a una singola viewport OHIF.
+ * Tipi e helper per la "Subgrid (Montage)" interna a una singola viewport OHIF.
  *
  * La montage suddivide UNA viewport OHIF in righe×colonne celle, ognuna delle quali
  * mostra una diversa immagine della STESSA serie. Non vengono create viewport OHIF
@@ -17,7 +17,7 @@ export interface MontageState {
   firstImageIndex: number;
 }
 
-/** Modello di una singola cella della sottogriglia. */
+/** Modello di una singola cella della subgrid. */
 export interface MontageCellModel {
   /** id interno cella, NON registrato in ViewportGridService */
   cellId: string;

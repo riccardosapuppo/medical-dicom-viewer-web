@@ -58,7 +58,7 @@ const storicoLabelItem = {
   id: 'StoricoLabel',
   customizationType: 'ohif.overlayItem',
   label: '',
-  title: 'Storico Label',
+  title: 'Priors label',
   color: '#81d4fa',
   condition: ({ referenceInstance }) =>
     ((referenceInstance?.StudyInstanceUID &&
@@ -832,7 +832,7 @@ function LinkedSeriesBadgeOverlayItem(props: OverlayItemProps) {
     if (!ds) return vpId;
     return (
       ds.SeriesDescription ||
-      (ds.SeriesNumber != null ? `Serie ${ds.SeriesNumber}` : null) ||
+      (ds.SeriesNumber != null ? `Series ${ds.SeriesNumber}` : null) ||
       ds.Modality ||
       vpId
     );
@@ -853,7 +853,7 @@ function LinkedSeriesBadgeOverlayItem(props: OverlayItemProps) {
             <span
               className="linked-series-badge"
               style={{ backgroundColor: group.color, boxShadow: `0 0 4px ${group.color}` }}
-              aria-label="Serie collegata"
+              aria-label="Linked series"
               tabIndex={0}
             />
           </TooltipTrigger>

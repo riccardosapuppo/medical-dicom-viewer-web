@@ -30,11 +30,11 @@ const contestoGrafico = (() => {
 
 if (!contestoGrafico) {
   console.warn(
-    'Nessun contesto WebGL: le immagini vengono disegnate dal processore. ' +
-      'Gli studi si aprono e gli strumenti funzionano; lo scorrimento di una serie ' +
-      'lunga e piu lento e la ricostruzione su tre piani non e disponibile. ' +
-      'Attiva l accelerazione grafica nelle impostazioni del browser e chiudi le ' +
-      'altre schede che la usano.'
+    'No WebGL context: the images are drawn by the processor. ' +
+      'Studies open and the tools work; scrolling a long series ' +
+      'is slower, and reconstruction on three planes is unavailable. ' +
+      'Turn hardware acceleration on in the browser settings and close the ' +
+      'other tabs that are using it.'
   );
 }
 
@@ -159,7 +159,7 @@ window.config = {
   activateViewportBeforeInteraction: false,
   // Mostra i cursori SVG specifici dello strumento attivo (es. il mirino verde
   // del Window Level, la manina del Pan) su TUTTE le viewport, per coerenza con
-  // le celle della Sottogriglia. Default OHIF: false (cursore di sistema).
+  // le celle della Subgrid. Default OHIF: false (cursore di sistema).
   useCursors: true,
   // Scale web workers to CPU cores (capped at 7 to leave 1 core for UI thread).
   // More workers = faster DICOM decode throughput when scrolling large series.
@@ -635,8 +635,8 @@ window.config = {
         },
         {
           id: 'windowing',
-          title: 'Regolare il Livello della Finestra',
-          text: 'Puoi modificare il livello della finestra utilizzando il clic sinistro del mouse.',
+          title: 'Adjusting the window level',
+          text: 'Change the window level by dragging with the left mouse button.',
           attachTo: {
             element: '.viewport-element',
             on: 'left',
@@ -649,8 +649,8 @@ window.config = {
         },
         {
           id: 'length',
-          title: 'Utilizzo degli Strumenti di Misurazione',
-          text: 'Puoi misurare la lunghezza di una regione utilizzando lo strumento Lunghezza.',
+          title: 'Using the measurement tools',
+          text: 'Measure a region with the Length tool.',
           attachTo: {
             element: '[data-cy="MeasurementTools-split-button-primary"]',
             on: 'bottom',
@@ -664,8 +664,8 @@ window.config = {
         },
         {
           id: 'drawAnnotation',
-          title: 'Disegnare Annotazioni di Lunghezza',
-          text: 'Usa lo strumento lunghezza sul viewport per misurare la lunghezza di una regione.',
+          title: 'Drawing length annotations',
+          text: 'Use the Length tool on the viewport to measure a region.',
           attachTo: {
             element: '.viewport-element',
             on: 'right',
@@ -678,8 +678,8 @@ window.config = {
         },
         {
           id: 'openMeasurementPanel',
-          title: 'Aprire il Pannello delle Misurazioni',
-          text: 'Clicca sul pulsante delle misurazioni per aprire il pannello delle misurazioni.',
+          title: 'Opening the measurements panel',
+          text: 'Click the measurements button to open the measurements panel.',
           attachTo: {
             element: '#trackedMeasurements-btn',
             on: 'left-start',
@@ -692,8 +692,8 @@ window.config = {
         },
         {
           id: 'scrollAwayFromMeasurement',
-          title: 'Scorrere Lontano da una Misurazione',
-          text: 'Scorri le immagini usando la rotellina del mouse lontano dalla misurazione.',
+          title: 'Scrolling away from a measurement',
+          text: 'Scroll the images with the mouse wheel, away from the measurement.',
           attachTo: {
             element: '.viewport-element',
             on: 'left',
@@ -706,8 +706,8 @@ window.config = {
         },
         // {
         //   id: 'jumpToMeasurement',
-        //   title: 'Saltare alle Misurazioni nel Pannello',
-        //   text: 'Clicca sulla misurazione nel pannello delle misurazioni per saltare ad essa.',
+        //   title: 'Jumping to a measurement from the panel',
+        //   text: 'Click a measurement in the panel to jump to it.',
         //   attachTo: {
         //     element: '[data-cy="measurement-item"]',
         //     on: 'left-start',
@@ -749,7 +749,7 @@ window.config = {
         {
           id: 'selectLayout',
           title: 'Selezionare il Layout MPR',
-          text: 'Seleziona il layout MPR per visualizzare le immagini in modalità MPR.',
+          text: 'Choose the MPR layout to read the images on three planes.',
           attachTo: {
             element: '[data-cy="LayoutMPR"]',
             on: 'left-start',

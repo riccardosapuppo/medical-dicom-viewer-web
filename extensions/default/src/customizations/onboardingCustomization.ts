@@ -17,14 +17,14 @@
 /** I due pulsanti di un passo, nuovi per ogni passo. */
 const prosegui = () => [
   {
-    text: 'Chiudi',
+    text: 'Close',
     action() {
       this.complete();
     },
     secondary: true,
   },
   {
-    text: 'Avanti',
+    text: 'Next',
     action() {
       this.next();
     },
@@ -43,35 +43,35 @@ export default {
       steps: [
         {
           id: 'scorrimento',
-          title: 'Scorrere la serie',
-          text: 'La rotellina del mouse passa da un immagine all altra. Sul bordo destro della viewport la barra dice a che punto sei.',
+          title: 'Scrolling a series',
+          text: 'The mouse wheel moves from one image to the next. The bar down the right edge of the viewport says where you are.',
           buttons: prosegui(),
         },
         {
-          id: 'sottogriglia',
-          title: 'La sottogriglia',
-          text: 'Divide una viewport in righe e colonne, ognuna su un immagine diversa della stessa serie: serve a leggere una serie lunga senza scorrerla una fetta per volta. Le celle condividono la cache e gli strumenti, quindi luminosita, zoom e spostamento restano in passo fra loro.',
+          id: 'subgrid',
+          title: 'The subgrid',
+          text: 'It splits one viewport into rows and columns, each on a different image of the same series, so a long series can be read without scrolling it a slice at a time. The cells share the cache and the tools, so brightness, zoom and panning stay in step.',
           buttons: prosegui(),
         },
         {
           id: 'mpr',
-          title: 'Ricostruzione su tre piani',
-          text: 'Apre assiale, sagittale e coronale della stessa serie, con i mirini agganciati fra loro. E una modalita a se: mentre e accesa il selettore dei layout cambia voci, e si esce dal pulsante Chiudi in alto a sinistra. Ha bisogno di una scheda grafica: senza, il pulsante resta spento e dice perche.',
+          title: 'Reconstruction on three planes',
+          text: 'It opens the axial, sagittal and coronal planes of one series with the crosshairs locked together. It is a mode of its own: while it is on, the layout selector shows different entries, and you leave it from the Close button at the top left. It needs a graphics card; without one the button stays off and says why.',
           buttons: prosegui(),
         },
         {
           id: 'hanging',
-          title: 'Salvare la disposizione',
-          text: 'Cattura come stai guardando lo studio - la griglia, quale serie sta dove, la finestra di ogni viewport - e la ripropone al prossimo studio dello stesso tipo. La puoi legare a questo studio, a questo tipo di esame o a tutta la modality.',
+          title: 'Saving the arrangement',
+          text: 'It captures how you are reading the study, the grid, which series sits where, the window of each viewport, and puts it back on the next study of the same kind. You can tie it to this study, to this kind of exam, or to the whole modality.',
           buttons: prosegui(),
         },
         {
           id: 'preferiti',
-          title: 'I preferiti',
-          text: 'La stella in alto a destra di ogni viewport segna l immagine. Quelle segnate finiscono nel pannello di destra, da riprendere quando si scrive il referto.',
+          title: 'Favourites',
+          text: 'The star at the top right of each viewport marks the image. Marked images land in the right-hand panel, ready to pick up when the report is written.',
           buttons: [
             {
-              text: 'Ho capito',
+              text: 'Got it',
               action() {
                 this.complete();
               },

@@ -8,11 +8,11 @@ export default {
         selector: ({ nearbyToolData }) => !!nearbyToolData,
         items: [
           {
-            label: 'Elimina misurazione',
+            label: 'Delete the measurement',
             commands: 'deleteMeasurement',
           },
           {
-            label: 'Aggiungi etichetta',
+            label: 'Add a label',
             commands: 'setMeasurementLabel',
           },
         ],

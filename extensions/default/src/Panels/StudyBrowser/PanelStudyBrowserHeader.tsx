@@ -108,8 +108,8 @@ function PanelStudyBrowserHeader({
   }, [isPanelPositionModalOpen]);
 
   const panelPositionOptions = [
-    { value: 'left' as const, label: 'Sinistra' },
-    { value: 'bottom' as const, label: 'Basso' },
+    { value: 'left' as const, label: 'Left' },
+    { value: 'bottom' as const, label: 'Bottom' },
   ];
 
   const persistAndBroadcastPanelPosition = (position: 'left' | 'right' | 'top' | 'bottom') => {

@@ -97,7 +97,7 @@ function initDoubleClick({ customizationService, commandsManager }: initDoubleCl
     // I due click del doppio-click possono aver AVVIATO una misura con uno
     // strumento non-contour attivo (Length/Angle/ROI…). L'azione di viewport che
     // sta per partire (es. toggleOneUp) cambia layout e DISTRUGGE l'enabled-
-    // element (es. una cella della Sottogriglia) lasciando lo strumento in stato
+    // element (es. una cella della Subgrid) lasciando lo strumento in stato
     // "in disegno" → dopo non si potrebbero più tracciare misure. Annulliamo
     // l'eventuale manipolazione in corso prima di eseguire l'azione.
     try {

@@ -219,7 +219,7 @@ function modeFactory({ modeConfiguration }) {
         'flipVertical',
       ]);
 
-      // Sottogriglia (Montage): voci del menu del bottone "Montage".
+      // Subgrid (Montage): voci del menu del bottone "Montage".
       toolbarService.createButtonSection('montageSection', [
         'MontageAuto',
         'Montage1x1',

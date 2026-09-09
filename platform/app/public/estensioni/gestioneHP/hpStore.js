@@ -132,7 +132,7 @@ export const ensureStudyInfoFromMetadata = async () => {
       return;
     }
     // Metadati già caricati → abbiamo risolto tutto il possibile. Evita l'attesa piena
-    // (che bloccava la modale "in caricamento" su postazioni il cui URL di lancio non
+    // (che bloccava la modale "loading" su postazioni il cui URL di lancio non
     // contiene i parametri StudyDescription/Modality, o sugli studi senza nome).
     if (studyMetadataAvailable()) {
       return;
@@ -153,7 +153,7 @@ export const normalizzaModality = value =>
     .map(item => normalizza(item))
     .filter(Boolean);
 
-// Chiave d'IDENTITÀ di una config "descrizione esame": la descrizione normalizzata.
+// Chiave d'IDENTITÀ di una config "exam description": la descrizione normalizzata.
 // (vuoto/assente/spazi/maiuscole diverse → stessa chiave). Usata identica da
 // salvataggio, eliminazione, de-duplica e dalla modale, così si sovrascrive/elimina
 // sempre la stessa entry (nessun duplicato "fantasma" per gli studi senza nome).
@@ -265,7 +265,7 @@ export const getCaptured = entry => {
 
 /**
  * Determina la configurazione effettivamente applicabile allo studio corrente,
- * con priorità studio specifico > descrizione esame > modality.
+ * con priorità studio specifico > exam description > modality.
  * (match normalizzato / parziale per modality).
  */
 export const getAppliedHpConfig = (preferenzeJson, ctx = getContext()) => {
@@ -308,7 +308,7 @@ const resolveSeriesLabelFromEntry = (entry, index) => {
   const displaySetId = viewport?.displaySets?.[0]?.id || `DisplaySet${index}`;
   const rule = performanceHP?.displaySetSelectors?.[displaySetId]?.seriesMatchingRules?.[0];
   if (!rule || !rule.attribute) {
-    return 'Serie';
+    return 'Series';
   }
   const constraint = rule.constraint || {};
   let value = constraint.contains ?? constraint.equals ?? constraint.startsWith ?? '';
@@ -316,12 +316,12 @@ const resolveSeriesLabelFromEntry = (entry, index) => {
     value = value[0];
   }
   if (rule.attribute === 'SeriesDescription' && value) {
-    return `Serie ${value}`;
+    return `Series ${value}`;
   }
   if (rule.attribute === 'SeriesNumber' && value !== '') {
-    return `Serie ${value}`;
+    return `Series ${value}`;
   }
-  return 'Serie';
+  return 'Series';
 };
 
 /* ------------------------------------------------------------------ *
@@ -350,7 +350,7 @@ export const readPreferenze = async () => {
   try {
     cachedJson = JSON.parse(localStorage.getItem(localStorageKey()) || '{}');
   } catch (err) {
-    console.warn('[HP] Preferenze utente in cache locale non valide', err);
+    console.warn('[HP] The cached user preferences are not valid', err);
   }
   return ensurePreferenzePayload({ json: cachedJson });
 };
@@ -371,7 +371,7 @@ const scritturaPreferenzeAPI = async (aetitle, username, body) => {
       body: JSON.stringify({ username, json: body }),
     });
     if (!apiResponse.ok) {
-      console.error('[HP] Errore durante la scrittura delle preferenze utente');
+      console.error('[HP] Writing the user preferences failed');
       return null;
     }
     // Un indirizzo che il server non conosce risponde con la pagina
@@ -379,18 +379,18 @@ const scritturaPreferenzeAPI = async (aetitle, username, body) => {
     // scrittura si dichiarerebbe riuscita, e il pannello direbbe salvato
     // sul server quando non e arrivato niente da nessuna parte.
     if ((apiResponse.headers.get('content-type') || '').includes('text/html')) {
-      console.warn('[HP] Nessun archivio remoto delle preferenze: resta la copia locale');
+      console.warn('[HP] No remote preference store: the local copy stands');
       return null;
     }
     return apiResponse.text();
   } catch (err) {
-    console.error('[HP] Errore durante la scrittura delle preferenze utente', err);
+    console.error('[HP] Writing the user preferences failed', err);
     return null;
   }
 };
 
 /**
- * Salva le preferenze.
+ * Save le preferenze.
  *
  * La cache locale viene scritta SEMPRE, anche quando il backend non risponde.
  * In lettura la cache era gia il ripiego (vedi readPreferenze), ma in scrittura
@@ -408,7 +408,7 @@ const writePreferenze = async payload => {
     localStorage.setItem(localStorageKey(), JSON.stringify(payload.json));
   } catch (err) {
     // Finestra privata, o spazio esaurito: resta il tentativo remoto.
-    console.warn('[HP] Impossibile scrivere la cache locale delle preferenze', err);
+    console.warn('[HP] The local preference cache could not be written', err);
   }
 
   const res = await scritturaPreferenzeAPI(ctx.aetitle, ctx.username, payload.json);
@@ -416,7 +416,7 @@ const writePreferenze = async payload => {
 };
 
 /* ------------------------------------------------------------------ *
- * Cattura dello stato corrente → Hanging Protocol                     *
+ * Capture dello stato corrente → Hanging Protocol                     *
  * ------------------------------------------------------------------ */
 
 const createBaseProtocol = ({ rows, columns }) => ({
@@ -518,7 +518,7 @@ export const captureCurrentState = (scope, captureOptions) => {
     const displaySetKey = `DisplaySet${i}`;
     const hpViewportId = `mdvhp-${i}`;
 
-    // Sottogriglia (Montage): le celle vivono nell'engine DEDICATO (non nel
+    // Subgrid (Montage): le celle vivono nell'engine DEDICATO (non nel
     // principale). Per leggere istanza/scroll, WL e zoom/pan LIVE uso la cella
     // primaria di quell'engine, non il viewport principale (che non esiste).
     const montageOpt = _viewport?.viewportOptions?.montage;
@@ -554,7 +554,7 @@ export const captureCurrentState = (scope, captureOptions) => {
       istanzeSpecifiche.push(null);
       voiByIndex.push(null);
       colorByIndex.push(null);
-      serieLabels.push('Serie');
+      serieLabels.push('Series');
       i += 1;
       return;
     }
@@ -611,7 +611,7 @@ export const captureCurrentState = (scope, captureOptions) => {
     }
     colorByIndex.push(isMontage ? null : colormap);
 
-    // --- Serie ---
+    // --- Series ---
     const descrizioneSerieFromUi =
       element.parentElement?.querySelector('[title="Series description"]')?.textContent?.trim() ||
       '';
@@ -665,12 +665,12 @@ export const captureCurrentState = (scope, captureOptions) => {
 
     serieLabels.push(
       descrizioneSerie && seriesNumber != null
-        ? `Serie ${seriesNumber} ${descrizioneSerie}`
+        ? `Series ${seriesNumber} ${descrizioneSerie}`
         : descrizioneSerie
-          ? `Serie ${descrizioneSerie}`
+          ? `Series ${descrizioneSerie}`
           : seriesNumber != null
-            ? `Serie ${seriesNumber}`
-            : 'Serie'
+            ? `Series ${seriesNumber}`
+            : 'Series'
     );
 
     // --- Regola di matching serie (rispetta il flag "series") ---
@@ -683,7 +683,7 @@ export const captureCurrentState = (scope, captureOptions) => {
         { attribute: 'SeriesInstanceUID', constraint: { contains: seriesInstanceUID } },
       ];
     } else {
-      // Cross-studio (descrizione esame / modality). La regola LEGACY su nome/numero
+      // Cross-studio (exam description / modality). La regola LEGACY su nome/numero
       // serie resta come FALLBACK a peso basso (comportamento storico invariato)...
       const legacyRule =
         !descrizioneSerie && seriesNumber != null
@@ -720,7 +720,7 @@ export const captureCurrentState = (scope, captureOptions) => {
     }
     protocol.displaySetSelectors[displaySetKey] = { seriesMatchingRules };
 
-    // Sottogriglia: salva scroll/istanza (firstImageIndex LIVE dalla cella primaria),
+    // Subgrid: salva scroll/istanza (firstImageIndex LIVE dalla cella primaria),
     // window level e zoom/pan dentro l'oggetto montage (riapplicati alle celle in riapertura).
     const montage = buildMontage(
       isMontage
@@ -828,7 +828,7 @@ export const saveConfig = async (scope, captureOptions) => {
     // consentito ma documentato: la config varrà per gli esami senza nome
   }
   if (scope === 'modality' && ctx.modality === '') {
-    return { ok: false, reason: 'Modality non disponibile per questo studio' };
+    return { ok: false, reason: 'This study has no such modality' };
   }
 
   const captureState = captureCurrentState(SCOPE_TO_CAPTURE[scope], captureOptions);
@@ -853,7 +853,7 @@ export const saveConfig = async (scope, captureOptions) => {
     hp.modality = hp.modality.filter(item => canonModalityKey(item?.nomeModality) !== target);
     hp.modality.push(entry);
   } else {
-    return { ok: false, reason: 'Ambito non valido' };
+    return { ok: false, reason: 'The scope is not valid' };
   }
 
   payload.json.hp = hp;
@@ -881,7 +881,7 @@ export const deleteConfig = async (scope, key) => {
     const target = canonModalityKey(key);
     hp.modality = hp.modality.filter(item => canonModalityKey(item?.nomeModality) !== target);
   } else {
-    return { ok: false, reason: 'Ambito non valido' };
+    return { ok: false, reason: 'The scope is not valid' };
   }
 
   payload.json.hp = hp;
@@ -890,12 +890,12 @@ export const deleteConfig = async (scope, key) => {
 };
 
 /* ------------------------------------------------------------------ *
- * Elenco di TUTTE le config salvate (risolve il bug "non eliminabile")*
+ * Elenco di TUTTE le config salvate (risolve il bug "cannot be deleted")*
  * ------------------------------------------------------------------ */
 
 const SCOPE_LABEL = {
   studioSpecifico: 'Studio specifico',
-  descrizioneEsame: 'Descrizione esame',
+  descrizioneEsame: 'Exam description',
   modality: 'Modality',
 };
 
@@ -943,7 +943,7 @@ const seriesRuleMatches = (rule, displaySets) => {
     // Regole basate sulla VISTA (mammografia): l'applicabilità va verificata
     // ricalcolando l'identità di vista sui displaySet dello studio corrente, non con
     // il ramo generico `return true` (che darebbe sempre applicabile → niente avviso
-    // "serie non disponibili" né "Carica solo griglia").
+    // "no series available" né "Carica solo griglia").
     if (attr === MDV_VIEW_KEY_ATTR) {
       return deriveViewKey(ds) === value;
     }
@@ -1016,7 +1016,7 @@ const describeEntry = (scope, key, entry, ctx, applied, displaySets) => {
       scope === 'studioSpecifico'
         ? 'Questo studio'
         : scope === 'descrizioneEsame'
-          ? key || '(esame senza nome)'
+          ? key || '(unnamed exam)'
           : key,
     layout: { rows, columns },
     captured: getCaptured(entry),
@@ -1100,7 +1100,7 @@ let _hpRuntimeCounter = 0;
 
 const cloneProtocol = protocol => JSON.parse(JSON.stringify(protocol));
 
-// "Solo griglia": stesse celle/layout (+ eventuale sottogriglia) ma senza vincolare
+// "Solo griglia": stesse celle/layout (+ eventuale subgrid) ma senza vincolare
 // le serie specifiche né l'istanza → riproduce lo schema anche se le serie differiscono.
 const toGridOnlyProtocol = protocol => {
   const clone = cloneProtocol(protocol);
@@ -1156,7 +1156,7 @@ const reapplyMontageAfterProtocol = montageByIndex => {
     try {
       apply();
     } catch (err) {
-      console.warn('[HP] Riapplicazione sottogriglia fallita', err);
+      console.warn('[HP] Putting the subgrid back failed', err);
     }
     sub?.unsubscribe?.();
   };
@@ -1170,13 +1170,13 @@ const reapplyMontageAfterProtocol = montageByIndex => {
 
 /**
  * Applica SUBITO una config salvata. Riceve direttamente l'entry (niente re-match
- * fragile per chiave → niente più "Configurazione non trovata").
- * options.gridOnly = applica solo griglia/sottogriglia (serie libere, no istanza/WL/zoom),
+ * fragile per chiave → niente più "Configuration not found").
+ * options.gridOnly = applica solo griglia/subgrid (serie libere, no istanza/WL/zoom),
  * usato quando alcune serie non esistono nello studio corrente.
  */
 export const applyConfigNow = (entry, options = {}) => {
   if (!entry?.performanceHP) {
-    return { ok: false, reason: 'Configurazione non valida' };
+    return { ok: false, reason: 'The configuration is not valid' };
   }
   // Rete di sicurezza idempotente: gli attributi custom di vista devono essere
   // registrati prima che il matcher valuti le regole salvate (il caricamento

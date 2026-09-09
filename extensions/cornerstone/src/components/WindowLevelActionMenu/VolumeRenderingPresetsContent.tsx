@@ -44,7 +44,7 @@ export function VolumeRenderingPresetsContent({
           <PresetDialog.PresetSearch
             value={searchValue}
             onChange={handleSearchChange}
-            placeholder="Cerca un preset"
+            placeholder="Search the presets"
           />
         </PresetDialog.PresetFilter>
         <PresetDialog.PresetGrid>

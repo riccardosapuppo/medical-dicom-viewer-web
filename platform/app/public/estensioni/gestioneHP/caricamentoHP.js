@@ -140,7 +140,7 @@ const tryStartCaricamentoHP = () => {
   }
   if (canStartCaricamentoHP()) {
     window.caricamentoHP = true;
-    console.log('[HP] Avvio caricamento');
+    console.log('[HP] Loading started');
     caricamentoHP();
     return true;
   }
@@ -189,7 +189,7 @@ const applyViewportOverlayFromPreferences = preferenze => {
       window.mdvViewportOverlayPending = null;
       return true;
     } catch (err) {
-      console.warn('Overlay viewport: impossibile applicare le preferenze', err);
+      console.warn('Viewport overlay: the preferences could not be applied', err);
       return false;
     }
   };
@@ -281,7 +281,7 @@ const reapplyMontageLoaded = (viewportGridService, montageByIndex) => {
         ]);
       });
     } catch (err) {
-      console.warn('[HP] Riapplicazione sottogriglia fallita', err);
+      console.warn('[HP] Putting the subgrid back failed', err);
     }
     sub?.unsubscribe?.();
   };
@@ -406,7 +406,7 @@ const caricamentoHP = async () => {
   };
 
   if (!studyInstanceUID || !aetitle) {
-    console.warn("Impossibile leggere eventuali HP custom, mancano StudyInstanceUIDs o aetitle");
+    console.warn("Custom hanging protocols cannot be read: StudyInstanceUIDs or the AE title are missing");
     return;
   }
 
@@ -420,18 +420,18 @@ const caricamentoHP = async () => {
 
   if (!nomeEsameStudioHP && !modalityStudioHP) {
     console.warn(
-      "Impossibile determinare StudyDescription/Modality (url+metadata). Verranno applicati solo HP studio-specifici."
+      "StudyDescription and Modality could not be determined from the URL or the metadata. Only study-specific hanging protocols will be applied."
     );
   }
   //Verifico che ci siano già delle preferenze nella localStorage. Se non fosse così è la prima volta che richiedo le preferenze quindi le chiedo al server
   if (!localStorage.getItem(preferenzeKey)) {
     if (!username) {
-      console.warn('Username mancante: impossibile recuperare preferenze HP da remoto');
+      console.warn('No username: the remote hanging protocol preferences cannot be fetched');
       return;
     }
     preferenzeRemote = await letturaPreferenzeAPI(aetitle, username, studyInstanceUID);
     if (!preferenzeRemote || !preferenzeRemote.json) {
-      return console.warn('Preferenze utente per gli hanging protocol non recuperate da remoto');
+      return console.warn('The remote hanging protocol preferences were not fetched');
     }
     //A questo punto li setto in localStorage
     localStorage.setItem(preferenzeKey, JSON.stringify(preferenzeRemote.json));
@@ -443,7 +443,7 @@ const caricamentoHP = async () => {
   let preferenzeUtenteStudioSpecifico = preferenzeUtenteCache?.hp.studioSpecifico;
   let preferenzeUtenteDescrizioneEsame = preferenzeUtenteCache?.hp.nomeEsame;
   if (!preferenzeUtenteDescrizioneEsame) {
-    console.warn('HP - Nessuna preferenza utente per descrizione esame trovata');
+    console.warn('No user preference found for this exam description');
   }
   let preferenzeUtenteModality = preferenzeUtenteCache?.hp.modality;
   //Prima do priorità allo studio specifico ovvero se gli hanging protocol hanno quello studyInstanceUID
@@ -462,7 +462,7 @@ const caricamentoHP = async () => {
     hpTrovati = true;
     tipoMatch = 'studioSpecifico';
   }
-  //Se non c'è lo studio specifico itero per controllare se presente descrizione esame o modality salvata negli HP
+  //Se non c'è lo studio specifico itero per controllare se presente exam description o modality salvata negli HP
   else {
     // NB: nessun `break` → in caso di duplicati "fantasma" (entry legacy con nomeEsame
     // assente/undefined + entry nuove con ''), vince l'ULTIMA occorrenza = la più
@@ -521,7 +521,7 @@ const caricamentoHP = async () => {
       modalityStudioHP,
     });
   } else {
-    console.warn('[HP] Nessun HP trovato per lo studio', {
+    console.warn('[HP] No hanging protocol found for this study', {
       studyInstanceUID,
       nomeEsameStudioHP,
       modalityStudioHP,
@@ -700,7 +700,7 @@ const caricamentoHP = async () => {
   if (username) {
     preferenzeRemote = await letturaPreferenzeAPI(aetitle, username, studyInstanceUID);
     if (!preferenzeRemote || !preferenzeRemote.json) {
-      return console.warn('Preferenze utente per gli hanging protocol non recuperate da remoto');
+      return console.warn('The remote hanging protocol preferences were not fetched');
     }
     //A questo punto li setto in localStorage
     localStorage.setItem(preferenzeKey, JSON.stringify(preferenzeRemote.json));
@@ -724,7 +724,7 @@ async function letturaPreferenzeAPI(aetitle, username, studyInstanceUID) {
     });
 
     if (!apiResponse.ok) {
-      console.warn('[HP] Le preferenze utente remote non sono raggiungibili');
+      console.warn('[HP] The remote user preferences are out of reach');
       return;
     }
 
@@ -734,11 +734,11 @@ async function letturaPreferenzeAPI(aetitle, username, studyInstanceUID) {
     // dell'applicazione e stato 200: ok è vero, il corpo è HTML, e json()
     // fallisce. Restituendo la promessa il rifiuto usciva dalla funzione senza
     // passare di qui, arrivava alla console come eccezione non gestita e il
-    // pannello restava fermo su "Caricamento..." invece di ripiegare sulla
+    // pannello restava fermo su "Loading..." invece di ripiegare sulla
     // cache locale, come chi lo ha chiamato si aspetta.
     return await apiResponse.json();
   } catch (err) {
-    console.warn('[HP] Preferenze utente remote non disponibili, si usa la cache locale', err);
+    console.warn('[HP] The remote user preferences are unavailable, falling back to the local cache', err);
     return;
   }
 }

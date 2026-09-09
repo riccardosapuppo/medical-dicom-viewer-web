@@ -17,7 +17,7 @@ export interface GridViewportOptions {
   //
   displayArea?: unknown;
   viewReference?: unknown;
-  // Sottogriglia (Montage) interna alla viewport: quando enabled, la viewport
+  // Subgrid (Montage) interna alla viewport: quando enabled, la viewport
   // viene suddivisa in rows×cols celle della stessa serie. Vedi
   // extensions/cornerstone/src/types/Montage.ts
   montage?: {

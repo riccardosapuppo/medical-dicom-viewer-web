@@ -84,7 +84,7 @@ const OHIFMontageViewport = props => {
   );
 };
 
-/** True quando la viewport è in modalità sottogriglia (Montage). */
+/** True quando la viewport è in modalità subgrid (Montage). */
 const isMontageEnabled = props => props?.viewportOptions?.montage?.enabled === true;
 
 const stackRetrieveOptions = {
@@ -214,7 +214,7 @@ const cornerstoneExtension: Types.Extensions.Extension = {
       // };
       const { toolbarService } = servicesManager.services;
 
-      // Modalità sottogriglia (Montage): suddivide internamente questa singola
+      // Modalità subgrid (Montage): suddivide internamente questa singola
       // viewport OHIF senza creare viewport aggiuntive nella griglia principale.
       if (isMontageEnabled(props)) {
         return <ExtendedOHIFMontageViewport {...props} />;

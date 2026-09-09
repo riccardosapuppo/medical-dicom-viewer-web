@@ -15,7 +15,7 @@ import {
 } from '../../../../../platform/app/public/estensioni/gestioneHP/framing';
 
 /**
- * Viewport "Montage": suddivide UNA viewport OHIF in una sottogriglia interna di
+ * Viewport "Montage": suddivide UNA viewport OHIF in una subgrid interna di
  * righe×colonne celle, tutte sulla stessa serie, condividendo cache pixel,
  * strumenti e sincronizzazione (WL/VOI/zoom/pan/invert/LUT). Non crea viewport
  * OHIF aggiuntive nella griglia principale. Vedi docs/montage-viewport-design.md.
@@ -80,11 +80,11 @@ function OHIFMontageViewport(props: withAppTypes) {
   }, [rows, cols, total]);
 
   // Cambio serie (drag&drop di un'altra serie sulla viewport, o click su una
-  // miniatura mentre la sottogriglia è attiva): riparti dalla prima immagine
+  // miniatura mentre la subgrid è attiva): riparti dalla prima immagine
   // della nuova serie. Le celle vengono rimontate (vedi `key` sotto) così
   // ricaricano lo stack corretto invece di mostrare un "mix" vecchia/nuova.
   // NB: salto il PRIMO run (mount), altrimenti azzererei il `firstImageIndex`
-  // fornito da un Hanging Protocol (scroll/istanza salvata della sottogriglia).
+  // fornito da un Hanging Protocol (scroll/istanza salvata della subgrid).
   const firstDisplaySetRunRef = useRef(true);
   useEffect(() => {
     if (firstDisplaySetRunRef.current) {
@@ -125,9 +125,9 @@ function OHIFMontageViewport(props: withAppTypes) {
     return () => ro.disconnect();
   }, [seriesBadgeText, cols, rows]);
 
-  // RenderingEngine DEDICATO alla sottogriglia: le celle vivono qui, NON
+  // RenderingEngine DEDICATO alla subgrid: le celle vivono qui, NON
   // nell'engine principale. Così enable/disable/resize delle celle (attivazione,
-  // cambio layout, refit) riconfigurano SOLO l'offscreen della sottogriglia e
+  // cambio layout, refit) riconfigurano SOLO l'offscreen della subgrid e
   // NON causano il ri-render/lampeggio di tutte le altre viewport della griglia.
   const renderingEngineId = `ohif-montage-${viewportId}`;
   const renderingEngine = useMemo(
@@ -145,7 +145,7 @@ function OHIFMontageViewport(props: withAppTypes) {
   const voiSyncId = `montage-voi-${viewportId}`;
   const zoomPanSyncId = `montage-zoompan-${viewportId}`;
 
-  // Teardown dell'engine dedicato all'unmount (uscita dalla sottogriglia/cambio
+  // Teardown dell'engine dedicato all'unmount (uscita dalla subgrid/cambio
   // serie). Inoltre registriamo un riferimento "phantom" della viewport OHIF nel
   // toolGroup 'montage' SOTTO l'engine principale: serve solo a far risolvere
   // toolGroupService.getToolGroupForViewport(viewportId) (che interroga l'engine
@@ -241,7 +241,7 @@ function OHIFMontageViewport(props: withAppTypes) {
   }, [rows, cols, total, refitCells]);
 
   // Ripristino dello stato salvato delle celle (window level + zoom/pan) quando
-  // la sottogriglia è (ri)creata da un Hanging Protocol: i valori arrivano in
+  // la subgrid è (ri)creata da un Hanging Protocol: i valori arrivano in
   // viewportOptions.montage.{voiRange,viewPresentation}. Le celle si creano in
   // modo asincrono e fanno auto-fit (resetCamera), quindi applichiamo UNA volta
   // sola dopo che si sono stabilizzate (best-effort). Lo scroll/istanza è invece
@@ -426,7 +426,7 @@ function OHIFMontageViewport(props: withAppTypes) {
     };
   }, [toolGroupId]);
 
-  // Scala di riferimento (ScaleOverlay): all'apertura della sottogriglia
+  // Scale di riferimento (ScaleOverlay): all'apertura della subgrid
   // rispecchia lo stato dal toolGroup 'default' (se era attiva sulle viewport
   // normali la attiviamo anche qui, altrimenti la spegniamo). Il toggle dalla
   // toolbar mantiene poi i due toolGroup sincronizzati. NB: niente refit/resize
@@ -599,7 +599,7 @@ function OHIFMontageViewport(props: withAppTypes) {
           )}
         </>
       )}
-      <div className="montage-layout-badge">{`Sottogriglia ${rows}×${cols}`}</div>
+      <div className="montage-layout-badge">{`Subgrid ${rows}×${cols}`}</div>
       {/* Scrollbar sottile (stesso stile delle viewport, più sottile): solo se
           c'è da scorrere (total > celle visibili nel layout corrente). Muove il
           blocco visibile (`base`). `.scroll` è position:absolute → non occupa una

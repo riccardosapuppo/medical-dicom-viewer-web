@@ -275,7 +275,7 @@ const StudyItem = ({
             </Tooltip>
             <Tooltip
               position="bottom"
-              content="Apri qui come studio separato"
+              content="Open here as a separate study"
             >
               <button
                 id="storico-same-window"
@@ -287,7 +287,7 @@ const StudyItem = ({
             </Tooltip>
             <Tooltip
               position="bottom"
-              content="Apri in una nuova scheda"
+              content="Open in a new tab"
             >
               <button
                 id="storico-new-window"
@@ -302,7 +302,7 @@ const StudyItem = ({
         {/* {isStorico && isStudyUIDDefined && (
           <div className="open-study-new-tab">
 
-            <button onClick={e => espandi(e)}>{isExpanded ? 'Riduci' : 'Espandi'}</button>
+            <button onClick={e => espandi(e)}>{isExpanded ? 'Collapse' : 'Espandi'}</button>
             <button
               style={{
                 opacity: 0.2,
@@ -313,7 +313,7 @@ const StudyItem = ({
               Apri in questa scheda
             </button>
             <button onClick={() => openStorico('nuovaScheda', studyInstanceUID)}>
-              Apri in una nuova scheda
+              Open in a new tab
             </button>
           </div>
         )} */}

@@ -37,7 +37,7 @@ const createEditorFunc = () => {
     <div id="editor-tools">
         <div id="intestazione">
         <img id="chiudi-editor-button" style="width:22px" src="./assets/right-arrow.png" />
-        <p>${window.sonoUnoStorico ? 'Note storico' : 'Note'}</p>
+        <p>${window.sonoUnoStorico ? 'Notes on priors' : 'Note'}</p>
         </div>
          <div id="main-area-editor">
             <div id="area-note-salvate">
@@ -46,7 +46,7 @@ const createEditorFunc = () => {
             <div id="area-editor">
 
              </div>
-      <button id="salva-testo">Salva note per questo studio</button>
+      <button id="salva-testo">Save note per questo studio</button>
       </div>
     </div>
   `;
@@ -104,10 +104,10 @@ const createEditorFunc = () => {
         </div>`
         );
       } else {
-        console.log('Nessuna nota trovata.');
+        console.log('No note found.');
       }
     } else {
-      console.log('Nessuna nota trovata.');
+      console.log('No note found.');
     }
   };
 
@@ -145,7 +145,7 @@ const createEditorFunc = () => {
         if (noteAttuali[i].studyInstanceUID === studyInstanceUID) {
           // Se lo trovi, sostituisci l'elemento con il nuovo delta
           found = true;
-          if (confirm('Hai già una nota salvata per questo studio, vuoi sovrasciverla?') == true) {
+          if (confirm('This study already has a saved note. Overwrite it?') == true) {
             noteAttuali[i] = delta;
           } else {
             return;
@@ -162,8 +162,8 @@ const createEditorFunc = () => {
     const noteAttualiString = JSON.stringify(noteAttuali);
     localStorage.setItem('quillContent', noteAttualiString);
 
-    console.log('Contenuto salvato correttamente.');
-    alert('Contenuto salvato correttamente');
+    console.log('Saved.');
+    alert('Saved');
 
     if (document.querySelector('.nota-salvata')) {
       document.querySelector('.nota-salvata').remove();

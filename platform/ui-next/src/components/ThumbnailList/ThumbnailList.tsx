@@ -168,7 +168,7 @@ const ThumbnailList = ({
                   // document.querySelector('[data-cy="side-panel-header-left"]').click()
                 } catch (err) {
                   console.error(
-                    'Impossibile chiudere in aumatico il pannello di selezione serie',
+                    'The series picker could not be closed on its own',
                     err
                   );
                 }

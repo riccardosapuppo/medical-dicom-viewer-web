@@ -1,9 +1,9 @@
 {
   "Active": "Attivo",
-  "Add new segmentation": "Aggiungi nuova segmentazione",
-  "Add segment": "Aggiungi segmento",
-  "Add segmentation": "Aggiungi segmentazione",
-  "Delete": "Elimina",
+  "Add new segmentation": "Add new segmentation",
+  "Add segment": "Add segment",
+  "Add segmentation": "Add segmentation",
+  "Delete": "Delete",
   "Display inactive segmentations": "Display inactive segmentations",
   "Export DICOM SEG": "Export DICOM SEG",
   "Download DICOM SEG": "Download DICOM SEG",

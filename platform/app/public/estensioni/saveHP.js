@@ -14,7 +14,7 @@ const saveHP = () => {
   //Parto da una configurazione di base
   let baseHP = {
     id: `@mdv/preferiti`,
-    description: 'Applica HP per i preferiti salvati',
+    description: 'Apply the hanging protocol for saved favourites',
     name: `customMdv`,
     createdDate: '2021-02-23T19:22:08.894Z',
     modifiedDate: '2022-10-04T19:22:08.894Z',
@@ -65,7 +65,7 @@ const saveHP = () => {
     const descrizioneSerie = window.preferiti[i].DescrizioneSerie;
     const numeroIstanza = window.preferiti[i].NumeroIstanza;
     const displaySetKey = `DisplaySet${i}`;
-    //Serie
+    //Series
     baseHP.displaySetSelectors[displaySetKey] = {};
     baseHP.displaySetSelectors[displaySetKey].seriesMatchingRules = [
       {

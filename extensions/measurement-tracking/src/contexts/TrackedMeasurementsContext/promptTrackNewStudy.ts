@@ -89,12 +89,12 @@ function _askSaveDiscardOrCancel(
   return;
   return new Promise(function (resolve, reject) {
     const message =
-      'Le misurazioni non possono estendersi su più studi. Vuoi salvare le misurazioni tracciate?';
+      'Measurements cannot span more than one study. Save the ones tracked so far?';
     const actions = [
-      { type: 'cancel', text: 'Annulla', value: RESPONSE.CANCEL },
+      { type: 'cancel', text: 'Cancel', value: RESPONSE.CANCEL },
       {
         type: 'secondary',
-        text: 'No, elimina le serie e le misurazioni precedentemente tracciate.',
+        text: 'No, discard the series and measurements tracked so far.',
         value: RESPONSE.SET_STUDY_AND_SERIES,
       },
       {

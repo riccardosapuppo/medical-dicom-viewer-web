@@ -312,7 +312,7 @@ const Thumbnail = ({
                   border: '1px solid var(--warning-border)',
                 }}
               >
-                Serie senza immagini
+                Series senza immagini
               </span>
             </div>
           )}
@@ -369,7 +369,7 @@ const Thumbnail = ({
                     border: '1px solid var(--warning-border)',
                   }}
                 >
-                  Serie senza immagini
+                  Series senza immagini
                 </span>
               </div>
             )}

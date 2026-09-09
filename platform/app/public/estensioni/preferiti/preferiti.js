@@ -41,7 +41,7 @@ window.rimuoviPreferito = sopUID => {
           <img src="${p.DataUrl}"
                 onclick="window.viewPreferitoPopup('${p.DataUrl}')"
                 style="width:100%;max-height:180px;object-fit:contain;cursor:pointer;">
-          <p>Serie ${p.NumeroSerie} - ${p.DescrizioneSerie}</p>
+          <p>Series ${p.NumeroSerie} - ${p.DescrizioneSerie}</p>
           <p>N° Istanza: ${p.NumeroIstanza}</p>
 
           <button onclick="window.rimuoviPreferito('${p.SOPInstanceUID}')"
@@ -114,7 +114,7 @@ const createPreferitiFunc = () => {
       <div style="display:flex;gap:10px;align-items:center;">
         <img id="chiudi-button" src="./assets/right-arrow.png"
              style="width:22px;cursor:pointer;">
-        <p>${window.sonoUnoStorico ? 'Preferiti storico' : 'Preferiti'}</p>
+        <p>${window.sonoUnoStorico ? 'Favourites on priors' : 'Preferiti'}</p>
       </div>
 
       <div id="area-lista-preferiti"></div>
@@ -135,7 +135,7 @@ const createPreferitiFunc = () => {
           <img src="${p.DataUrl}"
                onclick="window.viewPreferitoPopup('${p.DataUrl}')"
                style="width:100%;max-height:180px;object-fit:contain;cursor:pointer;">
-          <p>Serie ${p.NumeroSerie} - ${p.DescrizioneSerie}</p>
+          <p>Series ${p.NumeroSerie} - ${p.DescrizioneSerie}</p>
           <p>N° Istanza: ${p.NumeroIstanza}</p>
 
           <button onclick="window.rimuoviPreferito('${p.SOPInstanceUID}')"

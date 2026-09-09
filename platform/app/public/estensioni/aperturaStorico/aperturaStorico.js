@@ -128,7 +128,7 @@ function clearStoricoLoadingState({ removePreloader = false } = {}) {
 }
 
 function showStoricoLoadingError(
-  message = 'Impossibile caricare lo studio storico. Verifica token, aetitle e disponibilita dati.'
+  message = 'The prior study could not be loaded. Check the token, the AE title, and whether the data is there.'
 ) {
   if (!storicoPendingPreloader || !storicoPendingPreloader.isConnected) {
     clearStoricoLoadingState();
@@ -158,7 +158,7 @@ function showStoricoLoadingError(
   wrapper.style.color = '#fff';
 
   const title = document.createElement('div');
-  title.textContent = 'Errore caricamento storico';
+  title.textContent = 'The prior studies could not be loaded';
   title.style.fontSize = '16px';
   title.style.fontWeight = '600';
 
@@ -169,7 +169,7 @@ function showStoricoLoadingError(
   text.style.opacity = '0.9';
 
   const closeButton = document.createElement('button');
-  closeButton.textContent = 'Chiudi';
+  closeButton.textContent = 'Close';
   closeButton.style.background = '#0ea5e9';
   closeButton.style.border = '1px solid #d0d0d0';
   closeButton.style.color = '#fff';
@@ -340,7 +340,7 @@ const openStorico = (e, modalita, studyInstanceUID, options = {}) => {
 
   const context = resolveStoricoContext(e, studyInstanceUID, options);
   if (!context.studyInstanceUID) {
-    console.warn('Impossibile aprire storico: StudyInstanceUID mancante.');
+    console.warn('The prior study cannot be opened: the StudyInstanceUID is missing.');
     return;
   }
 
@@ -384,7 +384,7 @@ const openStorico = (e, modalita, studyInstanceUID, options = {}) => {
   }
 };
 
-const createPreloader = (message = 'Caricamento storico in corso...') => {
+const createPreloader = (message = 'Loading the prior studies...') => {
   const preloader = document.createElement('div');
   preloader.className = 'preloader';
   preloader.setAttribute('data-storico-preloader', 'true');
@@ -526,8 +526,8 @@ if (window.location.href.includes('storico=same-tab')) {
 // CSS e i comandi arrivano dallo studio principale via postMessage. Prima si
 // simulavano i click sui bottoni (data-cy + setTimeout annidati): approccio
 // fragile, che falliva per tutto cio' che vive dentro un menu a tendina (Reset
-// e gli altri "MoreTools") e per i tool senza un case dedicato (Scala, Cursori
-// di riferimento, Collega immagini, Zoom 1:1, ...).
+// e gli altri "MoreTools") e per i tool senza un case dedicato (Scale, Cursori
+// di riferimento, Link images, Zoom 1:1, ...).
 // Ora il messaggio viene risolto sull'id del bottone di toolbar e passato a
 // toolbarService.recordInteraction: e' la stessa identica strada del click
 // reale (esegue i comandi con le loro opzioni e aggiorna lo stato del bottone),
@@ -560,7 +560,7 @@ function getStoricoServices() {
 /**
  * Esegue nell'iframe la stessa interazione di un click sul bottone di toolbar:
  * recordInteraction lancia i comandi del bottone con le sue opzioni (incluso
- * itemId, indispensabile ai toggle tipo Scala / Linee di riferimento) e
+ * itemId, indispensabile ai toggle tipo Scale / Reference lines) e
  * aggiorna lo stato della toolbar.
  * @returns {boolean} true se il bottone esiste (comando gestito).
  */
@@ -651,7 +651,7 @@ function activateCommandOnIframe(command) {
   }
 
   try {
-    //Messaggio strutturato: comando OHIF con opzioni (es. sottogriglia r x c).
+    //Messaggio strutturato: comando OHIF con opzioni (es. subgrid r x c).
     if (typeof command === 'object') {
       if (command.type === 'mdv-storico-command') {
         runCommandOnStorico(command.commandName, command.commandOptions || {});
@@ -686,7 +686,7 @@ function activateCommandOnIframe(command) {
 
     console.warn('Storico: comando non gestito ->', command);
   } catch (err) {
-    console.error('Errore passaggio comando ad iframe: ', err);
+    console.error('Could not pass the command to the frame: ', err);
   }
 }
 

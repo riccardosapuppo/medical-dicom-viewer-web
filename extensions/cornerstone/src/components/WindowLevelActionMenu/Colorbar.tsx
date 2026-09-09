@@ -104,7 +104,7 @@ export function Colorbar({
     <div className="all-in-one-menu-item flex w-full justify-center">
       <div className="mr-2 w-[28px]"></div>
       <SwitchButton
-        label="Mostra barra colore"
+        label="Show the colour bar"
         checked={showColorbar}
         onChange={() => {
           onSetColorbar();

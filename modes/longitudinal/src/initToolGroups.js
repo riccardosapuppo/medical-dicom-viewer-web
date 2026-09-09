@@ -293,7 +293,7 @@ function initMPRToolGroup(extensionManager, toolGroupService, commandsManager) {
         toolName: toolNames.AdvancedMagnify,
       },
       // ReferenceCursors NON registrato nel toolgroup 'mpr': in MPR si usa il
-      // Crosshair, quindi il bottone "Cursori di riferimento" risulta non
+      // Crosshair, quindi il bottone "Reference cursors" risulta non
       // disponibile (grigio) finche' si e' in modalita' MPR.
       { toolName: toolNames.ScaleOverlay },
       // { toolName: toolNames.ReferenceLines },
@@ -329,7 +329,7 @@ function initVolume3DToolGroup(extensionManager, toolGroupService) {
   toolGroupService.createToolGroupAndAddTools('volume3d', tools);
 }
 
-// ToolGroup dedicato alla Sottogriglia (Montage). Identico al 'default' per gli
+// ToolGroup dedicato alla Subgrid (Montage). Identico al 'default' per gli
 // strumenti di interazione e di misura, MA senza i tool cross-viewport che non
 // hanno senso (e che disegnano linee fuorvianti) tra celle della stessa serie:
 // ReferenceLines, Crosshairs, ReferenceCursors. Le celle della montage entrano
@@ -341,7 +341,7 @@ function initMontageToolGroup(extensionManager, toolGroupService, commandsManage
 
   const { toolNames, Enums } = utilityModule.exports;
 
-  // Strumenti per la sottogriglia: interazione (WL/Pan/Zoom, sincronizzati via
+  // Strumenti per la subgrid: interazione (WL/Pan/Zoom, sincronizzati via
   // voi/zoompan), scorrimento, ispezione (Magnify/Probe) E strumenti di MISURA.
   // Le misure sono per-cella: ogni cella è uno StackViewport su un'immagine
   // specifica della serie, quindi l'annotazione resta legata a quell'immagine
@@ -397,7 +397,7 @@ function initMontageToolGroup(extensionManager, toolGroupService, commandsManage
     ],
     disabled: [
       {
-        // Scala VERTICALE a destra nelle celle della sottogriglia: in basso a
+        // Scale VERTICALE a destra nelle celle della subgrid: in basso a
         // sinistra c'è il numero istanza, una scala orizzontale (default) ci si
         // sovrapporrebbe. Sul lato destro non c'è overlay (la scrollbar vive
         // nella corsia esterna alle celle).

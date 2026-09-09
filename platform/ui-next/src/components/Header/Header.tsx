@@ -91,18 +91,21 @@ function Header({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {menuOptions.map((option, index) => {
-                  const IconComponent = option.icon
-                    ? Icons[option.icon as keyof typeof Icons]
-                    : null;
+                  // The name the caller wrote, checked against the set that exists. The
+                  // earlier version looked the icon up, then fed the JavaScript function's
+                  // own `.name` back into a by-name lookup; a minified build renames
+                  // functions, so the round trip came back empty and the menu drew the
+                  // words "Missing icon" where the picture belonged.
+                  const hasIcon = !!option.icon && option.icon in Icons;
                   return (
                     <DropdownMenuItem
                       key={index}
                       onSelect={option.onClick}
                       className="flex items-center gap-2 py-2"
                     >
-                      {IconComponent && (
+                      {hasIcon && (
                         <span className="flex h-4 w-4 items-center justify-center">
-                          <Icons.ByName name={IconComponent.name} />
+                          <Icons.ByName name={option.icon} />
                         </span>
                       )}
                       <span className="flex-1">{option.title}</span>

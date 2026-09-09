@@ -72,7 +72,7 @@ function initContextMenu({
     const { viewportId, element } = evt.detail;
     const viewportInfo = cornerstoneViewportService.getViewportInfo(viewportId);
 
-    // Le celle della Sottogriglia (Montage) NON sono registrate nel
+    // Le celle della Subgrid (Montage) NON sono registrate nel
     // cornerstoneViewportService (niente viewportInfo), ma vogliamo comunque il
     // menu contestuale (es. click destro per eliminare le misure). Quindi NON
     // usciamo se manca viewportInfo: agganciamo il listener a ogni enabled-element.

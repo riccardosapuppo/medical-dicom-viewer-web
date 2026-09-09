@@ -9,7 +9,7 @@ import {
 } from '../../components/Preferiti/Preferiti';
 
 /**
- * Una singola cella della sottogriglia montage.
+ * Una singola cella della subgrid montage.
  *
  * Crea un enabled-element Cornerstone STACK sul RenderingEngine PRINCIPALE,
  * ci carica la serie (stesso array imageIds di tutte le celle → cache pixel
@@ -316,7 +316,7 @@ function MontageCell(props: {
       syncPreferitiPulse();
       uiNotificationService?.show?.({
         title: 'Preferiti',
-        message: 'Aggiunto ai preferiti',
+        message: 'Added to favourites',
         type: 'success',
       });
       window.dispatchEvent(new Event('mdv-preferiti-updated'));
@@ -350,8 +350,8 @@ function MontageCell(props: {
           <button
             type="button"
             className={`montage-cell-fav${isFav ? ' is-fav' : ''}`}
-            title={isFav ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'}
-            aria-label={isFav ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'}
+            title={isFav ? 'Remove from favourites' : 'Add to favourites'}
+            aria-label={isFav ? 'Remove from favourites' : 'Add to favourites'}
             onClick={onToggleFavorite}
             onPointerDown={e => e.stopPropagation()}
           >

@@ -282,7 +282,7 @@ function _mapMeasurementToDisplay(measurement, displaySetService) {
   } = measurement;
 
   const firstSite = findingSites?.[0];
-  const label = baseLabel || finding?.text || firstSite?.text || '(Nessuna descrizione)';
+  const label = baseLabel || finding?.text || firstSite?.text || '(No description)';
   let displayText = baseDisplayText || [];
   if (findingSites) {
     const siteText = [];

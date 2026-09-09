@@ -29,7 +29,7 @@ describe('OHIF Lista studi', function () {
       });
     });
 
-    it('searches Nome paziente with exact string', function () {
+    it('searches Patient name with exact string', function () {
       cy.get('@PatientName').type('Juno');
       //Wait result list to be displayed
       cy.waitStudyList();
@@ -39,7 +39,7 @@ describe('OHIF Lista studi', function () {
       });
     });
 
-    it('maintains Nome paziente filter upon return from viewer', function () {
+    it('maintains Patient name filter upon return from viewer', function () {
       cy.get('@PatientName').type('Juno');
       //Wait result list to be displayed
       cy.waitStudyList();

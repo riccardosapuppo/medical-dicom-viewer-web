@@ -81,7 +81,7 @@ function WrappedCinePlayer({
       } else {
         setDynamicInfo(null);
 
-        // Serie 2D con più "gruppi di dimensione" (es. in/out phase, DWI multi-b):
+        // Series 2D con più "gruppi di dimensione" (es. in/out phase, DWI multi-b):
         // NON è caricata come volume, ma dynamicVolumeInfo.timePoints contiene gli
         // imageId GIÀ raggruppati per diffusione/echo (es. 80 istanze = gruppo
         // 1-40 e 41-80). Mostriamo una barra per spostarci tra i gruppi restando
@@ -348,7 +348,7 @@ function Render2DDimensionSlider({ info, enabledVPElement }) {
           : 0;
       const sliceIndex = keepSlice ? Math.min(currentSlice, newGroup.length - 1) : 0;
 
-      // Cattura la regolazione W/L manuale come DELTA rispetto al default
+      // Capture la regolazione W/L manuale come DELTA rispetto al default
       // dell'immagine ATTUALMENTE mostrata (robusto anche se lo stack non è
       // ancora ridotto al gruppo). Dopo un reset toolbar il VOI è già il default
       // → delta 0 → tutti i gruppi tornano al default.

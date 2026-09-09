@@ -44,7 +44,7 @@
  *      memorizzata se la camera corrente è ancora quella derivata da noi
  *      (l'utente non ha toccato nulla) → one-up e ritorno sono reversibili al
  *      pixel, nessun effetto cricchetto. Se l'utente ha toccato, si ricattura.
- *   3. Nessuno stato dentro cornerstone (niente options.displayArea): Reset,
+ *   3. None stato dentro cornerstone (niente options.displayArea): Reset,
  *      zoom 1:1, indicatori e sincronizzatori restano com'erano.
  *   4. Misure SOLO dallo stato cornerstone (sWidth/sHeight + worldToCanvas),
  *      mai da canvas.clientWidth: durante un resize il CSS è già nuovo mentre

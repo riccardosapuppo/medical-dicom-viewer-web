@@ -1,7 +1,7 @@
 import { Types } from '@ohif/core';
 export const preferiti: Types.HangingProtocol.Protocol = {
   id: '@_mdv/preferiti',
-  descrition: 'Applica HP per i preferiti salvati',
+  descrition: 'Apply the hanging protocol for saved favourites',
   name: 'Preferiti',
   icon: 'layout-advanced-axial-primary',
   isPreset: true,

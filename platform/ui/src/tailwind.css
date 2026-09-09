@@ -1725,7 +1725,7 @@ input[type='range']::-webkit-slider-thumb {
   }
 }
 
-/* Selettore Sottogriglia (Montage): preset "Standard" disposti in riga come nel
+/* Selettore Subgrid (Montage): preset "Standard" disposti in riga come nel
  * selettore layout principale. Classe dedicata (non `.standard-layout`) per NON
  * ereditare l'accoppiamento col MPR/storico (es. `.hp-mpr-active` che nasconde
  * `.standard-layout`/`.custom-layout`, o le regole nth-child responsive). */
@@ -2281,7 +2281,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
       }
     }
     [data-cy='side-panel-header-left']::after {
-      content: 'Nascondi Serie';
+      content: 'Hide the series';
       padding: 10px;
       color: #fff;
       left: 0px;
@@ -2307,7 +2307,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
       }
     }
     [data-cy='side-panel-header-left']::after {
-      content: 'Serie';
+      content: 'Series';
       padding: 10px;
       color: #fff;
       left: 50px;

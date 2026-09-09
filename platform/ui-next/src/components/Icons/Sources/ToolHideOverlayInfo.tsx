@@ -2,7 +2,7 @@ import React from 'react';
 import type { IconProps } from '../types';
 
 /**
- * Nascondi i dati sovrimpressi alle immagini.
+ * Hide the data drawn over the images.
  *
  * Disegnata in linea e non caricata come <img>, perche' con currentColor la
  * barra degli strumenti la accende e la spegne impostando un colore, come fa

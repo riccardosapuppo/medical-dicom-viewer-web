@@ -86,8 +86,8 @@ export default function PanelMeasurementTable({
 
     if (trackedMeasurements.length <= 0) {
       uiNotificationService.show({
-        title: 'Nessuna misurazione',
-        message: 'Nessuna misurazione è stata aggiunta allo studio corrente.',
+        title: 'No measurements',
+        message: 'No measurements have been added to this study yet.',
         type: 'info',
         duration: 3000,
       });
@@ -163,7 +163,7 @@ export default function PanelMeasurementTable({
       showOverlay: true,
       content: Dialog,
       contentProps: {
-        title: 'Annotazione',
+        title: 'Annotation',
         noCloseButton: true,
         value: { label: measurement.label || '' },
         body: ({ value, setValue }) => {
@@ -192,8 +192,8 @@ export default function PanelMeasurementTable({
           );
         },
         actions: [
-          { id: 'cancel', text: 'Annulla', type: ButtonEnums.type.secondary },
-          { id: 'save', text: 'Salva', type: ButtonEnums.type.primary },
+          { id: 'cancel', text: 'Cancel', type: ButtonEnums.type.secondary },
+          { id: 'save', text: 'Save', type: ButtonEnums.type.primary },
         ],
         onSubmit: onSubmitHandler,
       },

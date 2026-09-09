@@ -10,7 +10,7 @@
  *
  * Questo modulo espone:
  *  - derive*(): funzioni PURE (mai throw) che ricavano lateralità/vista/2D-3D da un
- *    displaySet. Usate SIA in cattura (hpStore.captureCurrentState) SIA in caricamento
+ *    displaySet. Usate SIA in cattura (hpStore.captureCurrentState) SIA loading
  *    (attributo custom registrato sull'HangingProtocolService) → stesso formato in
  *    entrambi i lati, quindi il match combacia.
  *  - registerMdvHPAttributes(): registra gli attributi custom sul matcher OHIF.

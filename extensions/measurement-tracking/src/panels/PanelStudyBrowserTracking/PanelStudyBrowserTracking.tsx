@@ -234,7 +234,7 @@ export default function PanelStudyBrowserTracking({
     ...(StudyInstanceUIDs || []).map(normalizeStudyInstanceUID).filter(Boolean),
   ]);
   const [studyDisplayList, setStudyDisplayList] = useState([]);
-  // Storico locale: 'idle' | 'loading' | 'done'
+  // Local priors: 'idle' | 'loading' | 'done'
   const [statoStorico, setStatoStorico] = useState('idle');
   const [hasLoadedViewports, setHasLoadedViewports] = useState(false);
   const [displaySets, setDisplaySets] = useState([]);
@@ -369,7 +369,7 @@ export default function PanelStudyBrowserTracking({
     }
 
     // Stato del caricamento storico: alimenta il badge "Ricerca in corso" della tab
-    // "Storico locale". allSettled perche' una query fallita non deve lasciare il badge
+    // "Local priors". allSettled perche' una query fallita non deve lasciare il badge
     // acceso per sempre.
     setStatoStorico('loading');
     Promise.allSettled(studyUIDs.map(sid => fetchStudiesForPatient(sid))).then(() =>
@@ -867,7 +867,7 @@ export default function PanelStudyBrowserTracking({
       if (tabStorico?.studies?.length) {
         return;
       }
-      testo = 'Nessuno storico locale';
+      testo = 'No local prior studies';
     }
 
     contenitore.insertAdjacentHTML(

@@ -14,7 +14,7 @@ const OHIFCornerstoneViewport = props => {
 
 function getViewportModule({ servicesManager, commandsManager, extensionManager }) {
   const ExtendedOHIFCornerstoneTrackingViewport = props => {
-    // Modalità sottogriglia (Montage): bypassa il wrapper di tracking e
+    // Modalità subgrid (Montage): bypassa il wrapper di tracking e
     // renderizza la viewport montage interna (registrata dall'estensione
     // cornerstone). Nessuna viewport OHIF aggiuntiva viene creata.
     if (props?.viewportOptions?.montage?.enabled === true) {

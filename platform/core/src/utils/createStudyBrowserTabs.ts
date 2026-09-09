@@ -154,7 +154,7 @@ export function createStudyBrowserTabs(
     },
     {
       name: 'all',
-      label: 'Storico locale',
+      label: 'Local priors',
       studies: allStudies.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
     },
   ];
@@ -162,7 +162,7 @@ export function createStudyBrowserTabs(
   // La tab dello storico compare se lo storico c e.
   //
   // Prima c era sempre, e quando il paziente non aveva esami precedenti
-  // offriva una scheda che diceva solo "Nessuno storico". Una linguetta che
+  // offriva una scheda che diceva solo "No prior studies". Una linguetta che
   // non porta da nessuna parte fa perdere un click a tutti quelli che la
   // provano, e non aggiunge niente a chi lo sapeva gia.
   return tabs.filter(tab => tab.name === 'primary' || tab.studies.length > 0);

@@ -141,12 +141,12 @@ export default async function init({
         () => {
           iscrizione.unsubscribe();
           uiNotificationService.show({
-            title: 'Immagini disegnate dal processore',
+            title: 'Images drawn by the processor',
             message:
-              "Questo browser non fornisce un contesto grafico: gli studi si aprono e gli " +
-              "strumenti funzionano, ma scorrere una serie lunga è più lento e la " +
-              "ricostruzione su tre piani non è disponibile. Si risolve attivando " +
-              "l'accelerazione grafica nelle impostazioni del browser.",
+              "This browser gives no graphics context: studies open and the " +
+              "tools work, but scrolling a long series is slower and " +
+              "reconstruction on three planes is unavailable. Turning on " +
+              "hardware acceleration in the browser settings fixes it.",
             type: 'info',
             duration: 15000,
             position: 'bottom-right',

@@ -380,7 +380,7 @@ const storicoLabelItem = {
   id: 'StoricoLabel',
   inheritsFrom: 'ohif.overlayItem',
   label: '',
-  title: 'Storico Label',
+  title: 'Priors label',
   color: '#81d4fa',
   condition: ({ referenceInstance }) => {
     if (window.portableVersion) {
@@ -487,7 +487,7 @@ if (typeof window !== 'undefined') {
       window.mdvViewportOverlayPending = null;
       return true;
     } catch (err) {
-      console.warn('Overlay viewport: impossibile applicare le preferenze', err);
+      console.warn('Viewport overlay: the preferences could not be applied', err);
       return false;
     }
   };

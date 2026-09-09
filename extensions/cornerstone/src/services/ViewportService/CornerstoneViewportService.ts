@@ -1119,8 +1119,8 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
       // misleading (it's not a 4D volume), so adapt the wording by context.
       const isPtctContext = document.body.classList.contains('hp-ptct-active');
       const label = isPtctContext
-        ? 'Caricamento serie PET/CT...'
-        : 'Volume dinamico in caricamento...';
+        ? 'Loading the PET/CT series...'
+        : 'Loading the dynamic volume...';
       element.insertAdjacentHTML('afterbegin', `
         <div style="background: #0ea5e9;color: #fff;padding: 0 5px; font-size: 0.8rem; z-index: 9999; position:relative" class="tooltip-loading-dynamic">
         <p>${label}</p>
@@ -1136,7 +1136,7 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
       }, 60000);
       this.tooltipTimeoutByElement.set(element, timeoutId);
     } catch (err) {
-      console.error('Errore creazione tooltip caricamento volume dinamico')
+      console.error('Could not build the loading tooltip for the dynamic volume')
     }
   }
 
@@ -1658,7 +1658,7 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
         const presentation = this._getPositionPresentation(viewportId);
 
         // Alcune viewport presenti nel rendering engine non sono gestite dal
-        // CornerstoneViewportService (es. le celle della sottogriglia/Montage):
+        // CornerstoneViewportService (es. le celle della subgrid/Montage):
         // non hanno una position presentation. Le saltiamo: vengono comunque
         // ridimensionate da renderingEngine.resize() più sotto.
         if (!presentation) {

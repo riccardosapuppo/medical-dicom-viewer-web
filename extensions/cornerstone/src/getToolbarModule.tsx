@@ -3,7 +3,7 @@ import { utils } from '@ohif/ui-next';
 
 const getDisabledState = (disabledText?: string) => ({
   disabled: true,
-  disabledText: disabledText ?? 'Non disponibile nella viewport attiva',
+  disabledText: disabledText ?? 'Not available in the active viewport',
 });
 
 export default function getToolbarModule({ commandsManager, servicesManager }: withAppTypes) {
@@ -17,7 +17,7 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
     viewportGridService,
   } = servicesManager.services;
 
-  // La Sottogriglia (Montage) è applicabile solo a serie 2D (stack) con più
+  // La Subgrid (Montage) è applicabile solo a serie 2D (stack) con più
   // immagini e modalità supportata (no volume/MPR/3D/video, no SEG/SR/...).
   const isMontageSuitable = (viewportId: string): boolean => {
     const csVp = cornerstoneViewportService?.getCornerstoneViewport(viewportId);
@@ -162,19 +162,19 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
       },
     },
     {
-      // Disabilita un bottone quando la viewport attiva è in modalità Sottogriglia
+      // Disabilita un bottone quando la viewport attiva è in modalità Subgrid
       // (Montage). Usato per i tool non applicabili alla montage (es. Cine).
       name: 'evaluate.cornerstone.disabledInMontage',
       evaluate: ({ viewportId, disabledText }) => {
         const vp = viewportGridService.getState().viewports.get(viewportId);
         if (vp?.viewportOptions?.montage?.enabled === true) {
-          return getDisabledState(disabledText ?? 'Non disponibile nella sottogriglia');
+          return getDisabledState(disabledText ?? 'Not available inside the subgrid');
         }
         return undefined;
       },
     },
     {
-      // Stato del bottone primario Sottogriglia: evidenziato quando attiva
+      // Stato del bottone primario Subgrid: evidenziato quando attiva
       // (click → disattiva); abilitato solo se la serie attiva è idonea.
       name: 'evaluate.cornerstone.montage',
       evaluate: ({ viewportId, disabledText }) => {
@@ -184,13 +184,13 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
           return { isActive: true, className: utils.getToggledClassName(true) };
         }
         if (!isMontageSuitable(viewportId)) {
-          return getDisabledState(disabledText ?? 'Sottogriglia non disponibile per questa serie');
+          return getDisabledState(disabledText ?? 'The subgrid is not available for this series');
         }
         return { isActive: false };
       },
     },
     {
-      // Per le voci layout del menu Sottogriglia: abilitate se la montage è già
+      // Per le voci layout del menu Subgrid: abilitate se la montage è già
       // attiva (per cambiare layout) o se la serie attiva è idonea.
       name: 'evaluate.cornerstone.montageAvailable',
       evaluate: ({ viewportId, disabledText }) => {
@@ -199,7 +199,7 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
           return undefined;
         }
         if (!isMontageSuitable(viewportId)) {
-          return getDisabledState(disabledText ?? 'Sottogriglia non disponibile per questa serie');
+          return getDisabledState(disabledText ?? 'The subgrid is not available for this series');
         }
         return undefined;
       },
@@ -275,7 +275,7 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
           return {
             disabled: true,
             className: '!text-common-bright ohif-disabled',
-            disabledText: disabledText ?? 'Non disponibile nella viewport attiva',
+            disabledText: disabledText ?? 'Not available in the active viewport',
           };
         }
       },
@@ -295,7 +295,7 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
           return {
             disabled: true,
             className: '!text-common-bright ohif-disabled',
-            disabledText: disabledText ?? 'Non disponibile nella viewport attiva',
+            disabledText: disabledText ?? 'Not available in the active viewport',
           };
         }
       },
@@ -333,7 +333,7 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
       name: 'evaluate.displaySetIsReconstructable',
       evaluate: ({ viewportId, disabledText = 'Selected viewport is not reconstructable' }) => {
         // Valutiamo la ricostruibilità dai displaySet della viewport attiva, NON
-        // da getCornerstoneViewport: in Sottogriglia (Montage) non esiste una
+        // da getCornerstoneViewport: in Subgrid (Montage) non esiste una
         // cornerstone viewport registrata per viewportId, quindi sarebbe null e
         // il bottone MPR resterebbe sempre attivo. Così invece si disabilita
         // dinamicamente anche in montage, come nelle viewport normali.
@@ -358,7 +358,7 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
           return {
             disabled: true,
             className: '!text-common-bright ohif-disabled',
-            disabledText: disabledText ?? 'Non disponibile nella viewport attiva',
+            disabledText: disabledText ?? 'Not available in the active viewport',
           };
         }
 
@@ -397,7 +397,7 @@ function _evaluateToggle({
     return {
       disabled: true,
       className: '!text-common-bright ohif-disabled',
-      disabledText: disabledText ?? 'Non disponibile nella viewport attiva',
+      disabledText: disabledText ?? 'Not available in the active viewport',
     };
   }
 

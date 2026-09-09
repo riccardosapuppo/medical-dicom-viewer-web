@@ -1,6 +1,6 @@
 // Etichette in italiano per i tasti "speciali" (non alfanumerici), così nel
 // pannello Preferenze → Scorciatoie l'utente capisce a quale tasto si riferisce
-// (es. "home" → "Inizio", "pageup" → "Pagina su", "space" → "Spazio").
+// (es. "home" → "Inizio", "pageup" → "Page up", "space" → "Spazio").
 const KEY_LABELS = {
   space: 'Spazio',
   spacebar: 'Spazio',
@@ -14,12 +14,12 @@ const KEY_LABELS = {
   delete: 'Canc',
   ins: 'Ins',
   insert: 'Ins',
-  up: 'Freccia su',
-  down: 'Freccia giù',
-  left: 'Freccia sinistra',
-  right: 'Freccia destra',
-  pageup: 'Pagina su',
-  pagedown: 'Pagina giù',
+  up: 'Arrow up',
+  down: 'Arrow down',
+  left: 'Arrow left',
+  right: 'Arrow right',
+  pageup: 'Page up',
+  pagedown: 'Page down',
   home: 'Inizio',
   end: 'Fine',
   // Modificatori

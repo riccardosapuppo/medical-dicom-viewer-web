@@ -292,11 +292,11 @@ function ViewerViewportGrid(props: withAppTypes) {
       if (!handled) {
         const updatedViewports = _getUpdatedViewports(viewportId, displaySetInstanceUID);
 
-        // Preserva la Sottogriglia (Montage) attiva sulla viewport di drop:
+        // Preserva la Subgrid (Montage) attiva sulla viewport di drop:
         // l'Hanging Protocol rigenera `viewportOptions` SENZA `montage`, quindi
-        // a volte la sottogriglia spariva (comportamento incoerente). La
+        // a volte la subgrid spariva (comportamento incoerente). La
         // riapplichiamo SEMPRE alla viewport di destinazione → trascinare una
-        // serie la carica dentro la sottogriglia (ripartendo dalla 1ª immagine).
+        // serie la carica dentro la subgrid (ripartendo dalla 1ª immagine).
         try {
           const current = viewportGridService.getState().viewports.get(viewportId);
           const montage = current?.viewportOptions?.montage;

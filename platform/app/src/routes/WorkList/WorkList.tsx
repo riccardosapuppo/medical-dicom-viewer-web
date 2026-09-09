@@ -333,7 +333,7 @@ function WorkList({
       );
 
       if (!firstValidMode) {
-        console.warn('Nessun mode valido');
+        console.warn('No valid mode');
         return;
       }
 
@@ -398,7 +398,7 @@ function WorkList({
           ]
             .filter(Boolean)
             .join(' — '),
-          tooltip: `Paziente: ${patientName}
+          tooltip: `Patient: ${patientName}
 Descrizione: ${description}
 Accession: ${accession}
 Modality: ${modalities}`,

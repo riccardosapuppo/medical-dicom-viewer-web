@@ -310,7 +310,7 @@ const GridSelector = ({ rows = 3, columns = 4, className }: GridSelectorProps) =
       }
       return false
     } catch (err) {
-      console.error('Errore funzione isSelectionFromStorico')
+      console.error('isSelectionFromPriors failed')
       return false
     }
   }

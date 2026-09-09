@@ -144,7 +144,7 @@ const ViewportDownloadForm = ({
   };
 
   const error_messages = {
-    width: 'La larghezza minima valida è 100px.',
+    width: 'The smallest width allowed is 100px.',
     height: "L'altezza minima valida è 100px.",
     filename: 'Il nome del file non può essere vuoto.',
   };
@@ -285,7 +285,7 @@ const ViewportDownloadForm = ({
                   type="number"
                   min={minimumSize}
                   max={maximumSize}
-                  label={t('Larghezza immagine (px)')}
+                  label={t('Image width (px)')}
                   value={dimensions.width}
                   onChange={evt => onDimensionsChange(evt.target.value, 'width')}
                   data-cy="image-width"
@@ -297,7 +297,7 @@ const ViewportDownloadForm = ({
                   type="number"
                   min={minimumSize}
                   max={maximumSize}
-                  label={t('Altezza immagine (px)')}
+                  label={t('Image height (px)')}
                   value={dimensions.height}
                   onChange={evt => onDimensionsChange(evt.target.value, 'height')}
                   data-cy="image-height"
@@ -357,7 +357,7 @@ const ViewportDownloadForm = ({
                   checked={showAnnotations}
                   onChange={event => setShowAnnotations(event.target.checked)}
                 />
-                <Typography>{t('Mostra annotazioni')}</Typography>
+                <Typography>{t('Show the annotations')}</Typography>
               </label>
             </div>
           </div>
@@ -369,7 +369,7 @@ const ViewportDownloadForm = ({
           className="bg-secondary-dark border-secondary-primary w-max-content min-w-full rounded p-4"
           data-cy="image-preview"
         >
-          <Typography variant="h5">{t('Anteprima immagine')}</Typography>
+          <Typography variant="h5">{t('Image preview')}</Typography>
           {activeViewportElement && (
             <div
               className="mx-auto my-2"
@@ -392,7 +392,7 @@ const ViewportDownloadForm = ({
           type={ButtonEnums.type.secondary}
           onClick={onClose}
         >
-          {t('Annulla')}
+          {t('Cancel')}
         </Button>
         <Button
           className="ml-2"

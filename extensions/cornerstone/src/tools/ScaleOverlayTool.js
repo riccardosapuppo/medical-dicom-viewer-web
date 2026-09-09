@@ -49,7 +49,7 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
       }
 
       // Assicura un'annotazione ScaleOverlay per OGNI cella valida (così la scala
-      // compare in tutte le celle della sottogriglia, non solo nella prima).
+      // compare in tutte le celle della subgrid, non solo nella prima).
       let annot = null;
       enabledElements.forEach(el => {
         const a = this._ensureAnnotationForViewport(el);
@@ -68,7 +68,7 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
       return null;
     }
 
-    // CAUSA RADICE del "scala invisibile in sottogriglia": l'annotazione veniva
+    // CAUSA RADICE del "scala invisibile in subgrid": l'annotazione veniva
     // creata la PRIMA volta (in `_init`, al setToolEnabled) quando — con engine
     // dedicato + celle montate in async — la camera/canvas della cella non era
     // ancora valida → `getViewportImageCornersInWorld` restituiva angoli degeneri
@@ -125,7 +125,7 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
     // `renderAnnotation` viene chiamato dall'AnnotationRenderingEngine per ogni
     // tool ENABLED del viewport, a prescindere da editData/annotazioni esistenti.
     // Il core esce però se `this.editData.viewport` non è popolato (lo popola
-    // _init, che con la Sottogriglia — engine dedicato + celle async — può non
+    // _init, che con la Subgrid — engine dedicato + celle async — può non
     // aver girato in tempo). Lo popoliamo qui dalla viewport corrente così la
     // scala si disegna comunque appena la cella renderizza.
     if (!this.editData || !this.editData.viewport) {
@@ -165,7 +165,7 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
       return super.renderAnnotation(enabledElement, svgDrawingHelper);
     }
 
-    // --- Rendering custom per la scala VERTICALE A DESTRA (Sottogriglia) ---
+    // --- Rendering custom per la scala VERTICALE A DESTRA (Subgrid) ---
     // Il core posiziona l'etichetta "NN cm" A CAVALLO del righello (parte a
     // rulerX-25 e lo attraversa), perciò il righello non può stare vicino al
     // bordo senza tagliare il testo. Qui disegniamo il righello a ridosso del
@@ -176,7 +176,7 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
       height: canvas.height / window.devicePixelRatio || 1,
     };
 
-    // Lunghezza del righello in pixel canvas (= scaleSize mm proiettati).
+    // Length del righello in pixel canvas (= scaleSize mm proiettati).
     const pointSet = [topLeft, bottomLeft, topRight, bottomRight];
     const canvasCoordinates = this.computeWorldScaleCoordinates(scaleSize, location, pointSet).map(
       world => viewport.worldToCanvas(world)

@@ -188,7 +188,7 @@ function Local({ modePath }: LocalProps) {
         className="h-full w-full"
         totalNumbers={totalFiles}
         percentComplete={percentComplete}
-        loadingText="Caricamento dello studio in corso..."
+        loadingText="Loading the study..."
         targetText="File"
       />
     </div>

@@ -96,7 +96,7 @@ function MdvExtensionBrowser({ appConfig, onVisibilityChange }) {
       <button
         className="rounded px-2 py-0.5 hover:bg-black/10"
         onClick={onClose}
-        aria-label="Chiudi avviso estensione del browser"
+        aria-label="Dismiss the browser extension notice"
         type="button"
       >
         X
