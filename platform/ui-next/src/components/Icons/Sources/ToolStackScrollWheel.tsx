@@ -2,23 +2,22 @@ import React from 'react';
 import type { IconProps } from '../types';
 
 /**
- * Scorrimento della serie con la rotellina.
+ * Scrolling the series with the wheel.
  *
- * In linea come la precedente, e per lo stesso motivo: cosi' lo stato attivo si
- * ottiene impostando un colore. Era un'immagine che veniva tinta da una catena
- * di filtri - brightness, sepia, saturate, hue-rotate - messa li' per ottenere
- * il rosso aziendale. Una tinta scritta come filtro non compare in nessuna
- * search di colori, ed e' sopravvissuta a tre passate di ritinta.
+ * Inline like the previous one, and for the same reason: it is how the active state is
+ * got by setting a colour. It used to be an image tinted by a chain of filters
+ * (brightness, sepia, saturate, hue-rotate) put there to make the company red. A tint
+ * written as a filter turns up in no colour search, and it survived three repainting
+ * passes.
  */
 export const ToolStackScrollWheel = (props: IconProps) => (
   <svg
-    // Il riempimento va spento con uno stile in linea, non con l'attributo.
+    // The fill has to be turned off with an inline style, not with the attribute.
     //
-    // La barra passa className="... fill-current", e una classe CSS batte
-    // sempre un attributo di presentazione: fill="none" perdeva, il disegno
-    // veniva riempito e si vedeva una macchia al posto dell'occhio. Lo stile in
-    // linea vince sulla classe, e resta la sola cosa che imponiamo: misura,
-    // classe e colore continuano ad arrivare da fuori.
+    // The bar passes className="... fill-current", and a CSS class always beats a
+    // presentation attribute: fill="none" lost, the drawing was filled, and what showed
+    // was a blot where the eye should be. An inline style beats the class, and it stays
+    // the only thing imposed here: size, class and colour still come from outside.
     width="24px"
     height="24px"
     viewBox="0 0 24 24"

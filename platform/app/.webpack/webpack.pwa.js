@@ -22,17 +22,16 @@ const HTML_TEMPLATE = process.env.HTML_TEMPLATE || 'index.html';
 const PUBLIC_URL = process.env.PUBLIC_URL || '/';
 const APP_CONFIG = process.env.APP_CONFIG || 'config/default.js';
 
-// Instradamento verso l archivio.
+// Routing towards the archive.
 //
-// I valori predefiniti sono quelli dell archivio che questo repository avvia
-// con docker compose: Orthanc sulla 8042, che espone DICOMweb sotto
-// /dicom-web, mentre la configurazione del visualizzatore chiede /pacs/dicom-web.
+// The defaults are those of the archive this repository starts with docker compose:
+// Orthanc on 8042, which exposes DICOMweb under /dicom-web, while the viewer's
+// configuration asks for /pacs/dicom-web.
 //
-// Erano tutti e quattro senza ripiego, e chi seguiva il README con "yarn dev"
-// otteneva un server senza inoltro: ogni richiesta di studi tornava indietro
-// dal server di sviluppo invece che dall archivio, e la sola cosa che si
-// vedeva era un notice di sorgente dati irraggiungibile. Le variabili
-// d ambiente restano, per puntare altrove.
+// All four had no fallback, so anyone following the README with "yarn dev" got a server
+// with no forwarding: every request for studies came back from the development server
+// rather than the archive, and all they saw was a notice that the data source was out of
+// reach. The environment variables are still there, for pointing somewhere else.
 const PROXY_TARGET = process.env.PROXY_TARGET || '/pacs/dicom-web';
 const PROXY_DOMAIN = process.env.PROXY_DOMAIN || 'http://localhost:8042';
 const PROXY_PATH_REWRITE_FROM = process.env.PROXY_PATH_REWRITE_FROM || '/pacs/dicom-web';
@@ -52,16 +51,15 @@ class WriteVersionPlugin {
       const versionFilePath = path.join(__dirname, '../dist/version.txt');
       const rootVersionPath = path.join(__dirname, '../../../version.txt');
 
-      // Assicurati che la cartella 'dist' esista
+      // Make sure the 'dist' folder is there
       fs.mkdirSync(path.dirname(versionFilePath), { recursive: true });
 
-      // IMPORTANTE: rileggo la versione FINALE dalla root version.txt (dopo il
-      // bump di prebuild e l'eventuale append del timestamp in fase prod, riga
-      // ~86). In questo modo dist/version.txt (= build-viewer/version.txt nel
-      // pacchetto) coincide SEMPRE col nome del pacchetto generato da
-      // postbuild-viewer.mjs, che usa la stessa root version.txt. Usare la
-      // variabile di modulo version_number poteva contenere ancora la sola base
-      // (es. "3.12.0") -> mismatch all'upload sulla dashboard.
+      // The FINAL version is read again from the root version.txt, after prebuild's bump
+      // and the timestamp that production appends around line 86. That way
+      // dist/version.txt, which becomes build-viewer/version.txt in the package, ALWAYS
+      // matches the name of the package postbuild-viewer.mjs produces, since that uses
+      // the same root version.txt. The module variable version_number could still hold
+      // the bare base ("3.12.0"), and then the upload to the dashboard would mismatch.
       let finalVersion = '';
       try {
         finalVersion = fs.readFileSync(rootVersionPath, 'utf8').trim();
@@ -174,14 +172,13 @@ module.exports = (env, argv) => {
           {
             from: `${PUBLIC_DIR}/${APP_CONFIG}`,
             to: `${DIST_DIR}/app-config.js`,
-            // Il file di configurazione viene copiato e basta.
+            // The configuration file is copied, and nothing more.
             //
-            // Qui c'era una riscrittura che a ogni build cambiava tre valori:
-            // l'appartenenza alla pagina ospite, showStudyList e il generatore di
-            // stampa. Erano tutti e tre modi di adattare il visualizzatore alla pagina
-            // che lo apriva, e quella pagina non fa parte di questo repository. Il
-            // sorgente e' la sola versione della verita': quello che c'e' scritto e'
-            // quello che gira.
+            // There used to be a rewrite here that changed three values on every build:
+            // whether it belonged to the host page, showStudyList, and the print
+            // generator. All three were ways of fitting the viewer to the page that
+            // opened it, and that page is not part of this repository. The source is the
+            // only version of the truth: what is written there is what runs.
           },
           {
             from: path.join(__dirname, '../build-tools/web.config'),

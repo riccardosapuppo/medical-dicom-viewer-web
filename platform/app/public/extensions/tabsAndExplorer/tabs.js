@@ -1423,7 +1423,7 @@ function showIframeForTab(iframeId) {
   // at.
   const schedaEsterna =
     resolvedIframeId !== 'none' && String(resolvedIframeId).startsWith('mdv-dynamic-iframe-');
-  document.body.classList.toggle('mdv-scheda-esterna', schedaEsterna);
+  document.body.classList.toggle('mdv-external-tab', schedaEsterna);
   // Hide every dynamic frame
   document.querySelectorAll('[id^="mdv-dynamic-iframe"]').forEach(ifr => {
     ifr.style.opacity = '0';

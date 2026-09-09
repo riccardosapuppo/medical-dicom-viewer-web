@@ -9,14 +9,13 @@ import {
 } from '../../components/Favourites/Favourites';
 
 /**
- * Una singola cella della subgrid montage.
+ * One cell of the montage subgrid.
  *
- * Crea un enabled-element Cornerstone STACK sul RenderingEngine PRINCIPALE,
- * ci carica la serie (stesso array imageIds di tutte le celle → cache pixel
- * condivisa) e si posiziona sull'immagine `imageIndex`. La cella entra nello
- * stesso toolGroup ('default') delle altre viewport, così gli strumenti della
- * toolbar funzionano. NON viene registrata in ViewportGridService: è interna
- * alla viewport OHIF ospitante.
+ * It makes a cornerstone STACK enabled element on the MAIN RenderingEngine, loads the
+ * series into it (the same imageIds array every cell uses, so the pixel cache is
+ * shared) and sits on image `imageIndex`. The cell joins the same tool group
+ * ('default') as the other viewports, so the toolbar's tools work on it. It is NOT
+ * registered with ViewportGridService: it is internal to the OHIF viewport hosting it.
  */
 function MontageCell(props: {
   cellId: string;
@@ -32,7 +31,7 @@ function MontageCell(props: {
   total: number;
   instanceNumber?: number | string | null;
   isPrimary?: boolean;
-  // Info per i Favourites (stellina): identificano l'istanza mostrata nella cella.
+  // Details for the favourites star: they identify the instance shown in the cell.
   seriesInstanceUID?: string;
   sopInstanceUID?: string;
   seriesNumber?: number | string | null;
@@ -64,15 +63,15 @@ function MontageCell(props: {
   const didMountRef = useRef(false);
   const isEmpty = imageIndex < 0 || imageIndex >= total;
 
-  // Identificativo del FRAME mostrato nella cella. Per i multiframe tutti i frame
-  // condividono lo stesso SOPInstanceUID, quindi serve questo per distinguerli nei
-  // favourites (salvato come instanceNumber). Uso imageIndex+1 (la POSIZIONE nello
-  // stack), come fanno i favourites delle viewport normali (`activeElementIndex+1`):
-  // identità univoca per frame, niente collisioni, e match cross-viewport coerente.
+  // The identifier of the FRAME shown in the cell. In a multiframe every frame shares
+  // one SOPInstanceUID, so this is what tells them apart in the favourites, where it is
+  // saved as instanceNumber. It uses imageIndex+1, the POSITION in the stack, exactly as
+  // the ordinary viewports' favourites do (`activeElementIndex+1`): unique per frame,
+  // no collisions, and it matches consistently across viewports.
   const frameNumber = imageIndex + 1;
 
-  // Ciclo di vita dell'enabled-element: si (ri)crea quando cambia la cella o
-  // quando la cella passa da vuota a piena (es. scorrendo verso l'ultimo blocco).
+  // The enabled element's life cycle: it is created, or created again, when the cell
+  // changes or when the cell goes from empty to full, scrolling towards the last block.
   useEffect(() => {
     const element = elementRef.current;
     if (isEmpty || !element) {
@@ -91,26 +90,25 @@ function MontageCell(props: {
     viewport
       .setStack(imageIds, imageIndex)
       .then(() => {
-        // Rifit alla dimensione corrente del canvas della cella: evita immagini
-        // stirate quando il canvas viene (ri)dimensionato all'attivazione della
-        // montage. resetCamera mantiene il rapporto d'aspetto corretto.
+        // Refit to the cell canvas's current size, which avoids stretched images when
+        // the canvas is sized or resized as the montage opens. resetCamera keeps the
+        // aspect ratio right.
         viewport.resetCamera();
         viewport.render();
       })
       .catch(() => {
-        /* viewport potrebbe essere stato distrutto durante un cambio layout */
+        /* the viewport may have been destroyed during a change of layout */
       });
 
-    // La cella primaria registra il proprio enabled-element nello state OHIF
-    // SOTTO l'id della viewport OHIF attiva (ohifViewportId): così i comandi
-    // della toolbar che agiscono sulla viewport attiva (getActiveViewportEnabled-
-    // Element) trovano una cella su cui operare (invert/rotate/flip/reset, che
-    // poi propaghiamo a tutte le celle in commandsModule).
+    // The primary cell registers its own enabled element in the OHIF state UNDER the
+    // active OHIF viewport's id (ohifViewportId), so the toolbar commands that act on
+    // the active viewport (getActiveViewportEnabledElement) find a cell to work on:
+    // invert, rotate, flip and reset, which commandsModule then spreads to every cell.
     if (isPrimary && ohifViewportId) {
       setEnabledElement(ohifViewportId, element);
     }
 
-    // Collega strumenti e sincronizzatori DOPO l'abilitazione dell'elemento.
+    // Attach the tools and synchronisers AFTER the element is enabled.
     ToolGroupManager.getToolGroup(toolGroupId)?.addViewport(cellId, renderingEngineId);
     syncGroupService.addViewportToSyncGroup(cellId, renderingEngineId, [
       {
@@ -144,8 +142,8 @@ function MontageCell(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cellId, isEmpty]);
 
-  // Aggiornamento dell'indice immagine durante lo scroll a blocchi o il cambio
-  // di prima immagine, senza ri-abilitare l'elemento.
+  // Updates the image index during a block scroll or a change of first image, without
+  // enabling the element again.
   useEffect(() => {
     if (!didMountRef.current) {
       didMountRef.current = true;
@@ -162,15 +160,15 @@ function MontageCell(props: {
       .setImageIdIndex(imageIndex)
       .then(() => viewport.render())
       .catch(() => {
-        /* indice non valido / viewport distrutto */
+        /* invalid index, or the viewport was destroyed */
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageIndex]);
 
-  // ── Favourites (stellina) ────────────────────────────────────────────────
-  // Risolve il SOPInstanceUID dell'istanza attualmente mostrata nella cella:
-  // prima dai metadati dell'imageId corrente (sempre allineato a ciò che si
-  // vede), con fallback alla prop passata dal viewport ospitante.
+  // -- Favourites (the star) ------------------------------------------------
+  // Resolves the SOPInstanceUID of the instance currently shown in the cell: from the
+  // current imageId's metadata first, which always matches what is on screen, and
+  // falling back to the prop the hosting viewport passed in.
   const resolveSopUID = useCallback((): string | undefined => {
     const imageId = imageIds[imageIndex];
     if (imageId) {
@@ -196,8 +194,8 @@ function MontageCell(props: {
     if (!sopUID) {
       return false;
     }
-    // Match per SOP + frame: senza il frame, su un multiframe (stesso SOP per
-    // tutti i frame) la stellina si accenderebbe su TUTTE le celle.
+    // Matched on SOP plus frame. Without the frame, a multiframe (one SOP for every
+    // frame) would light the star up on EVERY cell.
     return list.some(
       p =>
         p.SeriesInstanceUID === seriesInstanceUID &&
@@ -208,8 +206,8 @@ function MontageCell(props: {
 
   const [isFav, setIsFav] = useState(false);
 
-  // Riallinea lo stato della stellina al cambio immagine della cella e quando
-  // i favourites cambiano altrove (altre celle, pannello WW/WL, lista favourites).
+  // Lines the star's state up again when the cell's image changes, and when the
+  // favourites change elsewhere: other cells, the window level panel, the favourites list.
   useEffect(() => {
     if (isEmpty) {
       setIsFav(false);
@@ -238,8 +236,8 @@ function MontageCell(props: {
       }
       const list = (window as any).favourites as Array<Record<string, unknown>>;
 
-      // Allinea il "pulse" del pulsante favourites globale (indica che ci sono
-      // favourites da stampare), come fanno i favourites delle viewport normali.
+      // Keeps the global favourites button's "pulse" in step, which is what says there
+      // are favourites waiting to be printed, as the ordinary viewports' favourites do.
       const syncFavouritesPulse = () => {
         const btn = document.getElementById('favourites-btn');
         if (!btn) {
@@ -272,10 +270,9 @@ function MontageCell(props: {
         return;
       }
 
-      // ── Aggiunta ──
-      // Stesse 4 versioni catturate dai favourites delle viewport normali
-      // (clean / printBase / overlay / annotated) così il print builder le usa
-      // in modo identico.
+      // -- Adding --
+      // The same four versions the ordinary viewports' favourites capture (clean,
+      // printBase, overlay, annotated), so the print builder treats them identically.
       const element = elementRef.current;
       const cleanUrl =
         (await captureImageFromImageId(imageId, viewport)) ||

@@ -219,7 +219,7 @@ const StudyBrowser = ({
               StudyBrowserSort) ma tiene gli effetti che ordinano le serie, e
               toglierlo dall albero li spegnerebbe. */}
           <div
-            className={`tab-studio-mdv w-100 bg-bkg-low flex items-center justify-center gap-[10px] ${tabs.length > 1 ? 'h-[48px] py-[10px]' : 'h-0 overflow-hidden p-0'} ${isBottomDocked ? 'mdv-study-browser-options-tabs' : ''}`}
+            className={`mdv-study-tab w-100 bg-bkg-low flex items-center justify-center gap-[10px] ${tabs.length > 1 ? 'h-[48px] py-[10px]' : 'h-0 overflow-hidden p-0'} ${isBottomDocked ? 'mdv-study-browser-options-tabs' : ''}`}
           >
             <>
               <StudyBrowserViewOptions
@@ -230,7 +230,7 @@ const StudyBrowser = ({
               <StudyBrowserSort servicesManager={servicesManager} />
             </>
           </div>
-          <div id="info-mpr-attivo">
+          <div id="info-mpr-active">
             🟢 Vista MPR{' '}
             <span
               onClick={() => disableMPRView()}

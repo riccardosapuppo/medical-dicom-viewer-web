@@ -1,20 +1,19 @@
 /**
- * Il giro guidato che si apre alla prima apertura di uno studio.
+ * The guided tour that opens the first time a study is opened.
  *
- * Quello a monte raccontava il visualizzatore originale in inglese e si
- * agganciava a bottoni che questo progetto ha spostato. Peggio: cercava il suo
- * primo appiglio per mezzo secondo, mentre qui lo studio ci mette una ventina di
- * secondi ad arrivare. Non trovandolo mostrava comunque il passo, ma senza un
- * elemento accanto a cui stare finiva appena sotto il bordo dello schermo:
- * invisibile, con la pagina velata al settanta per cento e nessun modo di
- * chiuderlo. Era la prima cosa che vedeva chi apriva il progetto.
+ * The upstream one described the original viewer in English and hung off buttons this
+ * project has moved. Worse: it looked for its first anchor for half a second, while a
+ * study here takes some twenty seconds to arrive. Not finding it, it showed the step
+ * anyway, and with no element to stand beside it ended up just under the bottom edge of
+ * the screen: invisible, with the page dimmed to seventy per cent and no way to close
+ * it. That was the first thing anyone opening this project saw.
  *
- * Questo racconta invece le quattro cose che questo visualizzatore ha in piu',
- * aspetta che ci sia davvero qualcosa da indicare, e si chiude da solo se dopo
- * un minuto non e' comparso niente.
+ * This one describes instead the four things this viewer has that the original does not,
+ * waits until there is really something to point at, and closes itself if nothing has
+ * appeared after a minute.
  */
 
-/** I due pulsanti di un passo, nuovi per ogni passo. */
+/** A step's two buttons, made fresh for each step. */
 const stepButtons = () => [
   {
     text: 'Close',
@@ -36,9 +35,9 @@ export default {
     {
       id: 'basicViewerTour',
       route: '/viewer',
-      // Il giro non parte finche non c e una viewport da indicare. Vedi
-      // Onboarding.tsx: Shepherd risolve i bersagli quando il giro parte, e
-      // qui lo studio arriva dall archivio una ventina di secondi dopo.
+      // The tour does not start until there is a viewport to point at. See
+      // Onboarding.tsx: Shepherd resolves its targets when the tour starts, and the study
+      // arrives from the archive some twenty seconds later.
       waitFor: '.viewport-element',
       steps: [
         {

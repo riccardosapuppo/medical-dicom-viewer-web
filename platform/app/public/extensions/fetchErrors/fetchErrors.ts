@@ -1,28 +1,26 @@
 declare global {
   interface Window {
     fetchErrors: (error: unknown) => void;
-    // StudyInstanceUIDs dell'URL, valorizzato in config/default.js
+    // StudyInstanceUIDs from the URL, filled in by config/default.js
     mdvStudyInstanceUIDs?: string;
     config?: { fetchErrorMessage?: string };
   }
 }
 
 /**
- * Che cosa dire quando le immagini non arrivano.
+ * What to say when the images do not arrive.
  *
- * "Sessione scaduta" e' vero dove c'e' una sessione: qui davanti a un archivio
- * che risponde solo a chi ha ancora un token, un fallimento sulle immagini e'
- * quasi sempre quello. Ma questa stessa pagina gira anche dentro
- * l'applicazione desktop, che legge una cartella da un disco e non ha nessuna
- * sessione da far scadere — e li' quella frase e' semplicemente falsa, scritta
- * a tutto schermo sopra uno studio che un attimo prima si vedeva.
+ * "Session expired" is true where there is a session: in front of an archive that answers
+ * only while a token is still good, a failure on the images is nearly always that. But
+ * this same page also runs inside the desktop application, which reads a folder off a
+ * disc and has no session to expire, and there the sentence is simply false, written
+ * across the whole screen over a study that was visible a moment earlier.
  *
- * Cosi' il message lo decide chi ospita la pagina, e il valore predefinito
- * resta quello di prima.
+ * So the message is decided by whoever hosts the page, and the default stays what it was.
  */
 const MESSAGGIO_PREDEFINITO = 'Sessione scaduta';
 
-/** Il message finisce dentro dell'HTML, quindi non ci entra come markup. */
+/** The message goes inside HTML, so it does not go in as markup. */
 function testo(valore: string): string {
   return valore
     .split('&').join('&amp;')
@@ -35,10 +33,10 @@ window.fetchErrors = error => {
   if (!message) {
     return;
   }
-  // L'overlay a tutto schermo blocca la sessione: ha senso solo se a fallire e' lo studio
-  // effettivamente aperto. Se l'errore riguarda una serie dello priors l'utente sta
-  // solo sfogliando, e bloccarlo sarebbe sbagliato oltre che fuorviante: uno studio
-  // precedente che non arriva non e' una sessione scaduta.
+  // The full-screen overlay blocks the session, which only makes sense when what failed
+  // is the study actually open. If the error is about a series from the priors, the
+  // reader is only browsing, and stopping them would be wrong as well as misleading: a
+  // prior study that does not arrive is not an expired session.
   const studyUIDDallErrore = message.match(/studies\/([0-9.]+)/);
   if (studyUIDDallErrore) {
     const studiPrimari = `${window.mdvStudyInstanceUIDs || ''}`

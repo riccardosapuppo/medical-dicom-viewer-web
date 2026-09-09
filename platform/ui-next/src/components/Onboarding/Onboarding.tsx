@@ -8,11 +8,10 @@ import './Onboarding.css';
 import { hasTourBeenShown, markTourAsShown, defaultShowHandler, middleware } from './utilities';
 
 /**
- * Attende che un elemento esista, e dice se e' arrivato.
+ * Waits for an element to exist, and says whether it turned up.
  *
- * Restituisce anche il modo di smettere di aspettare: chi cambia pagina mentre
- * lo studio sta ancora caricando non deve ritrovarsi il giro guidato che parte
- * addosso alla pagina nuova.
+ * It also hands back a way to stop waiting: somebody who changes page while the study is
+ * still loading should not find the guided tour starting on top of the new one.
  */
 function attendiElemento(selettore: string, attesaMassimaMs: number) {
   let ferma = () => {};
@@ -58,17 +57,17 @@ const Onboarding = ({
     tourOptions: TourOptions;
     steps: StepOptions[];
     /**
-     * Selettore da attendere prima di far partire il giro.
+     * The selector to wait for before the tour starts.
      *
-     * Serve perche' questo effetto scatta al cambio di rotta, mentre lo studio
-     * ci mette una ventina di secondi ad arrivare dall'archivio. Shepherd
-     * risolve il bersaglio dei passi quando il giro parte: se il bersaglio non
-     * c'e' ancora, il box viene appeso a <body> e finisce sotto il bordo
-     * inferiore della pagina - presente per il codice, invisibile per chi
-     * guarda, con la pagina velata e nessun modo di chiuderlo.
+     * It is needed because this effect fires on a change of route, while the study takes
+     * some twenty seconds to arrive from the archive. Shepherd resolves each step's
+     * target when the tour starts: with no target there yet, the box is hung off <body>
+     * and ends up below the bottom edge of the page, present as far as the code is
+     * concerned and invisible to anyone looking, with the page dimmed and no way to
+     * close it.
      */
     waitFor?: string;
-    /** Quanto attendere quel selettore prima di rinunciare del tutto al giro. */
+    /** How long to wait for that selector before giving the tour up entirely. */
     waitForTimeout?: number;
   }>;
 }) => {
@@ -95,9 +94,8 @@ const Onboarding = ({
       : { promessa: Promise.resolve(true), ferma: () => {} };
 
     attesa.promessa.then(pronto => {
-      // Niente bersaglio, niente giro: meglio non mostrarlo che mostrarlo
-      // appeso al nulla. Resta segnato come gia' visto, cosi' non ritenta a
-      // ogni studio.
+      // No target, no tour: better not shown than shown hanging off nothing. It is still
+      // marked as seen, so it does not try again on every study.
       if (annullato || !pronto) {
         markTourAsShown(matchingTour.id);
         return;

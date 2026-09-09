@@ -9,13 +9,13 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
   constructor(toolProps = {}, defaultToolProps) {
     super(toolProps, defaultToolProps);
 
-    // Override di `_init`: quello del core fa `enabledElements[0].viewport` su
-    // TUTTE le viewport del toolGroup, ma il toolGroup 'montage' contiene anche
-    // il "phantom" (la viewportId registrata nell'engine principale per la
-    // toolbar) che NON ha un enabled-element → `enabledElements[0]` undefined →
-    // crash (Error Boundary) quando arriva un cameraModified su una cella.
-    // Qui scartiamo le viewport prive di enabled-element e creiamo l'annotazione
-    // scala per ogni cella valida.
+    // `_init` is overridden. The core's version does `enabledElements[0].viewport` on
+    // EVERY viewport in the tool group, but the 'montage' tool group also holds the
+    // "phantom" (the viewportId registered in the main engine for the toolbar's sake),
+    // which has NO enabled element. So `enabledElements[0]` came back undefined and the
+    // error boundary caught a crash whenever a cameraModified arrived for a cell.
+    // Here the viewports with no enabled element are dropped, and a scale annotation is
+    // made for every cell that is real.
     this._init = () => {
       const renderingEngine = getRenderingEngines()?.[0];
       if (!renderingEngine) {
@@ -34,8 +34,8 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
         return;
       }
 
-      // Viewport "corrente": quella indicata da configuration.viewportId (es. da
-      // onCameraModified) se valida, altrimenti la prima disponibile.
+      // The "current" viewport: the one configuration.viewportId names (from
+      // onCameraModified, say) when it is valid, and otherwise the first there is.
       let chosen = enabledElements[0];
       if (this.configuration.viewportId) {
         const match = enabledElements.find(el => el.viewport.id == this.configuration.viewportId);
@@ -48,8 +48,8 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
         return;
       }
 
-      // Assicura un'annotazione ScaleOverlay per OGNI cella valida (così la scala
-      // compare in tutte le celle della subgrid, non solo nella prima).
+      // Makes sure there is a ScaleOverlay annotation for EVERY valid cell, so the scale
+      // appears in all the subgrid's cells and not only the first.
       let annot = null;
       enabledElements.forEach(el => {
         const a = this._ensureAnnotationForViewport(el);
@@ -68,15 +68,15 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
       return null;
     }
 
-    // CAUSA RADICE del "scala invisibile in subgrid": l'annotazione veniva
-    // creata la PRIMA volta (in `_init`, al setToolEnabled) quando — con engine
-    // dedicato + celle montate in async — la camera/canvas della cella non era
-    // ancora valida → `getViewportImageCornersInWorld` restituiva angoli degeneri
-    // (worldHeight ≈ 0) → `computeScaleSize` ritornava `undefined` → niente
-    // disegno. E quei punti restavano cachati per sempre.
-    // Fix: ricalcoliamo gli angoli immagine dalla viewport CORRENTE ad ogni
-    // render. `renderAnnotation` gira su IMAGE_RENDERED, quando la camera è
-    // valida, quindi i punti sono sempre corretti e la scala si disegna.
+    // THE ROOT CAUSE of "the scale is invisible in the subgrid": the annotation was
+    // made the FIRST time, in `_init` at setToolEnabled, when, with a dedicated engine
+    // and cells mounted asynchronously, the cell's camera and canvas were not valid yet.
+    // `getViewportImageCornersInWorld` then returned degenerate corners (worldHeight
+    // near zero), `computeScaleSize` returned undefined, and nothing was drawn. And
+    // those points stayed cached for good.
+    // The fix: recompute the image corners from the CURRENT viewport on every render.
+    // `renderAnnotation` runs on IMAGE_RENDERED, when the camera is valid, so the points
+    // are always right and the scale is drawn.
     const points = csUtils.getViewportImageCornersInWorld(viewport);
 
     const annotations = annotation.state.getAnnotations(this.getToolName(), viewport.element);
@@ -122,12 +122,12 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
       return;
     }
 
-    // `renderAnnotation` viene chiamato dall'AnnotationRenderingEngine per ogni
-    // tool ENABLED del viewport, a prescindere da editData/annotazioni esistenti.
-    // Il core esce però se `this.editData.viewport` non è popolato (lo popola
-    // _init, che con la Subgrid — engine dedicato + celle async — può non
-    // aver girato in tempo). Lo popoliamo qui dalla viewport corrente così la
-    // scala si disegna comunque appena la cella renderizza.
+    // `renderAnnotation` is called by the AnnotationRenderingEngine for every ENABLED
+    // tool on the viewport, whatever editData or existing annotations there are. But the
+    // core bails out when `this.editData.viewport` is empty, and what fills it is _init,
+    // which in a subgrid (dedicated engine, asynchronous cells) may not have run in time.
+    // It is filled here from the current viewport, so the scale is drawn as soon as the
+    // cell renders.
     if (!this.editData || !this.editData.viewport) {
       this.editData = {
         viewport,
@@ -160,30 +160,30 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
       return;
     }
 
-    // Per le viewport normali (scala 'bottom') usiamo il rendering del core.
+    // For ordinary viewports, with the scale along the bottom, the core's rendering is used.
     if (location !== 'right') {
       return super.renderAnnotation(enabledElement, svgDrawingHelper);
     }
 
-    // --- Rendering custom per la scala VERTICALE A DESTRA (Subgrid) ---
-    // Il core posiziona l'etichetta "NN cm" A CAVALLO del righello (parte a
-    // rulerX-25 e lo attraversa), perciò il righello non può stare vicino al
-    // bordo senza tagliare il testo. Qui disegniamo il righello a ridosso del
-    // bordo destro e l'etichetta tutta A SINISTRA del righello.
+    // --- Custom rendering for the VERTICAL SCALE ON THE RIGHT (subgrid) ---
+    // The core puts the "NN cm" label ACROSS the ruler, starting at rulerX-25 and
+    // crossing it, so the ruler cannot sit near the edge without cutting the text off.
+    // Here the ruler is drawn hard against the right edge and the label entirely to its
+    // LEFT.
     const canvas = viewport.canvas;
     const canvasSize = {
       width: canvas.width / window.devicePixelRatio || 1,
       height: canvas.height / window.devicePixelRatio || 1,
     };
 
-    // Length del righello in pixel canvas (= scaleSize mm proiettati).
+    // The ruler's length in canvas pixels, which is scaleSize in mm projected.
     const pointSet = [topLeft, bottomLeft, topRight, bottomRight];
     const canvasCoordinates = this.computeWorldScaleCoordinates(scaleSize, location, pointSet).map(
       world => viewport.worldToCanvas(world)
     );
     const worldDistanceOnCanvas = canvasCoordinates[0][1] - canvasCoordinates[1][1];
 
-    // Righello a RIGHT_MARGIN px dal bordo destro, centrato verticalmente.
+    // The ruler sits RIGHT_MARGIN px from the right edge, centred vertically.
     const RIGHT_MARGIN = 16;
     const rulerX = canvasSize.width - RIGHT_MARGIN;
     const midY = canvasSize.height / 2;
@@ -206,7 +206,7 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
     const shadow = this.getStyle('shadow', styleSpecifier, annotationForViewport);
     const lineOpts = { color, width: lineWidth, lineDash, shadow };
 
-    // Linea principale + tacche agli estremi.
+    // The main line, with a tick at each end.
     drawing.drawLine(
       svgDrawingHelper, annotationUID, '1',
       scaleCanvasCoordinates[0], scaleCanvasCoordinates[1], lineOpts, `${annotationUID}-scaleline`
@@ -231,9 +231,9 @@ class ScaleOverlayToolSafe extends ScaleOverlayTool {
       );
     }
 
-    // Etichetta a SINISTRA del righello (drawTextBox è ancorato a sinistra e
-    // aggiunge 25px di padding interno → posizioniamo il box così che il suo
-    // bordo destro resti ~10px a sinistra del righello).
+    // The label goes to the LEFT of the ruler. drawTextBox anchors left and adds 25px of
+    // internal padding, so the box is placed to leave its right edge about 10px clear of
+    // the ruler.
     const textLines = this._getTextLines(scaleSize);
     const estWidth = (textLines[0]?.length || 4) * 8;
     const textPos = [rulerX - estWidth - 35, midY - 12];

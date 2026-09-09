@@ -42,13 +42,13 @@ const readOptional = name => {
 const VERSION_NUMBER = readOptional('version.txt');
 
 /**
- * La revisione da cui questa build e' stata fatta.
+ * The revision this build was made from.
  *
- * Era un file versionato, quindi fermo alla revisione in cui qualcuno l'aveva
- * scritto: o si aggiorna a mano a ogni commit, o dice il falso. Chiederlo a git
- * lo rende sempre vero. Un archivio scaricato come zip non ha git: in quel caso
- * resta il file, se c'e', e altrimenti niente - un banner senza revisione non
- * e' un motivo per fermare una build.
+ * It used to be a committed file, and therefore stuck at whatever revision somebody
+ * wrote into it: either it is updated by hand on every commit, or it lies. Asking git
+ * makes it always true. An archive downloaded as a zip has no git, and there the file
+ * stands in, if it is there, and otherwise nothing. A banner without a revision is no
+ * reason to stop a build.
  */
 const commitHash = () => {
   try {
@@ -121,17 +121,17 @@ module.exports = (env, argv, { SRC_DIR, ENTRY }) => {
       children: false,
       warnings: true,
     },
-    // In sviluppo la cache e' SOLO in memoria: vive nel processo del dev server,
-    // non scrive nulla su disco e sparisce alla chiusura, quindi non puo' lasciare
-    // artefatti stantii fra un avvio e l'altro. Serve pero' a riusare il lavoro
-    // DENTRO la stessa sessione: senza, ogni salvataggio ricompila tutto da zero.
-    // (Prima qui c'erano due chiavi `cache` duplicate: la seconda annullava la prima.)
+    // In development the cache is in memory ONLY: it lives in the dev server's process,
+    // writes nothing to disc and disappears when it closes, so it cannot leave stale
+    // artefacts between one run and the next. What it is for is reusing work WITHIN one
+    // session: without it, every save recompiles everything from scratch.
+    // (There used to be two duplicate `cache` keys here, the second cancelling the first.)
     cache: isProdBuild ? { type: 'filesystem' } : { type: 'memory' },
-    // ...e node_modules NON va considerato immutabile. Di default webpack lo tratta
-    // come "managed path" e valida la cache sulla VERSIONE del package: le modifiche
-    // fatte a mano dentro node_modules (es. patch a @cornerstonejs) resterebbero
-    // invisibili finche' la cache e' viva. Con managedPaths vuoto quei file vengono
-    // ricontrollati come qualunque altro sorgente, quindi le patch si vedono subito.
+    // ...and node_modules is NOT to be treated as immutable. By default webpack calls it
+    // a "managed path" and validates the cache against the package's VERSION, so changes
+    // made by hand inside node_modules (a patch to @cornerstonejs, say) stayed invisible
+    // for as long as the cache lived. With managedPaths empty those files are checked
+    // like any other source, and a patch shows up at once.
     ...(isProdBuild ? {} : { snapshot: { managedPaths: [], immutablePaths: [] } }),
     module: {
       noParse: [/(dicomicc)/],

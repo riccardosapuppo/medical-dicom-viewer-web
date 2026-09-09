@@ -81,12 +81,12 @@ function WrappedCinePlayer({
       } else {
         setDynamicInfo(null);
 
-        // Series 2D con più "gruppi di dimensione" (es. in/out phase, DWI multi-b):
-        // NON è caricata come volume, ma dynamicVolumeInfo.timePoints contiene gli
-        // imageId GIÀ raggruppati per diffusione/echo (es. 80 istanze = gruppo
-        // 1-40 e 41-80). Mostriamo una barra per spostarci tra i gruppi restando
-        // su una viewport stack 2D (nessuna ricostruzione): la barra cambia gruppo
-        // mantenendo la stessa fetta, e la rotella scorre le fette del gruppo attivo.
+        // A 2D series with more than one "dimension group" (in and out of phase,
+        // multi-b DWI): it is NOT loaded as a volume, but dynamicVolumeInfo.timePoints
+        // holds the imageIds ALREADY grouped by diffusion or echo (80 instances become
+        // groups 1-40 and 41-80). A bar is shown for moving between groups while
+        // staying on a 2D stack viewport, with no reconstruction: the bar changes group
+        // and keeps the slice, and the wheel scrolls the slices of the active group.
         const groups = displaySet.dynamicVolumeInfo?.timePoints;
         if (Array.isArray(groups) && groups.length > 1) {
           setStack2DInfo({
@@ -287,10 +287,10 @@ function RenderDynamicVolumeSlider({ dynamicInfo: dynamicInfoProp }) {
   );
 }
 
-// voiRange (lower/upper) del W/L di DEFAULT di un'immagine, letto dai metadati
-// DICOM (WindowCenter/WindowWidth). È la stessa base a cui torna il reset della
-// toolbar (viewport.resetProperties), quindi confrontare il VOI corrente con
-// questo default permette di ricavare la regolazione manuale come semplice delta.
+// The voiRange (lower and upper) of an image's DEFAULT window level, read from the
+// DICOM metadata (WindowCenter and WindowWidth). It is the same base the toolbar's
+// reset returns to (viewport.resetProperties), so comparing the current VOI against it
+// gives the reader's own adjustment as a plain delta.
 function getMetaVoiRange(imageId) {
   const voiLut = metaData.get('voiLutModule', imageId);
   let ww = voiLut?.windowWidth;
@@ -304,16 +304,16 @@ function getMetaVoiRange(imageId) {
 }
 
 /**
- * Barra "diffusione" per serie 2D con gruppi di dimensione (in/out phase,
- * DWI multi-b, ...). Comportamento identico allo slider 4D ma SENZA volume:
- * la viewport resta uno stack 2D e la barra scambia il gruppo di imageId
- * attivo (es. fette 1-40 ↔ 41-80) mantenendo la fetta corrente. La rotella
- * scorre solo le fette del gruppo selezionato.
+ * The "diffusion" bar, for 2D series with dimension groups (in and out of phase,
+ * multi-b DWI, and so on). It behaves exactly like the 4D slider but WITHOUT a volume:
+ * the viewport stays a 2D stack and the bar swaps which group of imageIds is active
+ * (slices 1-40 against 41-80, say) while keeping the current slice. The wheel scrolls
+ * only the slices of the selected group.
  *
- * W/L: ogni gruppo mantiene la sua differenza intrinseca (default dai metadati),
- * ma l'eventuale regolazione manuale viene portata sugli altri gruppi come DELTA
- * condiviso rispetto al loro default. Il reset dalla toolbar riporta tutti i
- * gruppi al default (il delta si ricalcola dal VOI live ad ogni cambio → 0).
+ * Window level: each group keeps its own intrinsic difference, the default from the
+ * metadata, but any manual adjustment is carried to the other groups as a shared DELTA
+ * from their own default. A reset from the toolbar returns every group to its default,
+ * because the delta is recomputed from the live VOI on every change and comes out zero.
  */
 function Render2DDimensionSlider({ info, enabledVPElement }) {
   const [groupIndex, setGroupIndex] = useState(0);
@@ -327,7 +327,7 @@ function Render2DDimensionSlider({ info, enabledVPElement }) {
       return null;
     }
     const viewport = getEnabledElement(enabledVPElement)?.viewport;
-    // Solo su viewport stack (setStack esiste solo lì).
+    // Stack viewports only: setStack exists nowhere else.
     return viewport && typeof viewport.setStack === 'function' ? viewport : null;
   }, [enabledVPElement]);
 
@@ -348,10 +348,10 @@ function Render2DDimensionSlider({ info, enabledVPElement }) {
           : 0;
       const sliceIndex = keepSlice ? Math.min(currentSlice, newGroup.length - 1) : 0;
 
-      // Capture la regolazione W/L manuale come DELTA rispetto al default
-      // dell'immagine ATTUALMENTE mostrata (robusto anche se lo stack non è
-      // ancora ridotto al gruppo). Dopo un reset toolbar il VOI è già il default
-      // → delta 0 → tutti i gruppi tornano al default.
+      // Capture the manual window level adjustment as a DELTA from the default of the
+      // image CURRENTLY on screen, which holds even when the stack has not yet been
+      // narrowed to the group. After a toolbar reset the VOI is already the default,
+      // so the delta is zero and every group goes back to its default.
       if (captureDelta) {
         const currentVoi = viewport.getProperties?.()?.voiRange;
         const currentImageId = viewport.getCurrentImageId?.();
@@ -365,12 +365,12 @@ function Render2DDimensionSlider({ info, enabledVPElement }) {
       }
 
       const finalize = () => {
-        // setStack a indice invariato NON emette STACK_VIEWPORT_SCROLL: senza
-        // questo l'overlay "x/N" resterebbe fermo al conteggio vecchio (es. 80)
-        // finché non si scrolla. Lo emetto io per rinfrescare subito il conteggio.
-        // STACK_VIEWPORT_SCROLL però accende anche il pallino "loading"; emetto
-        // subito dopo STACK_NEW_IMAGE (le immagini sono già in cache via prefetch)
-        // per spegnerlo, così non lampeggia ad ogni cambio gruppo.
+        // setStack at an unchanged index does NOT emit STACK_VIEWPORT_SCROLL: without
+        // this, the "x/N" overlay would sit at the old count (80, say) until somebody
+        // scrolled. Emitting it here refreshes the count at once.
+        // But STACK_VIEWPORT_SCROLL also turns the "loading" dot on, so STACK_NEW_IMAGE
+        // is emitted right after to turn it off. The images are already cached by the
+        // prefetch, so nothing flashes on every change of group.
         try {
           triggerEvent(viewport.element, Enums.Events.STACK_VIEWPORT_SCROLL, {
             imageIndex: sliceIndex,
@@ -385,8 +385,8 @@ function Render2DDimensionSlider({ info, enabledVPElement }) {
         } catch (e) {
           /* no-op */
         }
-        // Default del nuovo gruppo + delta manuale condiviso: resta la differenza
-        // W/L intrinseca del gruppo E la regolazione manuale fatta dall'utente.
+        // The new group's default plus the shared manual delta: the group's intrinsic
+        // window level difference stays, AND so does the reader's own adjustment.
         const newDefault = getMetaVoiRange(newGroup[sliceIndex]);
         const delta = manualDeltaRef.current;
         if (newDefault) {
@@ -410,15 +410,15 @@ function Render2DDimensionSlider({ info, enabledVPElement }) {
     [getViewport, info.groups]
   );
 
-  // Al cambio serie: parti dal gruppo 0, azzera il delta e riduci lo stack al
-  // gruppo. Se OHIF ripristina lo stack completo (reload viewport), ri-applica
-  // il gruppo attivo mantenendo il delta W/L corrente.
+  // On a change of series: start at group 0, clear the delta, and narrow the stack to
+  // the group. If OHIF restores the whole stack (a viewport reload), apply the active
+  // group again, keeping the current window level delta.
   useEffect(() => {
     manualDeltaRef.current = { lower: 0, upper: 0 };
     setGroupIndex(0);
     groupIndexRef.current = 0;
-    // captureDelta:true così un eventuale W/L applicato dall'HP viene preservato
-    // e portato anche sugli altri gruppi come delta condiviso.
+    // captureDelta:true, so a window level applied by the hanging protocol survives and
+    // is carried to the other groups as the shared delta.
     applyGroup(0, { keepSlice: false, captureDelta: true });
 
     const onNewImageSet = () => {
@@ -440,11 +440,11 @@ function Render2DDimensionSlider({ info, enabledVPElement }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [info.displaySetInstanceUID, enabledVPElement]);
 
-  // Precarica in background gli imageId di TUTTI i gruppi, INTERLACCIATI per
-  // fetta: appena è pronta la fetta k del gruppo attivo lo sono anche le fette k
-  // corrispondenti degli altri gruppi. Così cambiando gruppo con lo slider non
-  // c'è schermo nero né il pallino di caricamento (le immagini sono già in cache).
-  // Il pool manager di Cornerstone throttla le richieste; salto quelle già caricate.
+  // Prefetches the imageIds of EVERY group in the background, INTERLEAVED by slice: as
+  // soon as slice k of the active group is ready, so are the matching slice k of the
+  // others. Changing group with the slider therefore gives neither a black screen nor
+  // the loading dot, because the images are already cached.
+  // Cornerstone's pool manager throttles the requests, and anything already loaded is skipped.
   useEffect(() => {
     const groups = info.groups || [];
     const maxLen = groups.reduce((m, g) => Math.max(m, g?.length || 0), 0);
@@ -475,8 +475,8 @@ function Render2DDimensionSlider({ info, enabledVPElement }) {
       if (idx === groupIndexRef.current) {
         return;
       }
-      // applyGroup cattura il delta W/L dal VOI/immagine correnti PRIMA di
-      // cambiare stack, quindi va chiamato prima di aggiornare l'indice/render.
+      // applyGroup captures the window level delta from the current VOI and image
+      // BEFORE the stack changes, so it has to be called before the index and render update.
       applyGroup(idx, { keepSlice: true, captureDelta: true });
       setGroupIndex(idx);
     },

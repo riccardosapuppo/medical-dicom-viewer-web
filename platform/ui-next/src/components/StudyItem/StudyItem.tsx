@@ -120,17 +120,17 @@ const StudyItem = ({
   const resolvedDescription = resolveStudyDescription({ description, isPrior, displaySets });
 
   /**
-   * Apre la riga dello studio priors, mostrandone le anteprime.
+   * Opens the prior study's row, showing its thumbnails.
    *
-   * Risaliva tre genitori a partire da e.target e cliccava il primo bottone
-   * che trovava. Ma e.target e cio che si e cliccato davvero: premendo il
-   * disegno dentro il pulsante e non il suo bordo, si parte dallo <svg> e tre
-   * genitori piu su si finisce da un altra parte. Il pulsante sembrava morto,
-   * e a volte lo era: ritrovava se stesso.
+   * It used to walk three parents up from e.target and click the first button it found.
+   * But e.target is whatever was actually clicked: press the drawing inside the button
+   * rather than its edge and you start at the <svg>, and three parents up you are
+   * somewhere else entirely. The button looked dead, and sometimes it was: it found
+   * itself again.
    *
-   * e.currentTarget e sempre il pulsante, comunque lo si sia colpito. Da li si
-   * risale al gruppo delle tre icone e si prende la maniglia dell'accordion,
-   * che nel DOM viene prima.
+   * e.currentTarget is always the button, however it was hit. From there this walks up to
+   * the group of three icons and takes the accordion's handle, which comes first in the
+   * DOM.
    */
   const espandi = e => {
     const gruppo = e.currentTarget.closest('.open-priors-modes');
@@ -171,10 +171,11 @@ const StudyItem = ({
       onKeyDown={() => {}}
       role="button"
       tabIndex={0}
-      // Accordion CONTROLLATO da isExpanded (stato del pannello). Prima era uncontrolled con
-      // defaultValue basato su isActive: letto solo al mount e vero solo per lo studio in
-      // viewport, mentre freccia ed evidenziazione seguono isExpanded. Nelle tab dello
-      // priors i due divergevano e il primo studio appariva "aperto" pur essendo chiuso.
+      // The accordion is CONTROLLED by isExpanded, the panel's state. It used to be
+      // uncontrolled with a defaultValue from isActive, which is read only at mount and
+      // true only for the study in the viewport, while the arrow and the highlight follow
+      // isExpanded. In the priors' tabs the two diverged and the first study looked open
+      // while it was shut.
       value={isBottomDocked || isExpanded ? 'study-item' : ''}
     >
       <AccordionItem
@@ -187,7 +188,7 @@ const StudyItem = ({
         <AccordionTrigger
           className={classnames(
             'hover:bg-accent bg-popover group w-full rounded',
-            // Evidenzia lo studio aperto: le anteprime sotto appartengono a questa riga.
+            // Highlights the open study: the thumbnails below belong to this row.
             isExpanded && 'mdv-study-expanded',
             isExpanded && !isBottomDocked && 'border-secondary-light/40 sticky top-0 z-10 border-b',
             isBottomDocked && 'mdv-study-accordion-trigger-bottom'

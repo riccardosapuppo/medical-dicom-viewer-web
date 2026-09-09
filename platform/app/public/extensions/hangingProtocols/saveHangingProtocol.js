@@ -795,8 +795,8 @@ async function creaDIV() {
 }
 
 async function componiHP(modalita) {
-  //modalita='specificStudy', 'examDescription', 'modality'
-  //Ottengo gli HP aggiornati in tempo reale
+  // scope = 'specificStudy', 'examDescription' or 'modality'
+  // Get the hanging protocols as they stand right now
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
     return console.warn('The hanging protocol preferences could not be fetched');
@@ -906,7 +906,7 @@ async function componiHP(modalita) {
     })();
     serieLabels.push(seriesLabel);
     const displaySetKey = `DisplaySet${i}`;
-    //Series (se salvo come studio specifico mi vado a settare la SeriesInstanceUID piuttosto che la SeriesDescription)
+    // Series: saved as a specific study, this sets the SeriesInstanceUID rather than the SeriesDescription
     const usaSeriesNumber = modalita !== 'specificStudy' && !seriesDescription && seriesNumber != null;
     const attributoMatch =
       modalita === 'specificStudy'
@@ -976,7 +976,7 @@ async function saveSpecificStudy() {
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
-  //A questo punto li setto in localStorage
+  // And put them into localStorage
   localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   document.getElementById('menu-hp').remove();
   uiNotificationService.show({
@@ -1018,10 +1018,10 @@ async function saveConfigExam() {
     serieLabels: serieLabels,
   };
   if (index !== -1) {
-    // Overwrite l'oggetto esistente
+    // Overwrite the entry that is there
     currentHangingProtocols.examName[index] = entry;
   } else {
-    // Aggiungi il nuovo oggetto all'array
+    // Add the new entry to the array
     currentHangingProtocols.examName.push(entry);
   }
   logHangingProtocolSave('examDescription', entry);
@@ -1032,7 +1032,7 @@ async function saveConfigExam() {
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
-  //A questo punto li setto in localStorage
+  // And put them into localStorage
   localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   document.getElementById('menu-hp').remove();
   uiNotificationService.show({
@@ -1074,10 +1074,10 @@ async function saveConfigModality() {
     serieLabels: serieLabels,
   };
   if (index !== -1) {
-    // Overwrite l'oggetto esistente
+    // Overwrite the entry that is there
     currentHangingProtocols.modality[index] = entry;
   } else {
-    // Aggiungi il nuovo oggetto all'array
+    // Add the new entry to the array
     currentHangingProtocols.modality.push(entry);
   }
   logHangingProtocolSave('modality', entry);
@@ -1088,7 +1088,7 @@ async function saveConfigModality() {
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
-  //A questo punto li setto in localStorage
+  // And put them into localStorage
   localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   document.getElementById('menu-hp').remove();
   uiNotificationService.show({
@@ -1102,7 +1102,7 @@ async function deleteConfigSpecificStudy() {
   if (!confirm('Delete the current configuration?') == true) {
     return;
   }
-  //Ottengo gli HP aggiornati in tempo reale
+  // Get the hanging protocols as they stand right now
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
     return console.warn('The hanging protocol preferences could not be fetched');
@@ -1116,7 +1116,7 @@ async function deleteConfigSpecificStudy() {
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
-  //A questo punto li setto in localStorage
+  // And put them into localStorage
   localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   uiNotificationService.show({
     title: 'Hanging protocol',
@@ -1130,7 +1130,7 @@ async function deleteConfigExam() {
   if (!confirm('Delete the current configuration?') == true) {
     return;
   }
-  //Ottengo gli HP aggiornati in tempo reale
+  // Get the hanging protocols as they stand right now
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
     return console.warn('The hanging protocol preferences could not be fetched');
@@ -1149,7 +1149,7 @@ async function deleteConfigExam() {
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
-  //A questo punto li setto in localStorage
+  // And put them into localStorage
   localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   uiNotificationService.show({
     title: 'Hanging protocol',
@@ -1163,7 +1163,7 @@ async function deleteConfigModality() {
   if (!confirm('Delete the current configuration?') == true) {
     return;
   }
-  //Ottengo gli HP aggiornati in tempo reale
+  // Get the hanging protocols as they stand right now
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
     return console.warn('The hanging protocol preferences could not be fetched');
@@ -1181,7 +1181,7 @@ async function deleteConfigModality() {
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
-  //A questo punto li setto in localStorage
+  // And put them into localStorage
   localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   uiNotificationService.show({
     title: 'Hanging protocol',
@@ -1216,10 +1216,10 @@ async function scritturaPreferenzeAPI(aetitle, username, body) {
       console.error('Fetching the remote user preferences failed');
       return;
     }
-    // Un indirizzo che il server non conosce risponde con la pagina
-    // dell'applicazione e stato 200. Senza guardare il tipo del corpo la
-    // scrittura si dichiarerebbe riuscita, e il pannello direbbe salvato
-    // sul server quando non e arrivato niente da nessuna parte.
+    // An address the server does not know answers with the application's own page and a
+    // status of 200. Without looking at the body's type the write would declare itself a
+    // success, and the panel would say it had saved to the server when nothing had
+    // arrived anywhere.
     if ((apiResponse.headers.get('content-type') || '').includes('text/html')) {
       console.warn('[HP] No remote preference store: the local copy stands');
       return null;

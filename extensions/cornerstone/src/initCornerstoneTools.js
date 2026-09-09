@@ -108,14 +108,14 @@ export default function initCornerstoneTools(configuration = {}) {
   addTool(WindowLevelRegionTool);
   addTool(PlanarFreehandContourSegmentationTool);
 
-  // Guard anti-crash: alcuni strumenti "display" (ReferenceLines, ImageOverlay-
-  // Viewer, Crosshairs, ReferenceCursors...) estendono AnnotationDisplayTool →
-  // BaseTool e NON implementano getHandleNearImagePoint. Se hanno annotazioni nel
-  // frame-of-reference e finiscono nel filtro di cornerstone al mouseDown
-  // (filterToolsWithMoveableHandles), si ottiene "tool.getHandleNearImagePoint is
-  // not a function" e la viewport va in Error Boundary. Aggiungiamo un fallback
-  // no-op su BaseTool.prototype: i veri AnnotationTool lo sovrascrivono (le misure
-  // restano invariate), gli altri restituiscono "nessun handle" senza crashare.
+  // A guard against a crash: some "display" tools (ReferenceLines, ImageOverlayViewer,
+  // Crosshairs, ReferenceCursors and others) extend AnnotationDisplayTool, and so
+  // BaseTool, and do NOT implement getHandleNearImagePoint. When they have annotations in
+  // the frame of reference and land in cornerstone's mouseDown filter
+  // (filterToolsWithMoveableHandles), the result is "tool.getHandleNearImagePoint is not
+  // a function" and the viewport falls into the error boundary. A no-op fallback goes on
+  // BaseTool.prototype: the real AnnotationTools override it, so the measurements are
+  // unchanged, and the rest answer "no handle" instead of crashing.
   /** @type {any} */
   const baseProto = BaseTool && BaseTool.prototype;
   if (baseProto && typeof baseProto.getHandleNearImagePoint !== 'function') {
@@ -124,11 +124,11 @@ export default function initCornerstoneTools(configuration = {}) {
     };
   }
 
-  // Cursori SVG mancanti: alcuni strumenti v3 non hanno un cursore registrato in
-  // cornerstone (esiste solo il vecchio nome v2, es. "FreehandROI" ma non
-  // "PlanarFreehandROI"), quindi con useCursors:true mostrerebbero il cursore di
-  // sistema invece del mirino dello strumento. Registriamo un cursore riusando il
-  // descrittore SVG di uno strumento analogo già definito.
+  // Missing SVG cursors: some v3 tools have no cursor registered in cornerstone, only the
+  // old v2 name exists ("FreehandROI" but not "PlanarFreehandROI"), so with useCursors:true
+  // they would show the system cursor rather than the tool's own crosshair. A cursor is
+  // registered for them by reusing the SVG descriptor of a similar tool that is already
+  // defined.
   const cursorAliases = {
     PlanarFreehandROI: 'FreehandROI',
     SplineROI: 'FreehandROI',

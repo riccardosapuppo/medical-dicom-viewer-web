@@ -17,8 +17,8 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
     viewportGridService,
   } = servicesManager.services;
 
-  // La Subgrid (Montage) è applicabile solo a serie 2D (stack) con più
-  // immagini e modalità supportata (no volume/MPR/3D/video, no SEG/SR/...).
+  // The subgrid (montage) only applies to 2D stack series with more than one image and a
+  // supported modality: no volume, MPR, 3D or video, and no SEG, SR and the rest.
   const isMontageSuitable = (viewportId: string): boolean => {
     const csVp = cornerstoneViewportService?.getCornerstoneViewport(viewportId);
     if (csVp && csVp.type !== 'stack') {
@@ -143,16 +143,14 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
       },
     },
     {
-      // Acceso o spento secondo la classe sul corpo della pagina.
+      // On or off according to the class on the page's body.
       //
-      // Il pulsante che nasconde i dati sovrimpressi era dichiarato toggle ma
-      // valutato con evaluate.action, che risponde sempre e solo "non
-      // disabilitato": premendolo le scritte sparivano e il pulsante restava
-      // identico, quindi non c'era modo di sapere in che stato si fosse se non
-      // guardando le immagini.
+      // The button that hides the data drawn over the images was declared a toggle but
+      // evaluated with evaluate.action, which only ever answers "not disabled": pressing
+      // it made the text vanish while the button stayed identical, so there was no way
+      // to know which state you were in except by looking at the images.
       //
-      // Lo stato vero e' la classe che il comando mette e toglie, quindi la si
-      // legge da li.
+      // The real state is the class the command adds and removes, so that is what is read.
       name: 'evaluate.classeSulCorpo',
       evaluate: ({ button }) => {
         const classe = button?.commandOptions?.classe ?? 'hide-info-dicom';
@@ -162,8 +160,8 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
       },
     },
     {
-      // Disabilita un bottone quando la viewport attiva è in modalità Subgrid
-      // (Montage). Usato per i tool non applicabili alla montage (es. Cine).
+      // Disables a button when the active viewport is in subgrid (montage) mode. Used for
+      // the tools a montage cannot take, cine among them.
       name: 'evaluate.cornerstone.disabledInMontage',
       evaluate: ({ viewportId, disabledText }) => {
         const vp = viewportGridService.getState().viewports.get(viewportId);
@@ -174,8 +172,8 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
       },
     },
     {
-      // Stato del bottone primario Subgrid: evidenziato quando attiva
-      // (click → disattiva); abilitato solo se la serie attiva è idonea.
+      // The subgrid's primary button: highlighted when it is on, where a click turns it
+      // off, and enabled only when the active series is suitable.
       name: 'evaluate.cornerstone.montage',
       evaluate: ({ viewportId, disabledText }) => {
         const vp = viewportGridService.getState().viewports.get(viewportId);
@@ -190,8 +188,8 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
       },
     },
     {
-      // Per le voci layout del menu Subgrid: abilitate se la montage è già
-      // attiva (per cambiare layout) o se la serie attiva è idonea.
+      // For the layout entries in the subgrid menu: enabled when the montage is already
+      // on, so the layout can be changed, or when the active series is suitable.
       name: 'evaluate.cornerstone.montageAvailable',
       evaluate: ({ viewportId, disabledText }) => {
         const vp = viewportGridService.getState().viewports.get(viewportId);
@@ -332,11 +330,11 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
     {
       name: 'evaluate.displaySetIsReconstructable',
       evaluate: ({ viewportId, disabledText = 'Selected viewport is not reconstructable' }) => {
-        // Valutiamo la ricostruibilità dai displaySet della viewport attiva, NON
-        // da getCornerstoneViewport: in Subgrid (Montage) non esiste una
-        // cornerstone viewport registrata per viewportId, quindi sarebbe null e
-        // il bottone MPR resterebbe sempre attivo. Così invece si disabilita
-        // dinamicamente anche in montage, come nelle viewport normali.
+        // Whether it can be reconstructed is judged from the active viewport's display
+        // sets, NOT from getCornerstoneViewport: in a subgrid there is no cornerstone
+        // viewport registered under the viewportId, so that would be null and the MPR
+        // button would stay enabled for ever. This way it disables itself inside a
+        // montage too, exactly as in the ordinary viewports.
         const displaySetUIDs = viewportGridService.getDisplaySetsUIDsForViewport(viewportId);
 
         if (!displaySetUIDs?.length) {
@@ -364,7 +362,7 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
 
         const isMpr = protocol?.id === 'mpr';
 
-        //Se sono un iframe dico al genitore di attivare il secondo mpr
+        // Inside a frame, tell the parent to turn the second MPR on
         if (window.location.href.includes('priors=same-tab')) {
           window.parent.postMessage('secondo-mpr', '*');
         }

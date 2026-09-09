@@ -1,32 +1,32 @@
 /*
- * Subgrid (Montage) interna a una singola viewport OHIF.
- * I bordi tra le celle e la cornice esterna rendono evidente che si tratta di
- * una subgrid DENTRO quella viewport (le celle sono viewport collegate via
- * sincronizzatori WL/VOI/zoom/pan).
+ * The subgrid (montage) inside a single OHIF viewport.
+ * The borders between the cells and the outer frame make it obvious that this is a
+ * subgrid INSIDE that viewport: the cells are viewports tied together by the window
+ * level, VOI, zoom and pan synchronisers.
  */
 
-/* Colore delle linee della subgrid: lo stesso blu dei bordi della griglia
- * principale OHIF (#3a3f99), così la separazione è coerente e ben visibile. */
+/* The colour of the subgrid's lines: the same blue as the main OHIF grid's borders
+ * (#3a3f99), so the separation is consistent and easy to see. */
 .montage-grid {
   position: relative;
   display: grid;
   width: 100%;
   height: 100%;
-  /* le linee tra le celle: il background si vede attraverso gap e padding */
+  /* the lines between the cells: the background shows through the gap and the padding */
   gap: 2px;
   padding: 2px;
   background-color: #3a3f99;
   box-sizing: border-box;
   overflow: hidden;
-  /* Crea uno stacking context proprio: così gli z-index interni (gutter
-   * scrollbar z-index:1, scrollbar .scroll z-index:7) restano CONFINATI nella
-   * griglia e non "salgono" sopra l'overlay del bordo "viewport attiva" di
-   * ViewportPane (un <div absolute inset-0 border> reso dopo il contenuto).
-   * Senza, il gutter/scrollbar coprivano il bordo rosso sul lato destro. */
+  /* Makes a stacking context of its own, so the inner z-indexes (the gutter's
+   * scrollbar at 1, the scrollbar .scroll at 7) stay INSIDE the grid and do not rise
+   * above the "active viewport" border overlay drawn by ViewportPane, which is a
+   * <div absolute inset-0 border> rendered after the content. Without it, the gutter
+   * and scrollbar covered the red border down the right-hand side. */
   isolation: isolate;
 }
 
-/* Badge col layout corrente della subgrid (es. "2×4"), in alto a destra. */
+/* A badge with the subgrid's current layout ("2x4", say), at the top right. */
 .montage-layout-badge {
   position: absolute;
   top: 4px;
@@ -47,12 +47,12 @@
   background-color: #000;
 }
 
-/* Description serie (una per subgrid, in alto a sinistra).
- *  - left:34px → NON copre la stellina dei favourites (in alto a sinistra di ogni
- *    cella, ~24px), che resta visibile e cliccabile;
- *  - sfondo OPACO → copre la linea separatore delle celle che eventualmente
- *    attraversa (prima, semitrasparente, la si vedeva sotto);
- *  - troncata con ellissi se lunga (titolo completo nel tooltip). */
+/* The series description, one per subgrid, at the top left.
+ *  - left:34px so it does NOT cover the favourites star, which sits at the top left of
+ *    every cell and is about 24px, and stays visible and clickable;
+ *  - an OPAQUE background, so it covers the cell separator line it may cross. When it
+ *    was semi-transparent the line showed through;
+ *  - truncated with an ellipsis when long, with the whole title in the tooltip. */
 .montage-series-badge {
   position: absolute;
   top: 4px;
@@ -74,17 +74,17 @@
   text-overflow: ellipsis;
 }
 
-/* Solo quando il testo è troncato il badge diventa interattivo (hover) per
- * mostrare il tooltip. Altrimenti resta pointer-events:none → non intercetta
- * il mouse e non disturba il lavoro nella viewport. */
+/* The badge becomes interactive on hover, to show the tooltip, only when the text is
+ * actually truncated. Otherwise it stays pointer-events:none, so it never catches the
+ * mouse and never gets in the way of the work in the viewport. */
 .montage-series-badge--truncated {
   pointer-events: auto;
   cursor: help;
 }
 
-/* Tooltip moderno con la description serie completa: nascosto, compare
- * all'hover del badge troncato (sibling immediato). Sta SOTTO il badge, a
- * sinistra, e va a capo. Sopra le celle (z-index alto). */
+/* A modern tooltip carrying the whole series description: hidden, and shown on hover
+ * over a truncated badge, which is its immediate sibling. It sits BELOW the badge, to
+ * the left, and wraps. Above the cells, on a high z-index. */
 .montage-series-tooltip {
   position: absolute;
   top: 26px;
@@ -117,11 +117,11 @@
   min-height: 2px;
   background-color: #000;
   overflow: hidden;
-  /* Niente padding: la Scale di riferimento (verticale a destra) si disegna
-   * SOPRA l'immagine come nelle viewport normali. Lo spazio per righello +
-   * etichetta "NN cm" è riservato dentro l'elemento dal tool stesso
-   * (override di computeScaleBounds in ScaleOverlayTool.js → ~30px a destra),
-   * così niente taglio e niente padding vuoto. */
+  /* No padding: the reference scale, vertical and on the right, is drawn OVER the image
+   * as it is in the ordinary viewports. The room for the ruler and its "NN cm" label is
+   * reserved inside the element by the tool itself (computeScaleBounds is overridden in
+   * ScaleOverlayTool.js to about 30px on the right), so nothing is cut off and no empty
+   * padding is left behind. */
 }
 
 .montage-cell-element {
@@ -135,8 +135,8 @@
   background-color: #000;
 }
 
-/* Evidenzia la cella sotto al puntatore: aiuta a capire quale cella si sta
- * manipolando (WL/zoom/pan), pur restando tutte sincronizzate. */
+/* Highlights the cell under the pointer: it makes clear which cell is being worked on
+ * (window level, zoom, pan), even though they all stay in step. */
 .montage-cell:hover {
   outline: 1px solid #5a63d6;
   outline-offset: -1px;
@@ -148,8 +148,8 @@
   left: 6px;
   font-size: 12px;
   line-height: 1.2;
-  /* Numero istanza in BIANCO (richiesta esplicita), non più azzurrino. L'ombra
-   * resta per la leggibilità sulle celle piccole. */
+  /* The instance number in WHITE, asked for explicitly, rather than the pale blue it
+   * used to be. The shadow stays, for legibility on small cells. */
   color: #fff;
   text-shadow: 0 0 3px #000, 0 0 3px #000;
   pointer-events: none;
@@ -157,10 +157,10 @@
   z-index: 2;
 }
 
-/* Stellina "Favourites" per la singola cella: aggiunge/rimuove l'istanza
- * mostrata dai favourites (stesso window.favourites delle viewport normali).
- * Visibile in hover sulla cella, e SEMPRE quando l'istanza è già un favourite
- * (così si vede a colpo d'occhio quali celle sono salvate). */
+/* The "favourites" star for one cell: it adds or removes the instance on screen from
+ * the favourites, the same window.favourites the ordinary viewports use.
+ * Shown on hover over the cell, and ALWAYS when the instance is already a favourite, so
+ * which cells are saved can be seen at a glance. */
 .montage-cell-fav {
   position: absolute;
   top: 4px;
@@ -197,7 +197,7 @@
   color: #ffd54a;
 }
 
-/* Favourite attivo: sempre visibile e stella piena dorata. */
+/* An active favourite: always visible, and a full gold star. */
 .montage-cell-fav.is-fav {
   opacity: 1;
   color: #ffc928;
@@ -208,19 +208,18 @@
   stroke: currentColor;
 }
 
-/* Scrollbar serie della subgrid: stesso stile delle viewport (ImageScrollbar)
- * ma PIÙ SOTTILE. Override scoped a .montage-grid (specificità maggiore della
- * regola base). Compare solo quando c'è da scorrere (gestito in React). */
-/* Quando la scrollbar è presente, riserviamo una corsia a destra (padding del
- * grid) così la barra NON copre il bordo dell'immagine né il numero istanza
- * delle celle dell'ultima colonna. La barra (`.scroll`, absolute right:0) vive
- * dentro questa corsia. */
+/* The subgrid's series scrollbar: the same style as the viewports' (ImageScrollbar) but
+ * THINNER. The override is scoped to .montage-grid, which outranks the base rule. It
+ * appears only when there is something to scroll, which React decides. */
+/* When the scrollbar is there, a lane is reserved on the right (padding on the grid) so
+ * the bar does NOT cover the image's edge or the instance number of the cells in the
+ * last column. The bar itself (`.scroll`, absolute right:0) lives inside that lane. */
 .montage-grid--scroll {
   padding-right: 18px;
 }
-/* La corsia della scrollbar NON deve mostrare il blu di sfondo del grid: la
- * copriamo con un overlay nero (come le celle/viewport), dietro la scrollbar e
- * sotto la badge del layout. I separatori blu tra le celle restano invariati. */
+/* The scrollbar's lane must not show the grid's blue background, so it is covered with
+ * a black overlay, like the cells and viewports, behind the scrollbar and below the
+ * layout badge. The blue separators between the cells are untouched. */
 .montage-grid--scroll::after {
   content: '';
   position: absolute;
@@ -234,12 +233,12 @@
 }
 .montage-grid .scroll {
   padding: 2px;
-  /* Sopra le celle: le celle sono position:relative e, senza z-index esplicito,
-   * dipingerebbero sopra il `.scroll` (absolute) che le precede nel DOM. */
+  /* Above the cells: the cells are position:relative and, with no explicit z-index,
+   * would paint over the `.scroll` element, which is absolute and precedes them in the DOM. */
   z-index: 7;
 }
-/* Eredita track/thumb chiari e sottili dal base (ImageScrollbar.css); accorcia
- * solo il thumb perché le celle sono più piccole. */
+/* Inherits the pale, thin track and thumb from the base (ImageScrollbar.css); only the
+ * thumb is shortened, because the cells are smaller. */
 .montage-grid .scroll .scroll-holder .imageSlider::-webkit-slider-thumb {
   width: 26px;
 }

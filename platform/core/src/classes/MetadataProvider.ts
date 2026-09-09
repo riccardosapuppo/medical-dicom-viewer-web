@@ -414,13 +414,13 @@ class MetadataProvider {
         const windowWidth = Array.isArray(WindowWidth) ? WindowWidth : [WindowWidth];
 
         if (instance.WindowCenter && instance.WindowWidth) {
-          // inizializzo window.MdvDicomLuts se non esiste
+          // set window.MdvDicomLuts up if it is not there yet
           window.MdvDicomLuts ??= {};
 
           const dicomLuts = window.MdvDicomLuts;
           const seriesUID = instance.SeriesInstanceUID;
 
-          // se non esiste un oggetto per la SeriesInstanceUID lo creo
+          // make an object for this SeriesInstanceUID if there is none
           dicomLuts[seriesUID] ??= {
             WindowCenter: instance.WindowCenter,
             WindowWidth: instance.WindowWidth,
@@ -433,23 +433,24 @@ class MetadataProvider {
         let wcOut = toNumber(windowCenter);
         let wwOut = toNumber(windowWidth);
 
-        // [MDV-FIX-VOI-MISMATCH] Auto-window quando la VOI fornita dal DICOM non copre
-        // il dynamic range del pixel data dopo modality LUT (rescale).
+        // [MDV-FIX-VOI-MISMATCH] Auto-window when the VOI the DICOM carries does not
+        // cover the dynamic range of the pixel data after the modality LUT (rescale).
         //
-        // Caso tipico (osservato su Philips Enhanced MR ADC, ma applicabile a qualsiasi
-        // serie con VOI mal calibrata): WC/WW espressi nel dominio rescalato lasciano
-        // la maggior parte dei pixel rescalati sopra l'high del window → saturazione
-        // a bianco dell'intera immagine.
+        // The usual case, seen on Philips Enhanced MR ADC but true of any series with
+        // a badly calibrated VOI: a window centre and width expressed in the rescaled
+        // domain leave most of the rescaled pixels above the window's high end, and
+        // the whole image saturates to white.
         //
-        // Strategia agnostica al SeriesDescription / ImageType:
-        // - Calcoliamo il range pixel-rescaled reale [dataLow, dataHigh] dai tag
-        //   SmallestImagePixelValue / LargestImagePixelValue + RescaleSlope/Intercept.
-        // - Misuriamo quanta parte del range pixel ricade DENTRO la VOI fornita.
-        // - Se la VOI copre meno del 50% del range pixel (entrambi i lati), la
-        //   consideriamo non-utile e ricalcoliamo WC/WW come fit del range completo.
-        // Questo evita falsi positivi su serie con VOI legittimamente "narrow" che
-        // satura solo le code (CSF, bolle), e cattura il caso mal-calibrato in cui
-        // sostanzialmente tutto il dataset finisce fuori finestra.
+        // The approach ignores SeriesDescription and ImageType:
+        // - work out the real rescaled pixel range [dataLow, dataHigh] from
+        //   SmallestImagePixelValue and LargestImagePixelValue with RescaleSlope and
+        //   RescaleIntercept;
+        // - measure how much of the pixel range falls INSIDE the VOI that was given;
+        // - if the VOI covers less than half the pixel range on both sides, treat it
+        //   as useless and recompute centre and width to fit the whole range.
+        // This avoids false positives on series with a legitimately narrow VOI that
+        // saturates only the tails (CSF, air bubbles), and catches the miscalibrated
+        // case where essentially the whole dataset falls outside the window.
         const slopeForFit = Number(instance.RescaleSlope);
         const interceptForFit = Number(instance.RescaleIntercept);
         const smallestPx = Number(instance.SmallestImagePixelValue);
@@ -474,28 +475,29 @@ class MetadataProvider {
             const overlapHigh = Math.min(windowHigh, dataHigh);
             const overlap = Math.max(0, overlapHigh - overlapLow);
             const coverage = dataRange > 0 ? overlap / dataRange : 1;
-            // Quanta parte del range pixel cade FUORI dalla finestra, su ciascun
-            // lato (normalizzata sul range). Servono a distinguere una finestra
-            // CENTRATA (dati su entrambi i lati) da una schiacciata su un estremo.
+            // How much of the pixel range falls OUTSIDE the window on each side,
+            // normalised over the range. These are what tell a CENTRED window, with
+            // data on both sides, from one squashed against an end.
             const fractionAbove = dataRange > 0 ? Math.max(0, dataHigh - windowHigh) / dataRange : 0;
             const fractionBelow = dataRange > 0 ? Math.max(0, windowLow - dataLow) / dataRange : 0;
             //
-            // [MDV-FIX-VOI-MISMATCH] Trigger SOLO sul caso patologico "saturazione
-            // a tinta unita": la finestra è del tutto fuori dai dati (overlap nullo)
-            // oppure è un filo sottile (coverage bassa) schiacciato contro un estremo
-            // del range — quindi quasi tutti i pixel finiscono dallo stesso lato e
-            // l'immagine diventa uniformemente bianca/nera, illeggibile (il caso MR
-            // ADC Philips per cui il fix era nato, ma agnostico alla modalità).
+            // [MDV-FIX-VOI-MISMATCH] This fires ONLY on the pathological case, the
+            // flat saturation: the window is entirely off the data (no overlap at
+            // all), or it is a thin sliver (low coverage) pressed against one end of
+            // the range, so nearly every pixel lands on the same side and the image
+            // goes uniformly white or black and unreadable. That is the Philips MR ADC
+            // case this was written for, but nothing here depends on the modality.
             //
-            // NON scatta su una finestra diagnostica STRETTA ma CENTRATA: la TAC con
-            // window molli (WW~350 su range HU ~2700) ha dati abbondanti su entrambi
-            // i lati → fractionAbove e fractionBelow entrambe non trascurabili. Il
-            // vecchio test coverage<0.5 le sparava nel mucchio e riscriveva la WL del
-            // radiologo (immagine slavata): questa versione le rispetta.
+            // It does NOT fire on a diagnostic window that is NARROW but CENTRED: a CT
+            // on soft-tissue windows (width about 350 over an HU range of about 2700)
+            // has plenty of data on both sides, so fractionAbove and fractionBelow are
+            // both far from zero. The old coverage<0.5 test swept those in with the
+            // rest and rewrote the radiologist's window, washing the image out. This
+            // version leaves them alone.
             //
-            // NON scatta nemmeno su finestre TAC larghe legittimamente "uno-lato"
-            // (es. polmone WC=-600/WW=1500: tutto il denso a bianco): lì la coverage
-            // resta alta (~0.45), quindi il gate `coverage < COV` la protegge.
+            // Nor does it fire on the legitimately wide, one-sided CT windows (lung at
+            // centre -600 and width 1500, where everything dense goes white): coverage
+            // there stays high, around 0.45, so the `coverage < COV` gate protects it.
             const EDGE = 0.05; // un lato è praticamente senza dati (finestra a filo/oltre il bordo)
             const BULK = 0.6; // l'altro lato concentra la grande maggioranza dei pixel
             const COV = 0.25; // la finestra è un filo sottile sul range complessivo
@@ -503,20 +505,20 @@ class MetadataProvider {
               (fractionBelow < EDGE && fractionAbove > BULK) ||
               (fractionAbove < EDGE && fractionBelow > BULK);
             if (overlap <= 0 || (coverage < COV && oneSidedSaturation)) {
-              // Per il bordo basso scegliamo il minimo tra: low della VOI fornita,
-              // dataLow, e 0 (zero naturale per scale rescalate tipo ADC). Questo
-              // evita di troncare i valori bassi visivamente importanti (es. il
-              // gradiente del prostata che si estende sotto SmallestImagePixelValue
-              // perché 1080 è il min del dataset ma il "vero" zero dell'unità è 0).
-              // Per il bordo alto prendiamo il massimo tra high della VOI e dataHigh,
-              // mantenendo l'intento originale ma estendendolo se serve.
+              // For the low edge this takes the smallest of: the given VOI's low,
+              // dataLow, and 0, which is the natural zero for a rescaled scale such as
+              // ADC. That stops it cutting off low values that matter to look at, the
+              // prostate gradient for instance, which runs below
+              // SmallestImagePixelValue because 1080 is the dataset's minimum while
+              // the unit's real zero is 0. For the high edge it takes the larger of the
+              // VOI's high and dataHigh, keeping the original intent but extending it.
               const fitLow = Math.min(windowLow, dataLow, 0);
               const fitHigh = Math.max(windowHigh, dataHigh);
               const newWW = fitHigh - fitLow;
               const newWC = (fitHigh + fitLow) / 2;
-              // Diagnostica (console.debug = livello "Verbose", nascosto di
-              // default): la correzione è voluta, non è un errore. Evita il flood
-              // di warning a ogni frame su serie mal calibrate.
+              // Diagnostics at console.debug, the "Verbose" level, hidden by default:
+              // the correction is deliberate, not an error. This keeps a badly
+              // calibrated series from flooding the console with a warning per frame.
               console.debug('[MDV][VOI_LUT_MODULE] auto-window override (VOI saturates to one tone)', {
                 series: instance.SeriesDescription,
                 modality: instance.Modality,

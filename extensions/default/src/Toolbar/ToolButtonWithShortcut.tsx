@@ -3,10 +3,9 @@ import { ToolButton } from '@ohif/ui-next';
 import { useSystem } from '@ohif/core';
 
 /**
- * Wrapper di ToolButton che accoda DINAMICAMENTE al tooltip la scorciatoia da
- * tastiera corrente (letta dall'hotkeysManager). Così riflette anche le
- * scorciatoie personalizzate salvate dall'utente in Preferenze, invece di
- * mostrare valori fissi.
+ * A wrapper around ToolButton that appends the current keyboard shortcut to the tooltip
+ * DYNAMICALLY, read from the hotkeysManager. So it also reflects the custom shortcuts a
+ * reader has saved in Preferences, instead of showing fixed values.
  */
 
 // Etichette leggibili per i tasti speciali.
@@ -66,28 +65,26 @@ export function getShortcut(props: any, hotkeysManager: any): string | null {
   let match: any;
 
   if (isToolButton) {
-    // Bottone-strumento: la scorciatoia è il setToolActive(Toolbar) con
-    // toolName === id del bottone (es. id 'Zoom' → hotkey toolName 'Zoom').
-    // Si matcha SOLO per toolName: i tool button condividono lo STESSO
-    // commandName ('setToolActiveToolbar'), quindi un match per solo-commandName
-    // darebbe a TUTTI la prima scorciatoia (era il bug: tutti mostravano "Z").
+    // A tool button: its shortcut is the setToolActive(Toolbar) whose toolName is the
+    // button's id ('Zoom' gives the hotkey with toolName 'Zoom'). Matched on toolName
+    // ALONE: the tool buttons all share the SAME commandName
+    // ('setToolActiveToolbar'), so matching on commandName alone would give every one of
+    // them the first shortcut. That was the bug where they all showed "Z".
     match = list.find(
       d =>
         (d.commandName === 'setToolActiveToolbar' || d.commandName === 'setToolActive') &&
         d.commandOptions?.toolName === props.id
     );
   } else if (commandName) {
-    // Bottone-azione: match per commandName (e toolName se specificato).
+    // An action button: matched on commandName, and on toolName when there is one.
     //
-    // Un comando solo puo' servire piu' bottoni: toggleEnabledDisabledToolbar
-    // accende le linee di riferimento e anche la scala, e li distingue con
-    // itemId. Il bottone pero' passa il comando come stringa, senza opzioni,
-    // quindi il confronto per solo commandName trovava la prima scorciatoia
-    // della lista e la mostrava a entrambi: la scala dichiarava shift+l, che
-    // accende un'altra cosa.
+    // One command can serve several buttons: toggleEnabledDisabledToolbar turns the
+    // reference lines on and the scale as well, telling them apart by itemId. But the
+    // button passes the command as a bare string with no options, so comparing on
+    // commandName alone found the first shortcut in the list and showed it to both: the
+    // scale claimed shift+l, which turns something else on.
     //
-    // Quando la scorciatoia dice a quale voce si riferisce, quella voce deve
-    // essere questo bottone.
+    // When the shortcut says which item it belongs to, that item has to be this button.
     const idBottone = commandOptions?.itemId ?? props.id;
     match = list.find(d => {
       if (d.commandName !== commandName) {

@@ -200,7 +200,7 @@ body.mdv-study-panel-bottom .mdv-panel-header .ml-auto {
   margin-left: 0 !important;
 }
 
-/* Nascondi icone vista lista/griglia quando pannello è in basso */
+/* Hide the list and grid view icons when the panel is at the bottom */
 body.mdv-study-panel-bottom .mdv-panel-header .bg-primary\/10 {
   display: none !important;
 }
@@ -486,7 +486,7 @@ body.mdv-study-panel-bottom .mdv-study-accordion-item-bottom {
   overflow: hidden !important;
 }
 
-/* Elemento root Radix AccordionContent — ha data-state="open/closed" e prende height dal contenuto */
+/* The Radix AccordionContent root: it carries data-state="open/closed" and takes its height from the content */
 body.mdv-study-panel-bottom .mdv-study-accordion-item-bottom > [data-state] {
   flex: 1 1 auto !important;
   min-height: 0 !important;
@@ -665,7 +665,7 @@ body.mdv-study-panel-bottom
   height: 100% !important;
 }
 
-/* immagine: riempie lo spazio disponibile sopra la label */
+/* the image: it fills whatever room is left above the label */
 body.mdv-study-panel-bottom
   .mdv-study-accordion-content-bottom
   #ohif-thumbnail-list
@@ -854,7 +854,7 @@ body.mdv-study-panel-bottom .mdv-study-accordion-content-bottom #ohif-thumbnail-
   height: 4px !important;
 }
 
-/* In bottom mode NON nascondere il pannello durante caricamento immagini */
+/* In bottom mode the panel does NOT hide while the images load */
 
 body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] {
   height: 100% !important;
@@ -899,103 +899,99 @@ body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] > .ohif-scrollbar {
   }
 }
 
-/* Mentre si guarda una scheda esterna, questa pagina si fa da parte.
-   La sua barra degli strumenti e il suo visualizzatore restano montati - chiudere
-   la scheda deve riportarli com'erano - ma non si vedono e non ricevono comandi,
-   altrimenti si preme un pulsante e ne risponde un altro visualizzatore. */
-/* .mdv-bar e la barra intera, e sta a z-index 20: batte l iframe della scheda,
-   che sta a 1. Era lei a intercettare i click, non la testata che contiene -
-   misurato chiedendo alla pagina cosa c e sotto il pixel del pulsante. */
-body.mdv-scheda-esterna .mdv-bar,
-body.mdv-scheda-esterna .mdv-main-area,
-/* E anche quello che questa pagina monta direttamente sul corpo.
-   Menu, finestre e suggerimenti di Radix vivono fuori da .mdv-main-area, a
-   z-index 50: uno solo di essi aperto coprirebbe sia l iframe della scheda
-   (piano 1) sia la barra delle linguette (piano 10), lasciando senza modo di
-   tornare indietro. */
-body.mdv-scheda-esterna > [data-radix-popper-content-wrapper],
-body.mdv-scheda-esterna > [role="dialog"] {
+/* While another tab is being looked at, this page steps aside.
+   Its toolbar and its viewer stay mounted, because closing the tab has to bring them
+   back as they were, but they are neither visible nor able to take commands. Otherwise
+   a button is pressed here and a different viewer answers. */
+/* .mdv-bar is the whole bar, and it sits at z-index 20, which beats the tab's frame
+   at 1. It was the bar catching the clicks, not the header inside it. Measured by
+   asking the page what was under the button's pixel. */
+body.mdv-external-tab .mdv-bar,
+body.mdv-external-tab .mdv-main-area,
+/* And whatever this page mounts straight onto the body.
+   Radix menus, dialogs and tooltips live outside .mdv-main-area, at z-index 50: one of
+   them open would cover both the tab's frame (plane 1) and the strip of tabs (plane 10),
+   leaving no way back. */
+body.mdv-external-tab > [data-radix-popper-content-wrapper],
+body.mdv-external-tab > [role="dialog"] {
   visibility: hidden;
   pointer-events: none;
 }
 
-/* La barra delle schede resta: e l'unico modo di tornare indietro. */
-body.mdv-scheda-esterna #mdv-tab-container {
+/* The tab strip stays: it is the only way back. */
+body.mdv-external-tab #mdv-tab-container {
   visibility: visible;
   pointer-events: auto;
 }
 
-/* Il marchio sta nella testata, non sotto.
-   Qui c'era top: 65px, che scavalcava la centratura verticale della barra e
-   spingeva il marchio fuori, a galleggiare sopra la pagina: misurato, la barra
-   finisce a 48 e il marchio cominciava a 48. Senza questa riga torna al centro
-   di cio' che lo contiene, che e' dove stava andando da solo. */
+/* The logo belongs in the header, not under it.
+   There used to be a top: 65px here, which overrode the bar's vertical centring and
+   pushed the logo out to float over the page. Measured: the bar ends at 48 and the logo
+   began at 48. Without that line it goes back to the centre of what contains it, which
+   is where it was heading on its own. */
 
-/* E la barra si vede che e' una barra: un gradino sopra il fondo della pagina,
-   chiusa da un filo. Prima era nera su nero e conteneva solo un marchio senza
-   casa. */
-.mdv-testata {
+/* And the bar reads as a bar: one step above the page's background, closed off by a
+   hairline. Before, it was black on black and held nothing but a homeless logo. */
+.mdv-header {
   background-color: #0b0d10;
   border-bottom: 1px solid #1c222b;
 }
 
-/* Filtri ed list sono un oggetto solo.
-   Erano due blocchi neri su una pagina nera - contenitori che non si vedono - e
-   la colonna centrale si leggeva come testo appoggiato al vuoto. */
-.mdv-pannello-lista {
+/* The filters and the list are one object.
+   They were two black blocks on a black page, containers nobody could see, and the
+   middle column read as text resting on nothing. */
+.mdv-list-panel {
   background-color: #0d1014;
   border: 1px solid #1c222b;
   border-radius: 8px;
   overflow: hidden;
 }
 
-/* Il blocco dei filtri si stacca dalle righe che filtra.
-   Dentro lo stesso pannello, un gradino piu' scuro: prima aveva lo stesso fondo
-   dei dati e si leggeva come una quarta riga della tabella. */
-.mdv-pannello-lista thead {
+/* The filter block separates itself from the rows it filters.
+   Inside the same panel, one step darker: before, it shared the data's background and
+   read as a fourth row of the table. */
+.mdv-list-panel thead {
   background-color: #0a0c0f;
 }
 
-/* La pagina della lista studi allinea la testata al corpo.
-   La classe bg-black sul body la mette la lista studi e solo lei (vedi
-   WorkList.tsx), quindi la regola vale li' e non nel visualizzatore, dove la
-   barra e' a tutta width perche' contiene la barra degli strumenti.
+/* On the study list page, the header lines up with the body.
+   The bg-black class on the body is put there by the study list and by nothing else,
+   see WorkList.tsx, so this rule holds there and not in the viewer, where the bar runs
+   the full width because it holds the toolbar.
 
-   Senza questo il marchio resta a otto pixel dal bordo mentre il contenuto
-   comincia a duecentosettantacinque: due allineamenti diversi nella stessa
-   schermata. */
-body.mdv-lista-studi .logo-container {
+   Without it the logo sits eight pixels from the edge while the content starts at two
+   hundred and seventy-five: two different alignments on one screen. */
+body.mdv-study-list .logo-container {
   left: 50%;
   transform: translate(-640px, -50%);
 }
 
 @media (max-width: 1340px) {
-  body.mdv-lista-studi .logo-container {
+  body.mdv-study-list .logo-container {
     left: 1.5rem;
     transform: translateY(-50%);
   }
 }
 
-/* L'list NON riempie la finestra, ed e' una scelta.
+/* The list does NOT fill the window, and that is a choice.
 
-   Ci ho provato: con tre studi il pannello finiva a meta' schermo e sotto
-   restava il nero. Ma l'height si ferma su una scatola con display: table -
-   il contenitore interno dell'area scorrevole - e forzandola la tabella
-   distribuiva lo spazio fra intestazione e righe, staccando i filtri dai dati
-   con trecento pixel di vuoto in mezzo. Peggio del problema.
+   It was tried: with three studies the panel ended halfway down the screen and black
+   was left below it. But the height stops at a box with display: table, the scroll
+   area's inner container, and forcing it made the table share the space out between
+   the header and the rows, pushing three hundred pixels of nothing between the filters
+   and the data. Worse than the problem.
 
-   Un pannello che sta stretto ai suoi dati, su un fondo che gli fa spazio, si
-   legge come una scheda posata. Un pannello alto quanto lo schermo con dentro
-   un buco si legge come un errore. Restano tre studi: sono tre.
+   A panel held tight to its data, on a background that makes room for it, reads as a
+   card set down. A panel as tall as the screen with a hole in it reads as a fault.
+   There are three studies: three.
 
-   Se un giorno l'list dovesse riempire davvero, la strada e' cambiare il
-   contenitore dell'area scorrevole, non tirare la tabella. */
+   If the list ever does need to fill, the way is to change the scroll area's container,
+   not to stretch the table. */
 
-/* Il marchio si misura in ALTEZZA, non in width.
-   La barra e' alta una quarantina di pixel: vincolando la width, un
-   marchio piu' largo che alto ci finisce dentro per caso, e uno tagliato
-   diversamente no. Con max-width: 200 questo veniva alto cinquantadue e
-   sbordava sotto, addosso al titolo della pagina e al pannello. */
+/* A logo is measured by HEIGHT, not by width.
+   The bar is about forty pixels tall: constrain the width and a logo wider than it is
+   tall fits by luck, while one cut differently does not. With max-width: 200 this one
+   came out fifty-two tall and hung below the bar, over the page title and the panel. */
 .logo {
   max-height: 34px;
   width: auto;
@@ -1005,22 +1001,22 @@ body.mdv-lista-studi .logo-container {
   color: #bdbdbd !important;
 }
 
-.selettore-opzioni-tool {
+.tool-options-selector {
   margin-left: -6px;
   margin-top: 10px;
   background-color: transparent !important;
 }
-.hover\:bg-primary-dark.selettore-opzioni-tool:hover {
+.hover\:bg-primary-dark.tool-options-selector:hover {
   background-color: transparent !important;
 }
 
 
 
-/* L'icona e' gia' disegnata per il fondo scuro.
-   Qui c'era filter: invert(1), scritto per l'icona di prima, che era scura su
-   chiaro. Con questa faceva il contrario: il tratto chiaro diventava quasi
-   nero e l'ambra della sbarra diventava blu notte, quindi del disegno si
-   vedeva solo la sbarra obliqua, storta di colore. */
+/* The icon is already drawn for a dark background.
+   There used to be a filter: invert(1) here, written for the previous icon, which was
+   dark on light. On this one it did the opposite: the light stroke went nearly black
+   and the amber bar went midnight blue, so all anyone saw of the drawing was the
+   diagonal bar, in the wrong colour. */
 
 .hide-info-dicom {
   .overlay-info-dicom {
@@ -1031,10 +1027,10 @@ body.mdv-lista-studi .logo-container {
   }
 }
 
-/* Lo stato attivo si imposta, non si ricava da una catena di filtri.
-   Questa catena tingeva l'icona del rosso aziendale, ed essendo un filtro e non
-   un colore non compariva in nessuna search di colori: e' sopravvissuta a tre
-   passate di ritinta. L'icona ora disegna con currentColor. */
+/* The active state is set, not conjured from a chain of filters.
+   This chain tinted the icon the company red, and being a filter rather than a colour
+   it turned up in no colour search: it survived three repainting passes. The icon now
+   draws with currentColor. */
 [data-cy='StackScroll'][data-active='true'] {
   color: #38bdf8;
 }
@@ -1375,7 +1371,7 @@ input[type='range']::-webkit-slider-thumb {
   width: 40px;
   height: 40px;
   border: 4px solid rgba(0, 0, 0, 0.1); /* Bordo leggero */
-  border-top-color: #38bdf8; /* Colore del bordo superiore (colore del caricamento) */
+  border-top-color: #38bdf8; /* The top border's colour, which is the loading colour */
   border-radius: 50%; /* Forma circolare */
   animation: spin 1s linear infinite; /* Animazione di rotazione */
 }
@@ -1388,9 +1384,9 @@ input[type='range']::-webkit-slider-thumb {
   z-index: 1;
   width: 50px;
   height: 50px;
-  /* Centraggio via margini (NON transform): l'animazione `spin` anima
-     transform:rotate e sovrascriverebbe un translate(-50%,-50%), spostando lo
-     spinner in basso-destra di metà della sua dimensione. */
+  /* Centred with margins, NOT with transform: the `spin` animation animates
+     transform:rotate and would overwrite a translate(-50%,-50%), pushing the spinner
+     down and right by half its own size. */
   margin-top: -25px;
   margin-left: -25px;
   border: 4px solid #212832;
@@ -1447,7 +1443,7 @@ input[type='range']::-webkit-slider-thumb {
     opacity: 1;
   }
 }
-/* Etichetta passo: fade-in ad ogni cambio (il componente usa key={stepLabel}). */
+/* The step label fades in on every change; the component uses key={stepLabel}. */
 .mdv-loading-step {
   animation: mdv-step-fade 0.4s ease;
 }
@@ -1494,13 +1490,13 @@ input[type='range']::-webkit-slider-thumb {
     select {
       -webkit-appearance: menulist; /* Per WebKit */
       appearance: menulist; /* Per i browser moderni */
-      cursor: pointer; /* Aggiungi un puntatore per indicare che Ã¨ cliccabile */
+      cursor: pointer; /* A pointer, to say it can be clicked */
       option {
         background-color: #fff; /* Colore di sfondo predefinito */
         color: #333; /* Colore del testo */
       }
 
-      /* Tentativo di stilizzare l'hover, ma supporto limitato */
+      /* An attempt at styling the hover state, though support for it is thin */
       option:hover {
         background-color: #f0f0f0; /* Colore di sfondo al passaggio del mouse */
       }
@@ -1629,7 +1625,7 @@ input[type='range']::-webkit-slider-thumb {
     }
   }
 
-  /* Bottom panel: stessi colori hover/active della griglia laterale */
+  /* Bottom panel: the same hover and active colours as the side grid */
   .mdv-bottom-thumbnail-strip {
     .series-is-active {
       outline: 2px solid rgb(56 189 248);
@@ -1681,8 +1677,8 @@ input[type='range']::-webkit-slider-thumb {
       transform: scale(0.8);
     }
 
-    /* Icons.LayoutCommon1x2 disegna con stroke="currentColor": basta impostare il colore.
-       Il vecchio filter: invert(1), pensato per l'icona precedente, la rendeva scura. */
+    /* Icons.LayoutCommon1x2 draws with stroke="currentColor", so setting the colour is
+       enough. The old filter: invert(1), meant for the previous icon, made it dark. */
     #priors-same-window {
       color: #fff;
     }
@@ -1705,7 +1701,7 @@ input[type='range']::-webkit-slider-thumb {
   }
 }
 
-#info-mpr-attivo {
+#info-mpr-active {
   color: #fff;
   padding: 5px;
   font-size: 0.8rem;
@@ -1725,10 +1721,10 @@ input[type='range']::-webkit-slider-thumb {
   }
 }
 
-/* Selettore Subgrid (Montage): preset "Standard" disposti in riga come nel
- * selettore layout principale. Classe dedicata (non `.standard-layout`) per NON
- * ereditare l'accoppiamento col MPR/priors (es. `.hp-mpr-active` che nasconde
- * `.standard-layout`/`.custom-layout`, o le regole nth-child responsive). */
+/* The subgrid (montage) selector: the "Standard" presets laid out in a row, as in the
+ * main layout selector. It has a class of its own, not `.standard-layout`, so it does
+ * NOT inherit the coupling with MPR and priors (`.hp-mpr-active`, which hides
+ * `.standard-layout` and `.custom-layout`, or the responsive nth-child rules). */
 .montage-standard-layout {
   .flex.flex-col.gap-0 {
     flex-direction: row;
@@ -1755,7 +1751,7 @@ input[type='range']::-webkit-slider-thumb {
   }
 }
 
-.secondo-mpr-attivo {
+.second-mpr-active {
   .advanced-layout-priors {
     display: block;
   }
@@ -1787,8 +1783,8 @@ input[type='range']::-webkit-slider-thumb {
   [data-cy='LayoutMPR'] {
     background: #0ea5e9;
   }
-  /* In MPR (bottone attivo) il badge "MPR" dell'icona diventa bianco con testo
-   * rosso (override dello sfondo scuro inline → serve !important). */
+  /* In MPR, with the button active, the icon's "MPR" badge goes white with red text.
+   * It overrides an inline dark background, which is why it needs !important. */
   .mpr-icon-badge {
     background-color: #fff !important;
     color: #38bdf8 !important;
@@ -1798,7 +1794,7 @@ input[type='range']::-webkit-slider-thumb {
     pointer-events: none;
     cursor: default;
   }
-  #info-mpr-attivo {
+  #info-mpr-active {
     display: block;
   }
 }
@@ -1902,7 +1898,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   }
 }
 
-/*Caricamento con barra in basso che si espande da sx verso dx*/
+/* Loading, with a bar along the bottom growing from left to right */
 ._mdv-scrolling-loading {
   /* opacity: .25;
   width: 100%; */
@@ -1942,15 +1938,15 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   border-radius: 0.25rem;
   font-size: 0.9rem;
   line-height: 1.2;
-  /* Il badge e' iniettato in .ohif-scrollbar (flex-1 / overflow-auto): senza questi
-     vincoli viene schiacciato o clippato quando lo spazio verticale e' poco. */
+  /* The badge is injected into .ohif-scrollbar (flex-1, overflow-auto): without these
+     constraints it is squashed or clipped whenever vertical room runs short. */
   box-sizing: border-box;
   flex: 0 0 auto;
   min-height: fit-content;
   overflow: visible;
 }
 
-/* Il pannello studi e' stretto: il testo deve andare a capo, non essere troncato. */
+/* The study panel is narrow: the text has to wrap rather than be cut off. */
 #priors-state p {
   margin: 0;
   white-space: normal;
@@ -1995,8 +1991,8 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
     z-index: 1;
     width: 50px;
     height: 50px;
-    /* Centraggio via margini (vedi .viewport-loading::before): l'animazione
-       `spin` sovrascrive un eventuale translate, decentrando lo spinner. */
+    /* Centred with margins, see .viewport-loading::before: the `spin` animation
+       overwrites any translate and knocks the spinner off centre. */
     margin-top: -25px;
     margin-left: -25px;
     border: 4px solid #212832;
@@ -2077,7 +2073,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
 }
 
 .priors-same-tab {
-  .tab-studio-mdv {
+  .mdv-study-tab {
     display: none !important;
   }
   .right.mdv-new-panel {
@@ -2114,10 +2110,10 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   padding: 10px !important;
 }
 
-/* Studio aperto nello study browser (comportamento ad accordion: uno solo alla volta).
-   Barra di accento a sinistra + fondo appena piu' chiaro, cosi' si capisce a colpo d'occhio
-   a quale studio appartengono le anteprime elencate sotto. La barra e' un box-shadow inset
-   per non alterare il layout: un border sposterebbe il contenuto della riga. */
+/* The open study in the study browser; it behaves like an accordion, one at a time.
+   An accent bar down the left and a slightly lighter background, so it is obvious at a
+   glance which study the thumbnails below belong to. The bar is an inset box-shadow so
+   the layout does not move: a border would shift the row's content. */
 .mdv-study-expanded {
   background-color: rgba(255, 255, 255, 0.07) !important;
   box-shadow: inset 3px 0 0 rgb(56 189 248);
@@ -2127,14 +2123,14 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   background-color: rgba(255, 255, 255, 0.11) !important;
 }
 
-/* La data dello studio aperto in bianco pieno, la description un filo piu' leggibile. */
+/* The open study's date in full white, its description a shade more readable. */
 .mdv-study-expanded .text-muted-foreground {
   color: rgba(255, 255, 255, 0.75);
 }
 
-/* Tab attiva dello study browser: sfondo rosso e scritta SEMPRE bianca, anche con il
-   focus (che resta dopo il click) o in hover. Le utility Tailwind del componente
-   forzavano text-black con !important, rendendo la scritta nera su rosso. */
+/* The study browser's active tab: a red background and text ALWAYS white, focus
+   included, which stays after a click, and on hover. The component's Tailwind utilities
+   forced text-black with !important, which put black text on red. */
 .qualestudio-btn.active-tab-study,
 .qualestudio-btn.active-tab-study:hover,
 .qualestudio-btn.active-tab-study:focus,
@@ -2153,12 +2149,12 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
 }
 
 /*
- * Il giro guidato sta sulla superficie scura come tutto il resto.
+ * The guided tour sits on the dark surface, like everything else.
  *
- * Era una scheda di colore pieno: il marchio applicato all'intero box,
- * che sul tema chiaro di partenza reggeva e qui, sopra immagini in scala di
- * grigi, e' la cosa piu' accesa dello schermo. L'accento resta dove serve a
- * qualcosa: il titolo, e il pulsante che porta avanti.
+ * It used to be a card of solid colour, the brand applied to the whole box. That held
+ * up on the light theme it came from; here, over greyscale images, it is the brightest
+ * thing on the screen. The accent stays where it does some work: the title, and the
+ * button that moves you on.
  */
 .shepherd-element {
   color: #e2e8f0 !important;
@@ -2185,7 +2181,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   }
 }
 
-/* Divido la toolbar in due o piÃ¹ righe */
+/* Break the toolbar over two or more rows */
 @media only screen and (max-width: 1300px) {
   .toolbar-child-flex {
     flex-wrap: wrap !important;
@@ -2240,7 +2236,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
     left: 75px;
     position: relative;
   }
-  .tab-studio-mdv {
+  .mdv-study-tab {
     display: none !important;
   }
   #seriesList-btn {
@@ -2379,7 +2375,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   .div-patient-info {
     display: none;
   }
-  /*Nascondo il pannello dx ma solo se non Ã¨ lo priors splittato*/
+  /* Hide the right-hand panel, but only when the prior is not split alongside */
   .right.mdv-new-panel {
     display: none !important;
   }

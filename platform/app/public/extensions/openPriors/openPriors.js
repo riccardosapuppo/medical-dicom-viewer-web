@@ -187,18 +187,17 @@ function showPriorsLoadingError(
 }
 
 // ---------------------------------------------------------------------------
-// ALLINEAMENTO VERTICALE DELLO PRIORS AFFIANCATO
+// LINING THE PRIOR STUDY UP VERTICALLY WHEN IT SITS ALONGSIDE
 //
-// L'iframe dello priors e' un float inserito DOPO la barra dei tab dello
-// studio principale, quindi parte gia' piu' in basso di tutta l'height della
-// barra; al suo interno ha a sua volta la propria etichetta patient, che
-// finiva percio' ben sotto quella dello studio principale e faceva scendere
-// anche la griglia dello priors.
-// Invece di inseguire numeri fissi (l'height dipende da header, banner
-// estensione, zoom del browser) misuriamo a runtime: l'iframe viene tirato su
-// con un margine negativo finche' la sua etichetta e' alla stessa height di
-// quella principale, e la sua area viewport viene chiusa esattamente sul fondo
-// di quella dello studio principale. Vale per qualsiasi configurazione.
+// The prior's frame is a float inserted AFTER the main study's tab bar, so it starts
+// the whole height of that bar lower down; and inside it there is a patient label of
+// its own, which therefore ended up well below the main study's and pushed the prior's
+// grid down with it.
+// Rather than chase fixed numbers, since the height depends on the header, the
+// extension banner and the browser's zoom, this measures at run time: the frame is
+// pulled up with a negative margin until its label sits at the same height as the main
+// one, and its viewport area is closed off exactly at the bottom of the main study's.
+// That holds for any configuration.
 // ---------------------------------------------------------------------------
 
 let priorsAlignmentIntervalId = null;
@@ -212,8 +211,8 @@ function stopPriorsAlignment() {
 }
 
 /**
- * Allinea l'iframe dello priors allo studio principale.
- * @returns {boolean} true se le misure erano disponibili ed e' stato applicato.
+ * Lines the prior's frame up with the main study.
+ * @returns {boolean} true when the measurements were there and it was applied.
  */
 function alignPriorsToMainStudy() {
   const iframe = document.getElementById('priors-iframe');
@@ -233,15 +232,15 @@ function alignPriorsToMainStudy() {
     return false;
   }
 
-  //Riferimento per l'allineamento in alto: l'etichetta patient se c'e' da
-  //entrambe le parti (e' quella che l'utente vede), altrimenti l'area viewport.
+  // What to line up on at the top: the patient label when both sides have one, since
+  // that is what a reader sees; otherwise the viewport area.
   const mainTabBar = document.getElementById('mdv-tab-container');
   const priorsTabBar = priorsDocument.getElementById('mdv-tab-container');
   const tabBarUse = Boolean(mainTabBar && priorsTabBar);
   const mainRef = tabBarUse ? mainTabBar : mainArea;
   const priorsRef = tabBarUse ? priorsTabBar : priorsArea;
 
-  //1) Etichetta dello priors alla stessa height di quella principale.
+  // 1) The prior's label at the same height as the main one.
   iframe.style.marginTop = '0px';
   const scarto = Math.round(
     iframe.getBoundingClientRect().top +
@@ -252,9 +251,9 @@ function alignPriorsToMainStudy() {
     iframe.style.marginTop = `-${scarto}px`;
   }
 
-  //2) Cornice e griglia dello priors chiuse sul fondo di quella principale.
-  //   Le regole CSS .priors-same-tab sono !important, quindi lo sono anche
-  //   queste altezze calcolate.
+  // 2) The prior's frame and grid closed off at the bottom of the main one.
+  //    The .priors-same-tab CSS rules are !important, so these computed heights
+  //    have to be as well.
   const mainBackground = mainArea.getBoundingClientRect().bottom;
   const cimaIframe = iframe.getBoundingClientRect().top;
 
@@ -277,8 +276,8 @@ function alignPriorsToMainStudy() {
 }
 
 /**
- * Avvia l'allineamento: la barra dei tab dentro l'iframe viene creata in modo
- * asincrono, quindi riproviamo finche' le misure ci sono (max ~10s).
+ * Starts the alignment. The tab bar inside the frame is created asynchronously, so
+ * this retries until the measurements are there, for about ten seconds.
  */
 function startPriorsAlignment() {
   stopPriorsAlignment();
@@ -304,7 +303,7 @@ function startPriorsAlignment() {
   }
 }
 
-//Il ridimensionamento della finestra cambia le altezze di header e barra tab.
+// Resizing the window changes the height of the header and of the tab bar.
 window.addEventListener('resize', () => {
   if (!document.getElementById('priors-iframe')) {
     return;
@@ -318,8 +317,8 @@ function markPriorsIframeReady() {
     priorsPendingPreloader.remove();
   }
   clearPriorsLoadingState();
-  //Il preloader occupava la meta' destra: solo ora l'iframe e' al suo posto
-  //e ha senso misurarlo per allinearlo allo studio principale.
+  // The preloader used to take the right-hand half. Only now is the frame in its own
+  // place, and only now is it worth measuring to line it up with the main study.
   startPriorsAlignment();
 }
 
@@ -373,7 +372,7 @@ const openPriors = (e, modalita, studyInstanceUID, options = {}) => {
       return;
     }
 
-    //Coloro l'icona cliccata di quello studio specifico
+    // Colour the clicked icon of that particular study
     for (const a of document.querySelectorAll('#priors-same-window')) {
       a.classList.remove('active');
     }
@@ -425,7 +424,7 @@ const fixlayoutViewportsMPR = () => {
 
     // window.instanceUIDMPRToClick = null;
 
-    //A fine fix ritorno sempre e comunque nella tab dello priors da cui sono partito
+    // Once the fix is done, always come back to the prior's tab this started from
     document.querySelector('.storicosulcloud').click();
   }, 500);
 };
@@ -436,18 +435,18 @@ function split2Studies(urlToOpen) {
   if (document.getElementById('priors-iframe')) {
     document.getElementById('priors-iframe').remove(); //Sovrascrivo sempre
   }
-  //Se è attivo l'mpr lo disabilito e lo riabilito quando lo schermo è già diviso in quanto il ridimensionamento
-  //della finestra lo farebbe sfasare random, abilitandolo invece a schermo già diviso non da problemi
+  // With MPR on, turn it off and back on once the screen is already split: resizing
+  // the window throws it out at random, while enabling it on an already split screen does not
   if (document.body.classList.contains('hp-mpr-active')) {
     fixlayoutViewportsMPR();
   }
   document.body.classList.add('priors-injected-iframe');
-  document.body.classList.remove('secondo-mpr-attivo');
+  document.body.classList.remove('second-mpr-active');
   const mainArea = document.querySelector('.mdv-main-area');
   mainArea.style.width = '50%';
   mainArea.style.float = 'left'; // Imposta il float per affiancarlo
 
-  // Crea un nuovo iframe
+  // Make a new frame
   const iframe = document.createElement('iframe');
   const iframeUrl = new URL(urlToOpen, window.location.origin);
   iframeUrl.searchParams.set('priors', 'same-tab');
@@ -455,7 +454,7 @@ function split2Studies(urlToOpen) {
   iframe.id = 'priors-iframe';
   iframe.dataset.loaded = 'false';
 
-  // Applica lo stile all'iframe
+  // Style the frame
   iframe.style.width = '50%'; // Imposta l'iframe al 50% della width
   iframe.style.height = '100vh'; // Altezza a tutta la vista
   iframe.style.border = 'none'; // Rimuove il bordo
@@ -469,11 +468,11 @@ function split2Studies(urlToOpen) {
   mainArea.parentNode.insertBefore(preloader, mainArea.nextSibling);
   // return;
 
-  // Inserisci l'iframe dopo il main area
+  // Put the frame in after the main area
   preloader.parentNode.insertBefore(iframe, preloader.nextSibling);
   startPriorsLoadingWatch(preloader);
   // mainArea.parentNode.insertBefore(iframe, mainArea.nextSibling);
-  // Aggiungi un listener per aspettare il caricamento dell'iframe
+  // Add a listener to wait for the frame to load
   iframe.onload = function () {
     try {
       const iframeDocument = iframe.contentWindow.document;
@@ -484,14 +483,14 @@ function split2Studies(urlToOpen) {
       console.warn('Could not put the priors-same-tab class on the frame:', err);
     }
   };
-  //A questo punto avvio un listener per ascoltare eventuali messages dall'iframe listener
+  // Now start a listener for any messages the frame's own listener sends
   ascoltoMessaggiIframeFiglio();
 }
 
-//Se sono già uno priors mi differenzio
+// If this is itself a prior, mark it as one
 if (window.location.href.includes('priors=same-tab')) {
   document.body.classList.add('priors-same-tab');
-  //Aggiungo il pulsante chiudi per rimuovere eventualmente l'iframe
+  // Add the close button, so the frame can be removed
   document.body.insertAdjacentHTML(
     'beforebegin',
     `
@@ -505,7 +504,7 @@ if (window.location.href.includes('priors=same-tab')) {
 
   window.iAmAPrior = true;
 
-  //Attivo listener per ricevere messages dal padre
+  // Start the listener for messages from the parent
   window.addEventListener(
     'message',
     function (event) {
@@ -520,23 +519,21 @@ if (window.location.href.includes('priors=same-tab')) {
 }
 
 // ---------------------------------------------------------------------------
-// PONTE COMANDI: studio principale -> iframe dello priors
+// COMMAND BRIDGE: the main study to the prior's frame
 //
-// Nella modalita' "priors affiancato" la toolbar dell'iframe e' nascosta via
-// CSS e i comandi arrivano dallo studio principale via postMessage. Prima si
-// simulavano i click sui bottoni (data-cy + setTimeout annidati): approccio
-// fragile, che falliva per tutto cio' che vive dentro un menu a tendina (Reset
-// e gli altri "MoreTools") e per i tool senza un case dedicato (Scale, Cursori
-// di riferimento, Link images, Zoom 1:1, ...).
-// Ora il message viene risolto sull'id del bottone di toolbar e passato a
-// toolbarService.recordInteraction: e' la stessa identica strada del click
-// reale (esegue i comandi con le loro opzioni e aggiorna lo stato del bottone),
-// quindi ogni strumento della toolbar risulta sincronizzato senza dover
-// scrivere un case dedicato qui dentro.
+// In "prior alongside" mode the frame's toolbar is hidden with CSS and commands come
+// from the main study over postMessage. This used to simulate clicks on the buttons
+// (data-cy plus nested setTimeouts), which was fragile and failed for everything living
+// inside a dropdown (Reset and the other "MoreTools") and for every tool with no case
+// written for it (Scale, reference cursors, Link images, Zoom 1:1, and so on).
+// The message is now resolved to a toolbar button id and handed to
+// toolbarService.recordInteraction, which is the exact path a real click takes: it runs
+// the commands with their options and updates the button's state. So every toolbar tool
+// stays in step without anyone writing a case for it in here.
 // ---------------------------------------------------------------------------
 
-//Messaggi "storici" (nomi comando) -> id del bottone di toolbar corrispondente.
-//Tutti gli altri messages sono gia' id di bottone (es. 'ScaleOverlay', 'Pan').
+// Older messages, which carry command names, mapped to the matching toolbar button id.
+// Every other message is already a button id ('ScaleOverlay', 'Pan', and the like).
 const PRIORS_TOOLBAR_ITEM_BY_MESSAGE = {
   cine: 'Cine',
   resetViewport: 'Reset',
@@ -550,7 +547,7 @@ const PRIORS_TOOLBAR_ITEM_BY_MESSAGE = {
   'enable-mpr': 'LayoutMPR',
 };
 
-//Preset avanzati 3D/MPR: il selettore layout li segna anche come classe sul body.
+// Advanced 3D and MPR presets: the layout selector also marks them as a class on the body.
 const PRIORS_PRESET_BODY_CLASSES = ['fourUp', 'main3D', 'primaryAxial', 'only3D', 'primary3D'];
 
 function getPriorsServices() {
@@ -558,11 +555,11 @@ function getPriorsServices() {
 }
 
 /**
- * Esegue nell'iframe la stessa interazione di un click sul bottone di toolbar:
- * recordInteraction lancia i comandi del bottone con le sue opzioni (incluso
- * itemId, indispensabile ai toggle tipo Scale / Reference lines) e
- * aggiorna lo stato della toolbar.
- * @returns {boolean} true se il bottone esiste (comando gestito).
+ * Runs inside the frame the same interaction a click on a toolbar button would:
+ * recordInteraction fires the button's commands with its options, itemId included,
+ * which the toggles such as Scale and reference lines cannot do without, and updates
+ * the toolbar's state.
+ * @returns {boolean} true when the button exists, meaning the command was handled.
  */
 function runToolbarItemOnPriors(itemId) {
   const services = getPriorsServices();
@@ -572,8 +569,8 @@ function runToolbarItemOnPriors(itemId) {
     return false;
   }
 
-  //Se nello priors il bottone e' disabilitato (es. Crosshairs fuori dall'MPR)
-  //non eseguo nulla, esattamente come farebbe il click reale.
+  // When the button is disabled in the prior (crosshairs outside MPR, say) nothing
+  // runs, exactly as a real click would do nothing.
   if (buttonProps.disabled === true) {
     return true;
   }
@@ -585,7 +582,7 @@ function runToolbarItemOnPriors(itemId) {
   return true;
 }
 
-/** Esegue un comando OHIF puro (messages strutturati dal padre). */
+/** Runs a plain OHIF command, from the structured messages the parent sends. */
 function runCommandOnPriors(commandName, commandOptions = {}) {
   if (!commandName || !window.commandsManager?.run) {
     return false;
@@ -594,12 +591,12 @@ function runCommandOnPriors(commandName, commandOptions = {}) {
   return true;
 }
 
-/** Layout griglia scelto dal padre ('layout-common-2x3', 'custom2x3'). */
+/** The grid layout the parent chose ('layout-common-2x3', 'custom2x3'). */
 function applyGridLayoutOnPriors(numRows, numCols) {
   if (!numRows || !numCols) {
     return false;
   }
-  //Come il selettore layout: il cambio griglia annulla l'MPR da hanging protocol.
+  // Like the layout selector: changing the grid cancels an MPR that came from a hanging protocol.
   document.body.classList.remove('hp-mpr-active');
   window.mprIsActive = false;
   return runCommandOnPriors('setViewportGridLayout', { numRows, numCols });
@@ -618,17 +615,17 @@ function applyHangingProtocolOnPriors(protocolId) {
     document.body.classList.add(protocolId);
   }
 
-  //Memorizzo la serie attiva per ricliccarla a preset applicato, come fa il
-  //selettore layout dello studio principale.
+  // Remember the active series so it can be clicked again once the preset is applied,
+  // which is what the main study's layout selector does.
   let activeDisplaySetInstanceUID = null;
   try {
     const { activeViewportId, viewports } = services.viewportGridService.getState();
     activeDisplaySetInstanceUID = viewports.get(activeViewportId)?.displaySetInstanceUIDs?.[0];
   } catch (_) {
-    /* viewport non ancora pronta */
+    /* the viewport is not ready yet */
   }
 
-  //Maschera di caricamento come nel selettore layout dello studio principale.
+  // A loading mask, as in the main study's layout selector.
   document.body.classList.add('mpr-layout-loading');
   window.mdvProtocolToApply = protocolId;
   hangingProtocolService.setProtocol(protocolId);
@@ -651,7 +648,7 @@ function activateCommandOnIframe(command) {
   }
 
   try {
-    //Message strutturato: comando OHIF con opzioni (es. subgrid r x c).
+    // A structured message: an OHIF command with options, a subgrid r by c for instance.
     if (typeof command === 'object') {
       if (command.type === 'mdv-priors-command') {
         runCommandOnPriors(command.commandName, command.commandOptions || {});
@@ -665,7 +662,7 @@ function activateCommandOnIframe(command) {
       return;
     }
 
-    //Layout griglia: 'layout-common-2x3' (Standard) e 'custom2x3' (Personalizzato).
+    // Grid layout: 'layout-common-2x3' for Standard, 'custom2x3' for Custom.
     const gridLayout = command.match(/^(?:layout-common-|custom)(\d+)x(\d+)$/);
     if (gridLayout) {
       applyGridLayoutOnPriors(Number(gridLayout[1]), Number(gridLayout[2]));
@@ -679,7 +676,7 @@ function activateCommandOnIframe(command) {
       return;
     }
 
-    //Non e' un bottone di toolbar: ultimo tentativo come preset layout avanzato.
+    // Not a toolbar button, so one last try as an advanced layout preset.
     if (applyHangingProtocolOnPriors(command)) {
       return;
     }
@@ -690,7 +687,7 @@ function activateCommandOnIframe(command) {
   }
 }
 
-//MAIN - Ricevo messages dall'iframe
+// MAIN: messages coming in from the frame
 function listenerEvent(event) {
   if (event.origin !== window.location.origin) {
     console.warn('Message ricevuto da un origine non sicura:', event.origin);
@@ -728,7 +725,7 @@ function listenerEvent(event) {
       mainStudy.style.maxWidth = 'none';
     }
     document.body.classList.remove('priors-injected-iframe');
-    document.body.classList.remove('secondo-mpr-attivo');
+    document.body.classList.remove('second-mpr-active');
     document.getElementById('priors-iframe')?.remove();
     const mainArea = document.querySelector('.mdv-main-area');
     if (mainArea) {
@@ -738,8 +735,8 @@ function listenerEvent(event) {
     for (const a of document.querySelectorAll('#priors-same-window')) {
       a.classList.remove('active');
     }
-    //Fix mpr 3D - quando si passa dallo schermo diviso al pieno schermo e ho un 3d Attivo, questo viene tagliato. Metto il preset mpr e poi
-    //riattivo il preset 3d precedente
+    // 3D MPR fix: going from a split screen to full screen with a 3D view active cut it
+    // off. Apply the MPR preset first, then put the previous 3D preset back
     const listaPreset3D = ['fourUp', 'main3D', 'only3D', 'primary3D'];
 
     listaPreset3D.forEach(preset3D => {
@@ -765,16 +762,16 @@ function listenerEvent(event) {
       document.querySelector('[data-cy="LayoutMPRPriors"]').style.opacity = '0.5';
       break;
     case 'uscita-da-secondo-mpr':
-      document.body.classList.remove('secondo-mpr-attivo');
+      document.body.classList.remove('second-mpr-active');
       break;
   }
 }
 
 function ascoltoMessaggiIframeFiglio() {
-  // Rimuove l'event listener precedente, se esiste
+  // Remove the previous event listener, if there is one
   window.removeEventListener('message', listenerEvent);
 
-  // Aggiungi l'event listener
+  // Add the event listener
   window.addEventListener('message', listenerEvent);
 }
 

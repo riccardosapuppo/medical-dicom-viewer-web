@@ -98,18 +98,17 @@ function initDefaultToolGroup(extensionManager, toolGroupService, commandsManage
       {
         toolName: toolNames.ReferenceCursors,
         configuration: {
-          // Comportamento "esclusivo" come Crosshairs/Pan: quando si attiva un
-          // altro tool, il cursore di riferimento viene disabilitato (e non
-          // lasciato in passive), cosi il crosshair sparisce e non resta un
-          // cursore fuorviante mentre il tasto sinistro agisce su un altro tool.
+          // "Exclusive" behaviour, like crosshairs and pan: turning another tool on
+          // disables the reference cursor rather than leaving it passive, so the
+          // crosshair goes away and no misleading cursor is left behind while the left
+          // button is doing something else.
           disableOnPassive: true,
-          // Mostra SEMPRE il crosshair nelle viewport collegate (stesso Frame
-          // of Reference), a prescindere dalla distanza della slice corrente
-          // dal punto 3D del cursore. Il default di cornerstone (5 mm)
-          // nascondeva il crosshair quando la slice era piu lontana, facendolo
-          // comparire "a tratti" nelle altre serie quando, in hover, le
-          // viewport non vengono piu scrollate automaticamente (lo scroll ora
-          // avviene solo durante il trascinamento col tasto sinistro).
+          // ALWAYS show the crosshair in the linked viewports (the same frame of
+          // reference), whatever the distance between the current slice and the cursor's
+          // 3D point. Cornerstone's default of 5 mm hid the crosshair when the slice was
+          // further away, so it appeared and vanished in the other series when, on hover,
+          // the viewports are no longer scrolled automatically. Scrolling now happens
+          // only while dragging with the left button.
           displayThreshold: Number.MAX_SAFE_INTEGER,
         },
       },
@@ -292,9 +291,9 @@ function initMPRToolGroup(extensionManager, toolGroupService, commandsManager) {
       {
         toolName: toolNames.AdvancedMagnify,
       },
-      // ReferenceCursors NON registrato nel toolgroup 'mpr': in MPR si usa il
-      // Crosshair, quindi il bottone "Reference cursors" risulta non
-      // disponibile (grigio) finche' si e' in modalita' MPR.
+      // ReferenceCursors is NOT registered in the 'mpr' tool group: MPR uses the
+      // crosshairs, so the "Reference cursors" button reads as unavailable, greyed out,
+      // for as long as MPR is on.
       { toolName: toolNames.ScaleOverlay },
       // { toolName: toolNames.ReferenceLines },
     ],
@@ -329,11 +328,11 @@ function initVolume3DToolGroup(extensionManager, toolGroupService) {
   toolGroupService.createToolGroupAndAddTools('volume3d', tools);
 }
 
-// ToolGroup dedicato alla Subgrid (Montage). Identico al 'default' per gli
-// strumenti di interazione e di misura, MA senza i tool cross-viewport che non
-// hanno senso (e che disegnano linee fuorvianti) tra celle della stessa serie:
-// ReferenceLines, Crosshairs, ReferenceCursors. Le celle della montage entrano
-// in questo toolGroup invece che in 'default'.
+// The tool group belonging to the subgrid (montage). Identical to 'default' for the
+// interaction and measurement tools, BUT without the cross-viewport tools, which make no
+// sense between cells of one series and draw misleading lines there: reference lines,
+// crosshairs, reference cursors. The montage's cells join this tool group rather than
+// 'default'.
 function initMontageToolGroup(extensionManager, toolGroupService, commandsManager) {
   const utilityModule = extensionManager.getModuleEntry(
     '@ohif/extension-cornerstone.utilityModule.tools'
@@ -341,14 +340,14 @@ function initMontageToolGroup(extensionManager, toolGroupService, commandsManage
 
   const { toolNames, Enums } = utilityModule.exports;
 
-  // Strumenti per la subgrid: interazione (WL/Pan/Zoom, sincronizzati via
-  // voi/zoompan), scorrimento, ispezione (Magnify/Probe) E strumenti di MISURA.
-  // Le misure sono per-cella: ogni cella è uno StackViewport su un'immagine
-  // specifica della serie, quindi l'annotazione resta legata a quell'immagine
-  // (come in una viewport normale). NON includiamo i tool cross-viewport
-  // (ReferenceLines/Crosshairs/ReferenceCursors): privi di senso tra celle della
-  // stessa serie. Il crash priors su getHandleNearImagePoint è risolto alla
-  // radice in initCornerstoneTools (guard su BaseTool).
+  // Tools for the subgrid: interaction (window level, pan, zoom, synchronised through
+  // voi and zoompan), scrolling, inspection (magnify, probe) AND the MEASUREMENT tools.
+  // Measurements are per cell: each cell is a StackViewport on one particular image of
+  // the series, so an annotation stays tied to that image, exactly as in an ordinary
+  // viewport. The cross-viewport tools are left out (reference lines, crosshairs,
+  // reference cursors): they mean nothing between cells of one series. The priors crash
+  // in getHandleNearImagePoint is fixed at the root, in initCornerstoneTools, with a
+  // guard on BaseTool.
   const tools = {
     active: [
       {
@@ -397,10 +396,10 @@ function initMontageToolGroup(extensionManager, toolGroupService, commandsManage
     ],
     disabled: [
       {
-        // Scale VERTICALE a destra nelle celle della subgrid: in basso a
-        // sinistra c'è il numero istanza, una scala orizzontale (default) ci si
-        // sovrapporrebbe. Sul lato destro non c'è overlay (la scrollbar vive
-        // nella corsia esterna alle celle).
+        // A VERTICAL scale on the right in the subgrid's cells: the instance number sits
+        // at the bottom left, and a horizontal scale, which is the default, would land on
+        // top of it. There is no overlay down the right-hand side, because the scrollbar
+        // lives in the lane outside the cells.
         toolName: toolNames.ScaleOverlay,
         configuration: { scaleLocation: 'right' },
       },

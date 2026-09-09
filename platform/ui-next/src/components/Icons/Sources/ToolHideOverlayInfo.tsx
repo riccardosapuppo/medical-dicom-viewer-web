@@ -4,25 +4,24 @@ import type { IconProps } from '../types';
 /**
  * Hide the data drawn over the images.
  *
- * Disegnata in linea e non caricata come <img>, perche' con currentColor la
- * barra degli strumenti la accende e la spegne impostando un colore, come fa
- * con tutte le altre. Da file esterno currentColor si risolverebbe dentro il
- * documento dell'immagine, dove vale nero, e l'icona sparirebbe sul fondo scuro.
+ * Drawn inline rather than loaded as an <img>, because with currentColor the toolbar
+ * turns it on and off by setting a colour, as it does with every other icon. From an
+ * external file currentColor would resolve inside the image's own document, where it is
+ * black, and the icon would disappear against the dark background.
  *
- * Prima era un'immagine con sopra filter: invert(1), scritto per un disegno
- * scuro su chiaro. Applicato a un disegno gia' chiaro faceva l'opposto: il
- * tratto diventava quasi nero e l'ambra della sbarra diventava blu notte, cosi'
- * dell'icona si vedeva solo la sbarra obliqua, del colore sbagliato.
+ * It used to be an image with filter: invert(1) over it, written for a dark drawing on
+ * light. Applied to a drawing that was already light it did the opposite: the stroke went
+ * nearly black and the amber bar went midnight blue, so all anyone saw of the icon was
+ * the diagonal bar, in the wrong colour.
  */
 export const ToolHideOverlayInfo = (props: IconProps) => (
   <svg
-    // Il riempimento va spento con uno stile in linea, non con l'attributo.
+    // The fill has to be turned off with an inline style, not with the attribute.
     //
-    // La barra passa className="... fill-current", e una classe CSS batte
-    // sempre un attributo di presentazione: fill="none" perdeva, il disegno
-    // veniva riempito e si vedeva una macchia al posto dell'occhio. Lo stile in
-    // linea vince sulla classe, e resta la sola cosa che imponiamo: misura,
-    // classe e colore continuano ad arrivare da fuori.
+    // The bar passes className="... fill-current", and a CSS class always beats a
+    // presentation attribute: fill="none" lost, the drawing was filled, and what showed
+    // was a blot where the eye should be. An inline style beats the class, and it stays
+    // the only thing imposed here: size, class and colour still come from outside.
     width="24px"
     height="24px"
     viewBox="0 0 24 24"

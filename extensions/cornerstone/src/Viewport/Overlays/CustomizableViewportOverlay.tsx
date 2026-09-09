@@ -400,8 +400,8 @@ function CustomizableViewportOverlay({
         instanceNumber,
         viewportId,
         toolGroupService,
-        // Necessari a condition()/contentF per risolvere il valore dei tag
-        // sull'immagine/frame CORRENTE (getCurrentImageId + metaData.get).
+        // condition() and contentF need these to resolve a tag's value on the CURRENT
+        // image or frame (getCurrentImageId plus metaData.get).
         servicesManager,
         viewportData,
         imageSliceData,
@@ -650,19 +650,18 @@ const LINKED_SERIES_PALETTE = [
 ];
 
 /**
- * Un colore per ogni INSIEME di viewport che si muovono insieme.
+ * One colour for each SET of viewports that move together.
  *
- * Prima la chiave era l'id del sincronizzatore, e di sincronizzatori ce n'e'
- * uno: "collega serie" ci mette dentro tutte le viewport, e quale coppia si
- * muova davvero lo decide dopo il controllo di complanarita'. Con una chiave
- * sola uscivano tutti i pallini dello stesso colore, cioe' il pallino diceva
- * che cinque serie scorrono insieme mentre ne scorrono due con due e una con
- * una.
+ * The key used to be the synchroniser's id, and there is one synchroniser: "link series"
+ * puts every viewport into it, and which pair actually moves is decided afterwards, by
+ * the coplanarity check. With a single key every dot came out the same colour, so the
+ * dot said five series scroll together while in truth two moved with two and one moved
+ * alone.
  *
- * La chiave e' l'insieme ordinato dei partecipanti. Chi si muove con gli stessi
- * ha lo stesso colore; chi si muove con altri ne ha un altro. Ed e' stabile:
- * ordinare rende la chiave indipendente da chi la calcola, quindi due viewport
- * dello stesso gruppo arrivano allo stesso colore ciascuna per conto suo.
+ * The key is now the ordered set of participants. Anything that moves with the same
+ * others gets the same colour; anything that moves with different ones gets another. And
+ * it is stable: ordering makes the key independent of who computes it, so two viewports
+ * in one group arrive at the same colour each on their own.
  */
 function hashSyncIdToColor(chiave: string): string {
   let hash = 0;
@@ -840,7 +839,7 @@ function LinkedSeriesBadgeOverlayItem(props: OverlayItemProps) {
 
   const linkInfo = groups.map(g => ({
     id: g.id,
-    // L'insieme di chi si muove insieme, ordinato: questa viewport e i suoi pari.
+    // The set of things that move together, ordered: this viewport and its peers.
     color: hashSyncIdToColor([viewportId, ...g.peers].sort().join('|')),
     others: g.peers.map(vpId => describeViewport(vpId)),
   }));

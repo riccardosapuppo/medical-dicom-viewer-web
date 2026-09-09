@@ -11,19 +11,17 @@
 }
 
 /*
- * Il box sta al centro, e ce lo mettiamo noi.
+ * The box goes in the middle, and we are the ones who put it there.
  *
- * La libreria di posizionamento non scrive mai niente su questo elemento:
- * niente stile in linea, nessun attributo di piazzamento, nessuna classe di
- * centratura. Restando a posizione assoluta senza coordinate, finisce dove lo
- * lascia il flusso - cioe' subito sotto tutto il resto, un pixel oltre il
- * bordo inferiore. Il box esisteva, il codice lo dava per visibile, e
- * chi apriva il visualizzatore vedeva solo la pagina velata al settanta per
- * cento senza niente da leggere e niente da chiudere.
+ * The positioning library writes nothing at all onto this element: no inline style, no
+ * placement attribute, no centring class. Left at absolute position with no coordinates,
+ * it lands where the flow leaves it, which is directly under everything else, one pixel
+ * past the bottom edge. The box existed, the code believed it was visible, and anyone
+ * opening the viewer saw only the page dimmed to seventy per cent with nothing to read
+ * and nothing to close.
  *
- * Cinque schede al centro vanno bene anche meglio di cinque fumetti appesi a
- * pulsanti da ventotto pixel: il testo e' lungo, e i pulsanti li indica
- * comunque il testo.
+ * Five cards in the middle work at least as well as five bubbles hung off buttons
+ * twenty-eight pixels wide: the text is long, and the text points at the buttons anyway.
  */
 .shepherd-element {
   @apply !bg-popover !max-w-[420px];
@@ -41,7 +39,7 @@
   z-index: 10001 !important;
 }
 
-/* Senza un bersaglio a cui puntare, la freccia non ha verso. */
+/* With no target to point at, the arrow has no direction. */
 .shepherd-arrow {
   display: none !important;
 }

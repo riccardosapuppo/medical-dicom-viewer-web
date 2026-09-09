@@ -242,11 +242,11 @@ export default function PanelStudyBrowserTracking({
   const [thumbnailImageSrcMap, setThumbnailImageSrcMap] = useState({});
   const [jumpToDisplaySet, setJumpToDisplaySet] = useState(null);
   const requestedSeriesByStudyUIDRef = useRef(new Set());
-  // Studi le cui serie sono state chieste dal pre-loading automatico (non dall'utente).
+  // Studies whose series were asked for by the automatic preload, not by the reader.
   const studiPrecaricatiRef = useRef(new Set());
-  // Ultima tab scelta esplicitamente cliccando: non va abbandonata se ancora vuota.
+  // The last tab chosen by an actual click: it must not be abandoned while still empty.
   const userChosenTabRef = useRef(null);
-  // Ultimo studio espanso in ciascuna tab: rientrando nella tab lo si riapre.
+  // The last study expanded in each tab: coming back to the tab reopens it.
   const ultimoStudioPerTabRef = useRef({});
 
   const [viewPresets, setViewPresets] = useState(
@@ -285,7 +285,7 @@ export default function PanelStudyBrowserTracking({
     primoAvvio = false; // Imposta `primoAvvio` a false per evitare chiamate successive
   };
 
-  //Al primo avvio verifico se sono su mobile, se lo sono al primo avvio setto la modalità visualizzazione serie in lista
+  // At first start, check for a mobile device and, if it is one, show the series as a list
   useEffect(() => {
     if (primoAvvio) {
       handleOnMobile(); // Verifica se chiudere il pannello
@@ -368,9 +368,8 @@ export default function PanelStudyBrowserTracking({
       return;
     }
 
-    // Stato del caricamento priors: alimenta il badge "Search in corso" della tab
-    // "Local priors". allSettled perche' una query fallita non deve lasciare il badge
-    // acceso per sempre.
+    // The priors' loading state, which feeds the "searching" badge on the "Local priors"
+    // tab. allSettled, because one failed query must not leave the badge lit for good.
     setPriorsState('loading');
     Promise.allSettled(studyUIDs.map(sid => fetchStudiesForPatient(sid))).then(() =>
       setPriorsState('done')
@@ -466,8 +465,8 @@ export default function PanelStudyBrowserTracking({
     thumbnailImageSrcMap,
   ]);
 
-  // Fallback: se lo studio attuale non arriva nella study list (es. risposta QIDO assente/in ritardo),
-  // ricostruisco una voce minima dagli stessi display set già caricati così le serie restano visibili.
+  // Fallback: when the current study does not arrive in the study list (a missing or
+  // late QIDO response), rebuild a minimal entry from the display sets already loaded,
   useEffect(() => {
     const normalizedStudyInstanceUIDs = (StudyInstanceUIDs || [])
       .map(normalizeStudyInstanceUID)
@@ -688,8 +687,8 @@ export default function PanelStudyBrowserTracking({
     }
 
     requestedSeriesByStudyUIDRef.current.add(normalized);
-    // Traccia permanente: serve a riconoscere il jump generato da questo pre-loading
-    // (vedi l'effetto di jumpToDisplaySet) e distinguerlo da un jump voluto dall'utente.
+    // A permanent trace: it is what tells a jump made by this preload (see the
+    // jumpToDisplaySet effect) from a jump the reader asked for.
     studiPrecaricatiRef.current.add(normalized);
     const madeInClient = true;
     requestDisplaySetCreationForStudy(displaySetService, normalized, madeInClient);
@@ -714,15 +713,15 @@ export default function PanelStudyBrowserTracking({
       return;
     }
 
-    // Mantieni sempre "Studio attuale" come default: evita switch automatici allo
-    // priors durante i primi render quando i dati della tab primaria non sono
-    // ancora stati popolati.
+    // Always keep "Current study" as the default: this stops it switching to the priors
+    // by itself during the first renders, while the primary tab's data has not been
+    // filled in yet.
     if (activeTabName === 'primary') {
       return;
     }
 
-    // Idem per una tab aperta esplicitamente dall'utente: se e' vuota di solito lo priors
-    // sta ancora caricando, e riportarlo indietro gli farebbe perdere il click.
+    // The same for a tab the reader opened on purpose: an empty one usually means the
+    // priors are still loading, and moving them back would cost them their click.
     if (userChosenTabRef.current === activeTabName) {
       return;
     }
@@ -751,14 +750,14 @@ export default function PanelStudyBrowserTracking({
       return;
     }
 
-    // Rientrando in una tab si riapre l'ultimo studio che vi era stato espanso, se c'e'
-    // ancora nell'list.
+    // Coming back to a tab reopens the last study expanded there, if it is still in the
+    // list.
     const memorizzato = ultimoStudioPerTabRef.current[activeTabName];
     const memorizzatoAncoraPresente =
       memorizzato && activeTab.studies.some(study => study.studyInstanceUid === memorizzato);
 
-    // Senza memoria: solo "Studio attuale" apre da se' il primo studio. Nelle tab dello
-    // priors non si espande nulla finche' non e' l'utente a scegliere.
+    // With no memory, only "Current study" opens its first study by itself. In the
+    // priors' tabs nothing expands until the reader chooses.
     const daEspandere = memorizzatoAncoraPresente
       ? memorizzato
       : activeTabName === 'primary'
@@ -779,13 +778,13 @@ export default function PanelStudyBrowserTracking({
   // TODO: Should not fire this on "close"
   function _handleStudyClick(StudyInstanceUID) {
     const shouldCollapseStudy = expandedStudyInstanceUIDs.includes(StudyInstanceUID);
-    // Comportamento ad accordion: resta aperto solo lo studio appena espanso, gli altri si
-    // chiudono. Con le anteprime di piu' studi aperte il pannello diventava lunghissimo e
-    // si perdeva di vista quale studio si stesse guardando.
+    // Accordion behaviour: only the study just expanded stays open, the rest close. With
+    // the thumbnails of several studies open the panel grew enormous, and it became hard
+    // to keep track of which study was being looked at.
     const updatedExpandedStudyInstanceUIDs = shouldCollapseStudy ? [] : [StudyInstanceUID];
 
-    // Memoria per tab: chiudendo si azzera, cosi' rientrando la tab resta com'e' stata
-    // lasciata invece di riaprire qualcosa che l'utente aveva appena chiuso.
+    // Remembered per tab, and cleared on close, so coming back leaves the tab as it was
+    // rather than reopening something the reader had just shut.
     ultimoStudioPerTabRef.current[activeTabName] = shouldCollapseStudy ? null : StudyInstanceUID;
 
     setExpandedStudyInstanceUIDs(updatedExpandedStudyInstanceUIDs);
@@ -824,9 +823,9 @@ export default function PanelStudyBrowserTracking({
       return;
     }
     const { tabName, StudyInstanceUID } = thumbnailLocation;
-    // Il pre-loading automatico delle serie genera un jump che, con lo priors remoto,
-    // puo' arrivare secondi dopo: non deve riportare l'utente sulla tab che ha appena
-    // lasciato. I jump voluti (referto creato, doppio click) non passano di qui.
+    // The automatic series preload causes a jump which, with remote priors, can arrive
+    // seconds later: it must not drag the reader back to the tab they have just left.
+    // Jumps they asked for (a report made, a double click) do not come through here.
     const jumpFromPreload = studiPrecaricatiRef.current.has(StudyInstanceUID);
     if (!jumpFromPreload || tabName === activeTabName) {
       setActiveTabName(tabName);
@@ -838,8 +837,8 @@ export default function PanelStudyBrowserTracking({
     }
   }, [expandedStudyInstanceUIDs, jumpToDisplaySet, tabs]);
 
-  // Badge di stato in cima alla lista dello priors. E' manipolazione DOM diretta come
-  // il resto di questo pannello, perche' si innesta nella scrollbar renderizzata da StudyBrowser.
+  // The status badge at the top of the priors list. It is direct DOM manipulation, like
+  // the rest of this panel, because it grafts into the scrollbar StudyBrowser renders.
   const drawPriorsBadge = () => {
     const contenitore = document.querySelector('.ohif-scrollbar');
     if (!contenitore) {
@@ -876,8 +875,8 @@ export default function PanelStudyBrowserTracking({
     );
   };
 
-  // Il badge va ridisegnato quando la search cambia stato mentre la tab e' gia' aperta
-  // (es. lo priors finisce di caricare e "Search in corso" sparisce).
+  // The badge has to be redrawn when the search changes state while the tab is already
+  // open (the priors finish loading and "searching" goes away).
   useEffect(() => {
     drawPriorsBadge();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -894,7 +893,7 @@ export default function PanelStudyBrowserTracking({
         document.querySelector('.ohif-scrollbar .bg-black').style.display = 'block';
       }
 
-      //Mostro sempre il primo priors se clicco la relativa tab così da far vedere le anteprime
+      // Always show the first prior when its tab is clicked, so the thumbnails are visible
 
       // if (clickedTabName === 'all' && showFirstPriorStudy) {
       //   setTimeout(() => {
@@ -906,8 +905,8 @@ export default function PanelStudyBrowserTracking({
       //   showFirstPriorStudy = false;
       // }
 
-      // Il badge lo ridisegna l'effetto su activeTabName: qui quello nuovo non e' ancora
-      // stato applicato, quindi disegnarlo adesso userebbe la tab precedente.
+      // The effect on activeTabName redraws the badge: the new one has not been applied
+      // yet at this point, so drawing it now would use the previous tab.
     } catch (err) {
       console.error(err);
     }

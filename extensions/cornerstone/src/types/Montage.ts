@@ -1,27 +1,26 @@
 /**
- * Tipi e helper per la "Subgrid (Montage)" interna a una singola viewport OHIF.
+ * Types and helpers for the "subgrid (montage)" inside a single OHIF viewport.
  *
- * La montage suddivide UNA viewport OHIF in righe×colonne celle, ognuna delle quali
- * mostra una diversa immagine della STESSA serie. Non vengono create viewport OHIF
- * aggiuntive nella griglia principale: le celle sono enabled-element Cornerstone
- * interni, gestiti da un RenderingEngine dedicato e mai registrati in
- * ViewportGridService. Vedi docs/montage-viewport-design.md.
+ * A montage divides ONE OHIF viewport into rows by columns of cells, each showing a
+ * different image of the SAME series. No extra OHIF viewports are made in the main grid:
+ * the cells are internal cornerstone enabled elements, run by a RenderingEngine of their
+ * own and never registered with ViewportGridService. See docs/montage-viewport-design.md.
  */
 
-/** Stato della montage, persistito dentro viewportOptions.montage. */
+/** The montage's state, kept inside viewportOptions.montage. */
 export interface MontageState {
   enabled: boolean;
   rows: number;
   cols: number;
-  /** indice (0-based) della prima immagine mostrata in alto a sinistra */
+  /** the 0-based index of the first image, the one at the top left */
   firstImageIndex: number;
 }
 
-/** Modello di una singola cella della subgrid. */
+/** The model of one subgrid cell. */
 export interface MontageCellModel {
-  /** id interno cella, NON registrato in ViewportGridService */
+  /** the cell's internal id, NOT registered with ViewportGridService */
   cellId: string;
-  /** indice immagine assegnato a questa cella nello stack della serie */
+  /** which image of the series' stack this cell shows */
   imageIndex: number;
   row: number;
   col: number;
@@ -40,7 +39,7 @@ export const DEFAULT_MONTAGE: MontageState = {
   firstImageIndex: 0,
 };
 
-/** Layout selezionabili dalla toolbar. */
+/** The layouts the toolbar offers. */
 export const MONTAGE_LAYOUTS: Array<{ id: string; label: string; rows: number; cols: number }> = [
   { id: '1x1', label: '1×1', rows: 1, cols: 1 },
   { id: '1x2', label: '1×2', rows: 1, cols: 2 },
@@ -53,11 +52,11 @@ export const MONTAGE_LAYOUTS: Array<{ id: string; label: string; rows: number; c
 ];
 
 /**
- * Vincola `base` (indice della prima cella) a un intervallo valido, tenendo la
- * griglia il più piena possibile: `base` non supera mai `total - visibleCount`.
- * Così, se le immagini sono ≤ celle (es. 3 immagini in una 2×2), lo scroll è di
- * fatto disabilitato (base resta 0) e non si finisce con una sola immagine in
- * una cella e le altre vuote.
+ * Holds `base`, the first cell's index, inside a valid range while keeping the grid as
+ * full as it can be: `base` never goes past `total - visibleCount`.
+ * So when there are no more images than cells (three images in a 2x2, say) scrolling is
+ * effectively off, base stays at 0, and nobody ends up with one image in one cell and
+ * the rest empty.
  */
 export function clampBase(base: number, total: number, visibleCount = 1): number {
   if (total <= 0) {
@@ -68,9 +67,9 @@ export function clampBase(base: number, total: number, visibleCount = 1): number
 }
 
 /**
- * Deriva le celle (id + indice immagine) a partire dallo stato montage.
- * Le celle il cui `imageIndex` eccede `total` sono comunque restituite con
- * imageIndex fuori range: il componente cella le mostrerà come vuote.
+ * Works the cells out (id plus image index) from the montage state.
+ * Cells whose `imageIndex` runs past `total` are still returned, with the index out of
+ * range: the cell component draws those as empty.
  */
 export function deriveMontageCells(
   state: Pick<MontageState, 'rows' | 'cols' | 'firstImageIndex'>,

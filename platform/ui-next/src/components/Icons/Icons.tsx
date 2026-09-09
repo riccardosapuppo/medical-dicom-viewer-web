@@ -234,7 +234,7 @@ const ImageWrapper = ({ src, ...props }: { src: string } & ImageIconProps) => {
 
 export const Icons = {
   // Cubo MPR (PNG, dimensione piena via className) con "MPR" rossa come badge
-  // nell'angolo basso-destra, sovrapposta — stesso stile dell'ingranaggio rosso
+  // nell'angolo bottom-right, sovrapposta — stesso stile dell'ingranaggio rosso
   // sull'icona griglia. Outline scuro per leggibilità sulle linee del cubo.
   mprDirect: ({ className, ...props }: ImageIconProps) => (
     <span className="relative inline-flex items-center justify-center leading-none">

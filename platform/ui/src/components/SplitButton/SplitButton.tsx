@@ -12,7 +12,7 @@ const baseClasses = {
   Button: 'flex items-center rounded-md border-transparent group/button',
   Primary: 'h-full rounded-tl-md rounded-bl-md group/primary',
   Secondary:
-    'h-full flex items-center justify-center rounded-tr-md rounded-br-md w-4 border-2 border-transparent group/secondary selettore-opzioni-tool',
+    'h-full flex items-center justify-center rounded-tr-md rounded-br-md w-4 border-2 border-transparent group/secondary tool-options-selector',
   SecondaryIcon: 'w-4 h-full stroke-1',
   // Separator: 'border-l py-3 ml-0.5',
   Separator: '',

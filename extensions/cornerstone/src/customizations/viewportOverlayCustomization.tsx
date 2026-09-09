@@ -107,11 +107,11 @@ const readFromBag = (bag: any, attribute: any, tag: any) => {
   return undefined;
 };
 
-// imageId dell'immagine ATTUALMENTE mostrata nella viewport: si aggiorna allo
-// scroll. Per gli stack e' imageIds[indiceCorrente] (per un multiframe l'imageId
-// codifica gia' il frame, .../frames/N); per i volume/MPR e' la source imageId
-// geometricamente piu' vicina (best-effort fuori dal piano di acquisizione).
-// Puo' essere undefined durante i cambi layout / il primo render.
+// The imageId of the image CURRENTLY on screen in the viewport: it updates as you scroll.
+// For a stack it is imageIds[currentIndex] (for a multiframe the imageId already encodes
+// the frame, .../frames/N); for a volume or MPR it is the geometrically nearest source
+// imageId, best effort outside the plane of acquisition.
+// It can be undefined during a change of layout, or on the first render.
 const getCurrentImageId = (props: any) => {
   const cornerstoneViewportService =
     props?.servicesManager?.services?.cornerstoneViewportService;
@@ -131,13 +131,13 @@ const isPresent = (value: any) => value !== undefined && value !== null && value
 const getTagValue = (props: any, { attribute, tag, source }: any) => {
   const displaySet = props?.displaySet ?? props?.displaySets?.[0];
 
-  // source:'reference' = valore CONGELATO alla prima istanza (opt-out esplicito,
-  // utile per intestazioni stabili). Ogni altro valore risolve sul frame corrente.
+  // source:'reference' means the value is FROZEN at the first instance, an explicit
+  // opt-out, useful for headings that should stay still. Anything else resolves on the current frame.
   if (source !== 'reference') {
-    // metaData.get('instance', imageId) passa dal MetadataProvider OHIF, che per
-    // un imageId con frame appiattisce Shared/PerFrame FunctionalGroups (via
-    // combineFrameInstance): cosi' i tag per-frame dei multiframe (es. 0018,9327
-    // Table Position) diventano attributi piatti e cambiano frame per frame.
+    // metaData.get('instance', imageId) goes through the OHIF MetadataProvider, which for
+    // an imageId carrying a frame flattens the Shared and PerFrame FunctionalGroups
+    // (through combineFrameInstance): so a multiframe's per-frame tags (0018,9327 Table
+    // Position, say) become flat attributes and change from frame to frame.
     const imageId = getCurrentImageId(props);
     if (imageId) {
       let liveInstance;
@@ -152,14 +152,14 @@ const getTagValue = (props: any, { attribute, tag, source }: any) => {
       }
     }
 
-    // Fallback: istanza per-slice dello stack (instances[imageIndex]).
+    // Fallback: the stack's per-slice instance (instances[imageIndex]).
     const instanceValue = readFromBag(props?.instance, attribute, tag);
     if (isPresent(instanceValue)) {
       return instanceValue;
     }
   }
 
-  // Fallback comune: prima istanza (referenceInstance) -> displaySet.
+  // The common fallback: the first instance (referenceInstance), then the display set.
   const refValue = readFromBag(props?.referenceInstance ?? props?.instance, attribute, tag);
   if (isPresent(refValue)) {
     return refValue;
@@ -224,8 +224,8 @@ const buildTagItemsFromConfig = configItems => {
         : null;
       const attribute = definition.attribute || resolved?.keyword;
       const format = definition.format || formatFromVR(resolved?.vr);
-      // 'auto' = risolvi sull'immagine/frame corrente (si aggiorna allo scroll).
-      // Usa source:'reference' per congelare esplicitamente il valore alla 1a istanza.
+      // 'auto' resolves against the current image or frame, updating as you scroll.
+      // Use source:'reference' to freeze the value at the first instance on purpose.
       const source = definition.source || 'auto';
       const suffixSource = definition.suffixSource || source;
       const suffixFormat = definition.suffixFormat || formatFromVR(suffixResolved?.vr);
@@ -390,8 +390,8 @@ const priorsLabelItem = {
       return true;
     }
 
-    // window.mdvStudyInstanceUIDs rilegge l indirizzo a ogni accesso: vedi la
-    // definizione in public/config/default.js.
+    // window.mdvStudyInstanceUIDs reads the address again on every access: see where it
+    // is defined, in public/config/default.js.
     const aperti = window.mdvStudyInstanceUIDs;
     if (!aperti) {
       return false;

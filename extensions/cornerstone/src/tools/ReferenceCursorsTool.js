@@ -1,35 +1,35 @@
 import { StackViewport, utilities as csUtils } from '@cornerstonejs/core';
 import { ReferenceCursors } from '@cornerstonejs/tools';
 
-// Stile del crosshair mentre si afferra-e-trascina col tasto sinistro.
-// Durante il trascinamento il cursore diventa rosso e leggermente piu spesso,
-// per distinguerlo dallo stato di default (solo movimento del mouse).
+// How the crosshair looks while it is being grabbed and dragged with the left button.
+// During a drag the cursor turns red and thickens slightly, to tell it apart from the
+// default state, which is the mouse merely moving.
 const DRAG_COLOR = 'rgb(255, 60, 60)';
 const DRAG_LINE_WIDTH = 3;
 
 /**
- * Reference cursors con interazione "afferra e trascina":
+ * Reference cursors, with grab-and-drag behaviour:
  *
- * - Con il semplice movimento del mouse (hover) il crosshair viene mostrato e
- *   segue il puntatore, ma le altre viewport collegate NON vengono spostate.
- * - Solo tenendo premuto il tasto sinistro e trascinando, le altre viewport
- *   vengono sincronizzate sul punto del cursore (scroll/cambio slice). In questo
- *   stato il crosshair cambia aspetto (vedi DRAG_COLOR / DRAG_LINE_WIDTH).
+ * - On a plain mouse move (hover) the crosshair is shown and follows the pointer, but
+ *   the other linked viewports are NOT moved.
+ * - Only while the left button is held down and dragged are the other viewports
+ *   synchronised onto the cursor's point, scrolling to the matching slice. In that state
+ *   the crosshair changes appearance (see DRAG_COLOR and DRAG_LINE_WIDTH).
  *
- * Per funzionare il tool deve essere ATTIVO sul tasto primario (vedi il comando
- * `toggleActiveDisabledToolbar` del bottone in toolbar): solo l'active tool
- * riceve `mouseDragCallback`, mentre `mouseMoveCallback` (hover) arriva sia agli
- * active sia ai passive.
+ * For this to work the tool has to be ACTIVE on the primary button (see the toolbar
+ * button's `toggleActiveDisabledToolbar` command): only the active tool is given
+ * `mouseDragCallback`, while `mouseMoveCallback` (hover) reaches both active and
+ * passive tools.
  */
 class ReferenceCursorsTool extends ReferenceCursors {
   constructor(toolProps = {}, defaultToolProps) {
     super(toolProps, defaultToolProps);
 
-    // true solo mentre il tasto sinistro e premuto e si sta trascinando
+    // true only while the left button is down and a drag is under way
     this._isDragging = false;
 
-    // Al rilascio del tasto (ovunque avvenga) usciamo dallo stato di drag e
-    // ridisegniamo il crosshair con lo stile di default (non rosso).
+    // On release, wherever it happens, leave the drag state and redraw the crosshair in
+    // the default style rather than red.
     this._onDocumentMouseUp = () => {
       if (!this._isDragging) {
         return;
@@ -41,14 +41,14 @@ class ReferenceCursorsTool extends ReferenceCursors {
       }
       const annotation = this.getActiveAnnotation(element);
       if (annotation) {
-        // ritriggera il render dell'annotazione -> getStyle torna ai default
+        // triggers the annotation render again, so getStyle goes back to the defaults
         this.updateAnnotationPosition(element, annotation);
       }
     };
 
-    // Afferra-e-trascina: durante il drag col tasto primario aggiorniamo la
-    // posizione del cursore e abilitiamo la sincronizzazione delle altre
-    // viewport (gestita in updateViewportImage, attiva solo se _isDragging).
+    // Grab and drag: while dragging with the primary button, the cursor's position is
+    // updated and the other viewports are synchronised. That synchronisation lives in
+    // updateViewportImage and only runs when _isDragging.
     this.mouseDragCallback = evt => {
       const { detail } = evt;
       const { element, currentPoints } = detail;
@@ -70,7 +70,7 @@ class ReferenceCursorsTool extends ReferenceCursors {
 
   onSetToolActive() {
     super.onSetToolActive();
-    // capture: true cosi intercettiamo il rilascio prima di eventuali stopPropagation
+    // capture: true, so the release is caught ahead of any stopPropagation
     document.addEventListener('mouseup', this._onDocumentMouseUp, true);
   }
 
@@ -80,7 +80,7 @@ class ReferenceCursorsTool extends ReferenceCursors {
     this._isDragging = false;
   }
 
-  // Crosshair rosso e piu spesso mentre si trascina; default altrimenti.
+  // A red, slightly thicker crosshair while dragging; the default otherwise.
   getStyle(property, specifications, annotation) {
     if (this._isDragging) {
       if (property === 'color') {
@@ -93,10 +93,10 @@ class ReferenceCursorsTool extends ReferenceCursors {
     return super.getStyle(property, specifications, annotation);
   }
 
-  // La sincronizzazione/scroll delle altre viewport avviene SOLO durante il
-  // trascinamento col tasto sinistro. Con il semplice hover il crosshair si
-  // vede ma le altre serie restano ferme (questo risolve il problema per cui,
-  // muovendo il mouse, scrollavano tutte le viewport collegate).
+  // The other viewports are synchronised and scrolled ONLY during a drag with the left
+  // button. On a plain hover the crosshair is visible but the other series stay put.
+  // That is what fixed the problem where simply moving the mouse scrolled every linked
+  // viewport.
   updateViewportImage(viewport) {
     if (!this._isDragging) {
       return;

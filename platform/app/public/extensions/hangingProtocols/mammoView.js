@@ -1,24 +1,25 @@
 /**
- * mammoView.js — Identità di VISTA nomenclature-indipendente per l'aggancio
- * serie→cella negli Hanging Protocol.
+ * mammoView.js: a VIEW identity that does not depend on naming, used to pin a series
+ * to a cell in a hanging protocol.
  *
- * Problema: fra studi con nomenclature diversa (es. mammografie di anni/apparecchi
- * diversi) SeriesDescription e SeriesNumber cambiano, quindi il match serie→cella
- * (che oggi si basa su quei due) finisce nella cella la serie SBAGLIATA. I tag DICOM
- * di vista, invece, sono standard e stabili: lateralità (R/L) + proiezione (ViewCode,
- * es. CC/MLO) identificano la serie a prescindere dal nome.
+ * The problem: between studies named by different conventions (mammograms from
+ * different years or different machines) SeriesDescription and SeriesNumber change, so
+ * the series-to-cell match, which today rests on those two, puts the WRONG series in
+ * the cell. The DICOM view tags, on the other hand, are standard and stable:
+ * laterality (R or L) plus projection (ViewCode, CC or MLO for instance) identify the
+ * series whatever it is called.
  *
- * Questo modulo espone:
- *  - derive*(): funzioni PURE (mai throw) che ricavano lateralità/vista/2D-3D da un
- *    displaySet. Usate SIA in cattura (hpStore.captureCurrentState) SIA loading
- *    (attributo custom registrato sull'HangingProtocolService) → stesso formato in
- *    entrambi i lati, quindi il match combacia.
- *  - registerMdvHPAttributes(): registra gli attributi custom sul matcher OHIF.
+ * This module exposes:
+ *  - derive*(): PURE functions, which never throw, that read laterality, view and
+ *    2D-or-3D off a display set. Used BOTH when capturing (hpStore.captureCurrentState)
+ *    AND when loading (the custom attribute registered on HangingProtocolService), so
+ *    the format is the same on both sides and the match lands.
+ *  - registerMdvHPAttributes(): registers the custom attributes on the OHIF matcher.
  *
- * NB: nessuna dipendenza (modulo foglia) → nessun rischio di import circolari.
+ * It depends on nothing, being a leaf module, so there is no risk of circular imports.
  */
 
-// Nomi degli attributi custom usati nelle seriesMatchingRules salvate.
+// The names of the custom attributes used in the saved seriesMatchingRules.
 export const MDV_VIEW_KEY_ATTR = 'mdvViewKey';
 export const MDV_VIEW_DIM_KEY_ATTR = 'mdvViewDimKey';
 
@@ -26,10 +27,10 @@ const firstInstance = ds => ds?.instances?.[0] || ds?.images?.[0] || ds || {};
 const up = value => (value == null ? '' : String(value).trim().toUpperCase());
 
 /**
- * Lateralità (R / L) multi-sorgente:
- *  - mammografia 2D classica / DX → ImageLaterality (0020,0062) o Laterality (0020,0060)
- *  - tomosintesi / enhanced → FrameLaterality dentro SharedFunctionalGroupsSequence
- * Ritorna '' se non determinabile.
+ * Laterality (R or L), from more than one source:
+ *  - classic 2D or DX mammography: ImageLaterality (0020,0062) or Laterality (0020,0060)
+ *  - tomosynthesis or enhanced: FrameLaterality inside SharedFunctionalGroupsSequence
+ * Returns '' when it cannot be worked out.
  */
 export const deriveLaterality = ds => {
   const inst = firstInstance(ds);
@@ -44,14 +45,15 @@ export const deriveLaterality = ds => {
       return flu;
     }
   } catch (err) {
-    /* struttura non presente → ignoro */
+    /* the structure is not there, so ignore it */
   }
   return '';
 };
 
-// Mappa codici vista → token CANONICO (indipendente da schema di codifica e lingua).
-// Include i codici più comuni e sicuri (CC/MLO) sia SRT sia SCT; gli altri ricadono su
-// significato/ViewPosition/raw (che per studi con lo STESSO schema combaciano comunque).
+// View codes mapped to a CANONICAL token, independent of coding scheme and language.
+// It holds the commonest and safest codes (CC and MLO) in both SRT and SCT; the rest
+// fall back to meaning, ViewPosition or the raw code, which still match between studies
+// using the SAME scheme.
 const VIEW_CODE_MAP = {
   'R-10242': 'CC',
   '399162004': 'CC',
@@ -59,11 +61,12 @@ const VIEW_CODE_MAP = {
   '399368009': 'MLO',
 };
 
-// Canonicalizzazione dal testo del CodeMeaning (semantica, cross-schema, ma lingua-dipendente).
-// Le proiezioni OBLIQUE vanno gestite PRIMA delle non-oblique (MLO = "medio-lateral oblique"
-// contiene sia "medio-lateral" sia "obliq"), ma SENZA generalizzare: 'OBLIQ' da solo NON basta
-// per MLO (esistono LMO latero-medial oblique, SIO, ecc.) → mappo solo quelle ben definite,
-// altrimenti '' (fallback a ViewPosition/codice grezzo, che per stesso schema combacia).
+// Canonicalising from the CodeMeaning text: semantic and cross-scheme, but it does
+// depend on the language. OBLIQUE projections have to be handled BEFORE the
+// non-oblique ones (MLO is "medio-lateral oblique" and contains both "medio-lateral"
+// and "obliq"), but without generalising: 'OBLIQ' on its own is NOT enough for MLO,
+// since LMO, SIO and others exist. Only the well-defined ones are mapped; anything else
+// gives '' and falls back to ViewPosition or the raw code, which match within a scheme.
 const meaningToCanonical = m => {
   if (!m) {
     return '';
@@ -90,10 +93,10 @@ const meaningToCanonical = m => {
 };
 
 /**
- * Proiezione canonica, indipendente dalla nomenclature E dallo schema di codifica.
- * Precedenza deterministica (così la stessa vista dà lo stesso token qualunque sia il
- * campo popolato): codice noto → significato → ViewPosition → "SCHEMA:CODICE" grezzo.
- * Ritorna '' se non determinabile.
+ * The canonical projection, independent of naming AND of coding scheme.
+ * The order is fixed, so the same view gives the same token whichever field is filled
+ * in: a known code, then the meaning, then ViewPosition, then the raw "SCHEME:CODE".
+ * Returns '' when it cannot be worked out.
  */
 export const deriveViewCode = ds => {
   const inst = firstInstance(ds);
@@ -108,17 +111,17 @@ export const deriveViewCode = ds => {
   if (byCode) {
     return byCode;
   }
-  // 2) Significato del codice (semantico, cross-schema).
+  // 2) The code's meaning: semantic, and it crosses schemes.
   const byMeaning = meaningToCanonical(up(vc?.CodeMeaning));
   if (byMeaning) {
     return byMeaning;
   }
-  // 3) ViewPosition (già un codice canonico: CC/MLO/ML/LM/...).
+  // 3) ViewPosition, already a canonical code: CC, MLO, ML, LM and so on.
   const vp = up(inst?.ViewPosition);
   if (vp) {
     return vp;
   }
-  // 4) Fallback grezzo "SCHEMA:CODICE" (combacia tra studi con lo stesso schema).
+  // 4) The raw "SCHEME:CODE" fallback, which matches between studies using one scheme.
   if (vc?.CodeValue) {
     const scheme = vc.CodingSchemeDesignator ? `${up(vc.CodingSchemeDesignator)}:` : '';
     return `${scheme}${up(vc.CodeValue)}`;
@@ -127,9 +130,9 @@ export const deriveViewCode = ds => {
 };
 
 /**
- * Chiave d'identità della VISTA usata per il match: "LAT|VIEW" (o solo VIEW se manca
- * la lateralità). Ritorna undefined se non c'è alcuna vista → in tal caso NON si
- * aggiunge alcuna regola per vista (fallback puro a nome/numero, come prima).
+ * The VIEW identity key used for matching: "LAT|VIEW", or just VIEW when there is no
+ * laterality. Returns undefined when there is no view at all, and in that case NO view
+ * rule is added: it falls back purely to name and number, as it did before.
  */
 export const deriveViewKey = ds => {
   const view = deriveViewCode(ds);
@@ -141,12 +144,12 @@ export const deriveViewKey = ds => {
 };
 
 /**
- * Dimensionalità: '2D' (sintetico/classico, monoframe) vs '3D' (volume tomosintesi,
- * multiframe). Serve come SPAREGGIO quando, per la STESSA vista, esistono due serie
- * (tipico della tomosintesi: 2D sintetico + volume 3D). Deterministico (mai undefined)
- * così lo spareggio funziona in entrambe le direzioni di salvataggio/caricamento; ha
- * effetto solo tra serie con la STESSA identità di vista (peso basso), quindi non può
- * far vincere una vista sbagliata.
+ * Dimensionality: '2D' (synthetic or classic, single frame) against '3D' (a
+ * tomosynthesis volume, multiframe). This is a TIE-BREAK for when the SAME view has two
+ * series, which is typical of tomosynthesis: a synthetic 2D and a 3D volume. It is
+ * deterministic, never undefined, so the tie-break works in both directions of saving
+ * and loading; and it only has any effect between series of the SAME view identity,
+ * carrying a low weight, so it can never make a wrong view win.
  */
 export const deriveMammoDim = ds => {
   const inst = firstInstance(ds);
@@ -159,11 +162,12 @@ export const deriveMammoDim = ds => {
 };
 
 /**
- * Chiave VISTA+DIMENSIONE: "LAT|VIEW|DIM" (undefined se non c'è vista).
- * Usata come regola a peso BASSO ma ACCOPPIATA ALLA VISTA: fa da spareggio 2D/3D fra
- * serie della STESSA vista (es. tomo: 2D sintetico vs volume 3D) SENZA dare punti a una
- * serie di vista diversa che condivide solo la dimensione. Deve combaciare byte-a-byte
- * tra salvataggio e caricamento → si appoggia alle stesse derive*().
+ * The VIEW plus DIMENSION key: "LAT|VIEW|DIM", undefined when there is no view.
+ * Used as a LOW-weight rule that is TIED TO THE VIEW: it breaks the 2D against 3D tie
+ * between series of the SAME view (synthetic 2D against 3D volume in tomosynthesis)
+ * WITHOUT giving points to a series of another view that merely shares the dimension.
+ * It has to match byte for byte between saving and loading, so it leans on the same
+ * derive*() functions.
  */
 export const deriveViewDimKey = ds => {
   const vk = deriveViewKey(ds);
@@ -173,9 +177,10 @@ export const deriveViewDimKey = ds => {
   return `${vk}|${deriveMammoDim(ds)}`;
 };
 
-// Registrazione idempotente degli attributi custom sul matcher OHIF.
-// Il callback riceve (metadataInstance = displaySet, options) → passiamo il displaySet
-// alle derive*(). Chiamata sia all'avvio (loadHangingProtocol) sia in applyConfigNow (modale).
+// Idempotent registration of the custom attributes on the OHIF matcher.
+// The callback is handed (metadataInstance = displaySet, options), so the display set
+// goes to derive*(). Called both at startup (loadHangingProtocol) and in applyConfigNow
+// (the dialog).
 let _registered = false;
 export const registerMdvHPAttributes = hangingProtocolService => {
   if (_registered || typeof hangingProtocolService?.addCustomAttribute !== 'function') {

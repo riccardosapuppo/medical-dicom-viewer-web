@@ -6,18 +6,17 @@ let dicomLoad = new URLSearchParams(new URL(window.location.href).search).get('d
 let hdnDicomLoad = new URLSearchParams(new URL(window.location.href).search).get('fZG');
 let useCPURendering = new URLSearchParams(new URL(window.location.href).search).get('usecpu');
 /**
- * Il browser ci da un contesto 3D?
+ * Does the browser give us a 3D context?
  *
- * Il disegno delle immagini passa da WebGL. Dove non c e, il visualizzatore
- * chiede il contesto, riceve null, e nessuna viewport arriva mai a disegnare:
- * la schermata di avvio resta ferma su "Quasi pronto" al 100% e non succede
- * piu niente. Chiedere prima, e ripiegare sul processore, fa aprire gli studi
- * lo stesso.
+ * Drawing the images goes through WebGL. Where there is none, the viewer asks for the
+ * context, gets null, and no viewport ever draws: the opening screen sits at "Almost
+ * ready" on 100% and nothing else happens. Asking first, and falling back to the
+ * processor, opens the studies anyway.
  *
- * Le cause abituali sono l accelerazione grafica disattivata nel browser e
- * troppi contesti WebGL vivi fra le schede aperte, che i browser limitano.
- * La ricostruzione multiplanare resta indisponibile: quella vuole la scheda
- * grafica.
+ * The usual causes are hardware acceleration turned off in the browser, and too many
+ * live WebGL contexts across open tabs, which browsers cap.
+ * Reconstruction on three planes stays unavailable either way: that one wants the
+ * graphics card.
  */
 const graphicsContext = (() => {
   try {
@@ -40,23 +39,22 @@ if (!graphicsContext) {
 
 const modality = new URLSearchParams(new URL(window.location.href).search).get('Modality');
 /**
- * Quello che sta nell'indirizzo si legge al momento in cui serve.
+ * What is in the address is read at the moment it is needed.
  *
- * Erano sei costanti calcolate qui, una volta, quando questo file viene
- * valutato. Ma il visualizzatore naviga DENTRO la pagina: arrivando dalla lista
- * studi l'indirizzo cambia e quelle costanti no, quindi restano ferme a com'era
- * la pagina all'apertura - e sulla lista studi non c'e' nessuno studio, quindi
- * restano vuote. Tredici punti del codice le leggono, e con il valore fermo
- * ognuno sbagliava a modo suo.
+ * These were six constants worked out here, once, when this file is evaluated. But the
+ * viewer navigates INSIDE the page: arriving from the study list the address changes
+ * and those constants do not, so they stay as the page was when it opened. And on the
+ * study list there is no study, so they stay empty. Thirteen places in the code read
+ * them, and with the value stuck each of them went wrong in its own way.
  *
- * Restano scrivibili, e questo conta quanto il resto: sei punti negli hanging
- * protocol posano qui la description dell'esame e la modality quando
- * l'indirizzo non le porta, ricavandole dai metadati DICOM. Rendendole di sola
- * lettura quel codice sollevava e il pannello non si apriva piu.
+ * They stay writable, and that matters as much as the rest: six places in the hanging
+ * protocols put the exam description and the modality here when the address does not
+ * carry them, having read them out of the DICOM metadata. Making them read-only made
+ * that code throw, and the panel stopped opening.
  *
- * Precedenza: prima l'indirizzo, poi l'ultimo valore posato. E il valore posato
- * si dimentica appena l'indirizzo cambia, altrimenti si torna al problema di
- * partenza per un'altra strada.
+ * Precedence: the address first, then the last value written. And the written value is
+ * forgotten the moment the address changes, or the original problem comes back by
+ * another route.
  */
 [
   ['mdvStudyInstanceUIDs', 'StudyInstanceUIDs'],
@@ -86,16 +84,14 @@ const modality = new URLSearchParams(new URL(window.location.href).search).get('
 });
 let origin = window.location.origin;
 
-// Qui non c'e' nessuna pagina ospite, e non c'e' nessun secondo archivio.
+// There is no host page here, and there is no second archive.
 //
-// Tre interruttori vivevano qui: uno diceva al visualizzatore di stare dentro
-// l'applicazione che lo apriva, e da li' dipendeva l'origine a cui chiedere le
-// cose; gli altri due accendevano una terza scheda che cercava lo priors del
-// patient su un secondo archivio, interrogandolo attraverso un backend. Ne'
-// quella pagina ne' quel backend fanno parte di questo repository, quindi sono
-// spariti gli interruttori e non solo i loro valori: lasciarli a falso avrebbe
-// tenuto in piedi del codice che nessuno puo' accendere, e quindi nessuno puo'
-// provare.
+// Three switches used to live here: one told the viewer it was running inside the
+// application that opened it, which decided the origin to ask for things; the other two
+// turned on a third tab that looked for the patient's priors in a second archive,
+// through a backend. Neither that page nor that backend is part of this repository, so
+// the switches are gone and not only their values: leaving them false would keep alive
+// code that nobody can turn on, and so nobody can test.
 window.portableVersion = false;
 window.showFrontendErrors = false //Qualcosa è andato storto errore
 
@@ -107,7 +103,7 @@ let wadoRoot = '/pacs/dicom-web';
 
 window.qidoUrl = qidoRoot;
 
-//Fix vecchio link
+// Fixes an old link
 if (
   window.location.href.includes('&study=') ||
   window.location.href.includes('&hangingProtocolId=mdvhp')
@@ -153,23 +149,23 @@ window.config = {
     cornerBottomRight: [],
   },
   showStudyList: true,
-  // Permette di usare gli strumenti (Pan/WindowLevel/ecc.) direttamente su una
-  // viewport non attiva: il primo trascinamento la rende attiva E applica subito
-  // lo strumento, evitando il doppio click (attiva-poi-usa). Default OHIF: true.
+  // Lets the tools (pan, window level and the rest) work straight away on a viewport
+  // that is not the active one: the first drag makes it active AND applies the tool at
+  // once, so nobody has to click twice. The OHIF default is true.
   activateViewportBeforeInteraction: false,
-  // Mostra i cursori SVG specifici dello strumento attivo (es. il mirino verde
-  // del Window Level, la manina del Pan) su TUTTE le viewport, per coerenza con
-  // le celle della Subgrid. Default OHIF: false (cursore di sistema).
+  // Shows the SVG cursors that belong to the active tool (window level's green
+  // crosshair, pan's hand) on EVERY viewport, so they match the subgrid cells. The OHIF
+  // default is false, which gives the system cursor.
   useCursors: true,
   // Scale web workers to CPU cores (capped at 7 to leave 1 core for UI thread).
   // More workers = faster DICOM decode throughput when scrolling large series.
   maxNumberOfWebWorkers: Math.min(Math.max((navigator.hardwareConcurrency || 4) - 1, 2), 7),
   // below flag is for performance reasons, but it might not work for all servers
   showWarningMessageForCrossOrigin: false,
-  // Spenta: la finestra del prodotto a monte si intitola col nome di quel
-  // prodotto e scrive il testo in un grigio che su questo tema non si legge.
-  // Lo stesso notice lo da la sonda in cima a questo file, in console, e il
-  // pulsante di ricostruzione porta la conseguenza scritta sopra di se.
+  // Off: the upstream product's dialog is titled with that product's name and writes
+  // its text in a grey this theme cannot read. The same notice comes from the probe at
+  // the top of this file, in the console, and the reconstruction button carries the
+  // consequence written on itself.
   showCPUFallbackMessage: false,
   showLoadingIndicator: true,
   experimentalStudyBrowserSort: false,

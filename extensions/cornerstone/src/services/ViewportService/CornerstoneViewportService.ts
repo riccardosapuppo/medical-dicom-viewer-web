@@ -774,8 +774,8 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
     }
 
     return viewport.setStack(imageIdsToSet, initialImageIndexToUse).then(() => {
-      // Nuovo stack sulla stessa viewport: l'framing relativa memorizzata
-      // apparteneva al contenuto precedente.
+      // A new stack on the same viewport: the relative framing that was stored belonged
+      // to the content before it.
       clearFraming(viewport.id);
       if (!window.mdvAllReady) {
         window.mdvAllReady = true;
@@ -800,7 +800,7 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
       if (!window.viewportsAlreadyHPApplied) {
         window.viewportsAlreadyHPApplied = [];
       }
-        //Sperimentale - Applico istanza, camera (zoom/pan), window level (VOI) e color LUT salvati nell'hanging protocol
+        // Experimental: applies the instance, camera (zoom and pan), window level (VOI) and colour LUT saved in the hanging protocol
         const hpCameraSettings = window.cameraSettingsFromHPMdv?.[viewport.id];
         const hpVoiSettings = window.voiSettingsFromHPMdv?.[viewport.id];
         const hpColormap = window.colormapFromHPMdv?.[viewport.id];
@@ -813,11 +813,11 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
         ) {
           const applyCameraAndVoi = () => {
             if (hpCameraSettings) {
-              // Framing RELATIVA salvata nell'HP (framing.js): indipendente
-              // dalla dimensione della cella, quindi corretta anche quando l'HP
-              // viene applicato in una cella diversa da quella del salvataggio
-              // (priors affiancato, monitor diversi). Se assente o non
-              // applicabile, percorso precedente INVARIATO.
+              // The RELATIVE framing saved in the protocol (framing.js): it does not
+              // depend on the cell's size, so it is right even when the protocol is
+              // applied in a different cell from the one it was saved in (a prior
+              // alongside, another monitor). When it is missing or does not apply, the
+              // previous path is UNCHANGED.
               if (applyFraming(viewport, (hpCameraSettings as any).framing)) {
                 notifyFramingApplied(viewport);
               } else {
@@ -861,11 +861,11 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
             if (window.viewportsAlreadyHPApplied.includes(viewport.id)) {
               return;
             }
-            // Marco subito come applicata: setImageIdIndex rilancia IMAGE_RENDERED
-            // e non vogliamo rientrare in questo blocco.
+            // Marked as applied at once: setImageIdIndex fires IMAGE_RENDERED again and
+            // this block must not be re-entered.
             window.viewportsAlreadyHPApplied.push(viewport.id);
-            // L'istanza va impostata PRIMA di camera/VOI: il cambio immagine
-            // ricalcolerebbe il VOI di default sovrascrivendo il window level salvato.
+            // The instance has to be set BEFORE the camera and VOI: changing image would
+            // recompute the default VOI and overwrite the saved window level.
             if (hasHpImageIndex && typeof (viewport as any).setImageIdIndex === 'function') {
               try {
                 const maybePromise = (viewport as any).setImageIdIndex(hpImageIndex);
@@ -1109,7 +1109,7 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
   }
 
   public createTooltipLoadingDynamicVolume = (element) => {
-    //Indico che la viewport per volume dinamico ha bisogno di caricamento
+    // Says the dynamic volume viewport needs loading
     try {
       if (element.querySelector('.tooltip-loading-dynamic')) {
         return;
@@ -1639,28 +1639,27 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
     const isImmediate = false;
 
     try {
-      // La mappa va svuotata a ogni giro: conserva una entry per viewportId e non
-      // veniva mai ripulita, quindi accumulava le viewport smontate (tipico del
-      // toggle one-up, dove le celle che spariscono vengono poi ricreate con lo
-      // STESSO viewportId). Al resize successivo quelle entry vecchie venivano
-      // riapplicate alla cella ricreata, riportandola a una posizione di parecchi
-      // resize prima.
+      // The map is emptied on every pass. It keeps one entry per viewportId and was
+      // never cleared, so it accumulated viewports that had been unmounted, which is
+      // typical of the one-up toggle: cells that disappear are later recreated with the
+      // SAME viewportId. At the next resize those stale entries were applied to the
+      // recreated cell, taking it back to a position several resizes old.
       this.beforeResizePositionPresentations.clear();
       const viewports = this.getRenderingEngine().getViewports();
-      // Framing RELATIVA per viewport (vedi extensions/hangingProtocols/framing.js):
-      // fotografata PRIMA del resize (stato cornerstone ancora coerente) e
-      // ri-applicata DOPO, cosi' la posizione scelta dall'utente sopravvive al
-      // cambio di dimensione della cella (priors affiancato, one-up, pannelli).
+      // RELATIVE framing per viewport (see extensions/hangingProtocols/framing.js):
+      // photographed BEFORE the resize, while the cornerstone state is still coherent,
+      // and applied again AFTER, so the position the reader chose survives a change of
+      // cell size (a prior alongside, one-up, the panels).
       const framingsBeforeResize = new Map<string, any>();
 
       // Store the current position presentations for each viewport.
       viewports.forEach(({ id: viewportId }) => {
         const presentation = this._getPositionPresentation(viewportId);
 
-        // Alcune viewport presenti nel rendering engine non sono gestite dal
-        // CornerstoneViewportService (es. le celle della subgrid/Montage):
-        // non hanno una position presentation. Le saltiamo: vengono comunque
-        // ridimensionate da renderingEngine.resize() più sotto.
+        // Some viewports in the rendering engine are not managed by
+        // CornerstoneViewportService, the subgrid's cells among them, and have no
+        // position presentation. Those are skipped: renderingEngine.resize() below
+        // resizes them anyway.
         if (!presentation) {
           return;
         }
@@ -1694,10 +1693,10 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
       renderingEngine.resize(isImmediate);
       renderingEngine.render();
 
-      // Ricalcola la camera dall'framing relativa sulle NUOVE dimensioni.
-      // Sovrascrive il pan in pixel appena ripristinato da setPresentations, che
-      // non e' robusto al cambio di dimensione (e' la causa del bug "le serie
-      // spariscono"). Interruttore: window.mdvFramingOff = true.
+      // Recomputes the camera from the relative framing against the NEW size. It
+      // overwrites the pixel pan setPresentations has just restored, which does not
+      // survive a change of size and is the cause of the "the series disappear" bug.
+      // Switch: window.mdvFramingOff = true.
       const reframedIds: string[] = [];
       framingsBeforeResize.forEach((framing, viewportId) => {
         if (applyFraming(this.getCornerstoneViewport(viewportId), framing)) {

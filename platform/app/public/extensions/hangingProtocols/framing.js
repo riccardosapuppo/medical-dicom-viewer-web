@@ -1,62 +1,60 @@
 /**
- * framing.js — Framing RELATIVA delle viewport (modello "workstation DICOM").
+ * framing.js: RELATIVE framing of a viewport, the way a DICOM workstation does it.
  *
- * PERCHÉ ESISTE. OHIF memorizza l'framing come pan in PIXEL CANVAS + zoom
- * relativo al fit. I pixel perdono significato appena la cella cambia dimensione:
- * priors affiancato (cella 691→260 px: la serie portata al bordo finisce fuori),
- * toggle one-up (la cella cresce, lo zoom scala col fit ma il pan resta in px →
- * l'immagine "cambia posizione"), HP applicato in una cella diversa da quella del
- * salvataggio. Lo standard DICOM (Displayed Area Selection + Display Set
- * Horizontal/Vertical Justification) modella l'framing in forma RELATIVA:
- * questo modulo fa lo stesso.
+ * WHY IT EXISTS. OHIF stores framing as a pan in CANVAS PIXELS plus a zoom relative to
+ * fit. Pixels stop meaning anything the moment the cell changes size: a prior study
+ * opened alongside (the cell goes from 691 to 260 px, and a series pushed to the edge
+ * ends up outside), one-up toggled (the cell grows, the zoom scales with the fit but
+ * the pan stays in pixels, so the image appears to move), a hanging protocol applied
+ * in a cell of a different size from the one it was saved in. The DICOM standard
+ * (Displayed Area Selection, and Display Set Horizontal and Vertical Justification)
+ * models framing in RELATIVE form. This module does the same.
  *
- * IL MODELLO. Un'framing è { v:3, cell:[cw,ch], fill:[fx,fy], x:{...}, y:{...} }:
- *   cell/fill = dimensione della cella alla cattura e quanto l'immagine la
- *            riempie su ciascun asse. Lo zoom viene ri-derivato conservando il
- *            riempimento sull'asse della cella CAMBIATO DI MENO fra cattura e
- *            applicazione: nello priors cambia solo la width → si conserva
- *            l'height → stessa grandezza (sborda in width, ancorata al
- *            bordo); nel one-up crescono entrambe → cresce col box. Vale
- *            per qualsiasi orientamento dell'immagine e qualsiasi zoom, ed è
- *            simmetrico (chiudere lo priors riporta alla grandezza di prima).
- *            Le regole "asse dominante" tentate prima fallivano: una cella più
- *            stretta dell'immagine cambia l'asse dominante e rimpicciolisce
- *            ogni immagine di un fattore SUO (due CC affiancate disallineate),
- *            e una ricattura nella cella stretta gonfiava l'immagine alla
- *            chiusura. È la semantica DICOM "Presentation Size Mode": la scala
- *            non cambia perché è cambiata la cornice.
- *   x / y  = giustificazione continua per asse (modello DICOM Display Set
- *            Justification, ma senza scatti):
- *            - mode 'ratio': l'immagine sta nella cella (o la copre tutta):
- *              t = quota dello spazio libero a sinistra/sopra. 0 = bordo
- *              iniziale, 1 = bordo finale, 0.5 = centro. Vale anche quando
- *              l'immagine copre la cella (spazio libero negativo): conserva la
- *              stessa ripartizione dello sbordo → un dettaglio centrato resta
- *              centrato.
- *            - mode 'edge': l'immagine sborda da UN lato solo (parzialmente
- *              fuori): si conserva lo sbordo relativo all'immagine su quel
- *              lato → la porzione visibile resta la stessa.
+ * THE MODEL. A framing is { v:3, cell:[cw,ch], fill:[fx,fy], x:{...}, y:{...} }:
+ *   cell/fill = the cell's size at capture, and how much of it the image fills on each
+ *            axis. The zoom is re-derived by keeping the fill on whichever cell axis
+ *            CHANGED LEAST between capture and application. With a prior alongside only
+ *            the width changes, so the height is kept and the image stays the same size
+ *            (running over on the width, anchored to the edge). In one-up both grow, so
+ *            it grows with the box. This holds for any image orientation and any zoom,
+ *            and it is symmetric: closing the prior brings the size back.
+ *            The "dominant axis" rules tried before failed: a cell narrower than the
+ *            image changes which axis dominates and shrinks every image by a factor of
+ *            its OWN (two CC views side by side came out misaligned), and a recapture
+ *            in the narrow cell blew the image up when it closed. This is the DICOM
+ *            "Presentation Size Mode" reading: the scale does not change because the
+ *            frame around it changed.
+ *   x / y  = continuous justification per axis (the DICOM Display Set Justification
+ *            model, without the steps):
+ *            - mode 'ratio': the image sits inside the cell, or covers it entirely.
+ *              t is the share of free space to the left or above. 0 is the near edge,
+ *              1 the far edge, 0.5 the centre. It holds when the image covers the cell
+ *              too, where the free space is negative: the same split of the overflow is
+ *              kept, so a detail in the middle stays in the middle.
+ *            - mode 'edge': the image runs over ONE side only, partly outside. What is
+ *              kept is the overflow relative to the image on that side, so the visible
+ *              portion stays the same.
  *
- * REGOLE DI VITA (le più importanti):
- *   1. L'framing la cambia SOLO l'utente (pan/zoom/reset/HP). Un cambio di
- *      geometria non la cambia mai: la RI-APPLICA ricalcolando la camera.
- *   2. Riconciliazione anti-deriva: framingBeforeResize() riusa l'framing
- *      memorizzata se la camera corrente è ancora quella derivata da noi
- *      (l'utente non ha toccato nulla) → one-up e ritorno sono reversibili al
- *      pixel, nessun effetto cricchetto. Se l'utente ha toccato, si ricattura.
- *   3. None stato dentro cornerstone (niente options.displayArea): Reset,
- *      zoom 1:1, indicatori e sincronizzatori restano com'erano.
- *   4. Misure SOLO dallo stato cornerstone (sWidth/sHeight + worldToCanvas),
- *      mai da canvas.clientWidth: durante un resize il CSS è già nuovo mentre
- *      la proiezione è ancora vecchia, e mischiarli produce misure senza senso
- *      (bug verificato della patch precedente). Prima del resize dell'engine
- *      sWidth e proiezione sono COERENTI fra loro (entrambi "vecchi"); dopo,
- *      entrambi nuovi.
+ * RULES OF LIFE, the ones that matter:
+ *   1. Only the reader changes the framing (pan, zoom, reset, hanging protocol). A
+ *      change of geometry never changes it: it RE-APPLIES it by recomputing the camera.
+ *   2. Anti-drift reconciliation: framingBeforeResize() reuses the stored framing when
+ *      the current camera is still the one derived from it, meaning nobody has touched
+ *      anything. One-up and back is then reversible to the pixel, with no ratchet. If
+ *      the reader has touched it, it is captured again.
+ *   3. No state inside cornerstone (no options.displayArea): reset, zoom 1:1, the
+ *      indicators and the synchronisers all stay as they were.
+ *   4. Measurements come ONLY from cornerstone state (sWidth/sHeight plus
+ *      worldToCanvas), never from canvas.clientWidth: during a resize the CSS is
+ *      already new while the projection is still old, and mixing them gives numbers
+ *      that mean nothing. That was a real bug in the previous patch. Before the
+ *      engine's resize, sWidth and the projection agree with each other, both old;
+ *      afterwards, both new.
  *
- * PERIMETRO. Solo StackViewport GPU (vp.type === 'stack', no fallback CPU):
- * volume/MPR/3D/video/WSI restano al comportamento attuale. Ogni funzione è
- * difensiva: su qualunque dubbio ritorna null/false e non tocca nulla.
- * Interruttore d'emergenza: window.mdvFramingOff = true (nessuna ricompilazione).
+ * SCOPE. GPU StackViewport only (vp.type === 'stack', no CPU fallback): volume, MPR,
+ * 3D, video and WSI keep the behaviour they have. Every function is defensive: on any
+ * doubt it returns null or false and touches nothing.
+ * Emergency switch: window.mdvFramingOff = true, with nothing to recompile.
  */
 
 const EDGE_EPS = 0.5; // mezzo px: sotto, una differenza non è percepibile
@@ -71,14 +69,14 @@ export const framingSupported = vp =>
   vp.sWidth > 0 &&
   vp.sHeight > 0;
 
-// Dimensioni cella in px CSS, coerenti con worldToCanvas (GPU: sWidth = clientWidth*dpr).
+// Cell size in CSS pixels, matching worldToCanvas (on GPU, sWidth = clientWidth * dpr).
 const cellSize = vp => {
   const dpr = window.devicePixelRatio || 1;
   return { cw: vp.sWidth / dpr, ch: vp.sHeight / dpr };
 };
 
-// Bbox dell'immagine sul canvas via angoli opposti (stessa convenzione di
-// cornerstone in setDisplayAreaFit: corretta per rotazioni multiple di 90°).
+// The image's bounding box on the canvas, from opposite corners (the same convention
+// cornerstone uses in setDisplayAreaFit, correct for rotations that are multiples of 90).
 const imageBBox = vp => {
   try {
     const imageData = vp.getImageData?.()?.imageData;
@@ -108,8 +106,8 @@ const axisCapture = (lo, extent, cell) => {
   const covers = gStart <= EDGE_EPS && gEnd <= EDGE_EPS;
   const free = cell - extent;
   if ((inside || covers) && Math.abs(free) > EDGE_EPS) {
-    // t e' in [0,1] per costruzione (a meno della tolleranza): il clamp evita
-    // valori mal condizionati quando lo spazio libero e' di pochi px.
+    // t is in [0,1] by construction, tolerance aside. The clamp keeps it away from
+    // ill-conditioned values when the free space is a few pixels.
     return { mode: 'ratio', t: Math.min(1, Math.max(0, gStart / free)) };
   }
   if (inside || covers) {
@@ -119,7 +117,7 @@ const axisCapture = (lo, extent, cell) => {
   return { mode: 'edge', side, over: (side === 'start' ? gStart : gEnd) / extent };
 };
 
-/** Fotografa l'framing corrente in forma relativa (null se non misurabile). */
+/** Photographs the current framing in relative form, or null if it cannot be measured. */
 export const captureFraming = vp => {
   try {
     if (!framingSupported(vp)) {
@@ -147,15 +145,15 @@ export const captureFraming = vp => {
 // Bordo sinistro/alto voluto per un asse, date le dimensioni ATTUALI.
 const axisTarget = (axis, extent, cell) => {
   if (axis.mode === 'edge') {
-    // Conserva lo sbordo (relativo all'immagine) sul lato da cui sborda.
+    // Keeps the overflow, relative to the image, on the side it runs over.
     return axis.side === 'start' ? axis.over * extent : cell - extent - axis.over * extent;
   }
-  // Stessa ripartizione dello spazio libero (o dello sbordo, se negativo).
+  // The same split of the free space, or of the overflow when it is negative.
   return axis.t * (cell - extent);
 };
 
-// Inquadrature salvate dai formati precedenti (v1/v2, solo sessioni di prova):
-// convertite al volo. Senza `cell` si usa l'asse indicato (o l'height).
+// Framings saved in the earlier formats (v1 and v2, from trial sessions only) are
+// converted on the fly. With no `cell` it uses the axis given, or the height.
 const upgradeFraming = f => {
   if (!f || f.v === 3) {
     return f;
@@ -165,8 +163,8 @@ const upgradeFraming = f => {
   return { v: 3, cell: null, axis: f.axis === 'x' ? 0 : 1, fill: [f.r, f.r], x: conv(f.x), y: conv(f.y) };
 };
 
-// Asse (0 = x, 1 = y) su cui conservare il riempimento: quello la cui
-// dimensione di cella è cambiata di meno rispetto alla cattura.
+// Which axis (0 for x, 1 for y) keeps its fill: the one whose cell size changed least
+// since the capture.
 const scaleAxis = (f, cw, ch) => {
   if (f.cell && f.cell[0] > 0 && f.cell[1] > 0) {
     const kx = Math.abs(Math.log(cw / f.cell[0]));
@@ -176,9 +174,9 @@ const scaleAxis = (f, cw, ch) => {
   return f.axis === 0 ? 0 : 1;
 };
 
-// setCamera senza propagare CAMERA_MODIFIED: evita che un sync-group zoom/pan
-// copi la correzione di una cella sulle altre mentre le stiamo sistemando una a
-// una (stessa tecnica usata da cornerstone dentro setDisplayArea).
+// setCamera without letting CAMERA_MODIFIED out: this stops a zoom or pan sync group
+// copying one cell's correction onto the others while they are being fixed one at a
+// time. Cornerstone uses the same trick inside setDisplayArea.
 const withCameraEventsSuppressed = (vp, fn) => {
   const prev = vp._suppressCameraModifiedEvents;
   vp._suppressCameraModifiedEvents = true;
@@ -189,10 +187,10 @@ const withCameraEventsSuppressed = (vp, fn) => {
   }
 };
 
-// Snapshot della camera che ABBIAMO derivato: oltre a zoom e centro include
-// orientamento e flip, perche' una rotazione (roll) o un flip cambiano solo
-// viewUp/flip* lasciando focalPoint e parallelScale intatti: senza confrontarli
-// la riconciliazione riuserebbe un'framing misurata PRIMA della rotazione.
+// A snapshot of the camera WE derived. Besides zoom and centre it carries orientation
+// and flip, because a roll or a flip changes only viewUp and the flip flags, leaving
+// focalPoint and parallelScale alone: without comparing those, the reconciliation would
+// reuse a framing measured BEFORE the rotation.
 const snapshotCamera = vp => {
   const c = vp.getCamera();
   return {
@@ -232,13 +230,13 @@ const cameraMatches = (vp, snap) => {
   }
 };
 
-// viewportId → { framing, applied } (applied = camera che ABBIAMO derivato noi).
+// viewportId to { framing, applied }, where applied is the camera we derived ourselves.
 const _store = new Map();
 
 /**
- * Da chiamare PRIMA del resize dell'engine (stato "vecchio" coerente).
- * Riusa l'framing memorizzata se l'utente non ha toccato la camera
- * dall'ultima applicazione (reversibilità), altrimenti ricattura.
+ * To be called BEFORE the engine's resize, while the old state is still coherent.
+ * Reuses the stored framing when the reader has not touched the camera since it was
+ * last applied, which is what makes it reversible; otherwise it captures again.
  */
 export const framingBeforeResize = vp => {
   try {
@@ -263,9 +261,9 @@ export const framingBeforeResize = vp => {
 };
 
 /**
- * Ricalcola la camera dall'framing relativa, sulle dimensioni ATTUALI.
- * Ritorna true se l'framing è stata gestita (anche se non serviva muovere
- * nulla); false solo se non applicabile (il chiamante usi il suo fallback).
+ * Recomputes the camera from the relative framing, against the CURRENT size.
+ * Returns true when the framing was handled, even if nothing needed moving; false only
+ * when it does not apply, and then the caller should use its own fallback.
  */
 export const applyFraming = (vp, framing) => {
   try {
@@ -285,7 +283,7 @@ export const applyFraming = (vp, framing) => {
     if (!bb || !(cw > 0 && ch > 0)) {
       return false;
     }
-    // 1) Zoom: conserva il riempimento sull'asse di cella cambiato di meno.
+    // 1) Zoom: keep the fill on whichever cell axis changed least.
     const axis = scaleAxis(framing, cw, ch);
     const rTarget = fill[axis];
     const rNow = axis === 0 ? bb.w / cw : bb.h / ch;
@@ -301,7 +299,7 @@ export const applyFraming = (vp, framing) => {
         return true;
       }
     }
-    // 2) Posizione: sposta la camera del delta mondo corrispondente ai px mancanti.
+    // 2) Position: move the camera by the world delta matching the missing pixels.
     const dx = axisTarget(framing.x, bb.w, cw) - bb.left;
     const dy = axisTarget(framing.y, bb.h, ch) - bb.top;
     if (Math.abs(dx) > EDGE_EPS || Math.abs(dy) > EDGE_EPS) {
@@ -334,11 +332,11 @@ export const applyFraming = (vp, framing) => {
 };
 
 /**
- * Emette UN evento CAMERA_MODIFIED consolidato dopo le correzioni (che avvengono
- * a eventi soppressi): serve a chi mostra lo stato camera, es. l'indicatore di
- * zoom in overlay, che altrimenti resterebbe fermo al valore precedente. Stessa
- * tecnica di cornerstone a fine setDisplayArea. Da chiamare quando TUTTE le
- * viewport sono gia' sistemate, cosi' eventuali sync-group copiano lo stato finale.
+ * Emits ONE consolidated CAMERA_MODIFIED after the corrections, which are made with
+ * events suppressed. Anything showing camera state needs it, the zoom indicator in the
+ * overlay for instance, which would otherwise sit at the previous value. Cornerstone
+ * uses the same technique at the end of setDisplayArea. Call it once EVERY viewport is
+ * settled, so any sync group copies the final state rather than a passing one.
  */
 export const notifyFramingApplied = vp => {
   try {
@@ -350,7 +348,7 @@ export const notifyFramingApplied = vp => {
   }
 };
 
-/** Da chiamare quando la viewport cambia contenuto (nuova serie sullo stesso id). */
+/** To be called when the viewport changes content: a new series on the same id. */
 export const clearFraming = viewportId => {
   _store.delete(viewportId);
 };

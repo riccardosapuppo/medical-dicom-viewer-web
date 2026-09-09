@@ -218,8 +218,8 @@ window.addEventListener('load', () => {
   let colormapSettings;
   let colormapByIndex;
 
-// Flags "cosa è stato salvato" (retro-compatibile con entry senza `captured`:
-// comportamento priors = griglia + serie + istanza + zoom/pan, niente window level).
+// Flags saying "what was saved", backwards-compatible with entries that carry no
+// `captured`: for those the behaviour is grid, series, instance, zoom and pan, and no window level.
 const resolveCaptured = captured => {
   const c = captured && typeof captured === 'object' ? captured : null;
   if (c) {
@@ -242,8 +242,8 @@ const resolveCaptured = captured => {
   };
 };
 
-// Riapplica le sottogriglie (Montage) salvate dopo che l'HP ha (ri)creato il layout.
-// L'Hanging Protocol rigenera viewportOptions SENZA montage, quindi va reimpostato a parte.
+// Puts the saved subgrids (montage) back after the hanging protocol has rebuilt the
+// layout. A hanging protocol regenerates viewportOptions WITHOUT montage, so it has to be set again here.
 let _montageReapplyScheduled = false;
 const reapplyMontageLoaded = (viewportGridService, montageByIndex) => {
   const list = Array.isArray(montageByIndex) ? montageByIndex : [];
@@ -293,16 +293,16 @@ const reapplyMontageLoaded = (viewportGridService, montageByIndex) => {
 };
 
 const loadHangingProtocol = async () => {
-  // Registra gli attributi custom di vista (lat|ViewCode, 2D/3D) PRIMA di applicare
-  // l'HP salvato: le seriesMatchingRules basate sulla vista li usano al caricamento.
+  // Register the custom view attributes (lat|ViewCode, 2D/3D) BEFORE applying the saved
+  // protocol: the view-based seriesMatchingRules use them at load time.
   registerMdvHPAttributes(window.servicesManager?.services?.hangingProtocolService);
   let url = window.location.href;
   const urlParams = new URLSearchParams(new URL(url).search);
   // partizione (postazione) ≡ aetitle: le config viaggiano per (partizione, utente).
   const aetitle = window.mdvAETitle || urlParams.get('partizione') || urlParams.get('aetitle');
   const username = urlParams.get('User') || window.mdvUsername;
-  // Cache locale per (partizione, utente): senza l'utente, su postazione condivisa
-  // un altro utente leggerebbe la config di chi l'ha preceduto.
+  // The local cache is per partition and user. Without the user, a shared workstation
+  // would show one person the configuration left by the one before.
   const preferenzeKey = `userPreferences-${aetitle}-${username}`;
   let mdvhp;
 
@@ -371,8 +371,8 @@ const loadHangingProtocol = async () => {
     return !!(studyExamNameHP || modalityStudioHP);
   };
 
-  // Metadati dello studio già disponibili? Allora una description/modality ancora vuota
-  // è un valore DEFINITIVO (studio senza nome), non "sto ancora caricando".
+  // Are the study's metadata already there? Then a description or modality still empty
+  // is a FINAL value, a study with no name, and not "still loading".
   const metadataDisponibili = () => {
     const displaySetService = window.servicesManager?.services?.displaySetService;
     if (!displaySetService || !studyInstanceUID) {
@@ -397,7 +397,7 @@ const loadHangingProtocol = async () => {
       if (studyExamNameHP && modalityStudioHP) {
         return;
       }
-      // Risolto tutto il possibile: non aspettare i 5s pieni sugli studi senza nome/modality.
+      // Everything that can be resolved is resolved: do not sit out the full five seconds on an unnamed study.
       if (metadataDisponibili()) {
         return;
       }
@@ -423,7 +423,7 @@ const loadHangingProtocol = async () => {
       "StudyDescription and Modality could not be determined from the URL or the metadata. Only study-specific hanging protocols will be applied."
     );
   }
-  //Verifico che ci siano già delle preferenze nella localStorage. Se non fosse così è la prima volta che richiedo le preferenze quindi le chiedo al server
+  // Check whether preferences are already in localStorage. If not, this is the first time they are wanted, so ask the server
   if (!localStorage.getItem(preferenzeKey)) {
     if (!username) {
       console.warn('No username: the remote hanging protocol preferences cannot be fetched');
@@ -433,7 +433,7 @@ const loadHangingProtocol = async () => {
     if (!preferenzeRemote || !preferenzeRemote.json) {
       return console.warn('The remote hanging protocol preferences were not fetched');
     }
-    //A questo punto li setto in localStorage
+    // And put them into localStorage
     localStorage.setItem(preferenzeKey, JSON.stringify(preferenzeRemote.json));
     applyViewportOverlayFromPreferences(preferenzeRemote.json);
   }
@@ -446,7 +446,7 @@ const loadHangingProtocol = async () => {
     console.warn('No user preference found for this exam description');
   }
   let userPreferencesByModality = userPreferencesCache?.hp.modality;
-  //Prima do priorità allo studio specifico ovvero se gli hanging protocol hanno quello studyInstanceUID
+  // The specific study comes first: whether any hanging protocol carries this StudyInstanceUID
   if (userPreferencesForThisStudy && userPreferencesForThisStudy[studyInstanceUID]) {
     cameraSettings = userPreferencesForThisStudy[studyInstanceUID].camera;
     cameraByIndex = userPreferencesForThisStudy[studyInstanceUID].cameraByIndex;
@@ -462,12 +462,12 @@ const loadHangingProtocol = async () => {
     hpTrovati = true;
     tipoMatch = 'studioSpecifico';
   }
-  //Se non c'è lo studio specifico itero per controllare se presente exam description o modality salvata negli HP
+  // With no specific study, iterate looking for a saved exam description or modality
   else {
-    // NB: nessun `break` → in caso di duplicati "fantasma" (entry legacy con examName
-    // assente/undefined + entry nuove con ''), vince l'ULTIMA occorrenza = la più
-    // recente (i salvataggi vengono aggiunti in coda). Guarisce i dati già corrotti
-    // anche prima che un nuovo salvataggio li deduplichi tramite ensureHpStructure.
+    // No `break` here, deliberately: where there are phantom duplicates (legacy entries
+    // with examName missing or undefined, plus new ones with ''), the LAST occurrence
+    // wins, which is the most recent, because saves are appended. That heals data
+    // already corrupted, before a new save de-duplicates it through ensureHpStructure.
     for (let i = 0; i < (userPreferencesByExamDescription || []).length; i++) {
       if (normalizza(userPreferencesByExamDescription[i].examName) === normalisedExamName) {
         cameraSettings = userPreferencesByExamDescription[i].camera;
@@ -486,7 +486,7 @@ const loadHangingProtocol = async () => {
         tipoMatch = 'examDescription';
       }
     }
-    // Non ho trovato nulla finora, provo per modality
+    // Nothing so far, so try by modality
     if (!examFound) {
       // eslint-disable-next-line no-lone-blocks
       {
@@ -527,13 +527,13 @@ const loadHangingProtocol = async () => {
       modalityStudioHP,
     });
   }
-  // Cosa è stato salvato in questa entry (default retro-compatibile per entry legacy).
+  // What this entry saved, with a backwards-compatible default for legacy entries.
   const captured = resolveCaptured(capturedFlags);
 
-  //Sistemo le istanze specifiche (solo se erano state salvate).
-  // Doppia applicazione: initialImageOptions (alla creazione del viewport) +
-  // window.imageIndexFromHPMdv (applicato dopo il render in CornerstoneViewportService,
-  // robusto anche se il viewport NON viene ricreato / initialImageOptions ignorato).
+  // Put the specific instances back, but only when they were saved.
+  // Applied twice: initialImageOptions, when the viewport is created, and
+  // window.imageIndexFromHPMdv, applied after the render in CornerstoneViewportService,
+  // which holds even when the viewport is NOT recreated and initialImageOptions is ignored.
   window.imageIndexFromHPMdv = {};
   if (captured.instance && Array.isArray(istanzeSpecifiche) && istanzeSpecifiche.length) {
     for (let i = 0; i < istanzeSpecifiche.length; i++) {
@@ -552,7 +552,7 @@ const loadHangingProtocol = async () => {
     }
   }
 
-  // Rimappa settings per-viewport (mappa per-id `mdvhp-i` oppure array per-indice) → mappa per-id.
+  // Remaps per-viewport settings (an `mdvhp-i` map by id, or an array by index) to a map by id.
   const remapPerViewport = (byViewportId, byIndex) => {
     const remapped = {};
     if (byViewportId && Object.keys(byViewportId).some(key => key.startsWith('mdvhp-'))) {
@@ -571,7 +571,7 @@ const loadHangingProtocol = async () => {
     return remapped;
   };
 
-  // Zoom / Pan (camera) — applicato solo se salvato
+  // Zoom and pan (the camera), applied only when it was saved
   window.cameraSettingsFromHPMdv = {};
   if (captured.zoomPan && (cameraSettings || cameraByIndex)) {
     const cameraByIndexToUse = cameraByIndex || cameraSettings?.byIndex || [];
@@ -579,13 +579,13 @@ const loadHangingProtocol = async () => {
     window.cameraSettingsFromHPMdv = remapPerViewport(cameraByViewportId, cameraByIndexToUse);
   }
 
-  // Window Level (VOI) — applicato solo se salvato
+  // Window level (VOI), applied only when it was saved
   window.voiSettingsFromHPMdv = {};
   if (captured.windowLevel && (voiSettings || voiByIndex)) {
     window.voiSettingsFromHPMdv = remapPerViewport(voiSettings || {}, voiByIndex || []);
   }
 
-  // Color LUT (colormap) — applicato solo se salvato
+  // Colour LUT (colormap), applied only when it was saved
   window.colormapFromHPMdv = {};
   if (captured.colorLut && (colormapSettings || colormapByIndex)) {
     window.colormapFromHPMdv = remapPerViewport(colormapSettings || {}, colormapByIndex || []);
@@ -696,13 +696,13 @@ const loadHangingProtocol = async () => {
     }
   }
 
-  //A fine caricamento rinnovo la localStorage per avere dati sempre freschi e aggiornati
+  // Once loading is done, refresh localStorage so the data stays current
   if (username) {
     preferenzeRemote = await letturaPreferenzeAPI(aetitle, username, studyInstanceUID);
     if (!preferenzeRemote || !preferenzeRemote.json) {
       return console.warn('The remote hanging protocol preferences were not fetched');
     }
-    //A questo punto li setto in localStorage
+    // And put them into localStorage
     localStorage.setItem(preferenzeKey, JSON.stringify(preferenzeRemote.json));
   }
 };
@@ -728,14 +728,13 @@ async function letturaPreferenzeAPI(aetitle, username, studyInstanceUID) {
       return;
     }
 
-    // La risposta va letta dentro il try, non restituita.
+    // The response is read inside the try, not returned out of it.
     //
-    // Un server che non conosce questo indirizzo risponde con la pagina
-    // dell'applicazione e stato 200: ok è vero, il corpo è HTML, e json()
-    // fallisce. Restituendo la promessa il rifiuto usciva dalla funzione senza
-    // passare di qui, arrivava alla console come eccezione non gestita e il
-    // pannello restava fermo su "Loading..." invece di ripiegare sulla
-    // cache locale, come chi lo ha chiamato si aspetta.
+    // A server that does not know this address answers with the application's own page
+    // and a status of 200: ok is true, the body is HTML, and json() fails. Returning the
+    // promise let that rejection leave the function without passing through here, so it
+    // reached the console as an unhandled exception and the panel sat on "Loading..."
+    // instead of falling back to the local cache, which is what the caller expects.
     return await apiResponse.json();
   } catch (err) {
     console.warn('[HP] The remote user preferences are unavailable, falling back to the local cache', err);

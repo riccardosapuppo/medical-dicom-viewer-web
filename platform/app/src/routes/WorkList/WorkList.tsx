@@ -171,13 +171,13 @@ function WorkList({
 
   // Set body style
   //
-  // mdv-lista-studi dice CHE PAGINA e questa. bg-black la mettono anche il
-  // visualizzatore e la pagina dei file locali, quindi non distingue niente: le
-  // regole appese a quella finivano anche altrove.
+  // mdv-study-list says WHICH PAGE this is. bg-black is also put there by the viewer and
+  // by the local files page, so it distinguishes nothing: rules hung off that one were
+  // landing elsewhere too.
   useEffect(() => {
-    document.body.classList.add('bg-black', 'mdv-lista-studi');
+    document.body.classList.add('bg-black', 'mdv-study-list');
     return () => {
-      document.body.classList.remove('bg-black', 'mdv-lista-studi');
+      document.body.classList.remove('bg-black', 'mdv-study-list');
     };
   }, []);
 
@@ -348,10 +348,10 @@ function WorkList({
 
       const urlOriginalePerWorklist = localStorage.getItem("urlOriginalePerWorklist") || "";
 
-      // Estrae solo la query string dopo il "?"
+      // Takes only the query string after the "?"
       const queryStringOriginale = urlOriginalePerWorklist.split("?")[1] || "";
 
-      // Crea i parametri dalla URL salvata in localStorage
+      // Builds the parameters from the URL saved in localStorage
       const locParams = new URLSearchParams(queryStringOriginale);
 
       // Aggiunge aetitle e User al tuo URL finale
@@ -371,10 +371,9 @@ function WorkList({
       console.log('url: ', url)
       // const url = 'http://localhost:3000/viewer/viewer?Token=1iJ7SuNLy0hXsbZh6RfgHotZAtBYxXTNZsl05AVzcx0nK0UQ2YgE5dsvAqZMP522swwBMpirAKi8dTATJ4&User=admin&StudyDescription=RX+MAMMOGRAFIA+BILATERALE&Modality=MG&prefetch=1&aetitle=MDV&StudyInstanceUIDs=1.2.826.0.1.3680043.2.612.998.1.120250219.10000147538021.8370'
 
-      // La pagina ospite tiene il viewer in un iframe e apre gli studi in schede
-      // proprie. Fuori da quella pagina la funzione non esiste, e prima di questo
-      // cambio il clic finiva in un console.warn: lo studio non si apriva e non
-      // veniva detto perche.
+      // The host page keeps the viewer in a frame and opens studies in tabs of its own.
+      // Outside that page the function does not exist, and before this change the click
+      // ended in a console.warn: the study did not open and nothing said why.
       const parentTabs =
         window.parent !== window &&
         typeof (window.parent as Window & { openStudyInInternalTab?: unknown })
@@ -386,12 +385,11 @@ function WorkList({
             openStudyInInternalTab: (u: string, meta: Record<string, string>) => void;
           }
         ).openStudyInInternalTab(url, {
-          // Il primo dato che c e, nell ordine in cui si riconosce uno studio.
+          // The first thing there is, in the order a study is recognised by.
           //
-          // Non tutti gli studi hanno un nome patient - LIDC-IDRI-0001
-          // nell'archivio dimostrativo non ce l'ha - e senza ripiego la scheda
-          // usciva senza etichetta. Il separatore si scrive solo se c e
-          // qualcosa da separare.
+          // Not every study has a patient name. LIDC-IDRI-0001 in the demonstration
+          // archive has none, and with no fallback the tab came out with no label at
+          // all. The separator is written only when there is something to separate.
           title: [
             [patientName, mrn].find(Boolean) || description || modalities || 'Studio',
             accession,
@@ -406,7 +404,7 @@ Modality: ${modalities}`,
         return;
       }
 
-      // Da soli: si va allo stesso indirizzo in questa finestra.
+      // On our own: the same address, in this window.
       navigate(url.replace(window.location.origin, ''));
 
     };

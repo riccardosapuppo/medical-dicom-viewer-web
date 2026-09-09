@@ -2238,7 +2238,7 @@ function commandsModule({
       if (!document.getElementById('priors-iframe')) {
         return;
       }
-      document.body.classList.add('secondo-mpr-attivo');
+      document.body.classList.add('second-mpr-active');
       _postToPriors('enable-mpr');
     },
     ptctDirectClick: () => {
