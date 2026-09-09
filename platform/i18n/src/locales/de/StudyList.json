@@ -4,10 +4,10 @@
   "Empty": "Leer",
   "MRN": "ID Patient",
   "Modality": "Modalität",
-  "Nome patient": "Patientenname",
+  "PatientName": "Patientenname",
   "Study date": "Studiendatum",
   "Description": "Beschreibung",
   "Study list": "Studienliste",
-  "Istanze": "Instanzen",
+  "Instances": "Instanzen",
   "Number of studies": "Studien"
 }

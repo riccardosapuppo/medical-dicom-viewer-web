@@ -77,7 +77,7 @@ const LegacySidePanel = ({
   const { t } = useTranslation('LegacySidePanel');
 
   // Tracks whether this LegacySidePanel has been opened at least once since this LegacySidePanel was inserted into the DOM.
-  // Thus going to the Lista studi page and back to the viewer resets this flag for a LegacySidePanel.
+  // Thus going to the study list page and back to the viewer resets this flag for a LegacySidePanel.
   const [hasBeenOpened, setHasBeenOpened] = useState(activeTabIndexProp !== null);
   const [panelOpen, setPanelOpen] = useState(activeTabIndexProp !== null);
   const [activeTabIndex, setActiveTabIndex] = useState(activeTabIndexProp ?? 0);

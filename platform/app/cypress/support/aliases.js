@@ -60,7 +60,7 @@ export function initRouteAliases() {
   });
 }
 
-//Creating aliases for Lista studi page elements on Desktop experience
+//Creating aliases for study list page elements on Desktop experience
 export function initStudyListAliasesOnDesktop() {
   cy.get('[data-cy="num-studies"]').as('numStudies');
   cy.get('[data-cy="input-patientName"]').as('PatientName');

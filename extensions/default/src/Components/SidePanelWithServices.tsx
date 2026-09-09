@@ -31,7 +31,7 @@ const SidePanelWithServices = ({
   const panelService = servicesManager?.services?.panelService;
 
   // Tracks whether this SidePanel has been opened at least once since this SidePanel was inserted into the DOM.
-  // Thus going to the Lista studi page and back to the viewer resets this flag for a SidePanel.
+  // Thus going to the study list page and back to the viewer resets this flag for a SidePanel.
   const [sidePanelExpanded, setSidePanelExpanded] = useState(isExpanded);
   const [activeTabIndex, setActiveTabIndex] = useState(activeTabIndexProp ?? 0);
   const [closedManually, setClosedManually] = useState(false);
