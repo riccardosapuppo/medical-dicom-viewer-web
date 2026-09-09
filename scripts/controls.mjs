@@ -12,90 +12,72 @@
  * and whether anything appeared. A control that raises nothing and shows nothing
  * is reported too — that is what a dead button looks like.
  *
- *   npm install --no-save playwright-core
  *   node scripts/controls.mjs
  *
  * Against the viewer and the loaded archive already running — see
  * scripts/lib/viewerReady.mjs.
  */
-import fs from 'node:fs';
+
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { aBrowser } from './lib/a-browser.mjs';
+import { requireInSource } from './lib/in-source.mjs';
+import { dismissTour, TOUR_HANDLES } from './lib/tour.mjs';
 import { requireViewer } from './lib/viewerReady.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const VIEWER = process.env.VIEWER_URL ?? 'http://localhost:3000';
 const STUDY = '1.3.6.1.4.1.14519.5.2.1.3320.3273.330352612792644515148733881839';
 
-let chromium;
-try {
-  ({ chromium } = await import('playwright-core'));
-} catch {
-  console.error('This check drives a real browser: npm install --no-save playwright-core');
-  process.exit(1);
-}
-
-function findChromium() {
-  if (process.env.CHROMIUM_PATH) {
-    return process.env.CHROMIUM_PATH;
-  }
-  const cache =
-    process.platform === 'win32'
-      ? path.join(process.env.LOCALAPPDATA ?? '', 'ms-playwright')
-      : path.join(process.env.HOME ?? '', '.cache', 'ms-playwright');
-  if (!fs.existsSync(cache)) {
-    return undefined;
-  }
-  for (const entry of fs.readdirSync(cache)) {
-    if (!entry.startsWith('chromium-')) {
-      continue;
-    }
-    for (const candidate of [
-      path.join(cache, entry, 'chrome-win64', 'chrome.exe'),
-      path.join(cache, entry, 'chrome-linux', 'chrome'),
-      path.join(cache, entry, 'chrome-mac', 'Chromium.app', 'Contents', 'MacOS', 'Chromium'),
-    ]) {
-      if (fs.existsSync(candidate)) {
-        return candidate;
-      }
-    }
-  }
-  return undefined;
-}
-
-/** What this fork adds, by the name the page knows it by. */
+/**
+ * What this fork adds, by the name the page knows it by.
+ *
+ * `handle` is the string the selector rests on, and it is checked against the
+ * source before anything is launched. Three of these six selectors were dead
+ * and nobody knew: a rename moved `Sottogriglia` to `Subgrid`, `gestioneHP` to
+ * `hangingProtocols` and `preferiti.png` to `favourites.png`, and this file kept
+ * asking for the old names. The check reported them as broken controls, which
+ * is what a broken check and a broken button look like from here, and neither
+ * was noticed because running it needs an archive and a viewer up.
+ *
+ * The preflight needs neither. A rename now goes red in the same commit.
+ */
 const CONTROLS = [
-  ['Sottogriglia', '[aria-label="Sottogriglia"]'],
-  ['MPR', '[data-cy="LayoutMPR"]'],
-  ['hanging protocol', '[data-cy="gestioneHP"]'],
-  ['nascondi info', '[data-cy="hideInfoDicom"]'],
-  ['note', 'img[src*="edit.png"]'],
-  ['preferiti', 'img[src*="preferiti.png"]'],
+  { name: 'subgrid', selector: '[aria-label="Subgrid"]', handle: 'aria-label="Subgrid"' },
+  { name: 'MPR', selector: '[data-cy="LayoutMPR"]', handle: "id: 'LayoutMPR'" },
+  {
+    name: 'hanging protocol',
+    selector: '[data-cy="hangingProtocols"]',
+    handle: "id: 'hangingProtocols'",
+  },
+  { name: 'hide the info', selector: '[data-cy="hideInfoDicom"]', handle: "id: 'hideInfoDicom'" },
+  { name: 'notes', selector: 'img[src*="edit.png"]', handle: 'assets/edit.png' },
+  { name: 'favourites', selector: 'img[src*="favourites.png"]', handle: 'assets/favourites.png' },
 ];
+
+requireInSource(root, [...CONTROLS, ...TOUR_HANDLES]);
 
 await requireViewer(VIEWER);
 
-const browser = await chromium.launch({
-  executablePath: findChromium(),
-  args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
-});
+const { browser, driving } = await aBrowser();
+console.log(`  driving ${driving}`);
 
-let guasti = 0;
+let broken = 0;
 
-for (const [nome, selettore] of CONTROLS) {
-  // Una pagina nuova per ciascuno: premere un comando cambia la disposizione, e
-  // il successivo si troverebbe uno schermo diverso da quello che si aspetta.
+for (const { name, selector } of CONTROLS) {
+  // A fresh page for each: pressing one control changes the arrangement, and
+  // the next would meet a screen other than the one it expects.
   const page = await browser.newPage({ viewport: { width: 1600, height: 950 } });
-  const eccezioni = [];
-  const errori = [];
-  page.on('pageerror', e => eccezioni.push(String(e.message).slice(0, 120)));
+  const exceptions = [];
+  const consoleErrors = [];
+  page.on('pageerror', error => exceptions.push(String(error.message).slice(0, 120)));
   page.on(
     'console',
-    m =>
-      m.type() === 'error' &&
-      !/shader|WebGL|GL_/i.test(m.text()) &&
-      errori.push(m.text().slice(0, 120))
+    message =>
+      message.type() === 'error' &&
+      !/shader|WebGL|GL_/i.test(message.text()) &&
+      consoleErrors.push(message.text().slice(0, 120))
   );
 
   await page.goto(`${VIEWER}/viewer?StudyInstanceUIDs=${STUDY}`, {
@@ -103,65 +85,70 @@ for (const [nome, selettore] of CONTROLS) {
     timeout: 120000,
   });
   await page.waitForTimeout(30000);
-  await page.evaluate(() =>
-    [...document.querySelectorAll('.shepherd-button')]
-      .find(b => /Chiudi|Ho capito/.test(b.innerText))
-      ?.click()
-  );
-  await page.waitForTimeout(1200);
-  eccezioni.length = 0;
-  errori.length = 0;
+  await dismissTour(page);
+  exceptions.length = 0;
+  consoleErrors.length = 0;
 
-  const prima = await page.evaluate(() => document.body.innerText || '');
-  const premuto = await page.evaluate(sel => {
-    const e = document.querySelector(sel);
-    if (!e) {
+  const before = await page.evaluate(() => document.body.innerText || '');
+  const pressed = await page.evaluate(sel => {
+    const element = document.querySelector(sel);
+    if (!element) {
       return false;
     }
-    (e.closest('button,[role="button"]') || e).click();
+    (element.closest('button,[role="button"]') || element).click();
     return true;
-  }, selettore);
-  // Un effetto puo' essere testo che compare O testo che sparisce: il comando
-  // che nasconde i dati sovrimpressi fa esattamente il secondo, e giudicarlo
-  // solo sulle righe nuove lo faceva sembrare morto.
-  const spezza = t =>
-    t
+  }, selector);
+
+  // An effect can be text appearing OR text going away: the control that hides
+  // the overlaid data does exactly the second, and judging it on new lines
+  // alone made it look dead.
+  const lines = text =>
+    text
       .split(/\r?\n/)
-      .map(r => r.trim())
+      .map(line => line.trim())
       .filter(Boolean);
 
-  // Si guarda DURANTE l'attesa, non alla fine.
+  // Watched DURING the wait, not at the end.
   //
-  // Un avviso passeggero - "Aggiunto ai preferiti" dura pochi secondi - puo'
-  // essere gia' sparito quando si confronta lo stato finale: il comando
-  // risultava morto una volta su due. Un controllo che si contraddice insegna a
-  // ignorarlo, il che e' peggio che non averlo.
-  let comparso = '';
-  for (let i = 0; i < 12 && !comparso; i++) {
+  // A passing notice — "Added to favourites" lasts a few seconds — can already
+  // be gone by the time the final state is compared: the control read as dead
+  // one run in two. A check that contradicts itself teaches people to ignore
+  // it, which is worse than not having it.
+  let appeared = '';
+  for (let attempt = 0; attempt < 12 && !appeared; attempt++) {
     await page.waitForTimeout(500);
-    const ora = await page.evaluate(() => document.body.innerText || '');
-    const nuoveRighe = spezza(ora).filter(r => !prima.includes(r));
-    const sparite = spezza(prima).filter(r => !ora.includes(r));
-    comparso = nuoveRighe.length
-      ? nuoveRighe.slice(0, 2).join(' | ')
-      : sparite.length
-        ? `sparite ${sparite.length} righe: ${sparite.slice(0, 2).join(' | ')}`
+    const now = await page.evaluate(() => document.body.innerText || '');
+    const added = lines(now).filter(line => !before.includes(line));
+    const gone = lines(before).filter(line => !now.includes(line));
+    appeared = added.length
+      ? added.slice(0, 2).join(' | ')
+      : gone.length
+        ? `${gone.length} lines gone: ${gone.slice(0, 2).join(' | ')}`
         : '';
   }
 
-  // Un errore in console e' un guasto quanto un'eccezione: e' cosi' che si e'
-  // manifestato l'MPR rotto, mentre questo conteggio diceva zero.
-  const rotto = !premuto || eccezioni.length > 0 || errori.length > 0;
-  if (rotto) {
-    guasti++;
+  // A console error is as much a fault as an exception: that is how the broken
+  // MPR showed itself, while this count said zero.
+  if (!pressed || exceptions.length > 0 || consoleErrors.length > 0) {
+    broken++;
   }
-  const esito = !premuto ? 'NON TROVATO' : eccezioni.length ? 'ECCEZIONE' : comparso ? 'ok' : 'nessun effetto visibile';
-  console.log(`${esito === 'ok' ? '  ok  ' : '  FAIL'}  ${nome.padEnd(18)} ${esito === 'ok' ? comparso.slice(0, 70) : esito}`);
-  eccezioni.slice(0, 2).forEach(e => console.log(`        ${e}`));
-  errori.slice(0, 2).forEach(e => console.log(`        console: ${e}`));
+  const outcome = !pressed
+    ? 'NOT FOUND'
+    : exceptions.length
+      ? 'EXCEPTION'
+      : appeared
+        ? 'ok'
+        : 'no visible effect';
+  console.log(
+    `${outcome === 'ok' ? '  ok  ' : '  FAIL'}  ${name.padEnd(18)} ${
+      outcome === 'ok' ? appeared.slice(0, 70) : outcome
+    }`
+  );
+  exceptions.slice(0, 2).forEach(one => console.log(`        ${one}`));
+  consoleErrors.slice(0, 2).forEach(one => console.log(`        console: ${one}`));
   await page.close();
 }
 
 await browser.close();
-console.log(`\nComandi con guasti: ${guasti}`);
-process.exit(guasti > 0 ? 1 : 0);
+console.log(`\nControls with faults: ${broken}`);
+process.exit(broken > 0 ? 1 : 0);

@@ -255,11 +255,15 @@ function sources() {
     .split('\n')
     .filter(
       file =>
-        /\.(ts|tsx|js|jsx)$/.test(file) &&
+        /\.(ts|tsx|js|jsx|mjs)$/.test(file) &&
         !file.includes('/locales/') &&
         !file.includes('/cypress/') &&
-        !/\.test\.(ts|tsx|js)$/.test(file) &&
-        !/\.min\.js$/.test(file)
+        !/\.test\.(ts|tsx|js|mjs)$/.test(file) &&
+        !/\.min\.js$/.test(file) &&
+        // This file itself. Its whole middle is a list of Italian words, and a
+        // check that reported its own vocabulary as a defect would be one
+        // nobody could ever get to green.
+        !file.endsWith('scripts/english.mjs')
     );
 }
 

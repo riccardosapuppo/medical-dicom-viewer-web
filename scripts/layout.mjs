@@ -11,192 +11,156 @@
  *
  * None of those raise an error. Every one of them is visible in the geometry.
  *
- *   npm install --no-save playwright-core
  *   node scripts/layout.mjs
  *
  * Against the viewer and the loaded archive already running — see
  * scripts/lib/viewerReady.mjs.
  */
-import fs from 'node:fs';
+
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { aBrowser } from './lib/a-browser.mjs';
+import { dismissTour, requireTour } from './lib/tour.mjs';
 import { requireViewer } from './lib/viewerReady.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const VIEWER = process.env.VIEWER_URL ?? 'http://localhost:3000';
 const STUDY = '1.3.6.1.4.1.14519.5.2.1.3320.3273.330352612792644515148733881839';
 
-let chromium;
-try {
-  ({ chromium } = await import('playwright-core'));
-} catch {
-  console.error('This check drives a real browser: npm install --no-save playwright-core');
-  process.exit(1);
-}
-
-function findChromium() {
-  if (process.env.CHROMIUM_PATH) {
-    return process.env.CHROMIUM_PATH;
-  }
-  const cache =
-    process.platform === 'win32'
-      ? path.join(process.env.LOCALAPPDATA ?? '', 'ms-playwright')
-      : path.join(process.env.HOME ?? '', '.cache', 'ms-playwright');
-  if (!fs.existsSync(cache)) {
-    return undefined;
-  }
-  for (const entry of fs.readdirSync(cache)) {
-    if (!entry.startsWith('chromium-')) {
-      continue;
-    }
-    for (const candidate of [
-      path.join(cache, entry, 'chrome-win64', 'chrome.exe'),
-      path.join(cache, entry, 'chrome-linux', 'chrome'),
-      path.join(cache, entry, 'chrome-mac', 'Chromium.app', 'Contents', 'MacOS', 'Chromium'),
-    ]) {
-      if (fs.existsSync(candidate)) {
-        return candidate;
-      }
-    }
-  }
-  return undefined;
-}
-
 /**
  * What counts as a fault, measured in the page rather than judged by eye.
  *
  * Runs inside the browser, so it is written as one self-contained function.
  */
-function rileva(altezzaFinestra) {
-  const visibile = e => {
-    const s = getComputedStyle(e);
-    if (s.visibility === 'hidden' || s.display === 'none' || Number(s.opacity) < 0.05) {
+function faultsOnScreen(windowHeight) {
+  const visible = element => {
+    const style = getComputedStyle(element);
+    if (style.visibility === 'hidden' || style.display === 'none' || Number(style.opacity) < 0.05) {
       return false;
     }
-    const b = e.getBoundingClientRect();
-    if (b.width <= 2 || b.height <= 2) {
+    const box = element.getBoundingClientRect();
+    if (box.width <= 2 || box.height <= 2) {
       return false;
     }
-    // Parcheggiato fuori tela.
+    // Parked off the canvas.
     //
-    // I riquadri dei suggerimenti alla vecchia maniera vivono a x un milione
-    // finche' non servono: sono a schermo per ogni proprieta' che si possa
-    // interrogare, e nessuno li vede. Senza questo, quattro di loro si
-    // segnalavano a vicenda come testo sovrapposto e coprivano i guai veri.
-    return b.right > 0 && b.left < innerWidth && b.bottom > 0 && b.top < window.innerHeight;
+    // The older tooltip boxes live at x of a million until they are wanted:
+    // they are on screen by every property you can ask about, and nobody sees
+    // them. Without this, four of them reported each other as overlapping text
+    // and buried the real faults.
+    return (
+      box.right > 0 && box.left < innerWidth && box.bottom > 0 && box.top < window.innerHeight
+    );
   };
 
-  /** Solo il testo proprio, non quello dei figli. */
-  const testoProprio = e =>
-    [...e.childNodes]
-      .filter(n => n.nodeType === 3)
-      .map(n => n.textContent.trim())
+  /** Its own text only, not its children's. */
+  const ownText = element =>
+    [...element.childNodes]
+      .filter(node => node.nodeType === 3)
+      .map(node => node.textContent.trim())
       .join(' ')
       .trim();
 
-  const nome = e =>
-    `${e.tagName.toLowerCase()}${e.id ? '#' + e.id : ''}${
-      typeof e.className === 'string' && e.className.trim()
-        ? '.' + e.className.trim().split(/\s+/).slice(0, 2).join('.')
+  const named = element =>
+    `${element.tagName.toLowerCase()}${element.id ? '#' + element.id : ''}${
+      typeof element.className === 'string' && element.className.trim()
+        ? '.' + element.className.trim().split(/\s+/).slice(0, 2).join('.')
         : ''
     }`.slice(0, 52);
 
-  const guai = [];
+  const faults = [];
 
-  // 1. Testo sopra testo: due scritte che occupano lo stesso posto.
-  const scritte = [...document.querySelectorAll('*')].filter(
-    e => visibile(e) && testoProprio(e).length > 1
+  // 1. Text over text: two pieces of writing in the same place.
+  const writing = [...document.querySelectorAll('*')].filter(
+    element => visible(element) && ownText(element).length > 1
   );
-  for (let i = 0; i < scritte.length; i++) {
-    for (let j = i + 1; j < scritte.length; j++) {
-      const a = scritte[i];
-      const b = scritte[j];
+  for (let i = 0; i < writing.length; i++) {
+    for (let j = i + 1; j < writing.length; j++) {
+      const a = writing[i];
+      const b = writing[j];
       if (a.contains(b) || b.contains(a)) {
         continue;
       }
       const ra = a.getBoundingClientRect();
       const rb = b.getBoundingClientRect();
-      const larghezza = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left);
-      const altezza = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top);
-      if (larghezza <= 2 || altezza <= 2) {
+      const width = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left);
+      const height = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top);
+      if (width <= 2 || height <= 2) {
         continue;
       }
-      // Una sovrapposizione conta se copre una parte apprezzabile del piu piccolo.
-      const area = larghezza * altezza;
-      const minima = Math.min(ra.width * ra.height, rb.width * rb.height);
-      if (area / minima > 0.25) {
-        guai.push(
-          `testo sovrapposto: ${nome(a)} "${testoProprio(a).slice(0, 20)}" e ${nome(b)} "${testoProprio(b).slice(0, 20)}"`
+      // An overlap counts if it covers an appreciable part of the smaller one.
+      const overlap = width * height;
+      const smaller = Math.min(ra.width * ra.height, rb.width * rb.height);
+      if (overlap / smaller > 0.25) {
+        faults.push(
+          `text over text: ${named(a)} "${ownText(a).slice(0, 20)}" and ${named(b)} "${ownText(b).slice(0, 20)}"`
         );
       }
     }
   }
 
-  // 2. Comandi finiti fuori dallo schermo.
-  for (const e of document.querySelectorAll('button,[role="button"],a[href]')) {
-    if (!visibile(e)) {
+  // 2. Controls that ended up off the screen.
+  for (const element of document.querySelectorAll('button,[role="button"],a[href]')) {
+    if (!visible(element)) {
       continue;
     }
-    const b = e.getBoundingClientRect();
-    if (b.top >= altezzaFinestra || b.bottom <= 0 || b.left >= innerWidth || b.right <= 0) {
-      guai.push(`fuori schermo: ${nome(e)} a ${Math.round(b.x)},${Math.round(b.y)}`);
+    const box = element.getBoundingClientRect();
+    if (box.top >= windowHeight || box.bottom <= 0 || box.left >= innerWidth || box.right <= 0) {
+      faults.push(`off screen: ${named(element)} at ${Math.round(box.x)},${Math.round(box.y)}`);
     }
   }
 
-  // 3. Comandi senza niente da leggere e senza niente da guardare.
-  for (const e of document.querySelectorAll('button,[role="button"],[role="tab"]')) {
-    if (!visibile(e)) {
+  // 3. Controls with nothing to read and nothing to look at.
+  for (const element of document.querySelectorAll('button,[role="button"],[role="tab"]')) {
+    if (!visible(element)) {
       continue;
     }
-    const haTesto = (e.innerText || '').trim().length > 0;
-    const haDisegno = e.querySelector('svg,img');
-    const haNome = e.getAttribute('aria-label') || e.getAttribute('title');
-    if (!haTesto && !haDisegno && !haNome) {
-      const b = e.getBoundingClientRect();
-      guai.push(`comando muto: ${nome(e)} ${Math.round(b.width)}x${Math.round(b.height)}`);
+    const hasText = (element.innerText || '').trim().length > 0;
+    const hasPicture = element.querySelector('svg,img');
+    const hasName = element.getAttribute('aria-label') || element.getAttribute('title');
+    if (!hasText && !hasPicture && !hasName) {
+      const box = element.getBoundingClientRect();
+      faults.push(
+        `mute control: ${named(element)} ${Math.round(box.width)}x${Math.round(box.height)}`
+      );
     }
   }
 
-  return [...new Set(guai)];
+  return [...new Set(faults)];
 }
+
+requireTour(root);
 
 await requireViewer(VIEWER);
 
-const browser = await chromium.launch({
-  executablePath: findChromium(),
-  args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
-});
+const { browser, driving } = await aBrowser();
+console.log(`  driving ${driving}`);
 
-let totale = 0;
+let total = 0;
 
-for (const [nomePagina, url, attesa] of [
+for (const [pageName, url, settle] of [
   ['study list', `${VIEWER}/`, 14000],
   ['viewer', `${VIEWER}/viewer?StudyInstanceUIDs=${STUDY}`, 32000],
 ]) {
-  for (const [larghezza, altezza] of [
+  for (const [width, height] of [
     [1600, 950],
     [1366, 768],
   ]) {
-    const page = await browser.newPage({ viewport: { width: larghezza, height: altezza } });
+    const page = await browser.newPage({ viewport: { width, height } });
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 120000 });
-    await page.waitForTimeout(attesa);
-    // Il giro guidato copre la pagina: si chiude, come farebbe un lettore.
-    await page.evaluate(() =>
-      [...document.querySelectorAll('.shepherd-button')]
-        .find(b => /Chiudi|Ho capito/.test(b.innerText))
-        ?.click()
-    );
-    await page.waitForTimeout(1200);
+    await page.waitForTimeout(settle);
+    // The guided tour covers the page: it is closed, as a reader would close it.
+    await dismissTour(page);
 
-    const guai = await page.evaluate(rileva, altezza);
-    console.log(`\n${nomePagina} ${larghezza}x${altezza}: ${guai.length || 'niente da segnalare'}`);
-    guai.slice(0, 12).forEach(g => console.log(`  ${g}`));
-    totale += guai.length;
+    const faults = await page.evaluate(faultsOnScreen, height);
+    console.log(`\n${pageName} ${width}x${height}: ${faults.length || 'nothing to report'}`);
+    faults.slice(0, 12).forEach(fault => console.log(`  ${fault}`));
+    total += faults.length;
     await page.close();
   }
 }
 
 await browser.close();
-console.log(`\nSegnalazioni: ${totale}`);
-process.exit(totale > 0 ? 1 : 0);
+console.log(`\nReported: ${total}`);
+process.exit(total > 0 ? 1 : 0);

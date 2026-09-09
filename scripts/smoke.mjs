@@ -13,9 +13,8 @@
  * The screenshots it leaves behind are the ones the README uses, so the
  * documentation shows the application as it actually renders.
  *
- * Needs a browser to drive:
- *   npm install --no-save playwright-core
- *   npx playwright install chromium
+ * Needs a browser to drive, and uses the one already on the machine. See
+ * scripts/lib/a-browser.mjs.
  *
  * And needs the viewer and the loaded archive already running — see
  * scripts/lib/viewerReady.mjs, which says which and refuses to start otherwise.
@@ -24,54 +23,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { aBrowser } from './lib/a-browser.mjs';
+import { dismissTour, requireTour } from './lib/tour.mjs';
 import { requireViewer } from './lib/viewerReady.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const shots = path.join(root, 'docs');
 
 const VIEWER = process.env.VIEWER_URL ?? 'http://localhost:3000';
-
-let chromium;
-try {
-  ({ chromium } = await import('playwright-core'));
-} catch {
-  console.error(
-    'This check drives a real browser and playwright-core is not installed.\n' +
-      '  npm install --no-save playwright-core\n' +
-      '  npx playwright install chromium'
-  );
-  process.exit(1);
-}
-
-/** Where a Playwright-managed Chromium lands, so an existing one is reused. */
-function findChromium() {
-  if (process.env.CHROMIUM_PATH) {
-    return process.env.CHROMIUM_PATH;
-  }
-  const cache =
-    process.platform === 'win32'
-      ? path.join(process.env.LOCALAPPDATA ?? '', 'ms-playwright')
-      : path.join(process.env.HOME ?? '', '.cache', 'ms-playwright');
-
-  if (!fs.existsSync(cache)) {
-    return undefined;
-  }
-  for (const entry of fs.readdirSync(cache)) {
-    if (!entry.startsWith('chromium-')) {
-      continue;
-    }
-    for (const candidate of [
-      path.join(cache, entry, 'chrome-win64', 'chrome.exe'),
-      path.join(cache, entry, 'chrome-linux', 'chrome'),
-      path.join(cache, entry, 'chrome-mac', 'Chromium.app', 'Contents', 'MacOS', 'Chromium'),
-    ]) {
-      if (fs.existsSync(candidate)) {
-        return candidate;
-      }
-    }
-  }
-  return undefined;
-}
 
 /**
  * Two lists, because they mean different things. An uncaught exception stopped
@@ -90,19 +49,12 @@ const record = (text, fatal = true) => {
   }
 };
 
+requireTour(root);
+
 await requireViewer(VIEWER);
 
-const browser = await chromium.launch({
-  executablePath: findChromium(),
-  args: [
-    // A headless browser has no GPU. These give it a software implementation of
-    // WebGL, so the run exercises the path a machine with a graphics card takes
-    // rather than the CPU fallback, which is not what most people will see.
-    '--use-gl=angle',
-    '--use-angle=swiftshader',
-    '--enable-unsafe-swiftshader',
-  ],
-});
+const { browser, driving } = await aBrowser();
+console.log(`  driving ${driving}`);
 
 const page = await browser.newPage({ viewport: { width: 1600, height: 950 } });
 page.on('pageerror', error => record(`uncaught: ${error.message}`));
@@ -195,13 +147,7 @@ check('every image resolves to an image', broken.length === 0, broken.join(', ')
 
 // The guided tour opens over a first visit and dims the page behind it, which
 // is right for a reader and wrong for a screenshot of the viewer.
-await page.evaluate(() => {
-  const chiudi = [...document.querySelectorAll('.shepherd-button')].find(b =>
-    /Chiudi|Ho capito/.test(b.innerText)
-  );
-  chiudi?.click();
-});
-await page.waitForTimeout(1500);
+await dismissTour(page);
 
 await page.screenshot({ path: path.join(shots, 'viewer.png') });
 
