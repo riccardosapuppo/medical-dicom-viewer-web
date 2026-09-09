@@ -12,4 +12,6 @@ platform/app/.recipes/*        # ricette docker di OHIF: password e segreti di e
 platform/app/public/oidc-client.min.js   # libreria minificata: contiene setPassword e accessToken come nomi di funzione
 platform/app/public/html-templates/rollbar.html   # modello dimostrativo di OHIF, con il suo token pubblico
 platform/app/.webpack/webpack.pwa.js   # un host di sviluppo commentato, a monte
-platform/core/src/utils/resolveObjectPath.test.js   # 10.0.0.1 è il dato di una prova, a monte
+platform/core/src/utils/resolveObjectPath.test.js   # un indirizzo privato che e' il dato di
+#   una prova, a monte. Scritto senza citarlo: il cancello legge anche questo file, e
+#   trovava qui l'indirizzo che la riga stessa sta scusando.
