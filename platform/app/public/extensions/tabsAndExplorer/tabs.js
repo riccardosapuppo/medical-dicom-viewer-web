@@ -1029,8 +1029,8 @@ function injectTabs(target) {
         // its half.
         const priorsIframe = document.getElementById('priors-iframe');
         const priorsBorder = priorsIframe ? priorsIframe.getBoundingClientRect().left : 0;
-        const limiteDestro = priorsBorder > safeLeft ? priorsBorder : viewportWidth;
-        const maxWidth = Math.max(220, Math.floor(limiteDestro - safeLeft - 12));
+        const rightEdge = priorsBorder > safeLeft ? priorsBorder : viewportWidth;
+        const maxWidth = Math.max(220, Math.floor(rightEdge - safeLeft - 12));
         container.style.maxWidth = `${maxWidth}px`;
       }
     };
