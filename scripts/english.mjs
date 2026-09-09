@@ -238,6 +238,33 @@ function notEnglish(text) {
  * Only the safety net needs this. What comes out of a JsxText or a `label=` is
  * on screen by construction and is judged whatever shape it has.
  */
+/**
+ * One word, and that word is in the hand-written list above.
+ *
+ * The safety net drops any string without a space, because a string without a
+ * space is usually an identifier, a key or a class name. That is right often
+ * enough to be worth keeping, and wrong in exactly the place labels live: a
+ * chip, a tab, a button are one word each. "Istanza" sat in a rendered row of
+ * chips in the hanging protocol manager while this check called the interface
+ * English, and neither --all nor --list would show it.
+ *
+ * The list, not the endings. The endings are the heuristic half and they fire
+ * on identifiers constantly; the list was written by hand, one word at a time.
+ */
+function aDictionaryWord(text) {
+  const word = text.trim().toLowerCase();
+  return ITALIAN_WORDS.includes(word) && !NOT_ON_SCREEN.has(word);
+}
+
+/**
+ * Italian, and staying: the name of a parameter rather than a label.
+ *
+ * The address the viewer is opened at is built by whatever page embeds it, and
+ * this one is still sent by an older host. Renaming it here would not rename it
+ * there; it would only stop the viewer reading what arrives.
+ */
+const NOT_ON_SCREEN = new Set(['partizione']);
+
 function looksLikeCode(text) {
   return (
     !/\s/.test(text) ||
@@ -414,7 +441,7 @@ function visibleText(file, source) {
 }
 
 /**
- * The check can see the three shapes that once got past it.
+ * The check can see the four shapes that once got past it.
  *
  * Run before anything else. A check that has quietly stopped looking reports
  * the same "all clear" as one that looked and found nothing, and those two
@@ -459,6 +486,20 @@ function proveItLooks() {
     console.error('The reader is picking up TypeScript generics as if they were text.');
     process.exit(2);
   }
+
+  // The one-word label, which is the shape that got past all four above.
+  //
+  // "Istanza" was a chip in the hanging protocol manager, in an array declared
+  // well away from any JSX and rendered further down, so none of the four
+  // branches reached it and the safety net dropped it for having no space in
+  // it. It is judged now because the word is in the vocabulary; a word that is
+  // not stays dropped, which is the half that keeps identifiers out.
+  const bare = visibleText('bare.tsx', "const chips = ['Istanza', 'Grid'];").map(one => one.text);
+  const stillJudged = bare.includes('Istanza') && aDictionaryWord('Istanza');
+  if (!stillJudged || aDictionaryWord('Grid')) {
+    console.error('The reader has stopped judging one-word labels, or judges every word.');
+    process.exit(2);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -472,7 +513,11 @@ const hits = [];
 for (const file of sources()) {
   const source = fs.readFileSync(path.join(root, file), 'utf8');
   for (const piece of visibleText(file, source)) {
-    if (!piece.certain && looksLikeCode(piece.text)) {
+    // A bare word out of the vocabulary is judged, and judged as certain: the
+    // safety net does not fail this check, and a one-word label is not a maybe.
+    if (!piece.certain && aDictionaryWord(piece.text)) {
+      piece.certain = true;
+    } else if (!piece.certain && looksLikeCode(piece.text)) {
       continue;
     }
     if (listing && (piece.certain || includeNet)) {
@@ -545,7 +590,11 @@ if (reported.length === 0) {
   process.exit(0);
 }
 
-console.error(`${reported.length} pieces of interface text are not English:\n`);
+console.error(
+  reported.length === 1
+    ? 'One piece of interface text is not English:\n'
+    : `${reported.length} pieces of interface text are not English:\n`
+);
 for (const one of reported.slice(0, 60)) {
   console.error(`  ${one.file}:${one.line}   [${one.kind}]`);
   console.error(`    "${one.text}"   (${one.word})`);

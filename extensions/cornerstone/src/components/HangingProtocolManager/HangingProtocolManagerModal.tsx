@@ -104,7 +104,7 @@ function CapturedChips({ captured, hasMontage }: { captured: CaptureOptions; has
     captured.grid !== false && 'Grid',
     hasMontage && 'Subgrid',
     captured.series && 'Series',
-    captured.instance && 'Istanza',
+    captured.instance && 'Instance',
     captured.windowLevel && 'WL',
     captured.zoomPan && 'Zoom',
     captured.colorLut && 'LUT',
