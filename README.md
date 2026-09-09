@@ -110,6 +110,20 @@ somewhere other than `http://localhost:3000`.
 `check:smoke` is also where the pictures in this README come from, so they are
 always the current build rather than something taken by hand months ago.
 
+**One check that needs no browser at all**, because it reads the source:
+
+```
+yarn check:english         # every piece of interface text a reader sees
+```
+
+There is no Italian locale in this viewer, so Italian on screen was never a
+translation that could be swapped: it was written into the source and `t()`
+never touched it. The check exists because the sweeps before it read quoted
+strings and nothing else, and the loading screen still went out saying "Quasi
+pronto..." above "Sviluppato da". The first of those is a string. The second is
+JSX text, sitting between a `>` and a `<`, where a search for quotes never
+looks. This one reads both.
+
 **A VOI function that is declared but not applied.** A mammogram opened washed
 out, with the air around the breast at 29% grey instead of black, and the
 overlay reported a window of 589 that appears nowhere in the file, which

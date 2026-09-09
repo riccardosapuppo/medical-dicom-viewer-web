@@ -53,7 +53,7 @@ const ThumbnailList = ({
     return () => el.removeEventListener('wheel', onWheel);
   }, [isBottomDockedEffective, bottomRowItems.length]);
 
-  // Auto-scroll alla serie attiva (bottom: orizzontale, sinistra: verticale)
+  // Auto-scroll to the active series (horizontally at the bottom, vertically on the left)
   useEffect(() => {
     if (!activeDisplaySetInstanceUIDs?.length) return;
     const activeId = activeDisplaySetInstanceUIDs[0];
@@ -162,7 +162,7 @@ const ThumbnailList = ({
             const { displaySetInstanceUID, componentType, numInstances, ...rest } = item;
             const onClickMdv = displaySetInstanceUID => {
               onThumbnailClick(displaySetInstanceUID);
-              //Se sono su mobile chiudo in automatico il pannello di selezione serie
+              // On mobile, close the series picker by itself
               if (window.matchMedia('(max-width: 768px)').matches) {
                 try {
                   // document.querySelector('[data-cy="side-panel-header-left"]').click()

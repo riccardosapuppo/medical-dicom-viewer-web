@@ -27,12 +27,11 @@ const createRenderedRetrieve = (config, params) => {
   if (tag === 'PixelData' || tag === 'EncapsulatedDocument') {
     const base = `${wadoRoot}/studies/${StudyInstanceUID}/series/${SeriesInstanceUID}/instances/${SOPInstanceUID}/rendered`;
 
-    // L'aetitle sceglie la partizione dell'archivio, e non fa parte di DICOMweb:
-    // lo aggiunge questo fork. Interpolarlo sempre significava spedire
-    // "?aetitle=undefined" ogni volta che la pagina non lo porta - una stringa
-    // letterale, non un parametro vuoto, che un archivio partizionato prende per
-    // il nome di una partizione e va a cercare. Se non c'e', l'indirizzo resta
-    // quello che chiede lo standard.
+    // The AE title picks the archive's partition, and it is not part of DICOMweb: this
+    // fork adds it. Interpolating it always meant sending "?aetitle=undefined" whenever
+    // the page did not carry one. That is a literal string, not an empty parameter, and a
+    // partitioned archive takes it for a partition's name and goes looking for it. When
+    // there is none, the address stays what the standard asks for.
     return window.mdvAETitle ? `${base}?aetitle=${window.mdvAETitle}` : base;
   }
 };

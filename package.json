@@ -74,7 +74,8 @@
     "data:load": "node scripts/load-orthanc.mjs",
     "check:smoke": "node scripts/smoke.mjs",
     "check:layout": "node scripts/layout.mjs",
-    "check:controls": "node scripts/controls.mjs"
+    "check:controls": "node scripts/controls.mjs",
+    "check:english": "node scripts/english.mjs"
   },
   "dependencies": {
     "@babel/helper-hoist-variables": "^7.24.7",

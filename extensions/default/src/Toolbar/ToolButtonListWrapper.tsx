@@ -46,7 +46,7 @@ export default function ToolButtonListWrapper({
 
   const items = toolbarButtons.map(button => button.componentProps);
 
-  // Tooltip con scorciatoia da tastiera corrente (dinamica).
+  // A tooltip carrying the current keyboard shortcut, read live.
   const tooltipWithShortcut = (cp: any) => {
     try {
       const sc = getShortcut(cp, hotkeysManager);

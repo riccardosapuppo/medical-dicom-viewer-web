@@ -105,7 +105,7 @@ export function processSeriesResults(qidoSeries) {
 async function search(dicomWebClient, studyInstanceUid, seriesInstanceUid, queryParameters) {
   let _queryParameters = queryParameters || {};
 
-  // Se StudyInstanceUID non è presente e sono dentro un iframe vuol dire che sto chiedendo lo studio dalla worklist
+  // No StudyInstanceUID and inside a frame means the study is being asked for from the worklist
   if (!_queryParameters.StudyInstanceUID && window.self !== window.top) {
     // Leggo direttamente da localStorage
     const aetitle = localStorage.getItem("aetitle");

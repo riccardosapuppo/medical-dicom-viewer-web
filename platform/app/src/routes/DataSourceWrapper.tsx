@@ -197,14 +197,13 @@ function DataSourceWrapper(props: withAppTypes) {
             return;
           }
 
-          // Il testo prendeva il colore da chi lo conteneva, e su questo tema
-          // usciva grigio scuro su nero: il box compariva praticamente
-          // vuoto. I colori qui sono quelli del tema, dichiarati.
+          // The text took its colour from whatever contained it, and on this theme that
+          // came out dark grey on black: the box looked all but empty. The colours here
+          // are the theme's, stated.
           //
-          // E dice cosa fare. Chi apre il progetto per la prima volta trova
-          // questo notice quando l archivio non e' avviato, e sapere che si
-          // avvia con docker compose vale piu che sapere il nome interno
-          // della sorgente.
+          // And it says what to do. Anyone opening the project for the first time meets
+          // this notice when the archive is not running, and knowing that docker compose
+          // starts it is worth more than knowing the data source's internal name.
           servicesManager.services.uiModalService.show({
             title: 'Archivio non raggiungibile',
             content: () => {

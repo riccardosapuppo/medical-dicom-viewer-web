@@ -70,7 +70,7 @@ function _askShouldAddMeasurements(uiViewportDialogService, viewportId) {
     //     resolve(RESPONSE.CANCEL);
     //   },
     // });
-    // Seleziono automaticamente l'opzione per tracciare le measurements della serie
+    // The option to track the series' measurements is chosen automatically
     uiViewportDialogService.hide();
     resolve(RESPONSE.ADD_SERIES);
     //

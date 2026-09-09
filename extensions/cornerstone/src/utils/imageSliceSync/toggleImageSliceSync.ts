@@ -133,7 +133,7 @@ function getReconstructableStackViewports(
         continue;
       }
 
-      // Escludi i volumi dinamici dalla slice-sync per evitare salti di istanza
+      // Keep dynamic volumes out of the slice sync, or the instance jumps around
       if (displaySet.isDynamicVolume) {
         return false;
       }

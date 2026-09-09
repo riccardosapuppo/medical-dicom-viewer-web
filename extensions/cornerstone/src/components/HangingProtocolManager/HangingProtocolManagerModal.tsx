@@ -41,8 +41,8 @@ const TOGGLES: Array<{ key: keyof CaptureOptions; label: string; hint: string }>
 ];
 
 const SCOPE_TABS: Array<{ value: Scope; label: string }> = [
-  { value: 'studioSpecifico', label: 'Studio' },
-  { value: 'examDescription', label: 'Esame' },
+  { value: 'studioSpecifico', label: 'Study' },
+  { value: 'examDescription', label: 'Exam' },
   { value: 'modality', label: 'Modality' },
 ];
 
@@ -187,15 +187,16 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
       return !!hp.studioSpecifico?.[ctx.studyInstanceUIDs];
     }
     if (scope === 'examDescription') {
-      // Confronto NORMALIZZATO, coerente con save/delete/caricamento: così il pulsante
-      // mostra "Overwrite" (e chiede conferma) anche per un'entry legacy senza nome.
+      // A NORMALISED comparison, consistent with saving, deleting and loading, so the
+      // button says "Overwrite" and asks for confirmation even for a legacy entry with no name.
       const target = normalizza(ctx.studyDescription);
       return (hp.examName || []).some((i: any) => normalizza(i?.examName) === target);
     }
-    // Chiave CANONICA (insieme ordinato), coerente con saveConfig/deleteConfig/dedup:
-    // "Overwrite" appare solo se esiste una config della STESSA combinazione di modality
-    // → il salvataggio la sovrascrive davvero (niente doppione), e combinazioni diverse
-    // ma sovrapposte (es. 'PT\CT' vs 'CT') restano config distinte.
+    // The CANONICAL key (the ordered set), consistent with saveConfig, deleteConfig and
+    // the de-duplication: "Overwrite" appears only when a configuration for the SAME
+    // combination of modalities exists, so saving really does overwrite it rather than
+    // making a double. Different but overlapping combinations ('PT\\CT' against 'CT')
+    // stay separate configurations.
     const target = canonModalityKey(ctx.modality);
     return (hp.modality || []).some((i: any) => canonModalityKey(i?.modalityName) === target);
   }, [preferenzeJson, scope, ctx]);
@@ -262,7 +263,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
   };
 
   if (loading) {
-    return <div className="text-foreground p-6 text-center text-base">Caricamento…</div>;
+    return <div className="text-foreground p-6 text-center text-base">Loading…</div>;
   }
 
   const renderSavedItem = (item: SavedItem, manage: boolean) => (
@@ -340,7 +341,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
       {/* Header info studio */}
       <div className="bg-muted/40 flex flex-wrap items-center gap-x-6 gap-y-1 rounded-md p-3">
         <div>
-          <span className="text-muted-foreground">Esame: </span>
+          <span className="text-muted-foreground">Exam: </span>
           <span className="font-medium">{ctx.studyDescription || '—'}</span>
         </div>
         <div>
@@ -374,7 +375,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
 
           <TabsContent value="studioSpecifico">
             <p className="text-muted-foreground py-2 text-sm">
-              Si applicherà <span className="text-foreground font-medium">solo a questo studio</span>.
+              It will apply <span className="text-foreground font-medium">to this study only</span>.
             </p>
           </TabsContent>
           <TabsContent value="examDescription">
@@ -484,7 +485,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
 
       {/* Configurazioni per questo studio */}
       <section className="border-input rounded-md border p-3">
-        <h3 className="mb-2 text-base font-semibold">Configurazioni per questo studio</h3>
+        <h3 className="mb-2 text-base font-semibold">Configurations for this study</h3>
         {relevantList.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             Nessuna configurazione salvata applicabile a questo studio.

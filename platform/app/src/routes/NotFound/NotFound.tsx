@@ -14,7 +14,7 @@ const NotFound = ({ message = 'Sorry, this page does not exist.', showGoBackButt
         <h4>{message}</h4>
         {showGoBackButton && showStudyList && (
           <h5>
-            <Link to={'/'}>Go back to the Lista studi</Link>
+            <Link to={'/'}>Go back to the study list</Link>
           </h5>
         )}
       </div>

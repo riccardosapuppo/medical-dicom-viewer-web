@@ -574,7 +574,7 @@ const buildSavedConfigHtml = (tipo, entry) => {
 
   const typeLabel =
     tipo === 'studioSpecifico'
-      ? 'Attivi per: Studio specifico'
+      ? 'Active for: this study'
       : tipo === 'examDescription'
         ? 'Active for: exam description'
         : tipo === 'modality'
@@ -699,8 +699,8 @@ async function creaDIV() {
   <h2>Gestione Hanging Protocol</h2>
   <div id="info">
   <p>Modality: <span>${modality}</span></p>
-  <p>Esame: <span>${studyDescription}</span></p>
-  <p style=${configAttiva.length > 0 ? 'color:#e9e9e9;display:block' : 'display:none'}>🟢 Hanging protocol applicati per questo studio </p>
+  <p>Exam: <span>${studyDescription}</span></p>
+  <p style=${configAttiva.length > 0 ? 'color:#e9e9e9;display:block' : 'display:none'}>🟢 Hanging protocols are applied for this study </p>
   </div>
 
   <div style="margin-top:12px;border-top:1px solid #212832;padding-top:10px;">
@@ -711,29 +711,29 @@ async function creaDIV() {
   </div>
 
   <div style="display:flex;margin-top: 10px;">
-  <div class="opzione-hp">
-  <h3 style>Save the configuration attuale solo per questo <span style="color:#38bdf8">studio</span></h3>
-  <p>Gli Hanging Protocol si applicheranno solo a questo specifico studio</p>
-  <p style="color:red;display:none" id="hp-studiospecifico-presente">Hai attualmente una configurazione salvata solo per questo studio </p>
+  <div class="hp-option">
+  <h3 style>Save the current arrangement for this <span style="color:#38bdf8">study</span> only</h3>
+  <p>The hanging protocols will apply to this study alone</p>
+  <p style="color:red;display:none" id="hp-studiospecifico-presente">There is a configuration saved for this study alone </p>
   <button id="save-hp-config-actual-study">${configAttiva.includes('studioSpecifico') ? 'Overwrite the current configuration' : 'Save for this study only'}</button>
-  <button style=${configAttiva.includes('studioSpecifico') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-actual-study">Elimina configurazione salvata</button>
+  <button style=${configAttiva.includes('studioSpecifico') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-actual-study">Delete the saved configuration</button>
   </div>
 
-  <div class="opzione-hp">
-  <h3>Save the configuration attuale solo per questo tipo di <span style="color:#38bdf8">esame</span></h3>
-  <p>Gli Hanging Protocol si applicheranno a tutti gli esami con description <span style="font-weight: 600;">${studyDescription}</span></p>
-  <p style="color:red;display:none" id="hp-descrizioneesame-presente">Hai attualmente una configurazione salvata per tutti gli esami con description "${studyDescription}" </p>
-  <p style="color:red;display:none" id="unnamed-exam">Questo esame non ha un nome, se salvi la configurazione quest'ultima si applicherà a tutti gli esami senza nome. </p>
+  <div class="hp-option">
+  <h3>Save the current arrangement for this kind of <span style="color:#38bdf8">exam</span></h3>
+  <p>The hanging protocols will apply to every exam described as <span style="font-weight: 600;">${studyDescription}</span></p>
+  <p style="color:red;display:none" id="hp-descrizioneesame-presente">There is a configuration saved for every exam described as "${studyDescription}" </p>
+  <p style="color:red;display:none" id="unnamed-exam">This exam has no name, so quest'ultima si applicherà a tutti gli esami senza nome. </p>
   <button id="save-hp-config-exam">${configAttiva.includes('examDescription') ? 'Overwrite the current configuration' : 'Save for this kind of exam'} </button>
-  <button style=${configAttiva.includes('examDescription') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-exam">Elimina configurazione salvata</button>
+  <button style=${configAttiva.includes('examDescription') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-exam">Delete the saved configuration</button>
   </div>
 
-  <div style="margin-right:0" class="opzione-hp">
-  <h3>Save the configuration attuale per questa <span style="color:#38bdf8">modality</span></h3>
-  <p>Gli Hanging Protocol si applicheranno a tutti gli esami con modality <span style="font-weight: 600;">${modality}</span></p>
-  <p style="color:red;display:none" id="hp-modality-presente">Hai attualmente una configurazione salvata per questa modality</p>
+  <div style="margin-right:0" class="hp-option">
+  <h3>Save the current arrangement for this <span style="color:#38bdf8">modality</span></h3>
+  <p>The hanging protocols will apply to every exam of modality <span style="font-weight: 600;">${modality}</span></p>
+  <p style="color:red;display:none" id="hp-modality-presente">There is a configuration saved for this modality</p>
   <button id="save-hp-config-modality">${configAttiva.includes('modality') ? 'Overwrite the current configuration' : 'Save for this modality'}</button>
-  <button style=${configAttiva.includes('modality') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-modality">Elimina configurazione salvata</button>
+  <button style=${configAttiva.includes('modality') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-modality">Delete the saved configuration</button>
   </div>
 
   </div>

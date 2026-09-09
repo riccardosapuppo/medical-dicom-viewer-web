@@ -59,7 +59,7 @@ function clearIframeLoadTimeout(iframeId) {
   }
 }
 
-function startIframeReadyTimeout(iframeId, studyTitle = 'Studio') {
+function startIframeReadyTimeout(iframeId, studyTitle = 'Study') {
   if (!iframeId) {
     return;
   }
@@ -244,7 +244,7 @@ function getAccessionForTab() {
 function buildPatientTabDescription() {
   const patientName = getPatientNameForTab() || getPatientIdForTab();
   const accession = getAccessionForTab();
-  return [patientName, accession].filter(Boolean).join(' — ') || 'Studio in apertura';
+  return [patientName, accession].filter(Boolean).join(' — ') || 'Opening the study';
 }
 
 /** Scrive l etichetta, e dice se ormai dice qualcosa. */
@@ -510,7 +510,7 @@ function preloadEmptyIframe() {
   // same one the study tabs use. The time limit stops a missed signal leaving the
   // "+" waiting for good.
   //
-  startIframeReadyTimeout(iframeId, 'Lista studi');
+  startIframeReadyTimeout(iframeId, 'Study list');
 
   // The list tab fills the window like every other tab.
   //
@@ -682,7 +682,7 @@ function showLoadingNotification() {
   const uiNotificationService = window?.servicesManager?.services?.uiNotificationService;
   if (uiNotificationService?.show) {
     uiNotificationService.show({
-      title: 'Studio',
+      title: 'Study',
       message: 'Loading the study...',
       type: 'warning',
     });
@@ -1198,7 +1198,7 @@ function closeAllTabsAndShowExplorer() {
 // =====================================================================
 
 window.openStudyInInternalTab = function (url, options = {}) {
-  const { title = "Studio", tooltip = "" } = options;
+  const { title = "Study", tooltip = "" } = options;
 
   const container = document.getElementById('mdv-tab-container');
   if (!container) return;

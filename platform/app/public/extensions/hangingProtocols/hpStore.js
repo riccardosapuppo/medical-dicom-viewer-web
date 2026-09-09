@@ -895,7 +895,7 @@ export const deleteConfig = async (scope, key) => {
  * ------------------------------------------------------------------ */
 
 const SCOPE_LABEL = {
-  studioSpecifico: 'Studio specifico',
+  studioSpecifico: 'Specific study',
   examDescription: 'Exam description',
   modality: 'Modality',
 };
@@ -1015,7 +1015,7 @@ const describeEntry = (scope, key, entry, ctx, applied, displaySets) => {
     scopeLabel: SCOPE_LABEL[scope],
     title:
       scope === 'studioSpecifico'
-        ? 'Questo studio'
+        ? 'This study'
         : scope === 'examDescription'
           ? key || '(unnamed exam)'
           : key,

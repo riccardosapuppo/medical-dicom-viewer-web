@@ -8,11 +8,11 @@ function AboutModalDefault() {
   const versionNumber = process.env.VERSION_NUMBER;
   const commitHash = process.env.COMMIT_HASH;
 
-  // La versione di questo progetto, e la versione da cui parte.
+  // This project's version, and the version it starts from.
   //
-  // Lo split sul trattino resta perche' e' cosi' che si separa un pre-rilascio
-  // (1.2.0-rc.1), ma la base del fork non passa piu' di qui: e' un fatto
-  // diverso, e messa nel numero lo spezzava a meta'.
+  // The split on the hyphen stays, because that is how a pre-release is separated
+  // (1.2.0-rc.1), but the fork's base no longer goes through here: it is a different
+  // fact, and putting it in the number split it in half.
   const [main, prerilascio] = String(versionNumber).split('-');
   const baseFork = '3.10.0-beta.129';
 

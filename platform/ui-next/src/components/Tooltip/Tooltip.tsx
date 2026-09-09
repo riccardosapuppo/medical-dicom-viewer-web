@@ -17,13 +17,12 @@ const TooltipContent = React.forwardRef<
     ref={ref}
     sideOffset={sideOffset}
     className={cn(
-      // Superficie e inchiostro del tema, non la coppia primary.
+      // The theme's surface and ink, not the primary pair.
       //
-      // Il fondo era bg-primary-dark e il testo text-primary-foreground: quel
-      // testo e' pensato per stare SOPRA il colore primario, cioe' scuro su
-      // azzurro, mentre primary-dark e' quasi nero. Il risultato era
-      // rgb(17, 20, 24) su rgb(7, 7, 7) - il box compariva, e dentro non
-      // c'era niente da leggere.
+      // The background was bg-primary-dark and the text text-primary-foreground. That
+      // text is meant to sit ON the primary colour, which is dark on light blue, while
+      // primary-dark is nearly black. The result was rgb(17, 20, 24) on rgb(7, 7, 7): the
+      // box appeared, and there was nothing legible inside it.
       'bg-popover border-border text-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 overflow-hidden rounded border px-2 py-1.5 text-sm',
       className
     )}

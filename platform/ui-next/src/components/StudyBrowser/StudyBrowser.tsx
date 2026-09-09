@@ -106,7 +106,7 @@ const StudyBrowser = ({
     }
   }, [activeTabName, expandedStudyInstanceUIDs, isBottomDocked, onClickStudy, tabs]);
 
-  // Close popover priors quando clicco fuori
+  // Close the priors popover on a click outside
   useEffect(() => {
     if (!priorsPickerOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -123,7 +123,7 @@ const StudyBrowser = ({
   const priorsStudies: any[] = priorsTab?.studies ?? [];
   const isPriorsActive = activeTabName !== 'primary';
 
-  // In bottom mode, quando clicco "Local priors" con più studi, apri popover
+  // In bottom mode, clicking "Local priors" with more than one study opens the popover
   const handleBottomTabClick = (tabName: string) => {
     if (isBottomDocked && tabName !== 'primary') {
       const tab = (tabs as any[]).find(t => t.name === tabName);
@@ -147,7 +147,7 @@ const StudyBrowser = ({
 
     const studiesToRender = isBottomDocked
       ? (() => {
-          // Priorità: studio selezionato dal popover, poi expanded, poi primo
+          // In order: the study chosen from the popover, then the expanded one, then the first
           if (bottomSelectedStudyUid) {
             const picked = studies.find(s => s.studyInstanceUid === bottomSelectedStudyUid);
             if (picked) return [picked];

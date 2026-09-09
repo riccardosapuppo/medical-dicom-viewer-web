@@ -233,9 +233,9 @@ const ImageWrapper = ({ src, ...props }: { src: string } & ImageIconProps) => {
 };
 
 export const Icons = {
-  // Cubo MPR (PNG, dimensione piena via className) con "MPR" rossa come badge
-  // nell'angolo bottom-right, sovrapposta — stesso stile dell'ingranaggio rosso
-  // sull'icona griglia. Outline scuro per leggibilità sulle linee del cubo.
+  // The MPR cube (a PNG at full size through className) with a red "MPR" badge in the
+  // bottom right corner, overlaid. The same style as the red gear on the grid icon. A
+  // dark outline keeps it legible over the cube's lines.
   mprDirect: ({ className, ...props }: ImageIconProps) => (
     <span className="relative inline-flex items-center justify-center leading-none">
       <img
@@ -262,9 +262,9 @@ export const Icons = {
       </span>
     </span>
   ),
-  // Queste due sono SVG in linea e non immagini: disegnano con currentColor,
-  // quindi la barra le accende impostando un colore invece di tingerle con un
-  // filtro. Vedi i due file in Sources/ per il perche'.
+  // These two are inline SVG rather than images: they draw with currentColor, so the bar
+  // turns them on by setting a colour instead of tinting them with a filter. The two
+  // files in Sources/ say why.
   toolStackScroll: ToolStackScrollWheel,
   hideInfoDicom: ToolHideOverlayInfo,
   priorsExpand: (props: ImageIconProps) => (

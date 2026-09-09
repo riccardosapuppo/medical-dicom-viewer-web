@@ -57,7 +57,7 @@ const InvestigationalUseDialog = ({
     setIsHidden(true);
   };
 
-  //Nascondo sempre questo dialogo
+  // This dialog is always hidden
   return null;
 
   if (isHidden) {

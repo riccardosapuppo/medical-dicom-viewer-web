@@ -21,7 +21,7 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
     // new
     {
       name: 'ohif.toolButton',
-      // Wrapper che accoda la scorciatoia da tastiera corrente al tooltip.
+      // A wrapper that appends the current keyboard shortcut to the tooltip.
       defaultComponent: ToolButtonWithShortcut,
     },
     {

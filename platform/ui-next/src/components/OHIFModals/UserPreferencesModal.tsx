@@ -42,8 +42,8 @@ function translateHotkeyToken(token: string): string {
   return token.length === 1 ? token.toUpperCase() : token;
 }
 
-// Converte i tasti (array o stringa, eventualmente con '+') nella forma italiana
-// leggibile per la sola VISUALIZZAZIONE (il valore salvato resta il codice tasto).
+// Turns the keys (an array, or a string that may carry '+') into a readable form for
+// DISPLAY only. What is saved stays the key code.
 function formatHotkeyValue(value?: string | string[]): string {
   if (value === undefined || value === null) {
     return '';
@@ -129,10 +129,9 @@ interface HotkeyProps {
 function Hotkey({ label, placeholder, className, value, onChange, hotkeys }: HotkeyProps) {
   const [isRecording, setIsRecording] = React.useState(false);
 
-  // Sicurezza anti-"hotkey morte": se il campo viene smontato (modal chiuso)
-  // mentre era a fuoco, onBlur potrebbe non scattare e mousetrap resterebbe in
-  // PAUSA → nessuna scorciatoia funzionerebbe più finché non si ricarica. Allo
-  // smontaggio ripristiniamo sempre mousetrap.
+  // A guard against dead hotkeys: if the field is unmounted while it has focus, because
+  // the dialog was closed, onBlur may not fire and mousetrap would stay PAUSED, so no
+  // shortcut would work at all until a reload. Unmounting always puts mousetrap back.
   React.useEffect(() => {
     return () => {
       hotkeys?.unpause?.();

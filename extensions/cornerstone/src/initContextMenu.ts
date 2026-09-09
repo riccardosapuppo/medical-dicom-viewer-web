@@ -72,10 +72,10 @@ function initContextMenu({
     const { viewportId, element } = evt.detail;
     const viewportInfo = cornerstoneViewportService.getViewportInfo(viewportId);
 
-    // Le celle della Subgrid (Montage) NON sono registrate nel
-    // cornerstoneViewportService (niente viewportInfo), ma vogliamo comunque il
-    // menu contestuale (es. click destro per eliminare le misure). Quindi NON
-    // usciamo se manca viewportInfo: agganciamo il listener a ogni enabled-element.
+    // The subgrid's cells are NOT registered with cornerstoneViewportService, so they
+    // have no viewportInfo, but the context menu is wanted on them all the same (a right
+    // click to delete a measurement, for instance). So this does NOT bail out when
+    // viewportInfo is missing: the listener goes on every enabled element.
     if (viewportInfo) {
       // TODO check update upstream
       setEnabledElement(viewportId, element);

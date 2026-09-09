@@ -185,9 +185,9 @@ const toolbarButtons: Button[] = [
       label: 'Reference cursors',
       tooltip: 'Show the reference cursors (drag with the left button to move one)',
       commands: 'toggleActiveDisabledToolbar',
-      // Stile "attivo" (sfondo bianco) come Pan/Zoom/Crosshairs: il tool quando
-      // acceso diventa il tool primario attivo, quindi usiamo lo stesso
-      // evaluator degli altri active tool invece di quello toggle.
+      // The "active" style (a white background), as on pan, zoom and crosshairs: when it
+      // is on, this tool becomes the active primary tool, so it uses the same evaluator
+      // as the other active tools rather than the toggle one.
       evaluate: [
         'evaluate.cornerstoneTool',
         {
@@ -360,8 +360,8 @@ const toolbarButtons: Button[] = [
     uiType: 'ohif.toolButton',
     props: {
       icon: 'icon-tool-loupe',
-      label: 'Probe con lente d\ingrandimento',
-      tooltip: 'Probe con lente d\ingrandimento',
+      label: 'Magnify probe',
+      tooltip: 'Magnify probe',
       commands: 'toggleActiveDisabledToolbar',
       evaluate: [
         'evaluate.cornerstoneTool.toggle.ifStrictlyDisabled',
@@ -605,12 +605,14 @@ const toolbarButtons: Button[] = [
       evaluate: 'evaluate.action',
     },
   },
-  // Subgrid (Montage): split button.
-  //  - icona → toggleMontage (layout consigliato/auto in base alle istanze; ri-clic = off)
-  //  - freccetta → selettore righe×colonne (Standard + Personalizzato) → setMontageLayout
-  // `evaluate.cornerstone.montage` fornisce isActive (icona evidenziata quando
-  // attiva) e disabled (serie non idonea). La vecchia `montageSection` resta
-  // definita ma non più usata.
+  // Subgrid (montage): a split button.
+  //  - the icon calls toggleMontage (the suggested layout, from the instance count;
+  //    clicking again turns it off)
+  //  - the arrow opens the rows-by-columns picker (Standard and Custom), which calls
+  //    setMontageLayout
+  // `evaluate.cornerstone.montage` supplies isActive (the icon is highlighted when it is
+  // on) and disabled (the series is not suitable). The old `montageSection` is still
+  // defined but no longer used.
   {
     id: 'Montage',
     uiType: 'ohif.montageLayoutSelector',

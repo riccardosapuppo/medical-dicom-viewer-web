@@ -84,7 +84,7 @@ const OHIFMontageViewport = props => {
   );
 };
 
-/** True quando la viewport è in modalità subgrid (Montage). */
+/** True when the viewport is in subgrid (montage) mode. */
 const isMontageEnabled = props => props?.viewportOptions?.montage?.enabled === true;
 
 const stackRetrieveOptions = {
@@ -193,9 +193,9 @@ const cornerstoneExtension: Types.Extensions.Extension = {
   getToolbarModule,
   getHangingProtocolModule,
   getViewportModule({ servicesManager, commandsManager }) {
-    // Componente Montage con i servizi iniettati. Usato sia dal branch interno
-    // qui sotto sia, via extensionManager.getModuleEntry('...viewportModule.montage'),
-    // dal wrapper della viewport "cornerstone-tracked".
+    // The montage component with its services injected. Used both by the internal branch
+    // below and, through extensionManager.getModuleEntry('...viewportModule.montage'), by
+    // the wrapper of the "cornerstone-tracked" viewport.
     const ExtendedOHIFMontageViewport = props => {
       const { toolbarService } = servicesManager.services;
       return (
@@ -214,8 +214,8 @@ const cornerstoneExtension: Types.Extensions.Extension = {
       // };
       const { toolbarService } = servicesManager.services;
 
-      // Modalità subgrid (Montage): suddivide internamente questa singola
-      // viewport OHIF senza creare viewport aggiuntive nella griglia principale.
+      // Subgrid (montage) mode: it divides this one OHIF viewport internally, without
+      // adding viewports to the main grid.
       if (isMontageEnabled(props)) {
         return <ExtendedOHIFMontageViewport {...props} />;
       }

@@ -15,7 +15,7 @@ import moment from 'moment';
  */
 
 const INVALID_STUDY_DESCRIPTION_VALUES = new Set([
-  'no data studio',
+  'no data study',
   'no data study',
   'no data',
   'n/a',
@@ -58,8 +58,8 @@ const normalizeStudyDate = value => {
   return normalized;
 };
 
-// Converte in timestamp sia la data DICOM grezza (YYYYMMDD) sia quella gia' formattata
-// per la UI (DD-MMM-YYYY, con il mese nella lingua corrente).
+// Turns into a timestamp both the raw DICOM date (YYYYMMDD) and the one already formatted
+// for the interface (DD-MMM-YYYY, with the month in whatever language is current).
 const _timestampStudio = value => {
   const testo = `${value === undefined || value === null ? '' : value}`.trim();
   if (!testo) {
@@ -125,15 +125,15 @@ export function createStudyBrowserTabs(
       : [];
 
   // Newest first.
-  // Le date arrivano gia' formattate per la UI ("27-giu-2024", dipende dalla lingua) oppure
-  // grezze dal DICOM ("20240627"): su entrambe Date.parse restituisce NaN, quindi il
-  // comparatore era invalido e l'ordinamento di fatto non avveniva. moment le interpreta
-  // usando il locale attivo. Stesso criterio per entrambe le tab.
+  // The dates arrive either already formatted for the interface ("27-Jun-2024", which
+  // depends on the language) or raw from the DICOM ("20240627"). Date.parse returns NaN
+  // on both, so the comparator was invalid and no sorting actually happened. moment reads
+  // them using the active locale. The same rule for both tabs.
   const _byDate = (a, b) => {
     const dateA = _timestampStudio(a);
     const dateB = _timestampStudio(b);
 
-    // Gli studi senza data valida finiscono in fondo invece di falsare l'ordine.
+    // Studies with no valid date go to the end rather than distorting the order.
     if (Number.isNaN(dateA) && Number.isNaN(dateB)) {
       return 0;
     }
@@ -149,7 +149,7 @@ export function createStudyBrowserTabs(
   const tabs = [
     {
       name: 'primary',
-      label: 'Studio attuale',
+      label: 'Current study',
       studies: primaryStudies.sort((studyA, studyB) => _byDate(studyA.date, studyB.date)),
     },
     {
@@ -159,11 +159,10 @@ export function createStudyBrowserTabs(
     },
   ];
 
-  // La tab dello priors compare se lo priors c e.
+  // The priors tab appears when there are priors.
   //
-  // Prima c era sempre, e quando il patient non aveva esami precedenti
-  // offriva una scheda che diceva solo "No prior studies". Una linguetta che
-  // non porta da nessuna parte fa perdere un click a tutti quelli che la
-  // provano, e non aggiunge niente a chi lo sapeva gia.
+  // It used to be there always, and when the patient had no earlier exams it offered a
+  // tab that said only "No prior studies". A tab that leads nowhere costs a click to
+  // everyone who tries it, and adds nothing for anyone who already knew.
   return tabs.filter(tab => tab.name === 'primary' || tab.studies.length > 0);
 }

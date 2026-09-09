@@ -213,7 +213,7 @@ function ToolbarLayoutSelectorWithServices({
       commandOptions: { ...props },
     });
     setIsDisabled(true);
-    //Disabilito modalità MPR (quella dell'hanging protocol) ad ogni cambio di layout
+    // Turn the hanging protocol's MPR mode off on every change of layout
 
     document.body.classList.remove('hp-mpr-active');
     window.mprIsActive = false;
@@ -224,7 +224,7 @@ function ToolbarLayoutSelectorWithServices({
     try {
       const listaPresetAvanzati = ['fourUp', 'main3D', 'primaryAxial', 'only3D', 'primary3D'];
       document.body.classList.add('mpr-layout-loading');
-      //Ripulisco ad ogni scelta preset classi precedentemente memorizzate
+      // Clear the classes remembered from the previous preset
       listaPresetAvanzati.forEach(preset => {
         if (document.body.classList.contains(preset)) {
           document.body.classList.remove(preset);
@@ -245,7 +245,7 @@ function ToolbarLayoutSelectorWithServices({
       window.instanceUIDMPRToClick = activeDisplaySetInstanceUID;
 
       hangingProtocolService.setProtocol(selectedHangingProtocol);
-      //Memorizzo globalmente il preset selezionato così da riapplicare lo stesso eventualmente alla riattivazione dell'mpr (mprDirectClick)
+      // Remember the chosen preset globally, so the same one can be reapplied if MPR comes back (mprDirectClick)
       window.mdvProtocolToApply = preset;
 
       setTimeout(() => {
@@ -318,7 +318,7 @@ function ToolbarLayoutSelectorWithServices({
                 <>
                   <LayoutSelector.PresetSection
                     className={`standard-layout`}
-                    title={showLayoutPresetsForPriors ? 'Standard - Studio principale' : 'Standard'}>
+                    title={showLayoutPresetsForPriors ? 'Standard, main study' : 'Standard'}>
                     {commonPresets.map((preset, index) => (
                       <LayoutSelector.Preset
                         key={`common-preset-${index}`}
@@ -351,7 +351,7 @@ function ToolbarLayoutSelectorWithServices({
 
               {advancedPresets.length > 0 && (
                 <LayoutSelector.PresetSection className={`advanced-layout advanced-layout-main-study`}
-                  title={showLayoutPresetsForPriors ? 'Avanzato - Studio principale' : 'Avanzato'}>
+                  title={showLayoutPresetsForPriors ? 'Advanced, main study' : 'Avanzato'}>
                   {advancedPresets.map((preset, index) => (
                     <LayoutSelector.Preset
                       key={`advanced-preset-${index}`}
@@ -389,7 +389,7 @@ function ToolbarLayoutSelectorWithServices({
           {/* Right Side - Grid Layout */}
           <div className="bg-muted flex flex-col gap-2.5 border-l-2 border-solid border-black p-2">
             <div className="custom-layout">
-              <div className="text-muted-foreground text-xs">{showLayoutPresetsForPriors ? 'Personalizzato - Studio principale' : 'Personalizzato'}</div>
+              <div className="text-muted-foreground text-xs">{showLayoutPresetsForPriors ? 'Custom, main study' : 'Personalizzato'}</div>
               <LayoutSelector.GridSelector
                 rows={rows}
                 columns={columns}
@@ -398,7 +398,7 @@ function ToolbarLayoutSelectorWithServices({
             </div>
 
             <div className="custom-layout custom-layout-priors">
-              <div className="text-muted-foreground text-xs"> Personalizzato - Studio precedente</div>
+              <div className="text-muted-foreground text-xs"> Custom, prior study</div>
               <LayoutSelector.GridSelector
                 rows={rows}
                 columns={columns}

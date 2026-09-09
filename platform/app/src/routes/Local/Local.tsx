@@ -114,7 +114,7 @@ function Local({ modePath }: LocalProps) {
               const match = contentDisposition && contentDisposition.match(/filename="(.+)"/);
               const fileName = match ? match[1] : `file_${i}.dcm`;
 
-              // Aggiorna il progresso quando una richiesta è completata
+              // Update the progress as each request finishes
               completedRequests++;
               const progress = Math.round((completedRequests / numeroFile) * 100);
               setPercentComplete(progress); // Aggiorna la percentuale completata
@@ -233,7 +233,7 @@ function Local({ modePath }: LocalProps) {
                 )}
               </div>
               <div className="flex justify-around pt-4">
-                {getLoadButton(onDrop, 'Carica file', false)}
+                {getLoadButton(onDrop, 'Load files', false)}
                 {getLoadButton(onDrop, "Load the whole folder", true)}
               </div>
             </div>

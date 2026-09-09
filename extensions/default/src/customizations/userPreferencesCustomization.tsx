@@ -382,7 +382,7 @@ const buildSelectionsFromConfig = (config, options: OverlayTagOption[]): Overlay
   return selections;
 };
 
-// Base URL del backend del viewer (coerente col resto del file).
+// The viewer backend's base URL, matching the rest of this file.
 
 function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
   const { hotkeysManager, servicesManager } = useSystem();
@@ -555,7 +555,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
     }
 
     if (activeTab === 'global') {
-      // Ricarica i valori salvati sul server, annullando le modifiche non salvate.
+      // Reload the values saved on the server, discarding any unsaved changes.
       setGlobalSettingsLoaded(false);
       return;
     }
@@ -763,7 +763,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
           </TabsContent>
 
           <TabsContent value="viewport">
-            <UserPreferencesModal.SubHeading>Preferenze Viewport</UserPreferencesModal.SubHeading>
+            <UserPreferencesModal.SubHeading>Viewport preferences</UserPreferencesModal.SubHeading>
             <div className="flex flex-col gap-4 text-sm text-muted-foreground">
               <div>
                 Seleziona fino a 4 tag DICOM per ogni angolo.

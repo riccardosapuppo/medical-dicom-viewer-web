@@ -2,9 +2,9 @@ import React from 'react';
 import type { IconProps } from '../types';
 
 /**
- * Icona "Subgrid (Montage)": un box viewport (bordo spesso) suddiviso
- * internamente in più celle (linee sottili) → comunica una subgrid DENTRO
- * una singola viewport, non un nuovo layout della griglia principale.
+ * The "subgrid (montage)" icon: a viewport box, drawn with a thick border, divided
+ * internally into several cells by thin lines. It says a subgrid INSIDE one viewport,
+ * not a new layout of the main grid.
  */
 export const ToolMontage = (props: IconProps) => (
   <svg

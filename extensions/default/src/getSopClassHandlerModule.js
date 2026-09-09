@@ -40,14 +40,14 @@ function getDisplaySetInfo(instances) {
   const { appConfig } = appContext;
   const { mdvGroupByDinamic } = appConfig;
 
-  // Alcune serie MR multi-dimensionali (es. in/out phase o DWI multi-b) vengono
-  // riconosciute come "dynamic volume" (4D). Questo però le costringe in una
-  // viewport VOLUME → vengono RICOSTRUITE (MPR) invece di restare 2D. I medici
-  // le vogliono 2D (come nella build precedente a Cornerstone3D 2.0): si scorre
-  // tra i frame/echi con la rotella o la scrollbar, senza ricostruzione.
-  // NB: la barra 4D orizzontale esiste SOLO in modalità volume, quindi è
-  // inscindibile dalla ricostruzione. Per tenere le serie 2D disattiviamo il 4D,
-  // riattivabile solo esplicitamente con il flag app-config `mdvGroupByDinamic`.
+  // Some multi-dimensional MR series (in and out of phase, or multi-b DWI) are recognised
+  // as a "dynamic volume", meaning 4D. But that forces them into a VOLUME viewport, where
+  // they are RECONSTRUCTED as MPR instead of staying 2D. Radiologists want them 2D, as
+  // they were before Cornerstone3D 2.0: you scroll between frames and echoes with the
+  // wheel or the scrollbar, with no reconstruction.
+  // The horizontal 4D bar exists ONLY in volume mode, so it cannot be separated from the
+  // reconstruction. To keep these series 2D, 4D is turned off here, and can be turned
+  // back on only by setting the app-config flag `mdvGroupByDinamic`.
   const isDynamicVolume = dynamicVolumeInfo.isDynamicVolume && mdvGroupByDinamic === true;
 
   if (isDynamicVolume) {
@@ -65,10 +65,10 @@ function getDisplaySetInfo(instances) {
   }
 
   return {
-    // `isDynamicVolume` (gated) decide se caricare la serie come volume 4D.
-    // Teniamo comunque il `dynamicVolumeInfo` ORIGINALE (con i `timePoints`, cioè
-    // gli imageId raggruppati per diffusione/echo): serve alla barra 2D per
-    // navigare i gruppi restando su una viewport stack (senza ricostruzione).
+    // `isDynamicVolume`, once gated, decides whether the series loads as a 4D volume.
+    // The ORIGINAL `dynamicVolumeInfo` is kept either way, with its `timePoints`, which
+    // are the imageIds grouped by diffusion or echo: the 2D bar needs them to move
+    // between groups while staying on a stack viewport, with no reconstruction.
     isDynamicVolume,
     ...displaySetInfo,
     dynamicVolumeInfo,

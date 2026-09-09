@@ -1,4 +1,4 @@
-/* Contenitore principale del menu */
+/* The menu's main container */
 #menu-hp {
   z-index: 999;
   background: #2b2b2b;
@@ -19,7 +19,7 @@
   animation-fill-mode: both;
 }
 
-/* Titolo del menu */
+/* The menu's title */
 #menu-hp h2 {
   color: #fff;
   text-transform: uppercase;
@@ -49,8 +49,8 @@
   color: #fff;
 }
 
-/* Sezione delle opzioni */
-.opzione-hp {
+/* The options section */
+.hp-option {
   flex: 1;
   margin-right: 10px;
   border-radius: 8px;
@@ -62,14 +62,14 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.opzione-hp:hover {
+.hp-option:hover {
   transform: translateY(-3px);
   border-color: #38bdf8;
   box-shadow: 0 8px 20px rgba(56, 189, 248, 0.2);
 }
 
-/* Titoli delle opzioni */
-.opzione-hp h3 {
+/* The options' titles */
+.hp-option h3 {
   background: transparent;
   color: #fff;
   text-align: center;
@@ -78,8 +78,8 @@
   margin-bottom: 10px;
 }
 
-/* Paragrafi delle opzioni */
-.opzione-hp p {
+/* The options' paragraphs */
+.hp-option p {
   color: #b3b3b3;
   font-size: 0.9rem;
   min-height: 100px;
@@ -87,7 +87,7 @@
   margin-bottom: 20px;
 }
 
-/* Bottone generale del menu */
+/* The menu's general button */
 #menu-hp button {
   width: 100%;
   margin-bottom: 10px;
@@ -166,7 +166,7 @@
   background: #2d3542;
 }
 
-/* Message di dati salvati */
+/* The "data saved" message */
 #dati-salvati {
   background: #43a047;
   padding: 15px;

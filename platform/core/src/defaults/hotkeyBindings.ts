@@ -274,8 +274,8 @@ const bindings = [
     label: 'Delete the last measurement',
     keys: ['esc'],
   },
-  // Preset W/L: priorità ai preset DICOM della serie attiva, poi ai preset di
-  // configurazione. Il tasto N attiva l'N-esimo preset combinato (DICOM + config).
+  // Window level presets: the active series' DICOM presets come first, then the
+  // configured ones. Key N applies the Nth of the combined list.
   {
     commandName: 'setWindowLevelPresetByIndex',
     commandOptions: { index: 0 },
@@ -335,7 +335,7 @@ const bindings = [
     label: 'Delete the annotation',
     keys: ['backspace'],
   },
-  // Azioni/interruttori (Shift+tasto, per non confliggere con gli strumenti).
+  // Actions and switches, on Shift plus a key, so they do not clash with the tools.
   {
     commandName: 'hideInfoDicom',
     label: 'Hide the DICOM info',

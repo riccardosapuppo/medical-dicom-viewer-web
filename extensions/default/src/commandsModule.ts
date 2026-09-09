@@ -369,7 +369,7 @@ const commandsModule = ({
     },
 
     toggleOneUp() {
-      //Non permetto il toggleOneUp se sono in MPR (salvataggio stato attualmnete implementato da gestire diversamente se voglio questa funzione)
+      // toggleOneUp is refused in MPR: saving the state is done in a way that would need rethinking for this to work
       if (document.body.classList.contains('hp-mpr-active')) {
         return;
       }
@@ -427,10 +427,10 @@ const commandsModule = ({
             : // Use the previous viewport for the given position
             preOneUpViewport;
 
-          // Preserva la Subgrid (Montage) salvata prima del one-up: lo spread
-          // della viewport aggiornata via Hanging Protocol sovrascrive
-          // viewportOptions perdendo `montage`. La riapplichiamo dalla viewport
-          // memorizzata per questa posizione.
+          // Keeps the subgrid (montage) saved before the one-up: spreading the viewport
+          // that the hanging protocol updated overwrites viewportOptions and loses
+          // `montage`. It is applied again from the viewport remembered for this
+          // position.
           const montage = preOneUpViewport?.viewportOptions?.montage;
           if (viewport && montage?.enabled && result?.viewportOptions) {
             result.viewportOptions = { ...result.viewportOptions, montage };

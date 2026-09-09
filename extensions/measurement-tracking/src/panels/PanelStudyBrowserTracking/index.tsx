@@ -26,9 +26,9 @@ function WrappedPanelStudyBrowserTracking() {
   const dataSource = extensionManager.getActiveDataSource()[0];
 
   const getStudiesForPatientByMRN = _getStudyForPatientUtility(extensionManager);
-  // Deve restare stabile tra i render: e' una dipendenza dell'effetto che interroga il QIDO
-  // dentro il pannello, e un .bind() nudo ne cambierebbe l'identita' ad ogni render facendo
-  // ripartire la query all'infinito.
+  // This has to stay stable between renders: it is a dependency of the effect that runs
+  // the QIDO query inside the panel, and a bare .bind() would change its identity on
+  // every render and set the query going for ever.
   const _getStudiesForPatientByMRN = useCallback(
     qidoForStudyUID => getStudiesForPatientByMRN(dataSource, qidoForStudyUID),
     [getStudiesForPatientByMRN, dataSource]

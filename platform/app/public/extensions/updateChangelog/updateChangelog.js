@@ -1,16 +1,16 @@
 // /* eslint-disable default-case */
 
 // const changelogAggiornamentiInitInterval = () => {
-//   const intervalChangelogAggiornamentiExt = setInterval(() => {
+//   const changelogUpdatesInterval = setInterval(() => {
 //     if (document.getElementById('trackedMeasurements-btn')) {
-//       clearInterval(intervalChangelogAggiornamentiExt);
+//       clearInterval(changelogUpdatesInterval);
 //       injectChangelogAggiornamenti();
 //     }
 //   }, 100);
 
-//   //A prescindere blocco l'intervallo check dopo un tot per performance
+//   // The check interval is stopped after a while regardless, for the sake of performance
 //   setTimeout(() => {
-//     clearInterval(intervalChangelogAggiornamentiExt);
+//     clearInterval(intervalChangelogUpdatesExt);
 //   }, 10000);
 // };
 

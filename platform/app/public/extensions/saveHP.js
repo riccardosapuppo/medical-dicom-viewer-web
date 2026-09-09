@@ -52,8 +52,8 @@ const saveHP = () => {
     numberOfPriorsReferenced: -1,
   };
 
-  // ********* Compongo baseHP
-  //Layout griglia -->
+  // ********* Composing baseHP
+  // Grid layout -->
   // baseHP.stages[0].viewportStructure.properties.rows = Number(window.layout.split('x')[1]);
   // baseHP.stages[0].viewportStructure.properties.columns = Number(window.layout.split('x')[0]);
 

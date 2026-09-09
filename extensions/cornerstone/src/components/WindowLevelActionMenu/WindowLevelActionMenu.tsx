@@ -87,7 +87,7 @@ export function WindowLevelActionMenu({
         slabThicknessBlendMode: slabThicknessBlendMode, // Sovrascrive il valore predefinito
       },
     };
-    // Crea un'istanza di CrosshairsTool
+    // Make a CrosshairsTool instance
     const crosshairsTool = new CrosshairsTool({}, customToolProps);
     const { cornerstoneViewportService } = servicesManager.services;
     const viewport = cornerstoneViewportService.getCornerstoneViewport(viewportId);
@@ -391,11 +391,11 @@ export function WindowLevelActionMenu({
           verticalDirection={verticalDirection}
           horizontalDirection={horizontalDirection}
           iconClassName={classNames(
-            // Visible on hover (sul pane del viewport) e per il viewport attivo.
-            // Usiamo `group-hover/pane:visible` per coerenza con l'icona WW/WL
-            // sopra: il viewport pane ha la classe `group/pane`, mentre
-            // `group-hover:visible` (senza named group) non scatta mai →
-            // l'icona compariva solo dopo il click sul viewport.
+            // Visible on hover over the viewport's pane, and for the active viewport.
+            // `group-hover/pane:visible` matches the window level icon above it: the
+            // viewport pane carries the class `group/pane`, while `group-hover:visible`
+            // with no named group never fires, so the icon only appeared after the
+            // viewport had been clicked.
             activeViewportId === viewportId
               ? 'visible favourites-btn'
               : 'favourites-btn invisible group-hover/pane:visible',

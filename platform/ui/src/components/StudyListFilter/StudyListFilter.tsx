@@ -79,7 +79,7 @@ const StudyListFilter = ({
                   variant="h6"
                   className="text-primary-light"
                 >
-                  {`Studi `}
+                  {`Studies `}
                 </Typography>
               </div>
             </div>

@@ -30,7 +30,7 @@ export function getWindowLevelActionMenu({
   //     return { [displaySet.Modality]: presets[displaySet.Modality] };
   //   });
 
-  //Restituisco tutti i preset a prescindere dalla modality
+  // Return every preset, whatever the modality
   const displaySetPresets = [presets];
 
   const modalities = displaySets

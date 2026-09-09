@@ -870,7 +870,7 @@ function LinkedSeriesBadgeOverlayItem(props: OverlayItemProps) {
                   ))}
                 </ul>
               ) : (
-                <div className="opacity-70">Nessun'altra serie nel gruppo</div>
+                <div className="opacity-70">No other series in the group</div>
               )}
             </div>
           </TooltipContent>

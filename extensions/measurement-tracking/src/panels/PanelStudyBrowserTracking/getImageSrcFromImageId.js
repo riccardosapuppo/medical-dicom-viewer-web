@@ -6,7 +6,7 @@ function getImageSrcFromImageId(cornerstone, imageId) {
   return new Promise((resolve, reject) => {
     (async () => {
       const { metaData, imageLoader, Enums } = cornerstone;
-      // Per riattivare i log thumbnail: localStorage.setItem('ohifThumbDebug', '1') nel browser
+      // To turn the thumbnail logs back on: localStorage.setItem('ohifThumbDebug', '1') in the browser
       const debug = false;
       // const debug =
       //   typeof window !== 'undefined' &&

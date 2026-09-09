@@ -33,7 +33,7 @@ const NotFoundStudy = () => {
   return (
     <div className="absolute flex h-full w-full items-center justify-center text-white">
       <div>
-        <h4>Studio non disponibile</h4>
+        <h4>Study not available</h4>
       </div>
     </div>
   );

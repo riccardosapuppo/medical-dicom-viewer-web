@@ -303,7 +303,7 @@ const DataRow: React.FC<DataRowProps> = ({
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={e => handleAction('Delete', e)}>
                     <Icons.Delete className="text-foreground" />
-                    <span className="pl-2">Elimina</span>
+                    <span className="pl-2">Delete</span>
                   </DropdownMenuItem>
                   {onColor && (
                     <DropdownMenuItem onClick={e => handleAction('Color', e)}>

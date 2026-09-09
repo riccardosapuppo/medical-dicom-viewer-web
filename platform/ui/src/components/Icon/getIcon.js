@@ -11,8 +11,8 @@ import { ReactComponent as toolStackScroll } from './../../assets/icons/tool-sta
 
 import React from 'react';
 
-// Icona stampante (inline, nessun asset esterno) — usata dal pulsante "Stampa"
-// della toolbar (vedi modes/longitudinal toolbarButtons).
+// A printer icon, inline, with no external asset. Used by the toolbar's "Print" button
+// (see modes/longitudinal toolbarButtons).
 const PrinterIcon = props =>
   React.createElement(
     'svg',

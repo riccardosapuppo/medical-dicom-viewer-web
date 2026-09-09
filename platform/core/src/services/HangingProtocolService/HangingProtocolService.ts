@@ -932,8 +932,10 @@ export default class HangingProtocolService extends PubSubService {
       //   };
 
       //   const newID = window.favouritesHangingProtocol.id;
-      //   //Se il protocollo è uno presente nella condizione, essendo dinamico forzo la riaggiunta. Praticamente gli hanging protocol vengono caricati solamente all'inizio,
-      //   //se ho degli hanging protocol da modificare live come nel caso dei favourites, devo riaggiungerlo con le modifiche
+      //   // A protocol named in the condition is dynamic, so it is added again on
+      //   // purpose. Hanging protocols are otherwise loaded once, at the start; one that
+      //   // changes while the viewer runs, as the favourites one does, has to be added
+      //   // again carrying its changes.
       //   this.addProtocol(newID, window.favouritesHangingProtocol);
       //   protocol = window.favouritesHangingProtocol;
       // }

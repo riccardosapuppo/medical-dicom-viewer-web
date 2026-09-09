@@ -7,12 +7,12 @@ import { Icons } from '@ohif/ui-next';
 // Step messages shown below the progress bar, mapped to the current progress
 // bucket so the user sees what the app is actually doing while the study loads.
 const LOADING_STEPS: Array<{ threshold: number; label: string }> = [
-  { threshold: 0, label: 'Inizializzazione viewer...' },
-  { threshold: 15, label: 'Connessione al server DICOM...' },
-  { threshold: 35, label: 'Download metadati studio...' },
+  { threshold: 0, label: 'Starting the viewer...' },
+  { threshold: 15, label: 'Connecting to the DICOM server...' },
+  { threshold: 35, label: 'Downloading the study metadata...' },
   { threshold: 55, label: 'Working through the series and images...' },
   { threshold: 75, label: 'Preparing the layout and the tools...' },
-  { threshold: 92, label: 'Quasi pronto...' },
+  { threshold: 92, label: 'Almost ready...' },
 ];
 
 const getStepLabel = (progress: number | undefined): string => {
@@ -55,7 +55,7 @@ function LoadingIndicatorProgress({ className, textBlock, progress }) {
       setTimeout(updateFakeProgress, randomInterval);
     };
 
-    // Avvia l'aggiornamento del progresso fake, mentre reale se caricamento file da locale dove ho una percentuale effettiva
+    // Start the fake progress. It is real when files are loaded from disc, where there is an actual percentage
     if (!window.portableVersion) {
       updateFakeProgress();
     }
@@ -115,12 +115,12 @@ function LoadingIndicatorProgress({ className, textBlock, progress }) {
         <span></span>
       </div>
 
-      {/* Versione e autore, in basso alla finestra. Chi guarda una schermata
-          di caricamento la guarda per intero: e il posto dove chiedersi di chi
-          e questo programma. */}
+      {/* Version and author, along the bottom. Anyone watching a loading screen
+          watches all of it, and that is the moment to wonder whose program this
+          is. */}
       {version && (
         <div className="fixed bottom-3 left-0 right-0 text-center text-[11px] tracking-wide text-white/35">
-          v{version} · Sviluppato da Riccardo Sapuppo
+          v{version} · Built by Riccardo Sapuppo
         </div>
       )}
     </div>

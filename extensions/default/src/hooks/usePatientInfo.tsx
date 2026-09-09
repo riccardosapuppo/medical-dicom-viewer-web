@@ -15,11 +15,8 @@ function usePatientInfo(servicesManager: AppTypes.ServicesManager) {
   });
   const [isMixedPatients, setIsMixedPatients] = useState(false);
 
-  //Forzo l'aggiornamento delle info patient non appena displaySets è popolato
-  // if (primoAvvio && displaySets[0]?.instances?.[0]) {
-  //   updatePatientInfo()
-  //   primoAvvio = false
-  // }
+  // Force the patient info to refresh as soon as displaySets is populated
+  // if (firstRun && displaySets[0]?.instances?.[0]) {
 
   function checkMixedPatients(PatientID) {
     const displaySets = displaySetService.getActiveDisplaySets();

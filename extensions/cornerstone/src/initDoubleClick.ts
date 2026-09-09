@@ -94,12 +94,11 @@ function initDoubleClick({ customizationService, commandsManager }: initDoubleCl
       return;
     }
 
-    // I due click del doppio-click possono aver AVVIATO una misura con uno
-    // strumento non-contour attivo (Length/Angle/ROI…). L'azione di viewport che
-    // sta per partire (es. toggleOneUp) cambia layout e DISTRUGGE l'enabled-
-    // element (es. una cella della Subgrid) lasciando lo strumento in stato
-    // "in disegno" → dopo non si potrebbero più tracciare misure. Annulliamo
-    // l'eventuale manipolazione in corso prima di eseguire l'azione.
+    // The two clicks of a double click may have STARTED a measurement with a
+    // non-contour tool active (length, angle, ROI). The viewport action about to run
+    // (toggleOneUp, say) changes the layout and DESTROYS the enabled element, a subgrid
+    // cell for instance, leaving the tool mid-drawing, after which no measurement could
+    // be drawn at all. Any manipulation under way is cancelled before the action runs.
     try {
       const element = evt?.detail?.element as HTMLElement | undefined;
       if (element) {

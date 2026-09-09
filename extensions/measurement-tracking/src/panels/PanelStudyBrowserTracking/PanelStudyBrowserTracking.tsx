@@ -48,7 +48,7 @@ const shouldHideThumbnail = ds => {
 
 const showFirstPriorStudy = true;
 const INVALID_STUDY_DESCRIPTION_VALUES = new Set([
-  'no data studio',
+  'no data study',
   'no data study',
   'no data',
   'n/a',
@@ -511,7 +511,7 @@ export default function PanelStudyBrowserTracking({
         return {
           studyInstanceUid: studyId,
           date: studyDateFromDisplaySets || t('NoStudyDate'),
-          description: studyDescriptionFromDisplaySets || 'Studio attuale',
+          description: studyDescriptionFromDisplaySets || 'Current study',
           modalities: modalities.join('\\'),
           numInstances: instancesCount || displaySetsForStudy.length,
         };

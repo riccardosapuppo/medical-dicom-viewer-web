@@ -86,7 +86,7 @@ const AboutModal = ({ buildNumber, versionNumber, commitHash }) => {
             versione dichiarata beta: travestiva una beta di monte da versione
             stabile, che e' l'unica cosa che questa riga non deve fare. */}
         <Row
-          title={t('Versione')}
+          title={t('Version')}
           value={versionNumber}
         />
         {buildNumber && (

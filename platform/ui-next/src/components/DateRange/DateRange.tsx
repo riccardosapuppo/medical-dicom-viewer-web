@@ -23,7 +23,7 @@ function safeFormatYMD(value?: string) {
     return format(today, 'yyyy-MM-dd');
   }
 
-  // Parsing della data in YYYYMMDD
+  // Parsing the date as YYYYMMDD
   const parsed = parse(value, 'yyyyMMdd', new Date());
 
   // Se la data è invalida → oggi

@@ -1,5 +1,5 @@
-export default function ottieniWLViewportSerieAttiva() {
-  //Ottieni tutte le info come seriesInstanceUID per la viewport e quindi serie attualmente attiva e selezionata
+export default function getActiveViewportWindowLevel() {
+  // Everything about the viewport, including the seriesInstanceUID, and so the series active and selected right now
   try {
     const { viewportGridService, cornerstoneViewportService } = window.servicesManager.services;
     const { activeViewportId } = viewportGridService.getState();

@@ -391,7 +391,7 @@ function WorkList({
           // archive has none, and with no fallback the tab came out with no label at
           // all. The separator is written only when there is something to separate.
           title: [
-            [patientName, mrn].find(Boolean) || description || modalities || 'Studio',
+            [patientName, mrn].find(Boolean) || description || modalities || 'Study',
             accession,
           ]
             .filter(Boolean)

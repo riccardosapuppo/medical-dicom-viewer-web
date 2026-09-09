@@ -8,7 +8,7 @@ const editorInitInterval = () => {
     }
   }, 100);
 
-  //A prescindere blocco l'intervallo check dopo un tot per performance
+  // The check interval is stopped after a while regardless, for the sake of performance
   setTimeout(() => {
     clearInterval(intervalEditorExt);
   }, 10000);
@@ -18,7 +18,7 @@ const injectEditorBtn = () => {
   if (document.getElementById('editor-btn')) {
     return
   }
-  //Attacco pulsante sotto quello delle measurements nel pannello a dx
+  // Attach the button below the measurements one, in the right-hand panel
   document.getElementById('trackedMeasurements-btn').parentElement.insertAdjacentHTML(
     'afterend',
     `
@@ -46,7 +46,7 @@ const createEditorFunc = () => {
             <div id="area-editor">
 
              </div>
-      <button id="save-text">Save note per questo studio</button>
+      <button id="save-text">Save a note for this study</button>
       </div>
     </div>
   `;
@@ -59,7 +59,7 @@ const createEditorFunc = () => {
   //Animazione comparsa editor-tools
   setTimeout(() => {
     document.getElementById('editor-tools').style.left = `${window.iAmAPrior ? '60%' : '80%'}`;
-    //Adatto la width della griglia in base all'apertura del nuovo pannello
+    // Fit the grid's width to the newly opened panel
     if (
       document.body.classList.contains('priors-injected-iframe') ||
       document.body.classList.contains('priors-same-tab')
@@ -100,7 +100,7 @@ const createEditorFunc = () => {
           'afterbegin',
           `
       <div onclick="window.handleNotaClick(this)" class="saved-note">
-          <p>Carica nota salvata</p>
+          <p>Load the saved note</p>
         </div>`
         );
       } else {
@@ -129,21 +129,21 @@ const createEditorFunc = () => {
     }
     const delta = quill.getContents();
     delta.studyInstanceUID = window.mdvStudyInstanceUIDs;
-    //Verifico che non ca già una nota per quello studyInstanceUID così da non aggiungere duplicati, eventualmente sovrascrivo
+    // Check there is no note for this studyInstanceUID already, so no duplicate is added; overwrite if there is
     const studyInstanceUID = window.mdvStudyInstanceUIDs; // UID corrente
 
-    // Controlla se l'array di note attuali è vuoto
+    // Check whether the array of current notes is empty
     if (currentNotes.length === 0) {
       // Se è vuoto, inserisci direttamente il delta
       currentNotes.push(delta);
     } else {
       let found = false;
 
-      // Cicla attraverso l'array delle note attuali
+      // Walk the array of current notes
       for (let i = 0; i < currentNotes.length; i++) {
-        // Controlla se esiste già un elemento con lo stesso studyInstanceUID
+        // Check whether an entry with the same studyInstanceUID is already there
         if (currentNotes[i].studyInstanceUID === studyInstanceUID) {
-          // Se lo trovi, sostituisci l'elemento con il nuovo delta
+          // If it is, replace it with the new delta
           found = true;
           if (confirm('This study already has a saved note. Overwrite it?') == true) {
             currentNotes[i] = delta;
@@ -154,7 +154,7 @@ const createEditorFunc = () => {
         }
       }
 
-      // Se non è stato trovato alcun elemento con lo stesso UID, aggiungi il nuovo delta
+      // If nothing with that UID was found, add the new delta
       if (!found) {
         currentNotes.push(delta);
       }
@@ -182,7 +182,7 @@ const createEditorFunc = () => {
   });
 };
 
-// Ogni volta che il pannello si apre/chiude perdo l'estensione creata. Intercetto l'evento apertura/chiusura e ricreo
+// The extension is lost every time the panel opens or closes. Catch the open and close events and rebuild it
 if (!window.portableVersion) {
   window.addEventListener('panelOpen', function (event) {
     if (!event.detail.isOpen && event.detail.side !== 'left') {

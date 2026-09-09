@@ -11,7 +11,7 @@ import openPriors from '../../../../app/public/extensions/openPriors/openPriors.
 
 const PRIORS_SERIES_LOADING_TIMEOUT_MS = 12000;
 const INVALID_STUDY_DESCRIPTION_VALUES = new Set([
-  'no data studio',
+  'no data study',
   'no data study',
   'no data',
   'n/a',
@@ -334,7 +334,7 @@ const StudyItem = ({
             ) : (
               <div className="flex items-center justify-center gap-2 py-3">
                 <Icons.LoadingSpinner className="text-primary-main h-4 w-4" />
-                <span className="text-muted-foreground text-[12px]">Caricamento serie...</span>
+                <span className="text-muted-foreground text-[12px]">Loading the series...</span>
               </div>
             )
           ) : (

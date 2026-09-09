@@ -11,9 +11,9 @@ describe('Montage helpers', () => {
       expect(clampBase(10, 0)).toBe(0);
     });
     it('keeps the grid full: base never exceeds total - visibleCount', () => {
-      // 10 immagini, 4 celle → base max = 6 (così l'ultima pagina è piena)
+      // 10 images, 4 cells, so base tops out at 6 and the last page is full
       expect(clampBase(99, 10, 4)).toBe(6);
-      // 3 immagini, 4 celle → nessuno scroll possibile (base resta 0)
+      // 3 images, 4 cells: no scrolling is possible, base stays 0
       expect(clampBase(2, 3, 4)).toBe(0);
       expect(clampBase(0, 3, 4)).toBe(0);
     });
@@ -48,14 +48,14 @@ describe('Montage helpers', () => {
     });
 
     it('keeps the grid full near the end: clamps firstImageIndex to total - visibleCount', () => {
-      // 11 immagini, 2x2: firstImageIndex 9 viene clampato a 7 → celle piene 7..10
+      // 11 images in a 2x2: firstImageIndex 9 is clamped to 7, so cells hold 7 to 10
       const { cells, total } = deriveMontageCells({ rows: 2, cols: 2, firstImageIndex: 9 }, 11, 'vp1');
       expect(cells.map(c => c.imageIndex)).toEqual([7, 8, 9, 10]);
       expect(cells.filter(c => c.imageIndex >= total).length).toBe(0);
     });
 
     it('fewer images than cells: extra cells stay empty, no scroll past 0', () => {
-      // 3 immagini, 2x2: celle 0,1,2 piene, cella 3 vuota; firstImageIndex bloccato a 0
+      // 3 images in a 2x2: cells 0, 1 and 2 are full, cell 3 empty, firstImageIndex held at 0
       const { cells, total } = deriveMontageCells({ rows: 2, cols: 2, firstImageIndex: 5 }, 3, 'vp1');
       expect(cells.map(c => c.imageIndex)).toEqual([0, 1, 2, 3]);
       expect(cells.filter(c => c.imageIndex >= total).length).toBe(1);

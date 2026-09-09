@@ -181,8 +181,9 @@ const SidePanel = ({
   const updatePanelOpen = useCallback(
     (panelOpen: boolean, side: string) => {
       setPanelOpen(panelOpen);
-      // Lancio un evento personalizzato che intercetto dalle extensions js. Ogni volta che il pannello dx si apre/chiude viene distrutto/ricreato il componente e perdo tutto.
-      //Di conseguenza ricreo il tutto alla ricezione da parte del figlio dell'evento
+      // Fires a custom event that the js extensions listen for. Every time the right-hand
+      // panel opens or closes the component is destroyed and rebuilt, and everything in it
+      // is lost, so the child rebuilds it when it receives the event.
 
       const event = new CustomEvent('panelOpen', { detail: { isOpen: panelOpen, side: side } });
       window.dispatchEvent(event);

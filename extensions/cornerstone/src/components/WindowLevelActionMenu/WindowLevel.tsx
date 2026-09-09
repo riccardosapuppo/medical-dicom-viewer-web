@@ -3,8 +3,8 @@ import { AllInOneMenu, SwitchButton } from '@ohif/ui';
 import { WindowLevelPreset } from '../../types/WindowLevel';
 import { CommandsManager } from '@ohif/core';
 import { useTranslation } from 'react-i18next';
-import ottieniDisplaySetSerieAttiva from '../../../../../platform/core/src/utils/ottieniDisplaySetSerieAttiva';
-import ottieniWLViewportSerieAttiva from '../../../../../platform/core/src/utils/ottieniWLViewportAttiva';
+import getActiveSeriesDisplaySet from '../../../../../platform/core/src/utils/getActiveSeriesDisplaySet';
+import getActiveViewportWindowLevel from '../../../../../platform/core/src/utils/getActiveViewportWindowLevel';
 
 export type WindowLevelProps = {
   viewportId: string;
@@ -19,9 +19,9 @@ export function WindowLevel({
 }: WindowLevelProps): ReactElement {
   const [showPreview, setShowPreview] = useState(false);
   const { t } = useTranslation('WindowLevelActionMenu');
-  //Al click recupero la seriesIstanceUID della serie selezionata e la wl attualmente impostata
-  const currentWl = ottieniWLViewportSerieAttiva();
-  const { SeriesInstanceUID } = ottieniDisplaySetSerieAttiva();
+  // On click, take the selected series' SeriesInstanceUID and the window level set right now
+  const currentWl = getActiveViewportWindowLevel();
+  const { SeriesInstanceUID } = getActiveSeriesDisplaySet();
   const dicomPreset = [];
   if (SeriesInstanceUID && window.MdvDicomLuts && window.MdvDicomLuts[SeriesInstanceUID]) {
     const dicomWHWC = window.MdvDicomLuts[SeriesInstanceUID];
@@ -31,8 +31,8 @@ export function WindowLevel({
     if (!Array.isArray(dicomWHWC.WindowWidth)) {
       dicomWHWC.WindowWidth = [dicomWHWC.WindowWidth];
     }
-    //A questo punto potrei avere dei duplicati. Unendo infatti il primo elemento di WindowWidth e il primo di WindowCenter, il secondo poi col
-    //secondo ecc. potrei avere 300,175  300,75  350,40. Manterrò solamente un 300,175
+    // There may be duplicates at this point. Pairing the first WindowWidth with the first
+    // WindowCenter, the second with the second and so on can give 300,175  300,75  350,40.
 
     // Creo un array di coppie [WindowCenter, WindowWidth]
     const combined = dicomWHWC.WindowCenter.map((center, index) => {
@@ -44,7 +44,7 @@ export function WindowLevel({
       new Map(combined.map(item => [JSON.stringify(item), item])).values()
     );
 
-    // Separo di nuovo le due liste, ma senza duplicati
+    // Split the two lists again, this time without duplicates
     const newWindowCenter = uniqueCombinations.map(item => item.center);
     const newWindowWidth = uniqueCombinations.map(item => item.width);
 

@@ -24,7 +24,7 @@ window.viewFavouritePopup = imgSrc => {
 window.removeFavourite = sopUID => {
   if (!window.favourites) return;
 
-  // Remove dalla lista globale
+  // Remove it from the global list
   window.favourites = window.favourites.filter(p => p.SOPInstanceUID !== sopUID);
   window.dispatchEvent(new Event('mdv-favourites-updated'));
 

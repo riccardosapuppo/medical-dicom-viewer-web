@@ -1,10 +1,10 @@
-// Split button per la Subgrid (Montage).
-//  - ICONA (sinistra): attiva/disattiva la subgrid col layout CONSIGLIATO
-//    (automatico in base al numero di istanze della serie, max 8) → `toggleMontage`.
-//    Ri-clic = disattiva.
-//  - FRECCETTA (destra): apre il selettore righe×colonne in stile "layout"
-//    principale (sezione "Standard" + "Personalizzato"), che applica
-//    `setMontageLayout`. Niente voce "off": si disattiva dall'icona stessa.
+// The split button for the subgrid (montage).
+//  - THE ICON, on the left: turns the subgrid on or off with the SUGGESTED layout, which
+//    follows the number of instances in the series, up to eight, through `toggleMontage`.
+//    Clicking again turns it off.
+//  - THE ARROW, on the right: opens the rows-by-columns picker in the style of the main
+//    layout selector (a "Standard" section and a "Custom" one), which applies
+//    `setMontageLayout`. There is no "off" entry: the icon itself turns it off.
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { CommandsManager } from '@ohif/core';
@@ -25,12 +25,12 @@ const cx = (...classes: Array<string | false | undefined>) => classes.filter(Boo
 function MontageLayoutSelector({
   commandsManager,
   servicesManager,
-  // Stato dalla valutazione del bottone (evaluate.cornerstone.montage):
-  // isActive → subgrid attiva; disabled → serie non idonea (non-stack).
+  // The state comes from the button's evaluation (evaluate.cornerstone.montage):
+  // isActive means the subgrid is on, disabled means the series is not a suitable stack.
   isActive = false,
   disabled = false,
   disabledText,
-  // Dimensioni massime della griglia "Personalizzato".
+  // The largest grid "Custom" will offer.
   rows = 4,
   columns = 4,
   ...props
@@ -46,8 +46,8 @@ function MontageLayoutSelector({
 }) {
   const { customizationService } = servicesManager.services;
 
-  // Preset "Standard": riusa gli stessi del selettore layout principale così le
-  // icone sono identiche a quelle che l'utente già vede (e sicuramente esistono).
+  // The "Standard" presets reuse the main layout selector's, so the icons are identical
+  // to the ones a reader already sees, and are certain to exist.
   const commonPresets = customizationService?.getCustomization('layoutSelector.commonPresets') || [
     { icon: 'layout-single', commandOptions: { numRows: 1, numCols: 1 } },
     { icon: 'layout-side-by-side', commandOptions: { numRows: 1, numCols: 2 } },
@@ -127,7 +127,7 @@ function MontageLayoutSelector({
             variant="ghost"
             size="icon"
             disabled={disabled}
-            aria-label="Scegli righe × colonne"
+            aria-label="Choose rows by columns"
             className={cx(
               'h-10 w-5 bg-transparent !rounded-l-none !rounded-r-lg',
               disabled && 'cursor-not-allowed opacity-40'

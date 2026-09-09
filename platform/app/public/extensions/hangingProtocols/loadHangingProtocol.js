@@ -412,7 +412,7 @@ const loadHangingProtocol = async () => {
 
   await ensureStudyInfoFromMetadata();
   const normalisedExamName = normalizza(studyExamNameHP);
-  console.log('[HP] Studio', {
+  console.log('[HP] Study', {
     studyInstanceUID,
     studyExamNameHP,
     modalityStudioHP,
@@ -628,7 +628,7 @@ const loadHangingProtocol = async () => {
     try {
       viewportsState = viewportGridService.getState?.();
     } catch (err) {
-      console.warn('[HP] ViewportGridService non pronto', err);
+      console.warn('[HP] ViewportGridService is not ready', err);
       return false;
     }
     const viewports = viewportsState?.viewports;
@@ -636,7 +636,7 @@ const loadHangingProtocol = async () => {
     const activeStudyUID =
       activeStudy?.StudyInstanceUID || activeStudy?.studyInstanceUID || activeStudy?.StudyUID;
     if (studyInstanceUID && activeStudyUID && activeStudyUID !== studyInstanceUID) {
-      console.warn('[HP] Studio attivo non corrisponde', {
+      console.warn('[HP] The active study does not match', {
         activeStudyUID,
         studyInstanceUID,
       });

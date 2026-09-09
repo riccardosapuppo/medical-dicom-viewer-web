@@ -654,8 +654,8 @@ const SidePanel = ({
     primoAvvio = false; // Imposta `primoAvvio` a false per evitare chiamate successive
   };
 
-  //Al primo avvio verifico se sono su mobile, se lo fossi al primo avvio chiudo di default il pannello e adatto l'height dell'intera area
-  //sopra la barra header in basso
+  // At first start, check for a mobile device and, if it is one, close the panel by
+  // default and fit the height of the whole area above the bottom header bar
   useEffect(() => {
     if (primoAvvio) {
       handleOnMobile(); // Verifica se chiudere il pannello

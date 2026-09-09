@@ -62,14 +62,13 @@ const defaultShowHandler = (Shepherd: ShepherdBase) => {
 const customMiddleware = {
   name: 'customOverflowMiddleware',
   async fn(state) {
-    // Il confine e' lo schermo, non <body>.
+    // The boundary is the screen, not <body>.
     //
-    // Qui il corpo della pagina non coincide con la finestra: il
-    // visualizzatore disegna in un contenitore a posizione fissa e lascia il
-    // corpo senza height propria. Misurando l'eccedenza contro quello, la
-    // correzione verticale spingeva ogni passo esattamente sul bordo
-    // inferiore - il box esisteva, per il codice era visibile, e nessuno
-    // lo vedeva.
+    // Here the page's body does not match the window: the viewer draws inside a
+    // fixed-position container and leaves the body with no height of its own. Measuring
+    // the overflow against that, the vertical correction pushed every step exactly onto
+    // the bottom edge: the box existed, the code believed it was visible, and nobody
+    // could see it.
     const overflow = await detectOverflow(state, {
       rootBoundary: 'viewport',
       padding: 24,

@@ -1,8 +1,8 @@
 /*
- * Scrollbar serie (dentro ogni viewport con più di un'immagine).
- * Stile sottile e chiaro: track fine e tenue a tutta height + thumb chiaro
- * arrotondato. L'input range è ruotato 90° per diventare verticale (la
- * "width" dell'input = lunghezza verticale, l'"height" = spessore).
+ * The series scrollbar, inside every viewport holding more than one image.
+ * Thin and pale: a fine, faint track at full height with a rounded light thumb. The range
+ * input is rotated 90 degrees to stand vertical, so the input's "width" is its vertical
+ * length and its "height" is its thickness.
  */
 .scroll {
   height: calc(100% - 30px);
