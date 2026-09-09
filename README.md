@@ -177,6 +177,27 @@ yarn check:saved           # an arrangement saved before the rename still reads
 drives that with an entry written the old way. Removing the migration turns six
 of its eight checks red, which is how it was confirmed rather than assumed.
 
+**And one that reads the page template**, because the de-branding replaced the
+icon set and left the references behind:
+
+```
+yarn check:assets          # every file the page asks the browser for exists
+```
+
+The template declared twenty-five icons and four of them were there. Every load
+asked for `favicon.ico` and got a 404; the web manifest listed nine icons under
+the base path of somebody else's deployment; two of the files it pointed at
+pointed in turn at four more that had never existed; and the title an iPhone
+would have put under the icon on its home screen was `@ohif/app`, the upstream
+package name.
+
+None of that fails anything. A missing icon is a browser shrugging, and the
+only trace was one line in a console the smoke check prints without counting.
+So this reads the templates and the manifests instead, needs neither a browser
+nor an archive, and answers in the time a directory listing takes. The icon now
+exists, built from the two sizes that were already there, and what does not
+exist is no longer asked for.
+
 **A VOI function that is declared but not applied.** A mammogram opened washed
 out, with the air around the breast at 29% grey instead of black, and the
 overlay reported a window of 589 that appears nowhere in the file, which
