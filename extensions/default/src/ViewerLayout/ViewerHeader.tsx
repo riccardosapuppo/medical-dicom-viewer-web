@@ -17,6 +17,17 @@ function ViewerHeader({ appConfig }: withAppTypes<{ appConfig: AppTypes.Config }
   const location = useLocation();
 
   const onClickReturnButton = () => {
+    // Inside the desktop application there is no study list at `/`: the list is
+    // the application's own window, and the way back to it is a bridge the
+    // preload puts on `window`. It exposed that door from the beginning and
+    // nothing ever knocked on it, so opening a study there was a one-way trip
+    // too. In a browser the bridge is not there and the address below is.
+    const desktop = (window as any).workstation;
+    if (typeof desktop?.leaveViewer === 'function') {
+      desktop.leaveViewer();
+      return;
+    }
+
     const { pathname } = location;
     const dataSourceIdx = pathname.indexOf('/', 1);
 
