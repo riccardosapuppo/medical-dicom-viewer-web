@@ -64,6 +64,12 @@ function Header({
             )}
             onClick={onClickReturn}
             data-cy="return-to-work-list"
+            // An arrow on its own is a shape, not an offer. The only way back
+            // to the list should say where it goes, to a reader and to a
+            // screen reader both.
+            title={isReturnEnabled ? t('Back to the study list') : undefined}
+            aria-label={isReturnEnabled ? t('Back to the study list') : undefined}
+            role={isReturnEnabled ? 'button' : undefined}
           >
             {isReturnEnabled && <Icons.ArrowLeft className="text-primary-active w-8" />}
             <div className="ml-1">

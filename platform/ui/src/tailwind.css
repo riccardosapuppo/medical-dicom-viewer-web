@@ -101,9 +101,12 @@
 
 /*CUSTOM*/
 
-[data-cy='return-to-work-list'] {
-  pointer-events: none;
-}
+/* The way back to the study list.
+   Two rules used to be here: this one made the whole block unclickable, and one
+   further down hid its arrow. Both were right where this viewer came from - it
+   opened inside a host page that owned the navigation, and there was no list of
+   its own to go back to. Here there is one, at /, and showStudyList is true, so
+   what the rules did was take away the only way out of a study. */
 
 body.mdv-study-panel-bottom .mdv-main-area {
   padding-bottom: var(--mdv-study-panel-bottom-height, 94px);
@@ -864,10 +867,6 @@ body.mdv-study-panel-bottom [data-cy='studyBrowser-panel'] > .ohif-scrollbar {
   overflow-y: hidden !important;
 }
 
-[data-cy='return-to-work-list'] svg {
-  display: none;
-}
-
 [data-cy='seriesList-btn'] span {
   visibility: hidden;
 }
@@ -1376,7 +1375,24 @@ input[type='range']::-webkit-slider-thumb {
   animation: spin 1s linear infinite; /* the spin animation */
 }
 
-.viewport-loading::before {
+/* A viewport with no image in it yet says so.
+   Measured on a study opened from the list: the pane was drawn at 2.8 seconds
+   and .viewport-loading, which the viewport service sets, first appeared at
+   6.0. In between sat three seconds of an empty black rectangle with nothing in
+   it and nothing happening, which is what somebody reads as a viewer that has
+   hung - and it is the first thing anybody does with this application.
+   A rule and not a class: the class is put on the element by hand, the element
+   belongs to React, and React puts its own className back on the next render,
+   which is where an earlier attempt at this went. `:has()` asks the question
+   that actually matters, which is whether there is anything drawn in there.
+   A cell holding no series is excluded: it is empty, not slow, and with six
+   cells over three series the other three spun for ever. */
+[data-cy='viewport-pane']:not(.mdv-viewport-empty):not(:has(canvas)) {
+  position: relative;
+}
+
+.viewport-loading::before,
+[data-cy='viewport-pane']:not(.mdv-viewport-empty):not(:has(canvas))::before {
   content: '';
   position: absolute;
   top: 50%;

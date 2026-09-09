@@ -442,7 +442,13 @@ function ViewerViewportGrid(props: withAppTypes) {
         >
           <div
             data-cy="viewport-pane"
-            className="flex h-full w-full min-w-[5px] flex-col"
+            className={classNames(
+              'flex h-full w-full min-w-[5px] flex-col',
+              // A cell with nothing in it is not a cell that is loading. Six
+              // cells over three series leaves three empty, and without this
+              // they spin for ever waiting for an image nobody asked for.
+              displaySets.length === 0 && 'mdv-viewport-empty'
+            )}
           >
             <ViewportComponent
               displaySets={displaySets}
