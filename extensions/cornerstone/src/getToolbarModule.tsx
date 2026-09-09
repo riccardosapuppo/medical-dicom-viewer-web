@@ -151,11 +151,11 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
       // to know which state you were in except by looking at the images.
       //
       // The real state is the class the command adds and removes, so that is what is read.
-      name: 'evaluate.classeSulCorpo',
+      name: 'evaluate.classOnBody',
       evaluate: ({ button }) => {
-        const classe = button?.commandOptions?.classe ?? 'hide-info-dicom';
+        const className = button?.commandOptions?.className ?? 'hide-info-dicom';
         return {
-          className: utils.getToggledClassName(document.body.classList.contains(classe)),
+          className: utils.getToggledClassName(document.body.classList.contains(className)),
         };
       },
     },

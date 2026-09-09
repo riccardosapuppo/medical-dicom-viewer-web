@@ -99,7 +99,7 @@ const HotkeysPreferences = ({
                             !isFirst && 'hidden'
                           )}
                         >
-                          {t('Tasto')}
+                          {t('Key')}
                         </Typography>
                         <div className={classNames('flex w-32 flex-col', isFirst && 'mt-5')}>
                           <HotkeyField

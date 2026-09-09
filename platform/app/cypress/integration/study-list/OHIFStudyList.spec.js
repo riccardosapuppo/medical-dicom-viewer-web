@@ -1,6 +1,6 @@
 //We are keeping the hardcoded results values for the study list tests
 //this is intended to be running in a controlled docker environment with test data.
-describe('OHIF Lista studi', function () {
+describe('OHIF Study List', function () {
   context('Desktop resolution', function () {
     beforeEach(function () {
       Cypress.on('uncaught:exception', () => false);

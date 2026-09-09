@@ -231,7 +231,7 @@ const StudyBrowser = ({
             </>
           </div>
           <div id="info-mpr-active">
-            🟢 Vista MPR{' '}
+            🟢 MPR view{' '}
             <span
               onClick={() => disableMPRView()}
               className="close-mpr-mode float-right"

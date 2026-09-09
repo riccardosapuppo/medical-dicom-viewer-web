@@ -1501,7 +1501,7 @@ function commandsModule({
       if (uiModalService) {
         uiModalService.show({
           content: HangingProtocolManagerModal,
-          title: 'Gestione Hanging Protocol',
+          title: 'Hanging protocol manager',
           containerClassName: 'max-w-3xl p-2',
         });
       }

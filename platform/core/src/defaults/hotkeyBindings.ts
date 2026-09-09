@@ -377,7 +377,7 @@ const bindings = [
   },
   {
     commandName: 'zoomOneToOne',
-    label: 'Zoom 1 a 1',
+    label: 'Zoom 1:1',
     keys: ['shift+z'],
     isEditable: true,
   },

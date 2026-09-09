@@ -304,8 +304,8 @@ const GridSelector = ({ rows = 3, columns = 4, className }: GridSelectorProps) =
 
   const isSelectionFromPriors = (e) => {
     try {
-      const classeElClicked = e.currentTarget.parentElement.parentElement.className
-      if (classeElClicked.includes('custom-layout-priors')) {
+      const clickedClassName = e.currentTarget.parentElement.parentElement.className
+      if (clickedClassName.includes('custom-layout-priors')) {
         return true
       }
       return false
@@ -321,7 +321,7 @@ const GridSelector = ({ rows = 3, columns = 4, className }: GridSelectorProps) =
     const y = Math.floor(index / columns);
 
     if (isSelectionFromPriors(e)) {
-      document.querySelector('[data-cy="Layout"] button').click() //Riclicco il pulsante griglia così da nasconderlo in automatico
+      document.querySelector('[data-cy="Layout"] button').click() // Click the grid button again so it closes by itself
       const numRows = y + 1
       const numCols = x + 1
       const customLayoutPriors = `custom${numRows}x${numCols}`

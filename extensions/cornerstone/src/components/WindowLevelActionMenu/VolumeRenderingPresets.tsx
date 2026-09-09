@@ -16,7 +16,7 @@ export function VolumeRenderingPresets({
     uiDialogService.show({
       id: 'volume-rendering-presets',
       content: VolumeRenderingPresetsContent,
-      title: 'Preset rendering',
+      title: 'Rendering presets',
       isDraggable: true,
       contentProps: {
         presets: volumeRenderingPresets,

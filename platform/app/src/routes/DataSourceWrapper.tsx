@@ -205,25 +205,25 @@ function DataSourceWrapper(props: withAppTypes) {
           // this notice when the archive is not running, and knowing that docker compose
           // starts it is worth more than knowing the data source's internal name.
           servicesManager.services.uiModalService.show({
-            title: 'Archivio non raggiungibile',
+            title: 'The archive cannot be reached',
             content: () => {
               return (
                 <div className="text-foreground">
                   <p className="text-base">
-                    Il visualizzatore non riesce a interrogare{' '}
+                    The viewer cannot query{' '}
                     <span className="text-primary font-medium">{friendlyName}</span>.
                   </p>
                   <p className="text-muted-foreground mt-3 text-base">
                     Running the project locally, the archive starts with{" "}
-                    <code className="text-primary">docker compose up -d</code> e si riempie con{" "}
-                    <code className="text-primary">npm run data</code> e{" "}
+                    <code className="text-primary">docker compose up -d</code> and fills with{" "}
+                    <code className="text-primary">npm run data</code> and{" "}
                     <code className="text-primary">npm run data:load</code>.
                   </p>
                   <p className="text-muted-foreground mt-3 text-sm">
                     {/* Il token destructive e' un rosso da fondo chiaro: hsl(0 63% 31%)
                         su questo nero e' quasi invisibile. Qui serve un rosso che si
                         legga sul fondo scuro. */}
-                    Dettaglio: <span className="text-[#fca5a5]">{e.message}</span>
+                    Details: <span className="text-[#fca5a5]">{e.message}</span>
                   </p>
                 </div>
               );

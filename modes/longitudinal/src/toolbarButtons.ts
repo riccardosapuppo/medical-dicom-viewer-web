@@ -962,7 +962,7 @@ const toolbarButtons: Button[] = [
       label: 'Hide the viewport info',
       tooltip: 'Hide the data drawn over the images',
       commands: 'hideInfoDicom',
-      evaluate: 'evaluate.classeSulCorpo',
+      evaluate: 'evaluate.classOnBody',
     },
   },
   {

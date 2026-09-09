@@ -99,7 +99,7 @@ function _askSaveDiscardOrCancel(
       },
       {
         type: 'primary',
-        text: 'Sì',
+        text: 'Yes',
         value: RESPONSE.CREATE_REPORT,
       },
     ];

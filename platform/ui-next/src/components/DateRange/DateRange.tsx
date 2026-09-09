@@ -17,7 +17,7 @@ export type DatePickerWithRangeProps = {
 };
 
 function safeFormatYMD(value?: string) {
-  // Se non c'è valore → oggi
+  // With no value, today
   if (!value) {
     const today = new Date();
     return format(today, 'yyyy-MM-dd');
@@ -26,7 +26,7 @@ function safeFormatYMD(value?: string) {
   // Parsing the date as YYYYMMDD
   const parsed = parse(value, 'yyyyMMdd', new Date());
 
-  // Se la data è invalida → oggi
+  // With an invalid date, today
   if (!isValid(parsed)) {
     const today = new Date();
     return format(today, 'yyyy-MM-dd');
@@ -125,7 +125,7 @@ export function DatePickerWithRange({
             <input
               id={`${id}-start`}
               type="text"
-              placeholder="Data di inizio"
+              placeholder="Start date"
               autoComplete="off"
               value={start}
               onChange={e => handleInputChange(e, 'start')}
@@ -162,7 +162,7 @@ export function DatePickerWithRange({
             <input
               id={`${id}-end`}
               type="text"
-              placeholder="Data di fine"
+              placeholder="End date"
               autoComplete="off"
               value={end}
               onChange={e => handleInputChange(e, 'end')}

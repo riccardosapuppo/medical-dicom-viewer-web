@@ -89,7 +89,7 @@ function MdvExtensionBrowser({ appConfig, onVisibilityChange }) {
             rel="noreferrer"
             target="_blank"
           >
-            Installa qui
+            Install it here
           </a>
         ) : null}
       </div>

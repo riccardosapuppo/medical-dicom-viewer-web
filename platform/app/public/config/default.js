@@ -275,7 +275,7 @@ window.config = {
       namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
       sourceName: 'dicomweb',
       configuration: {
-        friendlyName: 'Archivio DICOMweb locale',
+        friendlyName: 'Local DICOMweb archive',
         name: 'aws',
         // qidoRoot: '/pacs/dicom-web',
         qidoRoot: qidoRoot,
@@ -716,7 +716,7 @@ window.config = {
         // },
         {
           id: 'changeLayout',
-          title: 'Cambiare il Layout',
+          title: 'Changing the layout',
           text: 'Change the layout with the layout button.',
           attachTo: {
             element: '[data-cy="Layout"]',

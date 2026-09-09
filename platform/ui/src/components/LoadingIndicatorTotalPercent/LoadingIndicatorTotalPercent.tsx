@@ -33,7 +33,7 @@ function LoadingIndicatorTotalPercent({
       <div className="text-sm text-white">Loaded {percentComplete}%</div>
     ) : (
       <div className="text-sm text-white">
-        Loaded {numTargetsLoadedText} di {totalNumbersText} {targetText}
+        Loaded {numTargetsLoadedText} of {totalNumbersText} {targetText}
       </div>
     );
 

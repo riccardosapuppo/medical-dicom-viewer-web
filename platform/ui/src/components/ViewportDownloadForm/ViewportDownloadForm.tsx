@@ -326,7 +326,7 @@ const ViewportDownloadForm = ({
             <div>
               <InputLabelWrapper
                 sortDirection="none"
-                label={t('Estensione file')}
+                label={t('File extension')}
                 isSortable={false}
                 onLabelClick={() => { }}
               >

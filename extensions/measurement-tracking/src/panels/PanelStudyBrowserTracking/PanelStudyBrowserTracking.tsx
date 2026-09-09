@@ -859,7 +859,7 @@ export default function PanelStudyBrowserTracking({
     // Badge durante la search, poi solo se la tab e' rimasta vuota (altrimenti la lista
     // parla da se' e il badge sparisce).
     if (priorsState === 'loading') {
-      testo = 'Search in corso';
+      testo = 'Searching';
       classe = 'loading';
     } else {
       const tabPriors = tabs.find(tab => tab.name === 'all');

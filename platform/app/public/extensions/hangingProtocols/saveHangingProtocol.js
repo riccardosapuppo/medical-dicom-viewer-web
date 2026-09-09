@@ -578,7 +578,7 @@ const buildSavedConfigHtml = (tipo, entry) => {
       : tipo === 'examDescription'
         ? 'Active for: exam description'
         : tipo === 'modality'
-          ? 'Attivi per: Modality'
+          ? 'Active for: modality'
           : 'Configuration';
 
   const typeValue =

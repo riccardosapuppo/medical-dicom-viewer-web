@@ -309,7 +309,7 @@ function ToolbarLayoutSelectorWithServices({
         onSelectionChange={handleSelectionChange}
         {...props}
       >
-        <LayoutSelector.Trigger tooltip="Cambia layout" />
+        <LayoutSelector.Trigger tooltip="Change the layout" />
         <LayoutSelector.Content>
           {/* Left side - Presets */}
           {(commonPresets.length > 0 || advancedPresets.length > 0) && (
@@ -409,7 +409,7 @@ function ToolbarLayoutSelectorWithServices({
 
             <LayoutSelector.HelpText>
               Choose a preset  <br />  of rows and columns.
-              <br /> Clicca per applicare
+              <br /> Click to apply
             </LayoutSelector.HelpText>
           </div>
 

@@ -52,7 +52,7 @@ function _askHydrate(uiViewportDialogService, viewportId) {
       {
         id: 'yes-hydrate',
         type: ButtonEnums.type.primary,
-        text: 'Sì',
+        text: 'Yes',
         value: RESPONSE.HYDRATE_SEG,
       },
     ];

@@ -230,11 +230,11 @@ export default function PanelMeasurementTable({
           t={t}
           actions={[
             {
-              label: 'Esporta',
+              label: 'Export',
               onClick: exportReport,
             },
             {
-              label: 'Crea Report',
+              label: 'Create a report',
               onClick: createReport,
             },
           ]}

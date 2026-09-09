@@ -325,7 +325,7 @@ function injectQuickDateFilter() {
   wrapper.style.boxSizing = 'border-box';
 
   const label = document.createElement('span');
-  label.textContent = 'Intervallo rapido';
+  label.textContent = 'Quick range';
   label.style.fontSize = '12px';
   label.style.color = '#ddd';
 
@@ -341,8 +341,8 @@ function injectQuickDateFilter() {
 
   const options = [
     { value: '', label: 'Select' },
-    { value: 'today', label: 'Oggi' },
-    { value: 'week', label: 'Ultima settimana' },
+    { value: 'today', label: 'Today' },
+    { value: 'week', label: 'Last week' },
     { value: 'month', label: 'Last month' },
     { value: 'year', label: 'Last year' },
   ];
@@ -453,7 +453,7 @@ function injectCssIntoIframe(iframe) {
   // Wait for the frame to load
   iframe.addEventListener("load", () => {
     try {
-      console.log("invio css")
+      console.log('sending css')
       iframe.contentWindow.postMessage(
         {
           type: "injectCss",

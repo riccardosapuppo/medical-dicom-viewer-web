@@ -104,7 +104,7 @@ export function WindowLevel({
               <React.Fragment key={modality}>
                 {dicomPreset.length > 0 && (
                   <>
-                    <AllInOneMenu.HeaderItem>Preset DICOM</AllInOneMenu.HeaderItem>
+                    <AllInOneMenu.HeaderItem>DICOM presets</AllInOneMenu.HeaderItem>
                     {dicomPreset.map((preset, index) => (
                       <AllInOneMenu.Item
                         key={`${modality}-${index}`}

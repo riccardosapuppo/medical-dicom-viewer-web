@@ -226,9 +226,9 @@ function Local({ modePath }: LocalProps) {
                         browser application
                       </p> */}
                     <p className="text-primary-active pt-6 text-lg font-semibold">
-                      Trascina i file DICOM qui
+                      Drag DICOM files here
                     </p>
-                    <p className="text-lg text-blue-300">O clicca </p>
+                    <p className="text-lg text-blue-300">Or click </p>
                   </div>
                 )}
               </div>

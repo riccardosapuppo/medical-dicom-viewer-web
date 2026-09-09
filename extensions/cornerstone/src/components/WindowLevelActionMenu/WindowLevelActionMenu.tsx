@@ -108,7 +108,7 @@ export function WindowLevelActionMenu({
       setSelectedRenderingMethod(event.target.value); //memorizza lo stato quando passo da una viewport ad un'altra o dopo riattivazione
       //Passo live da mip/minip o viceversa
       const currentThickness =
-        event.target.parentElement.parentElement.parentElement.querySelector('.spessore-div span')
+        event.target.parentElement.parentElement.parentElement.querySelector('.thickness-div span')
           .textContent || 0;
       const slabThicknessBlendMode = _selectedRenderingMethod === 'mip' ? 1 : 2;
 
@@ -315,9 +315,9 @@ export function WindowLevelActionMenu({
           )}
 
           {isMPR && (
-            <div className="spessore-div">
+            <div className="thickness-div">
               <label htmlFor="rangeInput">
-                Spessore: <span>{rangeValue}</span>
+                Thickness: <span>{rangeValue}</span>
               </label>
               <div className="range-container">
                 <input

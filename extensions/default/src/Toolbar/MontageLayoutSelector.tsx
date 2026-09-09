@@ -168,7 +168,7 @@ function MontageLayoutSelector({
             </div>
 
             <LayoutSelector.HelpText>
-              Choose rows by columns. <br /> Clicca per applicare.
+              Choose rows by columns. <br /> Click to apply.
             </LayoutSelector.HelpText>
           </div>
         </LayoutSelector.Content>
