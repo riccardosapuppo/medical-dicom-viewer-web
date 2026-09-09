@@ -190,11 +190,11 @@
       src="<%= PUBLIC_URL %>app-config.js<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
     ></script>
     <!--
-      Override "Global settings" (tab admin). Script SINCRONO servito dal
-      backend: applica i flag effettivi a window.config PRIMA dei bundle e delle
-      extensions (favourites.js/tabs.js leggono window.config al load). Deve stare
-      DOPO app-config.js e PRIMA degli entry. Il backend risponde no-store; se non
-      raggiungibile, restano i valori di app-config.js.
+      Overrides the "Global settings" from the admin tab. A SYNCHRONOUS script served
+      by the backend: it applies the effective flags to window.config BEFORE the bundles
+      and the extensions, since favourites.js and tabs.js read window.config as they
+      load. It has to sit AFTER app-config.js and BEFORE the entry points. The backend
+      answers no-store; when it cannot be reached, the values in app-config.js stand.
     -->
     <script
       type="text/javascript"

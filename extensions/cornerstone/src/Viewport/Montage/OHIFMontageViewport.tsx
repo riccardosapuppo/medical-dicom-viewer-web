@@ -573,8 +573,8 @@ function OHIFMontageViewport(props: withAppTypes) {
       }}
       data-montage-viewport-id={viewportId}
     >
-      {/* Description serie (una sola, a livello griglia: tutte le celle mostrano
-          la STESSA serie) → si capisce quale serie si sta vedendo. */}
+      {/* The series description, one for the whole grid because every cell shows the
+          SAME series, so it is clear which series is on screen. */}
       {seriesBadgeText && (
         <>
           <div
@@ -589,21 +589,21 @@ function OHIFMontageViewport(props: withAppTypes) {
           >
             {seriesBadgeText}
           </div>
-          {/* Tooltip moderno con la description COMPLETA: solo se il testo è
-              troncato (altrimenti è già tutto visibile). È un sibling separato
-              perché il badge ha overflow:hidden (per l'ellissi), che taglierebbe
-              un eventuale ::after interno. Si mostra all'hover del badge (vedi
-              CSS `--truncated:hover + ...`). */}
+          {/* A tooltip carrying the WHOLE description, shown only when the text is
+              truncated, since otherwise all of it is already visible. It is a
+              separate sibling because the badge has overflow:hidden for the
+              ellipsis, which would cut off an ::after inside it. It appears on
+              hover over the badge; see the CSS `--truncated:hover + ...`. */}
           {seriesBadgeTruncated && (
             <div className="montage-series-tooltip">{seriesBadgeText}</div>
           )}
         </>
       )}
       <div className="montage-layout-badge">{`Subgrid ${rows}×${cols}`}</div>
-      {/* Scrollbar sottile (stesso stile delle viewport, più sottile): solo se
-          c'è da scorrere (total > celle visibili nel layout corrente). Muove il
-          blocco visibile (`base`). `.scroll` è position:absolute → non occupa una
-          cella della griglia. */}
+      {/* A thin scrollbar, the viewports' own style but narrower, shown only when
+          there is something to scroll, meaning more images than the layout has
+          cells for. It moves the visible block (`base`). `.scroll` is
+          position:absolute, so it takes no cell of the grid. */}
       {maxBase > 0 && (
         <ImageScrollbar
           value={base}

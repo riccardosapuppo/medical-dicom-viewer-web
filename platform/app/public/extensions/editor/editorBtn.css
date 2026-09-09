@@ -22,15 +22,15 @@
   margin-top: 2px;
 }
 
-#editor-tools #intestazione {
+#editor-tools #panel-heading {
   display: flex;
 }
 
-#editor-tools #intestazione img {
+#editor-tools #panel-heading img {
   margin-right: 15px;
 }
 
-#editor-tools #intestazione p {
+#editor-tools #panel-heading p {
   background: #252525;
   color: #fff;
   text-transform: uppercase;

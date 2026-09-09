@@ -63,7 +63,7 @@ const saveHP = () => {
   }
   for (let i = 0; i < window.favourites.length; i++) {
     const seriesDescription = window.favourites[i].SeriesDescription;
-    const numeroIstanza = window.favourites[i].instanceNumber;
+    const instanceNumber = window.favourites[i].instanceNumber;
     const displaySetKey = `DisplaySet${i}`;
     //Series
     baseHP.displaySetSelectors[displaySetKey] = {};
@@ -81,7 +81,7 @@ const saveHP = () => {
         viewportType: 'stack',
         orientation: 'sagittal',
         initialImageOptions: {
-          index: numeroIstanza,
+          index: instanceNumber,
         },
       },
       displaySets: [

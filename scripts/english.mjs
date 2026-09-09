@@ -125,6 +125,7 @@ const ITALIAN_ENDINGS = [
 const NOT_ITALIAN = new Set([
   'auto', 'photo', 'into', 'onto', 'unto', 'veto', 'goto', 'proto', 'moto',
   'data', 'metadata', 'beta', 'delta', 'errata', 'strata', 'alpha', 'gamma',
+  'roboto', 'userdata', 'lato', 'segoe',
   'presentation', 'position', 'orientation', 'annotation', 'segmentation',
   'information', 'configuration', 'application', 'notification', 'resolution',
   'attention', 'section', 'selection', 'option', 'function', 'action',
@@ -221,6 +222,7 @@ function looksLikeCode(text) {
 
 // ---------------------------------------------------------------------------
 
+/** Files the parser understands. */
 function sources() {
   return execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
     .split('\n')
@@ -232,6 +234,20 @@ function sources() {
         !/\.test\.(ts|tsx|js)$/.test(file) &&
         !/\.min\.js$/.test(file)
     );
+}
+
+/**
+ * HTML and CSS, which are read a line at a time instead.
+ *
+ * The parser has nothing to say about either, and leaving them out is how the
+ * page template kept a paragraph of Italian and tailwind.css kept three
+ * comments while everything else was being reported clean. Neither holds JSX,
+ * so a line at a time is enough; what matters is that they are read at all.
+ */
+function flatFiles() {
+  return execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
+    .split('\n')
+    .filter(file => /\.(html|css)$/.test(file) && !/\.min\.css$/.test(file));
 }
 
 /** Every piece of text a reader could meet, with where it came from. */
@@ -380,6 +396,23 @@ for (const file of sources()) {
       hits.push({ ...piece, word });
     }
   }
+}
+
+for (const file of flatFiles()) {
+  const source = fs.readFileSync(path.join(root, file), 'utf8');
+  source.split('\n').forEach((line, index) => {
+    const word = notEnglish(line);
+    if (word) {
+      hits.push({
+        file,
+        line: index + 1,
+        kind: file.endsWith('.css') ? 'css' : 'html',
+        text: line.trim().slice(0, 120),
+        certain: true,
+        word,
+      });
+    }
+  });
 }
 
 const certain = hits.filter(one => one.certain);

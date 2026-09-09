@@ -35,7 +35,7 @@
   border: 1px solid hsl(var(--border)) !important;
   border-radius: 6px !important;
   box-shadow: 0 12px 32px rgb(0 0 0 / 55%) !important;
-  /* Sopra il velo: a posizione fissa il box finiva sotto. */
+  /* Above the dim: at fixed position the box ended up underneath it. */
   z-index: 10001 !important;
 }
 

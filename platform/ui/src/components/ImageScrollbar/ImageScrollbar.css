@@ -83,7 +83,7 @@
   border-radius: 999px;
 }
 
-/* ---- Thumb: maniglia chiara arrotondata ---- */
+/* ---- Thumb: a pale, rounded handle ---- */
 .scroll .scroll-holder .imageSlider::-webkit-slider-thumb {
   -webkit-appearance: none !important;
   width: 32px;

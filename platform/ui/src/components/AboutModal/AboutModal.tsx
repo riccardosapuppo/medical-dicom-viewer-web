@@ -81,10 +81,11 @@ const AboutModal = ({ buildNumber, versionNumber, commitHash }) => {
           value="http://localhost:3000/"
           link="http://localhost:3000/"
         />
-        {/* La versione si mostra com'e'. Qui c'era una sostituzione che
-            riscriveva "beta" in "prod", per non mettere davanti a un cliente una
-            versione dichiarata beta: travestiva una beta di monte da versione
-            stabile, che e' l'unica cosa che questa riga non deve fare. */}
+        {/* The version is shown as it is. There used to be a substitution here that
+            rewrote "beta" as "prod", so that no client would be handed a version
+            calling itself beta. What it actually did was dress an upstream beta
+            up as a stable release, which is the one thing this line must not
+            do. */}
         <Row
           title={t('Version')}
           value={versionNumber}

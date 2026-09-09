@@ -243,7 +243,7 @@ export default function PanelStudyBrowserTracking({
   const [jumpToDisplaySet, setJumpToDisplaySet] = useState(null);
   const requestedSeriesByStudyUIDRef = useRef(new Set());
   // Studies whose series were asked for by the automatic preload, not by the reader.
-  const studiPrecaricatiRef = useRef(new Set());
+  const preloadedStudiesRef = useRef(new Set());
   // The last tab chosen by an actual click: it must not be abandoned while still empty.
   const userChosenTabRef = useRef(null);
   // The last study expanded in each tab: coming back to the tab reopens it.
@@ -689,7 +689,7 @@ export default function PanelStudyBrowserTracking({
     requestedSeriesByStudyUIDRef.current.add(normalized);
     // A permanent trace: it is what tells a jump made by this preload (see the
     // jumpToDisplaySet effect) from a jump the reader asked for.
-    studiPrecaricatiRef.current.add(normalized);
+    preloadedStudiesRef.current.add(normalized);
     const madeInClient = true;
     requestDisplaySetCreationForStudy(displaySetService, normalized, madeInClient);
   };
@@ -826,7 +826,7 @@ export default function PanelStudyBrowserTracking({
     // The automatic series preload causes a jump which, with remote priors, can arrive
     // seconds later: it must not drag the reader back to the tab they have just left.
     // Jumps they asked for (a report made, a double click) do not come through here.
-    const jumpFromPreload = studiPrecaricatiRef.current.has(StudyInstanceUID);
+    const jumpFromPreload = preloadedStudiesRef.current.has(StudyInstanceUID);
     if (!jumpFromPreload || tabName === activeTabName) {
       setActiveTabName(tabName);
     }

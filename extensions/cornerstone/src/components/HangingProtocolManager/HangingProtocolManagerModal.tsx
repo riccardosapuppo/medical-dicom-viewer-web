@@ -12,7 +12,7 @@ import {
 import {
   getContext,
   ensureStudyInfoFromMetadata,
-  readPreferenze,
+  readPreferences,
   listSavedConfigs,
   saveConfig,
   deleteConfig,
@@ -21,7 +21,7 @@ import {
   canonModalityKey,
 } from '../../../../../platform/app/public/extensions/hangingProtocols/hpStore';
 
-type Scope = 'studioSpecifico' | 'examDescription' | 'modality';
+type Scope = 'specificStudy' | 'examDescription' | 'modality';
 
 type CaptureOptions = {
   grid: boolean;
@@ -41,7 +41,7 @@ const TOGGLES: Array<{ key: keyof CaptureOptions; label: string; hint: string }>
 ];
 
 const SCOPE_TABS: Array<{ value: Scope; label: string }> = [
-  { value: 'studioSpecifico', label: 'Study' },
+  { value: 'specificStudy', label: 'Study' },
   { value: 'examDescription', label: 'Exam' },
   { value: 'modality', label: 'Modality' },
 ];
@@ -138,28 +138,28 @@ type ModalProps = { hide: () => void };
 export default function HangingProtocolManagerModal({ hide }: ModalProps) {
   const [loading, setLoading] = useState(true);
   const [ctx, setCtx] = useState(() => getContext());
-  const [preferenzeJson, setPreferenzeJson] = useState<any>(null);
-  const [scope, setScope] = useState<Scope>('studioSpecifico');
+  const [preferencesJson, setPreferencesJson] = useState<any>(null);
+  const [scope, setScope] = useState<Scope>('specificStudy');
   const [captureOptions, setCaptureOptions] = useState<CaptureOptions>({ ...ALL_ON });
   const [busy, setBusy] = useState(false);
   const [confirmOverwrite, setConfirmOverwrite] = useState(false);
   const [showOthers, setShowOthers] = useState(false);
 
   const refresh = useCallback(async () => {
-    const payload = await readPreferenze();
-    setPreferenzeJson(payload.json);
+    const payload = await readPreferences();
+    setPreferencesJson(payload.json);
   }, []);
 
   useEffect(() => {
     let active = true;
     (async () => {
       await ensureStudyInfoFromMetadata();
-      const payload = await readPreferenze();
+      const payload = await readPreferences();
       if (!active) {
         return;
       }
       setCtx(getContext());
-      setPreferenzeJson(payload.json);
+      setPreferencesJson(payload.json);
       setLoading(false);
     })();
     return () => {
@@ -168,8 +168,8 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
   }, []);
 
   const savedList: SavedItem[] = useMemo(
-    () => (preferenzeJson ? listSavedConfigs(preferenzeJson, ctx) : []),
-    [preferenzeJson, ctx]
+    () => (preferencesJson ? listSavedConfigs(preferencesJson, ctx) : []),
+    [preferencesJson, ctx]
   );
   const relevantList = useMemo(() => savedList.filter(i => i.relevant), [savedList]);
   const otherList = useMemo(() => savedList.filter(i => !i.relevant), [savedList]);
@@ -179,12 +179,12 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
   };
 
   const existsForScope = useMemo(() => {
-    const hp = preferenzeJson?.hp;
+    const hp = preferencesJson?.hp;
     if (!hp) {
       return false;
     }
-    if (scope === 'studioSpecifico') {
-      return !!hp.studioSpecifico?.[ctx.studyInstanceUIDs];
+    if (scope === 'specificStudy') {
+      return !!hp.specificStudy?.[ctx.studyInstanceUIDs];
     }
     if (scope === 'examDescription') {
       // A NORMALISED comparison, consistent with saving, deleting and loading, so the
@@ -199,7 +199,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
     // stay separate configurations.
     const target = canonModalityKey(ctx.modality);
     return (hp.modality || []).some((i: any) => canonModalityKey(i?.modalityName) === target);
-  }, [preferenzeJson, scope, ctx]);
+  }, [preferencesJson, scope, ctx]);
 
   const modalityMissing = scope === 'modality' && !ctx.modality;
   const unnamedExam = scope === 'examDescription' && !ctx.studyDescription;
@@ -373,7 +373,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
             ))}
           </TabsList>
 
-          <TabsContent value="studioSpecifico">
+          <TabsContent value="specificStudy">
             <p className="text-muted-foreground py-2 text-sm">
               It will apply <span className="text-foreground font-medium">to this study only</span>.
             </p>

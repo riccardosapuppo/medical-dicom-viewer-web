@@ -10,7 +10,7 @@
  * by loadHangingProtocol.js.
  */
 import { metaData, getRenderingEngine } from '@cornerstonejs/core';
-import { letturaPreferenzeAPI } from './loadHangingProtocol';
+import { fetchPreferencesFromApi } from './loadHangingProtocol';
 import {
   deriveViewKey,
   deriveViewDimKey,
@@ -181,15 +181,55 @@ const dedupByKey = (arr, keyFn) => {
   return Array.from(map.values());
 };
 
-export const ensureHpStructure = hp => {
-  const safeHp = hp && typeof hp === 'object' ? hp : {};
-  if (
-    !safeHp.studioSpecifico ||
-    typeof safeHp.studioSpecifico !== 'object' ||
-    Array.isArray(safeHp.studioSpecifico)
-  ) {
-    safeHp.studioSpecifico = {};
+/**
+ * The names these fields used to be saved under.
+ *
+ * They were Italian, and renaming them in the code alone would have made every
+ * arrangement anybody had already saved unreadable: the entry would still be
+ * there, every field would come back undefined, and the panel would show a
+ * saved configuration that restores nothing. That reads as a bug in saving, and
+ * the cause would be three commits behind.
+ *
+ * So the new name is what gets written, and the old one is still accepted on
+ * the way in. One pass, at the only place a stored payload is normalised.
+ */
+const RENAMED = {
+  performanceHP: 'protocol',
+  layoutGriglia: 'gridLayout',
+  serieLabels: 'seriesLabels',
+  istanzeSpecifiche: 'specificInstances',
+  studioSpecifico: 'specificStudy',
+};
+
+/** One entry, with any field still under its old name moved across. */
+const withRenamedFields = entry => {
+  if (!entry || typeof entry !== 'object') {
+    return entry;
   }
+  Object.entries(RENAMED).forEach(([was, now]) => {
+    if (entry[now] === undefined && entry[was] !== undefined) {
+      entry[now] = entry[was];
+    }
+  });
+  return entry;
+};
+
+export const ensureHpStructure = hp => {
+  const safeHp = withRenamedFields(hp && typeof hp === 'object' ? hp : {});
+
+  // The per-study map: the entries inside it carry the old names too.
+  const perStudy = safeHp.specificStudy ?? safeHp.studioSpecifico;
+  if (!perStudy || typeof perStudy !== 'object' || Array.isArray(perStudy)) {
+    safeHp.specificStudy = {};
+  } else {
+    safeHp.specificStudy = perStudy;
+    Object.values(safeHp.specificStudy).forEach(withRenamedFields);
+  }
+  ['examName', 'modality'].forEach(where => {
+    if (Array.isArray(safeHp[where])) {
+      safeHp[where].forEach(withRenamedFields);
+    }
+  });
   safeHp.examName = dedupByKey(
     Array.isArray(safeHp.examName)
       ? safeHp.examName.filter(item => item && typeof item === 'object')
@@ -205,9 +245,9 @@ export const ensureHpStructure = hp => {
   return safeHp;
 };
 
-export const ensurePreferenzePayload = preferenzePayload => {
+export const ensurePreferencesPayload = preferencesPayload => {
   const safePayload =
-    preferenzePayload && typeof preferenzePayload === 'object' ? preferenzePayload : {};
+    preferencesPayload && typeof preferencesPayload === 'object' ? preferencesPayload : {};
   if (!safePayload.json || typeof safePayload.json !== 'object') {
     safePayload.json = {};
   }
@@ -217,7 +257,7 @@ export const ensurePreferenzePayload = preferenzePayload => {
 
 export const parseLayout = (entry = {}) => {
   const layout =
-    entry.layoutGriglia || entry.performanceHP?.stages?.[0]?.viewportStructure?.properties;
+    entry.gridLayout || entry.protocol?.stages?.[0]?.viewportStructure?.properties;
   if (typeof layout === 'string' && layout.includes('x')) {
     const [columns, rows] = layout.split('x').map(value => Number(value));
     if (Number.isFinite(rows) && Number.isFinite(columns) && rows > 0 && columns > 0) {
@@ -268,16 +308,16 @@ export const getCaptured = entry => {
  * specific study, then exam description, then modality. The modality match is
  * normalised and partial.
  */
-export const getAppliedHpConfig = (preferenzeJson, ctx = getContext()) => {
-  const hp = preferenzeJson?.hp;
+export const getAppliedHpConfig = (preferencesJson, ctx = getContext()) => {
+  const hp = preferencesJson?.hp;
   if (!hp) {
     return null;
   }
-  if (hp.studioSpecifico?.[ctx.studyInstanceUIDs]) {
+  if (hp.specificStudy?.[ctx.studyInstanceUIDs]) {
     return {
-      tipo: 'studioSpecifico',
+      tipo: 'specificStudy',
       key: ctx.studyInstanceUIDs,
-      entry: hp.studioSpecifico[ctx.studyInstanceUIDs],
+      entry: hp.specificStudy[ctx.studyInstanceUIDs],
     };
   }
   const normalisedExamName = normalizza(ctx.studyDescription);
@@ -299,14 +339,14 @@ export const getAppliedHpConfig = (preferenzeJson, ctx = getContext()) => {
 };
 
 const resolveSeriesLabelFromEntry = (entry, index) => {
-  const saved = entry?.serieLabels?.[index];
+  const saved = entry?.seriesLabels?.[index];
   if (saved) {
     return saved;
   }
-  const performanceHP = entry?.performanceHP || {};
-  const viewport = performanceHP?.stages?.[0]?.viewports?.[index];
+  const protocol = entry?.protocol || {};
+  const viewport = protocol?.stages?.[0]?.viewports?.[index];
   const displaySetId = viewport?.displaySets?.[0]?.id || `DisplaySet${index}`;
-  const rule = performanceHP?.displaySetSelectors?.[displaySetId]?.seriesMatchingRules?.[0];
+  const rule = protocol?.displaySetSelectors?.[displaySetId]?.seriesMatchingRules?.[0];
   if (!rule || !rule.attribute) {
     return 'Series';
   }
@@ -325,7 +365,7 @@ const resolveSeriesLabelFromEntry = (entry, index) => {
 };
 
 /* ------------------------------------------------------------------ *
- * Lettura / scrittura preferenze remote + cache localStorage          *
+ * Lettura / scrittura preferences remote + cache localStorage          *
  * ------------------------------------------------------------------ */
 
 // The local cache has to be per partition and user. Without the user, a shared
@@ -339,11 +379,11 @@ const localStorageKey = () => {
  * Returns a normalised `{ json: { hp: {...} } }` payload, ready both for reading
  * (`payload.json.hp`) and for writing (`payload.json`).
  */
-export const readPreferenze = async () => {
+export const readPreferences = async () => {
   const ctx = getContext();
-  const raw = await letturaPreferenzeAPI(ctx.aetitle, ctx.username, ctx.studyInstanceUIDs);
+  const raw = await fetchPreferencesFromApi(ctx.aetitle, ctx.username, ctx.studyInstanceUIDs);
   if (raw && typeof raw === 'object') {
-    return ensurePreferenzePayload(raw);
+    return ensurePreferencesPayload(raw);
   }
   // Local cache fallback: localStorage holds the `json` object directly.
   let cachedJson = {};
@@ -352,10 +392,10 @@ export const readPreferenze = async () => {
   } catch (err) {
     console.warn('[HP] The cached user preferences are not valid', err);
   }
-  return ensurePreferenzePayload({ json: cachedJson });
+  return ensurePreferencesPayload({ json: cachedJson });
 };
 
-const scritturaPreferenzeAPI = async (aetitle, username, body) => {
+const writePreferencesToApi = async (aetitle, username, body) => {
   const origin = window.location.origin;
   const apiUrl = `${origin}/viewer/userdata/${aetitle}/?user=${username}`;
   try {
@@ -401,7 +441,7 @@ const scritturaPreferenzeAPI = async (aetitle, username, body) => {
  * workstations. The return value says whether the sync succeeded, not whether the
  * save happened.
  */
-const writePreferenze = async payload => {
+const writePreferences = async payload => {
   const ctx = getContext();
 
   try {
@@ -411,7 +451,7 @@ const writePreferenze = async payload => {
     console.warn('[HP] The local preference cache could not be written', err);
   }
 
-  const res = await scritturaPreferenzeAPI(ctx.aetitle, ctx.username, payload.json);
+  const res = await writePreferencesToApi(ctx.aetitle, ctx.username, payload.json);
   return Boolean(res);
 };
 
@@ -492,9 +532,9 @@ export const captureCurrentState = (scope, captureOptions) => {
     colorLut: !!captureOptions?.colorLut,
   };
 
-  const layoutGriglia = window.layout || '1x1';
-  const columns = Number(layoutGriglia.split('x')[0]) || 1;
-  const rows = Number(layoutGriglia.split('x')[1]) || 1;
+  const gridLayout = window.layout || '1x1';
+  const columns = Number(gridLayout.split('x')[0]) || 1;
+  const rows = Number(gridLayout.split('x')[1]) || 1;
 
   const protocol = createBaseProtocol({ rows, columns });
   const { cornerstoneViewportService, viewportGridService, displaySetService } =
@@ -508,8 +548,8 @@ export const captureCurrentState = (scope, captureOptions) => {
   const voiByIndex = [];
   const colorHP = {};
   const colorByIndex = [];
-  const istanzeSpecifiche = [];
-  const serieLabels = [];
+  const specificInstances = [];
+  const seriesLabels = [];
   const montageByIndex = [];
 
   let i = 0;
@@ -551,10 +591,10 @@ export const captureCurrentState = (scope, captureOptions) => {
         displaySets: [{ id: displaySetKey }],
       });
       montageByIndex.push(montageAbsent);
-      istanzeSpecifiche.push(null);
+      specificInstances.push(null);
       voiByIndex.push(null);
       colorByIndex.push(null);
-      serieLabels.push('Series');
+      seriesLabels.push('Series');
       i += 1;
       return;
     }
@@ -652,18 +692,18 @@ export const captureCurrentState = (scope, captureOptions) => {
     }
 
     // --- Istanza corrente ---
-    let numeroIstanza = null;
+    let instanceNumber = null;
     if (Number.isFinite(viewport?.currentImageIdIndex)) {
-      numeroIstanza = viewport.currentImageIdIndex + 1;
+      instanceNumber = viewport.currentImageIdIndex + 1;
     } else if (typeof viewport?.getCurrentImageIdIndex === 'function') {
       const idx = viewport.getCurrentImageIdIndex();
       if (Number.isFinite(idx)) {
-        numeroIstanza = idx + 1;
+        instanceNumber = idx + 1;
       }
     }
-    istanzeSpecifiche.push(numeroIstanza);
+    specificInstances.push(instanceNumber);
 
-    serieLabels.push(
+    seriesLabels.push(
       seriesDescription && seriesNumber != null
         ? `Series ${seriesNumber} ${seriesDescription}`
         : seriesDescription
@@ -726,7 +766,7 @@ export const captureCurrentState = (scope, captureOptions) => {
       isMontage
         ? {
             firstImageIndex:
-              numeroIstanza != null ? numeroIstanza - 1 : montageOpt.firstImageIndex ?? 0,
+              instanceNumber != null ? instanceNumber - 1 : montageOpt.firstImageIndex ?? 0,
             ...(opts.windowLevel && voiRange ? { voiRange } : {}),
             ...(opts.zoomPan && cameraViewPresentation
               ? { viewPresentation: cameraViewPresentation }
@@ -740,8 +780,8 @@ export const captureCurrentState = (scope, captureOptions) => {
     const viewportOptions = { viewportType: 'stack', viewportId: hpViewportId };
     // For montages the instance is handled by firstImageIndex; initialImageOptions
     // would be ignored. initialImageOptions.index is 0-based, the instance number 1-based.
-    if (opts.instance && numeroIstanza != null && !isMontage) {
-      viewportOptions.initialImageOptions = { index: numeroIstanza - 1 };
+    if (opts.instance && instanceNumber != null && !isMontage) {
+      viewportOptions.initialImageOptions = { index: instanceNumber - 1 };
     }
     if (montage) {
       viewportOptions.montage = montage;
@@ -759,8 +799,8 @@ export const captureCurrentState = (scope, captureOptions) => {
     console.log('[HP] captureCurrentState', {
       scope,
       opts,
-      layoutGriglia,
-      istanzeSpecifiche,
+      gridLayout,
+      specificInstances,
       voiByIndex,
       montageByIndex,
       hasCamera: Object.keys(cameraHP).length,
@@ -768,8 +808,8 @@ export const captureCurrentState = (scope, captureOptions) => {
   }
 
   return {
-    performanceHP: protocol,
-    layoutGriglia,
+    protocol: protocol,
+    gridLayout,
     captured: opts,
     cameraHP,
     cameraByIndex,
@@ -777,15 +817,15 @@ export const captureCurrentState = (scope, captureOptions) => {
     voiByIndex,
     colorHP,
     colorByIndex,
-    istanzeSpecifiche,
-    serieLabels,
+    specificInstances,
+    seriesLabels,
     montageByIndex,
   };
 };
 
 const buildEntry = (captureState, extra = {}) => ({
-  performanceHP: captureState.performanceHP,
-  layoutGriglia: captureState.layoutGriglia,
+  protocol: captureState.protocol,
+  gridLayout: captureState.gridLayout,
   captured: captureState.captured,
   camera: captureState.cameraHP,
   cameraByIndex: captureState.cameraByIndex,
@@ -793,10 +833,12 @@ const buildEntry = (captureState, extra = {}) => ({
   voiByIndex: captureState.voiByIndex,
   colormap: captureState.colorHP,
   colormapByIndex: captureState.colorByIndex,
-  istanzeSpecifiche: captureState.istanzeSpecifiche,
-  serieLabels: captureState.serieLabels,
+  specificInstances: captureState.specificInstances,
+  seriesLabels: captureState.seriesLabels,
   montageByIndex: captureState.montageByIndex,
-  // legacy fields kept so the existing schema still reads
+  // Written under their old Italian names on purpose: an older build reads them
+  // by those names, and a build that stopped writing them would leave it with a
+  // saved arrangement it cannot parse. Nothing here reads them.
   layoutPersonalizzato: null,
   allineamento: null,
   scalaOverlay: null,
@@ -810,18 +852,18 @@ const buildEntry = (captureState, extra = {}) => ({
  * ------------------------------------------------------------------ */
 
 const SCOPE_TO_CAPTURE = {
-  studioSpecifico: 'specificStudy',
+  specificStudy: 'specificStudy',
   examDescription: 'examDescription',
   modality: 'modality',
 };
 
 /**
- * scope = 'studioSpecifico' | 'examDescription' | 'modality'
+ * scope = 'specificStudy' | 'examDescription' | 'modality'
  * Ritorna { ok, reason? }.
  */
 export const saveConfig = async (scope, captureOptions) => {
   const ctx = getContext();
-  const payload = await readPreferenze();
+  const payload = await readPreferences();
   const hp = payload.json.hp;
 
   if (scope === 'examDescription' && ctx.studyDescription === '') {
@@ -833,8 +875,8 @@ export const saveConfig = async (scope, captureOptions) => {
 
   const captureState = captureCurrentState(SCOPE_TO_CAPTURE[scope], captureOptions);
 
-  if (scope === 'studioSpecifico') {
-    hp.studioSpecifico[ctx.studyInstanceUIDs] = buildEntry(captureState);
+  if (scope === 'specificStudy') {
+    hp.specificStudy[ctx.studyInstanceUIDs] = buildEntry(captureState);
   } else if (scope === 'examDescription') {
     const entry = buildEntry(captureState, { examName: ctx.studyDescription });
     // NORMALISED comparison: overwrites the entry that is there (legacy ones with
@@ -858,20 +900,20 @@ export const saveConfig = async (scope, captureOptions) => {
   }
 
   payload.json.hp = hp;
-  const ok = await writePreferenze(payload);
+  const ok = await writePreferences(payload);
   return { ok };
 };
 
 /**
- * scope = 'studioSpecifico' | 'examDescription' | 'modality'
+ * scope = 'specificStudy' | 'examDescription' | 'modality'
  * key = StudyInstanceUID | examName | modalityName (la chiave REALE memorizzata).
  */
 export const deleteConfig = async (scope, key) => {
-  const payload = await readPreferenze();
+  const payload = await readPreferences();
   const hp = payload.json.hp;
 
-  if (scope === 'studioSpecifico') {
-    delete hp.studioSpecifico[key];
+  if (scope === 'specificStudy') {
+    delete hp.specificStudy[key];
   } else if (scope === 'examDescription') {
     // NORMALISED comparison: deletes the entry actually on screen (key '' for unnamed
     // exams) even when it was saved as undefined, empty, or in another case, without
@@ -886,7 +928,7 @@ export const deleteConfig = async (scope, key) => {
   }
 
   payload.json.hp = hp;
-  const ok = await writePreferenze(payload);
+  const ok = await writePreferences(payload);
   return { ok };
 };
 
@@ -895,7 +937,7 @@ export const deleteConfig = async (scope, key) => {
  * ------------------------------------------------------------------ */
 
 const SCOPE_LABEL = {
-  studioSpecifico: 'Specific study',
+  specificStudy: 'Specific study',
   examDescription: 'Exam description',
   modality: 'Modality',
 };
@@ -962,9 +1004,9 @@ const seriesRuleMatches = (rule, displaySets) => {
 // rule[0] alone (the view) wrongly reported "not applicable" for a study with no view
 // tags but the right series by name, forcing "load the grid only" for nothing.
 const computeApplicability = (entry, displaySets) => {
-  const performanceHP = entry?.performanceHP || {};
-  const viewports = performanceHP?.stages?.[0]?.viewports || [];
-  const selectors = performanceHP?.displaySetSelectors || {};
+  const protocol = entry?.protocol || {};
+  const viewports = protocol?.stages?.[0]?.viewports || [];
+  const selectors = protocol?.displaySetSelectors || {};
   let total = 0;
   let missing = 0;
   viewports.forEach((vp, idx) => {
@@ -982,7 +1024,7 @@ const computeApplicability = (entry, displaySets) => {
 
 // Is the configuration "relevant" to the study on screen, same scope and value?
 const isRelevant = (scope, key, ctx) => {
-  if (scope === 'studioSpecifico') {
+  if (scope === 'specificStudy') {
     return key === ctx.studyInstanceUIDs;
   }
   if (scope === 'examDescription') {
@@ -1003,18 +1045,18 @@ const describeEntry = (scope, key, entry, ctx, applied, displaySets) => {
   for (let i = 0; i < total; i++) {
     viewports.push({
       label: resolveSeriesLabelFromEntry(entry, i),
-      istanza: entry?.istanzeSpecifiche?.[i] ?? null,
+      instance: entry?.specificInstances?.[i] ?? null,
     });
   }
   const isApplied =
-    !!applied && applied.tipo === scope && (scope !== 'studioSpecifico' || applied.key === key);
+    !!applied && applied.tipo === scope && (scope !== 'specificStudy' || applied.key === key);
   const { applicable, missing } = computeApplicability(entry, displaySets);
   return {
     scope,
     key,
     scopeLabel: SCOPE_LABEL[scope],
     title:
-      scope === 'studioSpecifico'
+      scope === 'specificStudy'
         ? 'This study'
         : scope === 'examDescription'
           ? key || '(unnamed exam)'
@@ -1037,18 +1079,18 @@ const describeEntry = (scope, key, entry, ctx, applied, displaySets) => {
  * the flags `relevant` (same scope as the study on screen) and `applicable` (the
  * series it refers to exist in this study). The interface splits relevant from the rest.
  */
-export const listSavedConfigs = (preferenzeJson, ctx = getContext()) => {
-  const hp = ensureHpStructure(preferenzeJson?.hp);
+export const listSavedConfigs = (preferencesJson, ctx = getContext()) => {
+  const hp = ensureHpStructure(preferencesJson?.hp);
   const applied = getAppliedHpConfig({ hp }, ctx);
   const displaySets = getCurrentStudyDisplaySets(ctx);
   const out = [];
 
-  if (hp.studioSpecifico?.[ctx.studyInstanceUIDs]) {
+  if (hp.specificStudy?.[ctx.studyInstanceUIDs]) {
     out.push(
       describeEntry(
-        'studioSpecifico',
+        'specificStudy',
         ctx.studyInstanceUIDs,
-        hp.studioSpecifico[ctx.studyInstanceUIDs],
+        hp.specificStudy[ctx.studyInstanceUIDs],
         ctx,
         applied,
         displaySets
@@ -1177,7 +1219,7 @@ const reapplyMontageAfterProtocol = montageByIndex => {
  * series are missing from the study on screen.
  */
 export const applyConfigNow = (entry, options = {}) => {
-  if (!entry?.performanceHP) {
+  if (!entry?.protocol) {
     return { ok: false, reason: 'The configuration is not valid' };
   }
   // Idempotent safety net: the custom view attributes have to be registered before
@@ -1185,7 +1227,7 @@ export const applyConfigNow = (entry, options = {}) => {
   // path can be reached without going through it.
   registerMdvHPAttributes(window.servicesManager?.services?.hangingProtocolService);
   const gridOnly = !!options.gridOnly;
-  const baseProtocol = gridOnly ? toGridOnlyProtocol(entry.performanceHP) : entry.performanceHP;
+  const baseProtocol = gridOnly ? toGridOnlyProtocol(entry.protocol) : entry.protocol;
 
   if (gridOnly) {
     window.cameraSettingsFromHPMdv = {};
@@ -1201,7 +1243,7 @@ export const applyConfigNow = (entry, options = {}) => {
     const captured = getCaptured(entry);
     const imgMap = {};
     if (captured.instance) {
-      (entry.istanzeSpecifiche || []).forEach((n, idx) => {
+      (entry.specificInstances || []).forEach((n, idx) => {
         if (n == null || entry.montageByIndex?.[idx]?.enabled) {
           return;
         }

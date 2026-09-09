@@ -208,16 +208,16 @@ const StudyBrowser = ({
         <div
           className={`bg-bkg-low shrink-0 ${isBottomDocked ? 'mdv-study-browser-options' : ''}`}
         >
-          {/* La fascia esiste per le linguette, e senza quelle non ha nulla dentro.
+          {/* The band exists for the tabs, and without them it holds nothing.
 
-              Era alta quarantotto pixel fissi. Quando il patient non ha esami
-              precedenti le linguette non si disegnano, e restava una striscia
-              vuota sopra l'list delle serie: misurata, zero figli.
+              It was a fixed forty-eight pixels tall. When the patient has no
+              earlier exams the tabs are not drawn, and an empty strip was left
+              above the series list: measured, zero children.
 
-              Collassa invece di sparire perche il comando di ordinamento vive qui
-              dentro: non disegna niente (vedi il return anticipato in
-              StudyBrowserSort) ma tiene gli effetti che ordinano le serie, e
-              toglierlo dall albero li spegnerebbe. */}
+              It collapses rather than disappearing because the sort control lives
+              inside it. That control draws nothing, see the early return in
+              StudyBrowserSort, but it holds the effects that order the series,
+              and taking it out of the tree would turn those off. */}
           <div
             className={`mdv-study-tab w-100 bg-bkg-low flex items-center justify-center gap-[10px] ${tabs.length > 1 ? 'h-[48px] py-[10px]' : 'h-0 overflow-hidden p-0'} ${isBottomDocked ? 'mdv-study-browser-options-tabs' : ''}`}
           >

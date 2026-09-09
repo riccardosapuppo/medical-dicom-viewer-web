@@ -1,29 +1,32 @@
-// Etichette in italiano per i tasti "speciali" (non alfanumerici), così nel
-// pannello Preferenze → Scorciatoie l'utente capisce a quale tasto si riferisce
-// (es. "home" → "Inizio", "pageup" → "Page up", "space" → "Spazio").
+// Readable names for the keys that are not a letter or a digit, so the Shortcuts
+// tab in the Preferences dialog says which key it means.
+//
+// These were written in Italian, which is also why the modifier names here and
+// the ones the operating system draws in the menu bar disagreed: "Maiusc" in one
+// place and "Shift" in the other, on the same keyboard.
 const KEY_LABELS = {
-  space: 'Spazio',
-  spacebar: 'Spazio',
+  space: 'Space',
+  spacebar: 'Space',
   esc: 'Esc',
   escape: 'Esc',
-  enter: 'Invio',
-  return: 'Invio',
+  enter: 'Enter',
+  return: 'Enter',
   tab: 'Tab',
   backspace: 'Backspace',
-  del: 'Canc',
-  delete: 'Canc',
-  ins: 'Ins',
-  insert: 'Ins',
+  del: 'Delete',
+  delete: 'Delete',
+  ins: 'Insert',
+  insert: 'Insert',
   up: 'Arrow up',
   down: 'Arrow down',
   left: 'Arrow left',
   right: 'Arrow right',
   pageup: 'Page up',
   pagedown: 'Page down',
-  home: 'Inizio',
-  end: 'Fine',
-  // Modificatori
-  shift: 'Maiusc',
+  home: 'Home',
+  end: 'End',
+  // Modifiers
+  shift: 'Shift',
   ctrl: 'Ctrl',
   control: 'Ctrl',
   alt: 'Alt',
@@ -35,7 +38,7 @@ const KEY_LABELS = {
 };
 
 /**
- * Traduce un singolo token-tasto in etichetta leggibile (italiano).
+ * Turns one key token into something readable.
  * @param {string} token
  * @returns {string}
  */
@@ -47,7 +50,7 @@ const translateKey = token => {
   if (KEY_LABELS[lower]) {
     return KEY_LABELS[lower];
   }
-  // Tasto singolo (lettera/numero/simbolo) → maiuscolo; altrimenti capitalizza.
+  // A single letter, digit or symbol goes uppercase; anything else is capitalised.
   return token.length === 1 ? token.toUpperCase() : token.charAt(0).toUpperCase() + token.slice(1);
 };
 
@@ -55,7 +58,7 @@ const translateKey = token => {
  * Take the pressed key array and return the readable string for the keys
  *
  * @param {Array} [keys=[]]
- * @returns {string} string representation of an array of keys (in italiano)
+ * @returns {string} string representation of an array of keys
  */
 const formatKeysForInput = (keys = []) =>
   keys.map(key => String(key).split('+').map(translateKey).join('+')).join('+');

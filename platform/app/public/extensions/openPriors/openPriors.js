@@ -331,7 +331,7 @@ function startPriorsLoadingWatch(preloader) {
   }, PRIORS_IFRAME_READY_TIMEOUT_MS);
 }
 
-const openPriors = (e, modalita, studyInstanceUID, options = {}) => {
+const openPriors = (e, mode, studyInstanceUID, options = {}) => {
   e.stopPropagation();
   if (typeof e.preventDefault === 'function') {
     e.preventDefault();
@@ -364,7 +364,7 @@ const openPriors = (e, modalita, studyInstanceUID, options = {}) => {
 
   const newUrl = `${url.origin}${url.pathname}?${params.toString()}`;
 
-  if (modalita === 'stessaScheda') {
+  if (mode === 'sameTab') {
     const priorsIframe = document.getElementById('priors-iframe');
     const isAlreadyActive = e.currentTarget?.classList?.contains('active');
     if (priorsIframe && isAlreadyActive) {
@@ -378,7 +378,7 @@ const openPriors = (e, modalita, studyInstanceUID, options = {}) => {
     }
     e.currentTarget.classList.add('active');
     split2Studies(newUrl, context.studyInstanceUID);
-  } else if (modalita === 'nuovaScheda') {
+  } else if (mode === 'newTab') {
     window.open(newUrl, '_blank');
   }
 };

@@ -132,7 +132,7 @@ const StudyItem = ({
    * the group of three icons and takes the accordion's handle, which comes first in the
    * DOM.
    */
-  const espandi = e => {
+  const expand = e => {
     const gruppo = e.currentTarget.closest('.open-priors-modes');
     const maniglia = gruppo?.parentElement?.querySelector('button');
     if (!maniglia || maniglia === e.currentTarget) {
@@ -266,7 +266,7 @@ const StudyItem = ({
             >
               <button
                 id="priors-expand"
-                onClick={e => espandi(e)}
+                onClick={e => expand(e)}
               >
                 <Icon
                   style={{ transform: isExpanded && 'rotate(180deg)' }}
@@ -280,7 +280,7 @@ const StudyItem = ({
             >
               <button
                 id="priors-same-window"
-                onClick={e => openPriors(e, 'stessaScheda', studyInstanceUID)}
+                onClick={e => openPriors(e, 'sameTab', studyInstanceUID)}
               >
                 {/* <Icon name="priors-same-window"></Icon> */}
                 <Icons.LayoutCommon1x2 />
@@ -292,7 +292,7 @@ const StudyItem = ({
             >
               <button
                 id="priors-new-window"
-                onClick={e => openPriors(e, 'nuovaScheda', studyInstanceUID)}
+                onClick={e => openPriors(e, 'newTab', studyInstanceUID)}
               >
                 <Icon name="priorsNewWindow"></Icon>
               </button>
@@ -300,24 +300,10 @@ const StudyItem = ({
           </div>
         )}
 
-        {/* {isPrior && isStudyUIDDefined && (
-          <div className="open-study-new-tab">
-
-            <button onClick={e => espandi(e)}>{isExpanded ? 'Collapse' : 'Espandi'}</button>
-            <button
-              style={{
-                opacity: 0.2,
-              }}
-              disabled
-              onClick={() => openPriors('stessaScheda', studyInstanceUID)}
-            >
-              Apri in questa scheda
-            </button>
-            <button onClick={() => openPriors('nuovaScheda', studyInstanceUID)}>
-              Open in a new tab
-            </button>
-          </div>
-        )} */}
+        {/* An earlier version of the row's three buttons, kept out of the way rather
+          than deleted while the layout above settles. It is not wired to
+          anything: `expand` and the two openPriors calls below are the live
+          versions of these. */}
         <AccordionContent
           className={classnames(isBottomDocked && 'mdv-study-accordion-content-bottom')}
           onClick={event => {

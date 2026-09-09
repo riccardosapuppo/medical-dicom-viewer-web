@@ -35,9 +35,9 @@ const injectEditorBtn = () => {
 const createEditorFunc = () => {
   const editorToolsHtml = `
     <div id="editor-tools">
-        <div id="intestazione">
+        <div id="panel-heading">
         <img id="close-editor-button" style="width:22px" src="./assets/right-arrow.png" />
-        <p>${window.iAmAPrior ? 'Notes on priors' : 'Note'}</p>
+        <p>${window.iAmAPrior ? 'Notes on priors' : 'Notes'}</p>
         </div>
          <div id="main-area-editor">
             <div id="saved-notes-area">
@@ -121,7 +121,7 @@ const createEditorFunc = () => {
     }
   };
 
-  const salvaTesto = () => {
+  const saveText = () => {
     //Ottengo le note attuali
     let currentNotes = [];
     if (localStorage.getItem('quillContent')) {
@@ -170,7 +170,7 @@ const createEditorFunc = () => {
     }
     insertNoteIntoDom();
   };
-  document.getElementById('save-text').addEventListener('click', salvaTesto);
+  document.getElementById('save-text').addEventListener('click', saveText);
   insertNoteIntoDom();
 
   document.getElementById('close-editor-button').addEventListener('click', () => {

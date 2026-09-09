@@ -29,7 +29,7 @@
   font-weight: 700;
 }
 
-/* Sezione informativa */
+/* The information section */
 #menu-hp #info {
   background: #1f1f1f;
   padding: 20px;
@@ -109,7 +109,7 @@
   background: #38bdf8 !important;
 }
 
-/* Bottoni per salvare configurazioni */
+/* The buttons that save a configuration */
 #save-hp-config-actual-study,
 #save-hp-config-exam,
 #save-hp-config-modality {
@@ -127,7 +127,7 @@
   background: #43a047;
 }
 
-/* Stile per i bottoni di cancellazione */
+/* The style of the delete buttons */
 .delete-hp-config {
   margin-top: 20px;
   width: 100%;
@@ -143,7 +143,7 @@
   background: #c62828;
 }
 
-/* Bottone di chiusura */
+/* The close button */
 #close-hp {
   right: 10px;
   position: absolute;
@@ -167,7 +167,7 @@
 }
 
 /* The "data saved" message */
-#dati-salvati {
+#saved-data {
   background: #43a047;
   padding: 15px;
   color: #fff;

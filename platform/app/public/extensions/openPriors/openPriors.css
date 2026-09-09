@@ -39,8 +39,8 @@
     }
   }
 
-  /* Controlli finestra stile mac (tabs.js): la finestra dello priors e'
-     un iframe, si chiude col suo pulsante dedicato. */
+/* Mac-style window controls (tabs.js): the prior study window is a frame,
+   and it closes with a button of its own. */
   #mdv-window-controls {
     display: none !important;
   }
@@ -63,7 +63,7 @@
     width: 40%;
   }
 
-  /* LABEL STUDI */
+  /* THE STUDY LABEL */
   .text-muted-foreground.flex.items-center.justify-center span {
     visibility: hidden;
   }

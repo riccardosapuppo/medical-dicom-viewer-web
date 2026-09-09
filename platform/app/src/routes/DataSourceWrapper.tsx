@@ -220,9 +220,9 @@ function DataSourceWrapper(props: withAppTypes) {
                     <code className="text-primary">npm run data:load</code>.
                   </p>
                   <p className="text-muted-foreground mt-3 text-sm">
-                    {/* Il token destructive e' un rosso da fondo chiaro: hsl(0 63% 31%)
-                        su questo nero e' quasi invisibile. Qui serve un rosso che si
-                        legga sul fondo scuro. */}
+                    {/* The destructive token is a red meant for a light background:
+                        hsl(0 63% 31%) is all but invisible on this black. What is
+                        needed here is a red that reads on a dark ground. */}
                     Details: <span className="text-[#fca5a5]">{e.message}</span>
                   </p>
                 </div>

@@ -155,8 +155,8 @@ const tryStartHangingProtocolLoad = () => {
   return false;
 };
 
-const applyViewportOverlayFromPreferences = preferenze => {
-  const overlayTags = preferenze?.viewportOverlayTags;
+const applyViewportOverlayFromPreferences = preferences => {
+  const overlayTags = preferences?.viewportOverlayTags;
   if (!overlayTags) {
     return;
   }
@@ -303,10 +303,10 @@ const loadHangingProtocol = async () => {
   const username = urlParams.get('User') || window.mdvUsername;
   // The local cache is per partition and user. Without the user, a shared workstation
   // would show one person the configuration left by the one before.
-  const preferenzeKey = `userPreferences-${aetitle}-${username}`;
+  const preferencesKey = `userPreferences-${aetitle}-${username}`;
   let mdvhp;
 
-  let istanzeSpecifiche = [];
+  let specificInstances = [];
   let hpTrovati = false;
   let tipoMatch = null;
   let capturedFlags;
@@ -315,7 +315,7 @@ const loadHangingProtocol = async () => {
   let studyExamNameHP = new URLSearchParams(new URL(url).search).get('StudyDescription') || window.mdvStudyDescription;
   let modalityStudioHP = new URLSearchParams(new URL(url).search).get('Modality') || window.mdvModality;
   let examFound = false;
-  let preferenzeRemote;
+  let remotePreferences;
   const normalizza = value => (value || '').toString().trim().toUpperCase();
   const normalizzaModality = value =>
     (value || '')
@@ -424,23 +424,23 @@ const loadHangingProtocol = async () => {
     );
   }
   // Check whether preferences are already in localStorage. If not, this is the first time they are wanted, so ask the server
-  if (!localStorage.getItem(preferenzeKey)) {
+  if (!localStorage.getItem(preferencesKey)) {
     if (!username) {
       console.warn('No username: the remote hanging protocol preferences cannot be fetched');
       return;
     }
-    preferenzeRemote = await letturaPreferenzeAPI(aetitle, username, studyInstanceUID);
-    if (!preferenzeRemote || !preferenzeRemote.json) {
+    remotePreferences = await fetchPreferencesFromApi(aetitle, username, studyInstanceUID);
+    if (!remotePreferences || !remotePreferences.json) {
       return console.warn('The remote hanging protocol preferences were not fetched');
     }
     // And put them into localStorage
-    localStorage.setItem(preferenzeKey, JSON.stringify(preferenzeRemote.json));
-    applyViewportOverlayFromPreferences(preferenzeRemote.json);
+    localStorage.setItem(preferencesKey, JSON.stringify(remotePreferences.json));
+    applyViewportOverlayFromPreferences(remotePreferences.json);
   }
-  const userPreferencesCache = JSON.parse(localStorage.getItem(preferenzeKey));
+  const userPreferencesCache = JSON.parse(localStorage.getItem(preferencesKey));
   applyViewportOverlayFromPreferences(userPreferencesCache);
 
-  let userPreferencesForThisStudy = userPreferencesCache?.hp.studioSpecifico;
+  let userPreferencesForThisStudy = userPreferencesCache?.hp.specificStudy;
   let userPreferencesByExamDescription = userPreferencesCache?.hp.examName;
   if (!userPreferencesByExamDescription) {
     console.warn('No user preference found for this exam description');
@@ -456,11 +456,11 @@ const loadHangingProtocol = async () => {
     colormapByIndex = userPreferencesForThisStudy[studyInstanceUID].colormapByIndex;
     capturedFlags = userPreferencesForThisStudy[studyInstanceUID].captured;
     montageByIndexLoaded = userPreferencesForThisStudy[studyInstanceUID].montageByIndex;
-    istanzeSpecifiche = userPreferencesForThisStudy[studyInstanceUID].istanzeSpecifiche;
-    mdvhp = userPreferencesForThisStudy[studyInstanceUID].performanceHP;
+    specificInstances = userPreferencesForThisStudy[studyInstanceUID].specificInstances;
+    mdvhp = userPreferencesForThisStudy[studyInstanceUID].protocol;
     // window.hpCamera = userPreferencesForThisStudy[studyInstanceUID].camera;
     hpTrovati = true;
-    tipoMatch = 'studioSpecifico';
+    tipoMatch = 'specificStudy';
   }
   // With no specific study, iterate looking for a saved exam description or modality
   else {
@@ -478,8 +478,8 @@ const loadHangingProtocol = async () => {
         colormapByIndex = userPreferencesByExamDescription[i].colormapByIndex;
         capturedFlags = userPreferencesByExamDescription[i].captured;
         montageByIndexLoaded = userPreferencesByExamDescription[i].montageByIndex;
-        istanzeSpecifiche = userPreferencesByExamDescription[i].istanzeSpecifiche;
-        mdvhp = userPreferencesByExamDescription[i].performanceHP;
+        specificInstances = userPreferencesByExamDescription[i].specificInstances;
+        mdvhp = userPreferencesByExamDescription[i].protocol;
         // window.hpCamera = userPreferencesByExamDescription[i].camera;
         examFound = true;
         hpTrovati = true;
@@ -503,8 +503,8 @@ const loadHangingProtocol = async () => {
             colormapByIndex = userPreferencesByModality[i].colormapByIndex;
             capturedFlags = userPreferencesByModality[i].captured;
             montageByIndexLoaded = userPreferencesByModality[i].montageByIndex;
-            istanzeSpecifiche = userPreferencesByModality[i].istanzeSpecifiche;
-            mdvhp = userPreferencesByModality[i].performanceHP;
+            specificInstances = userPreferencesByModality[i].specificInstances;
+            mdvhp = userPreferencesByModality[i].protocol;
             // window.hpCamera = userPreferencesByModality[i].camera;
             hpTrovati = true;
             tipoMatch = 'modality';
@@ -535,16 +535,16 @@ const loadHangingProtocol = async () => {
   // window.imageIndexFromHPMdv, applied after the render in CornerstoneViewportService,
   // which holds even when the viewport is NOT recreated and initialImageOptions is ignored.
   window.imageIndexFromHPMdv = {};
-  if (captured.instance && Array.isArray(istanzeSpecifiche) && istanzeSpecifiche.length) {
-    for (let i = 0; i < istanzeSpecifiche.length; i++) {
-      if (istanzeSpecifiche[i] == null) {
+  if (captured.instance && Array.isArray(specificInstances) && specificInstances.length) {
+    for (let i = 0; i < specificInstances.length; i++) {
+      if (specificInstances[i] == null) {
         continue;
       }
       const isMontageVp = !!montageByIndexLoaded?.[i]?.enabled;
       if (isMontageVp) {
         continue; // le montage usano firstImageIndex (scroll a blocchi), non l'indice del viewport
       }
-      const zeroBased = istanzeSpecifiche[i] - 1;
+      const zeroBased = specificInstances[i] - 1;
       if (mdvhp?.stages?.[0]?.viewports?.[i]) {
         mdvhp.stages[0].viewports[i].viewportOptions.initialImageOptions = { index: zeroBased };
       }
@@ -698,16 +698,16 @@ const loadHangingProtocol = async () => {
 
   // Once loading is done, refresh localStorage so the data stays current
   if (username) {
-    preferenzeRemote = await letturaPreferenzeAPI(aetitle, username, studyInstanceUID);
-    if (!preferenzeRemote || !preferenzeRemote.json) {
+    remotePreferences = await fetchPreferencesFromApi(aetitle, username, studyInstanceUID);
+    if (!remotePreferences || !remotePreferences.json) {
       return console.warn('The remote hanging protocol preferences were not fetched');
     }
     // And put them into localStorage
-    localStorage.setItem(preferenzeKey, JSON.stringify(preferenzeRemote.json));
+    localStorage.setItem(preferencesKey, JSON.stringify(remotePreferences.json));
   }
 };
 
-async function letturaPreferenzeAPI(aetitle, username, studyInstanceUID) {
+async function fetchPreferencesFromApi(aetitle, username, studyInstanceUID) {
   const origin = window.location.origin;
   const apiUrl = `${origin}/viewer/userdata/${aetitle}/?user=${username}&StudyInstanceUIDs=${studyInstanceUID}&cacheBuster=${new Date().getTime()}`;
 
@@ -742,4 +742,4 @@ async function letturaPreferenzeAPI(aetitle, username, studyInstanceUID) {
   }
 }
 
-export { letturaPreferenzeAPI };
+export { fetchPreferencesFromApi };

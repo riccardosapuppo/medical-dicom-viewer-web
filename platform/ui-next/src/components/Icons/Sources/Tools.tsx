@@ -21,7 +21,7 @@ export const ToolMontage = (props: IconProps) => (
       fill="none"
       fillRule="evenodd"
     >
-      {/* Doppio bordo esterno = la singola cella/viewport */}
+      {/* The double outer border is the single cell, or viewport */}
       <rect
         x="2"
         y="2"
@@ -41,7 +41,7 @@ export const ToolMontage = (props: IconProps) => (
         strokeWidth="1"
         opacity="0.85"
       ></rect>
-      {/* Celle interne (2x2) = la subgrid dentro la cella */}
+      {/* The inner cells, 2x2, are the subgrid inside that one */}
       <g fill="currentColor">
         <rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1"></rect>
         <rect x="15" y="7.5" width="5.5" height="5.5" rx="1"></rect>

@@ -75,7 +75,8 @@
     "check:smoke": "node scripts/smoke.mjs",
     "check:layout": "node scripts/layout.mjs",
     "check:controls": "node scripts/controls.mjs",
-    "check:english": "node scripts/english.mjs"
+    "check:english": "node scripts/english.mjs",
+    "check:saved": "node scripts/saved-arrangements.mjs"
   },
   "dependencies": {
     "@babel/helper-hoist-variables": "^7.24.7",

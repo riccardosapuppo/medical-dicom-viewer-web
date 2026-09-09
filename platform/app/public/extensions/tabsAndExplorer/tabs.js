@@ -1293,7 +1293,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   // TOOLTIPS NATIVO
   if (tooltip) tab.title = tooltip;
 
-  // X DI CHIUSURA
+  // THE CLOSE CROSS
   const close = document.createElement('span');
   close.innerHTML = "✕";
   close.style.cursor = "pointer";
@@ -1309,7 +1309,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
 
   tab.appendChild(titleSpan);
 
-  /* --- X DI CHIUSURA --- */
+  /* --- THE CLOSE CROSS --- */
   tab.appendChild(close);
 
   // Inserisci la tab accanto al "+"
@@ -1516,7 +1516,7 @@ function showIframeForTab(iframeId) {
 
 
 // =====================================================================
-//   CHIUSURA TAB DINAMICA
+//   CLOSING A DYNAMIC TAB
 // =====================================================================
 function removeDynamicTab(tab) {
   const iframeId = tab.dataset.iframeId;

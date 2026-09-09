@@ -74,7 +74,7 @@ function LoadingIndicatorProgress({ className, textBlock, progress }) {
         className
       )}
     >
-      {/* Logo Mdv sopra la barra, proporzionato alla width della barra. */}
+      {/* The logo above the bar, scaled to the bar's width. */}
       <img
         src="assets/logo_mdv.png"
         alt="Mdv"
@@ -85,7 +85,7 @@ function LoadingIndicatorProgress({ className, textBlock, progress }) {
         <ProgressLoadingBar progress={effectiveProgress} />
       </div>
 
-      {/* Percentuale + etichetta del passo corrente. */}
+      {/* The percentage, and the label of the step it is on. */}
       <div className="flex flex-col items-center space-y-1">
         {typeof effectiveProgress === 'number' && (
           <div className="mdv-loading-pct text-base font-semibold text-white tabular-nums">

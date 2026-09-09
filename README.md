@@ -135,6 +135,19 @@ shapes are put through the reader, and if any of them stops coming back the
 check refuses to give a verdict at all rather than reporting the all-clear that
 a reader which has quietly stopped looking would also report.
 
+The fields of a saved arrangement were named in Italian too, and those are not
+interface text: they are keys in JSON already written, to localStorage and to a
+backend that is not part of this repository. Renaming them in the code alone
+would leave every stored arrangement in place and unreadable. The new names are
+written, the old ones are still accepted on the way in, and
+
+```
+yarn check:saved           # an arrangement saved before the rename still reads
+```
+
+drives that with an entry written the old way. Removing the migration turns six
+of its eight checks red, which is how it was confirmed rather than assumed.
+
 **A VOI function that is declared but not applied.** A mammogram opened washed
 out, with the air around the breast at 29% grey instead of black, and the
 overlay reported a window of 589 that appears nowhere in the file, which

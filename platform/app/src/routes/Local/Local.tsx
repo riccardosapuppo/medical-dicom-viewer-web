@@ -91,18 +91,18 @@ function Local({ modePath }: LocalProps) {
       throw new Error('Network response was not ok');
     }
 
-    const numeroFile = await response.json(); // Ottieni i dati in JSON
-    totalFiles = numeroFile.totalFiles;
+    const fileNumber = await response.json(); // Ottieni i dati in JSON
+    totalFiles = fileNumber.totalFiles;
     return totalFiles;
   };
 
   const fetchLocalFile = async () => {
-    const numeroFile = await getFileNumber();
+    const fileNumber = await getFileNumber();
     try {
       let completedRequests = 0; // Conta il numero di richieste completate
       const promises = [];
 
-      for (let i = 0; i < numeroFile; i++) {
+      for (let i = 0; i < fileNumber; i++) {
         promises.push(
           fetch(`http://localhost:8088/getFileByIndex/${i}`).then(response => {
             if (!response.ok) {
@@ -116,7 +116,7 @@ function Local({ modePath }: LocalProps) {
 
               // Update the progress as each request finishes
               completedRequests++;
-              const progress = Math.round((completedRequests / numeroFile) * 100);
+              const progress = Math.round((completedRequests / fileNumber) * 100);
               setPercentComplete(progress); // Aggiorna la percentuale completata
 
               return new File([uint8Array], fileName);

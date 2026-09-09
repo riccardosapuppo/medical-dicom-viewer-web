@@ -296,7 +296,7 @@ function ViewerLayout({
               </div>
             </ResizablePanel>
 
-            {/* Pannello dx priors */}
+            {/* The priors panel, on the right */}
             {hasRightPanels && window.iAmAPrior ? (
               <>
                 <ResizablePanel {...resizableLeftPanelProps}>

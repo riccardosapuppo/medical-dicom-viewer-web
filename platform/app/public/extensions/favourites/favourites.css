@@ -22,15 +22,15 @@
   margin-top: 2px;
 }
 
-#favourites-tools #intestazione {
+#favourites-tools #panel-heading {
   display: flex;
 }
 
-#favourites-tools #intestazione img {
+#favourites-tools #panel-heading img {
   margin-right: 15px;
 }
 
-#favourites-tools #intestazione p {
+#favourites-tools #panel-heading p {
   background: #252525;
   color: #fff;
   text-transform: uppercase;

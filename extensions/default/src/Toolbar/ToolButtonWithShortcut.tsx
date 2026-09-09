@@ -8,20 +8,22 @@ import { useSystem } from '@ohif/core';
  * reader has saved in Preferences, instead of showing fixed values.
  */
 
-// Etichette leggibili per i tasti speciali.
+// Readable names for the keys that are not a letter or a digit.
+// The same list as platform/ui HotkeyField, and it has to say the same thing:
+// two different names for one key, in one dialog, is worse than either.
 const KEY_LABELS: Record<string, string> = {
-  space: 'Spazio',
+  space: 'Space',
   esc: 'Esc',
-  enter: 'Invio',
+  enter: 'Enter',
   backspace: '⌫',
   up: '↑',
   down: '↓',
   left: '←',
   right: '→',
-  pageup: 'PgSu',
-  pagedown: 'PgGiù',
-  home: 'Inizio',
-  end: 'Fine',
+  pageup: 'PgUp',
+  pagedown: 'PgDn',
+  home: 'Home',
+  end: 'End',
 };
 
 function formatKey(key: string): string {

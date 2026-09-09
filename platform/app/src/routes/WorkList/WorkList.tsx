@@ -416,12 +416,11 @@ Modality: ${modalities}`,
       return (
         <Tooltip>
           <TooltipTrigger asChild>
-            {/* truncate taglia solo dentro una width che esista.
-                Su uno span in linea, senza width, il testo si distende quanto
-                gli pare: la description di uno studio usciva dalla sua colonna e
-                finiva sopra la modality accanto. A blocco, con il massimo fissato
-                a quanto e' largo cio' che lo contiene, il taglio ha su cosa
-                lavorare. */}
+            {/* truncate only cuts inside a width that exists.
+                On an inline span with no width the text spreads as far as it
+                likes: a study's description ran out of its column and over the
+                modality beside it. As a block, with the maximum tied to the width
+                of what contains it, the cut has something to work against. */}
             <span className="cursor-pointer block max-w-full truncate">{textValue}</span>
           </TooltipTrigger>
           <TooltipContent side="bottom">
