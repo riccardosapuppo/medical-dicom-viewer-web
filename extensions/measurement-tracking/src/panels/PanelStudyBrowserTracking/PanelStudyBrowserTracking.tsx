@@ -48,8 +48,16 @@ const shouldHideThumbnail = ds => {
 
 const showFirstPriorStudy = true;
 const INVALID_STUDY_DESCRIPTION_VALUES = new Set([
+  // These are values an archive SENDS as a study description, not text this
+  // project writes, so they stay in whatever language the archive speaks. The
+  // Italian ones are here because the archive this reconstructs sent them.
+  //
+  // 'no data studio' was translated to 'no data study' in an earlier sweep,
+  // which both collided with the entry already there and stopped the real
+  // value from being recognised: a study whose description is literally
+  // "no data studio" started showing that string as its name.
   'no data study',
-  'no data study',
+  'no data studio',
   'no data',
   'n/a',
   'na',
