@@ -357,7 +357,7 @@ const bindings = [
   },
   {
     commandName: 'showDownloadViewportModal',
-    label: 'Capture schermo',
+    label: 'Capture the screen',
     keys: ['shift+s'],
     isEditable: true,
   },

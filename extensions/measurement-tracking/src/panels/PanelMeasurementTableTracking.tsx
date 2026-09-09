@@ -79,7 +79,7 @@ function PanelMeasurementTableTracking({
                   }}
                 >
                   <Icons.Delete />
-                  Cancella tutto
+                  Clear all
                 </Button>
               </div>
             </div>

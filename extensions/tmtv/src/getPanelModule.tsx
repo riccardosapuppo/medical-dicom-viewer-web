@@ -63,7 +63,7 @@ function getPanelModule({ commandsManager, extensionManager, servicesManager }) 
       name: 'tmtv',
       iconName: 'tab-roi-threshold',
       iconLabel: 'TMTV',
-      label: 'Segmentazione TMTV',
+      label: 'TMTV segmentation',
       component: wrappedPanelTMTV,
     },
     {
@@ -76,8 +76,8 @@ function getPanelModule({ commandsManager, extensionManager, servicesManager }) 
     {
       name: 'tmtvExport',
       iconName: 'tab-segmentation',
-      iconLabel: 'Segmentazione',
-      label: 'Esporta segmentazione',
+      iconLabel: 'Segmentation',
+      label: 'Export the segmentation',
       component: wrappedROIThresholdExport,
     },
   ];

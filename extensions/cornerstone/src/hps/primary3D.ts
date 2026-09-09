@@ -3,7 +3,7 @@ import { HYDRATE_SEG_SYNC_GROUP, VOI_SYNC_GROUP } from './mpr';
 export const primary3D = {
   id: 'primary3D',
   locked: true,
-  name: 'Volume 3D principale a sx',
+  name: 'Main 3D volume on the left',
   icon: 'layout-advanced-3d-primary',
   isPreset: true,
   createdDate: '2023-03-15T10:29:44.894Z',

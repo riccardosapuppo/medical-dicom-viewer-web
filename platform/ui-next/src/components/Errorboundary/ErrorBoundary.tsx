@@ -42,8 +42,8 @@ const DefaultFallback = ({
 }: DefaultFallbackProps) => {
   const { t } = useTranslation('ErrorBoundary');
   const [showDetails, setShowDetails] = useState(false);
-  const title = `${t('Qualcosa è andato storto')}${!isProduction && ` ${t('in')} ${context}`}.`;
-  const subtitle = t('Qualcosa è andato storto. Riprova.');
+  const title = `${t('Something went wrong')}${!isProduction && ` ${t('in')} ${context}`}.`;
+  const subtitle = t('Something went wrong. Try again.');
 
   const copyErrorDetails = () => {
     const errorDetails = `

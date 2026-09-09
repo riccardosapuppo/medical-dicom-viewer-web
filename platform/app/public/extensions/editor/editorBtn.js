@@ -94,7 +94,7 @@ const createEditorFunc = () => {
         }
       });
       if (noteFound) {
-        console.log('Contenuto caricato correttamente.');
+        console.log('Loaded.');
         const savedNotesArea = document.getElementById('saved-notes-area');
         savedNotesArea.insertAdjacentHTML(
           'afterbegin',

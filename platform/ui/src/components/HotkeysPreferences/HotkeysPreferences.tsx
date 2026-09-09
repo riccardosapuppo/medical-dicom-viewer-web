@@ -79,7 +79,7 @@ const HotkeysPreferences = ({
                             !isFirst && 'hidden'
                           )}
                         >
-                          {t('Funzione')}
+                          {t('Function')}
                         </Typography>
                         <Typography
                           variant="subtitle"

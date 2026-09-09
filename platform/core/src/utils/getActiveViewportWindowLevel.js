@@ -9,7 +9,7 @@ export default function getActiveViewportWindowLevel() {
     const windowWidth = element.parentElement.querySelector('.windowWidth-viewport').textContent;
     const windowCenter = element.parentElement.querySelector('.windowCenter-viewport').textContent;
     const activeWl = {
-      description: 'WL Attuale',
+      description: 'The current window level',
       window: Number(windowWidth),
       level: Number(windowCenter),
     };

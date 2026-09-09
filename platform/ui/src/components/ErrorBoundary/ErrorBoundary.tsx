@@ -12,8 +12,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 const DefaultFallback = ({ error, context, resetErrorBoundary = () => { }, fallbackRoute }) => {
   const { t } = useTranslation('ErrorBoundary');
   const [showDetails, setShowDetails] = useState(false);
-  const title = `${t('Qualcosa è andato storto')}${!isProduction && ` ${t('in')} ${context}`}.`;
-  const subtitle = t('Qualcosa è andato storto. Riprova.');
+  const title = `${t('Something went wrong')}${!isProduction && ` ${t('in')} ${context}`}.`;
+  const subtitle = t('Something went wrong. Try again.');
   return (
     <div
       className="ErrorFallback bg-primary-dark h-full w-full"
@@ -86,7 +86,7 @@ const ErrorBoundary = ({
       closeButton
       shouldCloseOnEsc
       isOpen={isOpen}
-      title={i18n.t('ErrorBoundary:Qualcosa è andato storto')}
+      title={i18n.t('ErrorBoundary:Something went wrong')}
       onClose={() => {
         setIsOpen(false);
         if (fallbackRoute && typeof window !== 'undefined') {

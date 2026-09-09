@@ -214,7 +214,7 @@ function DataSourceWrapper(props: withAppTypes) {
                     <span className="text-primary font-medium">{friendlyName}</span>.
                   </p>
                   <p className="text-muted-foreground mt-3 text-base">
-                    Se stai provando il progetto in locale, l'archivio si avvia con{" "}
+                    Running the project locally, the archive starts with{" "}
                     <code className="text-primary">docker compose up -d</code> e si riempie con{" "}
                     <code className="text-primary">npm run data</code> e{" "}
                     <code className="text-primary">npm run data:load</code>.

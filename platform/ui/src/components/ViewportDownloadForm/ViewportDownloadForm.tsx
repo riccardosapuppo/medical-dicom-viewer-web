@@ -145,8 +145,8 @@ const ViewportDownloadForm = ({
 
   const error_messages = {
     width: 'The smallest width allowed is 100px.',
-    height: "L'height minima valida è 100px.",
-    filename: 'Il nome del file non può essere vuoto.',
+    height: "The smallest height allowed is 100px.",
+    filename: 'The file name cannot be empty.',
   };
 
   const renderErrorHandler = errorType => {
@@ -273,7 +273,7 @@ const ViewportDownloadForm = ({
             data-cy="file-name"
             value={filename}
             onChange={evt => setFilename(evt.target.value)}
-            label={t('Nome file')}
+            label={t('File name')}
           />
           {renderErrorHandler('filename')}
         </div>

@@ -842,7 +842,7 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
                   voiRange: { lower: hpVoiSettings.lower, upper: hpVoiSettings.upper },
                 });
               } catch (err) {
-                console.warn('[HP] Applicazione window level fallita', err);
+                console.warn('[HP] Applying the window level failed', err);
               }
             }
             if (hpColormap && (hpColormap.name || typeof hpColormap === 'string')) {
@@ -851,7 +851,7 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
                   colormap: typeof hpColormap === 'string' ? { name: hpColormap } : hpColormap,
                 });
               } catch (err) {
-                console.warn('[HP] Applicazione color LUT fallita', err);
+                console.warn('[HP] Applying the colour LUT failed', err);
               }
             }
             viewport.render();

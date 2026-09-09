@@ -690,7 +690,7 @@ function activateCommandOnIframe(command) {
 // MAIN: messages coming in from the frame
 function listenerEvent(event) {
   if (event.origin !== window.location.origin) {
-    console.warn('Message ricevuto da un origine non sicura:', event.origin);
+    console.warn('A message arrived from an origin that is not trusted:', event.origin);
     return;
   }
 

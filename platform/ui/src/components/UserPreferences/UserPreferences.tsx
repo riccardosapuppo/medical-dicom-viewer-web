@@ -81,7 +81,7 @@ const UserPreferences = ({
 
   return (
     <>
-      <Section title={t('Tasti di scelta rapida')}>
+      <Section title={t('Keyboard shortcuts')}>
         <HotkeysPreferences
           disabled={disabled}
           hotkeyDefinitions={state.hotkeyDefinitions}

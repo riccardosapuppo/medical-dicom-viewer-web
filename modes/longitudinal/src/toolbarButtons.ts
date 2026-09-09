@@ -316,8 +316,8 @@ const toolbarButtons: Button[] = [
     uiType: 'ohif.toolButton',
     props: {
       icon: 'tool-magnify',
-      label: 'Lente d\'ingrandimento',
-      tooltip: 'Lente d\'ingrandimento',
+      label: 'Magnify',
+      tooltip: 'Magnify',
       commands: setToolActiveToolbar,
       evaluate: [
         'evaluate.cornerstoneTool',

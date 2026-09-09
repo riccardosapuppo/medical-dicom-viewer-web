@@ -200,10 +200,10 @@ export const registerMdvHPAttributes = hangingProtocolService => {
     _registered = true;
     if (window.mdvHPDebug) {
       // eslint-disable-next-line no-console
-      console.log('[HP] Attributi vista mdv registrati:', MDV_VIEW_KEY_ATTR, MDV_VIEW_DIM_KEY_ATTR);
+      console.log('[HP] The custom view attributes are registered:', MDV_VIEW_KEY_ATTR, MDV_VIEW_DIM_KEY_ATTR);
     }
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.warn('[HP] Registrazione attributi vista mdv fallita', err);
+    console.warn('[HP] Registering the custom view attributes failed', err);
   }
 };

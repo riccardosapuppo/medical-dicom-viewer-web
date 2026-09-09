@@ -93,7 +93,7 @@ let origin = window.location.origin;
 // the switches are gone and not only their values: leaving them false would keep alive
 // code that nobody can turn on, and so nobody can test.
 window.portableVersion = false;
-window.showFrontendErrors = false //Qualcosa è andato storto errore
+window.showFrontendErrors = false //Something went wrong errore
 
 // The demonstration archive, served by Orthanc and reached through the
 // development proxy: same origin, so no cross-origin headers to configure on
@@ -717,7 +717,7 @@ window.config = {
         {
           id: 'changeLayout',
           title: 'Cambiare il Layout',
-          text: 'Puoi cambiare il layout del visualizzatore usando il pulsante di layout.',
+          text: 'Change the layout with the layout button.',
           attachTo: {
             element: '[data-cy="Layout"]',
             on: 'bottom',
@@ -763,7 +763,7 @@ window.config = {
         defaultStepOptions: {
           buttons: [
             {
-              text: 'Salta tutto',
+              text: 'Skip all',
               action() {
                 this.complete();
               },

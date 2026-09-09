@@ -408,7 +408,7 @@ function ToolbarLayoutSelectorWithServices({
 
 
             <LayoutSelector.HelpText>
-              Seleziona un preset  <br />  di righe e colonne.
+              Choose a preset  <br />  of rows and columns.
               <br /> Clicca per applicare
             </LayoutSelector.HelpText>
           </div>

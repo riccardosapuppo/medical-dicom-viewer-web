@@ -264,7 +264,7 @@ const StudyBrowser = ({
           }}
         >
           <div style={{ padding: '4px 12px 6px', fontSize: '11px', color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Studi disponibili ({priorsStudies.length})
+            Studies available ({priorsStudies.length})
           </div>
           {priorsStudies.map((study: any) => {
             const isSelected = bottomSelectedStudyUid

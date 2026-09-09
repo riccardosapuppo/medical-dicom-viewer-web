@@ -862,7 +862,7 @@ function LinkedSeriesBadgeOverlayItem(props: OverlayItemProps) {
             className="z-[9999]"
           >
             <div className="text-xs">
-              <div className="mb-1 font-medium">Collegata con:</div>
+              <div className="mb-1 font-medium">Linked with:</div>
               {group.others.length ? (
                 <ul className="list-none space-y-0.5 pl-0">
                   {group.others.map((label, i) => (

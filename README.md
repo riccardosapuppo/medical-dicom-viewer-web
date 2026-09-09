@@ -118,11 +118,22 @@ yarn check:english         # every piece of interface text a reader sees
 
 There is no Italian locale in this viewer, so Italian on screen was never a
 translation that could be swapped: it was written into the source and `t()`
-never touched it. The check exists because the sweeps before it read quoted
-strings and nothing else, and the loading screen still went out saying "Quasi
-pronto..." above "Sviluppato da". The first of those is a string. The second is
-JSX text, sitting between a `>` and a `<`, where a search for quotes never
-looks. This one reads both.
+never touched it.
+
+The check reads the source with the TypeScript parser, and it does that because
+the version that used regular expressions reported everything clean while the
+About dialog still said "Basato su" and the preferences dialog said "Voce 1".
+Three blind spots, and not one of them was the vocabulary: it looked for JSX
+text between a `>` and a `<` on the same line, so a sentence written on a line
+of its own had neither beside it; it excluded braces, so "Voce {index + 1}" was
+skipped; and letting the match span lines instead filled the result with
+`Record<string, unknown>`. The parser is never unsure which of those three a
+piece of source is.
+
+It also checks itself before it checks anything else. Three sentinels in three
+shapes are put through the reader, and if any of them stops coming back the
+check refuses to give a verdict at all rather than reporting the all-clear that
+a reader which has quietly stopped looking would also report.
 
 **A VOI function that is declared but not applied.** A mammogram opened washed
 out, with the air around the breast at 29% grey instead of black, and the

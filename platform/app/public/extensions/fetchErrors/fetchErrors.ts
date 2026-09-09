@@ -18,7 +18,7 @@ declare global {
  *
  * So the message is decided by whoever hosts the page, and the default stays what it was.
  */
-const MESSAGGIO_PREDEFINITO = 'Sessione scaduta';
+const MESSAGGIO_PREDEFINITO = 'Session expired';
 
 /** The message goes inside HTML, so it does not go in as markup. */
 function testo(valore: string): string {

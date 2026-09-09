@@ -1225,7 +1225,7 @@ export const applyConfigNow = (entry, options = {}) => {
     reapplyMontageAfterProtocol(entry.montageByIndex);
     return { ok: true };
   } catch (err) {
-    console.warn('[HP] Applicazione immediata fallita', err);
-    return { ok: false, reason: 'Applicazione fallita' };
+    console.warn('[HP] Applying it at once failed', err);
+    return { ok: false, reason: 'Applying it failed' };
   }
 };

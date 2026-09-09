@@ -13,18 +13,18 @@ function AboutModalDefault() {
   // The split on the hyphen stays, because that is how a pre-release is separated
   // (1.2.0-rc.1), but the fork's base no longer goes through here: it is a different
   // fact, and putting it in the number split it in half.
-  const [main, prerilascio] = String(versionNumber).split('-');
+  const [main, prerelease] = String(versionNumber).split('-');
   const baseFork = '3.10.0-beta.129';
 
   return (
     <AboutModal className="w-[400px]">
       <AboutModal.ProductName>Medical DICOM Viewer</AboutModal.ProductName>
       <AboutModal.ProductVersion>{main}</AboutModal.ProductVersion>
-      {/* La parte dopo il trattino si mostra com e. Qui la parola "beta"
-          veniva riscritta in "prod" per non metterla davanti a un cliente:
-          su un fork dichiarato serve solo a far sembrare stabile una
-          versione che stabile non e. */}
-      {prerilascio && <AboutModal.ProductBeta>{prerilascio}</AboutModal.ProductBeta>}
+      {/* What comes after the hyphen is shown as it is. The word "beta" used to
+          be rewritten as "prod" so it would not appear in front of a client. On a
+          fork that says it is one, that only makes a version look stable when it
+          is not. */}
+      {prerelease && <AboutModal.ProductBeta>{prerelease}</AboutModal.ProductBeta>}
 
       <AboutModal.Body>
         {/* <AboutModal.DetailItem
@@ -32,27 +32,27 @@ function AboutModalDefault() {
           value={commitHash}
         /> */}
         <AboutModal.DetailItem
-          label="Basato su"
+          label="Based on"
           value={`OHIF Viewer ${baseFork}`}
         />
         <AboutModal.DetailItem
-          label="Revisione"
+          label="Revision"
           value={commitHash || '-'}
         />
         <AboutModal.DetailItem
-          label="Browser corrente & SO"
+          label="Browser and OS"
           value={`${browser}, ${os}`}
         />
-        {/* Da dove viene. Chi apre il visualizzatore da un link non legge mai il
-            README, e questa e' la sola schermata del prodotto che parla della
-            sua provenienza: sta qui, sotto il resto, e non in cima a una pagina. */}
+        {/* Where it comes from. Anyone who opens the viewer from a link never reads
+            the README, and this is the only screen in the product that says where it
+            came from: here, under the rest, rather than at the top of a page. */}
         <div className="text-muted-foreground max-w-[22rem] pt-4 text-xs leading-relaxed">
           A demonstration. It reconstructs a production system I designed and
           developed; the original cannot be published, so this one was written
           from scratch.
         </div>
-        {/* La firma sta qui sotto e non piu' fra le voci in alto: il nome porta
-            al profilo, e una voce etichetta/valore non puo' contenere un link. */}
+        {/* The signature sits down here rather than among the entries above: the
+            name links to the profile, and a label-and-value entry cannot hold a link. */}
         <div className="text-muted-foreground max-w-[22rem] pt-2 text-xs leading-relaxed">
           Developed by{' '}
           <a

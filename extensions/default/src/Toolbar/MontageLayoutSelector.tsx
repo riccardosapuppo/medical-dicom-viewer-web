@@ -157,10 +157,10 @@ function MontageLayoutSelector({
             </LayoutSelector.PresetSection>
           </div>
 
-          {/* Right - griglia Personalizzato */}
+          {/* Right: the custom grid */}
           <div className="bg-muted flex flex-col gap-2.5 border-l-2 border-solid border-black p-2">
             <div className="montage-custom-layout">
-              <div className="text-muted-foreground text-xs">Personalizzato</div>
+              <div className="text-muted-foreground text-xs">Custom</div>
               <LayoutSelector.GridSelector
                 rows={rows}
                 columns={columns}
@@ -168,7 +168,7 @@ function MontageLayoutSelector({
             </div>
 
             <LayoutSelector.HelpText>
-              Seleziona righe × colonne. <br /> Clicca per applicare.
+              Choose rows by columns. <br /> Clicca per applicare.
             </LayoutSelector.HelpText>
           </div>
         </LayoutSelector.Content>

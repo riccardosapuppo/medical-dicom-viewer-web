@@ -163,7 +163,7 @@ const moreTools = [
           id: 'AdvancedMagnify',
           icon: 'icon-tool-loupe',
           label: "Magnify probe",
-          tooltip: 'Probe con lente d\'ingrandimento',
+          tooltip: 'Magnify probe',
           commands: 'toggleActiveDisabledToolbar',
           evaluate: [
             'evaluate.cornerstoneTool.toggle.ifStrictlyDisabled',

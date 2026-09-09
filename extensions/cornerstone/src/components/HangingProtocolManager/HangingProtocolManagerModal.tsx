@@ -34,10 +34,10 @@ type CaptureOptions = {
 
 const TOGGLES: Array<{ key: keyof CaptureOptions; label: string; hint: string }> = [
   { key: 'series', label: 'Series', hint: 'Pin each viewport to its own series' },
-  { key: 'instance', label: 'Istanza specifica', hint: "The image or slice on screen" },
-  { key: 'windowLevel', label: 'Window Level', hint: 'Luminosità/contrasto (WW/WC)' },
-  { key: 'zoomPan', label: 'Zoom / Pan', hint: 'Framing corrente' },
-  { key: 'colorLut', label: 'Color LUT', hint: 'Mappa colore (colormap)' },
+  { key: 'instance', label: 'Specific instance', hint: "The image or slice on screen" },
+  { key: 'windowLevel', label: 'Window Level', hint: 'Brightness and contrast (WW/WC)' },
+  { key: 'zoomPan', label: 'Zoom / Pan', hint: 'The framing on screen' },
+  { key: 'colorLut', label: 'Color LUT', hint: 'The colour map' },
 ];
 
 const SCOPE_TABS: Array<{ value: Scope; label: string }> = [
@@ -281,7 +281,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
           <span className="truncate font-medium">{item.title}</span>
           {item.isApplied && (
             <span className="bg-primary text-primary-foreground rounded px-1.5 py-0.5 text-xs">
-              Attiva ora
+              Active now
             </span>
           )}
         </div>
@@ -297,7 +297,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
         {!manage && !item.applicable && (
           <div className="text-destructive mt-1 flex items-center gap-1 text-xs">
             <Icons.StatusWarning className="h-3.5 w-3.5" />
-            {item.missingSeries} no series available in questo studio
+            {item.missingSeries} series missing from this study
           </div>
         )}
       </div>
@@ -310,7 +310,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
               disabled={busy}
               onClick={() => onApply(item, false)}
             >
-              Carica
+              Load
             </Button>
           ) : (
             <Button
@@ -319,7 +319,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
               disabled={busy}
               onClick={() => onApply(item, true)}
             >
-              Carica solo griglia
+              Load the grid only
             </Button>
           ))}
         <Button
@@ -330,7 +330,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
           onClick={() => onDelete(item)}
         >
           <Icons.Trash className="mr-1 h-4 w-4" />
-          Elimina
+          Delete
         </Button>
       </div>
     </li>
@@ -350,9 +350,9 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
         </div>
       </div>
 
-      {/* Sezione salvataggio */}
+      {/* The saving section */}
       <section className="border-input rounded-md border p-3">
-        <h3 className="mb-3 text-base font-semibold">Save la visualizzazione attuale</h3>
+        <h3 className="mb-3 text-base font-semibold">Save the current arrangement</h3>
 
         <Tabs
           value={scope}
@@ -380,19 +380,19 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
           </TabsContent>
           <TabsContent value="examDescription">
             <p className="text-muted-foreground py-2 text-sm">
-              Si applicherà a tutti gli esami con description{' '}
-              <span className="text-foreground font-medium">{ctx.studyDescription || '(senza nome)'}</span>.
+              It will apply to every exam described as{' '}
+              <span className="text-foreground font-medium">{ctx.studyDescription || '(unnamed)'}</span>.
             </p>
             {unnamedExam && (
               <p className="text-destructive flex items-center gap-1 text-sm">
                 <Icons.StatusWarning className="h-4 w-4" />
-                Questo esame non ha un nome: la config varrà per tutti gli esami senza nome.
+                This exam has no name, so the configuration will apply to every unnamed exam.
               </p>
             )}
           </TabsContent>
           <TabsContent value="modality">
             <p className="text-muted-foreground py-2 text-sm">
-              Si applicherà a tutti gli esami con modality{' '}
+              It will apply to every exam of modality{' '}
               <span className="text-foreground font-medium">{ctx.modality || '—'}</span>.
             </p>
             {modalityMissing && (
@@ -404,17 +404,17 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
           </TabsContent>
         </Tabs>
 
-        {/* Cosa salvare — toggle granulari */}
+        {/* What to save — toggle granulari */}
         <div className="mt-3">
           <div className="mb-1 flex items-center justify-between">
-            <Label className="text-muted-foreground text-sm">Cosa salvare</Label>
+            <Label className="text-muted-foreground text-sm">What to save</Label>
             <div className="flex gap-2 text-xs">
               <button
                 type="button"
                 className="text-primary hover:underline"
                 onClick={() => setCaptureOptions({ ...ALL_ON })}
               >
-                Tutto
+                Everything
               </button>
               <span className="text-muted-foreground">·</span>
               <button
@@ -422,7 +422,7 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
                 className="text-primary hover:underline"
                 onClick={() => setCaptureOptions({ ...GRID_ONLY })}
               >
-                Solo griglia
+                The grid only
               </button>
             </div>
           </div>
@@ -450,12 +450,12 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
           </div>
         </div>
 
-        {/* Azione salva */}
+        {/* The save action */}
         <div className="mt-3 flex items-center justify-end gap-2">
           {confirmOverwrite ? (
             <>
               <span className="text-muted-foreground mr-auto text-sm">
-                Sovrascrivere la configurazione esistente?
+                Overwrite the configuration that is there?
               </span>
               <Button
                 variant="ghost"
@@ -483,12 +483,12 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
         </div>
       </section>
 
-      {/* Configurazioni per questo studio */}
+      {/* Configurations for this study */}
       <section className="border-input rounded-md border p-3">
         <h3 className="mb-2 text-base font-semibold">Configurations for this study</h3>
         {relevantList.length === 0 ? (
           <p className="text-muted-foreground text-sm">
-            Nessuna configurazione salvata applicabile a questo studio.
+            No saved configuration applies to this study.
           </p>
         ) : (
           <ul className="flex flex-col gap-2">{relevantList.map(item => renderSavedItem(item, false))}</ul>
@@ -508,8 +508,8 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
             {showOthers && (
               <>
                 <p className="text-muted-foreground mb-2 mt-1 text-xs">
-                  Configurazioni di altri esami/modality. Qui puoi solo eliminarle (non sono
-                  applicabili a questo studio).
+                  Configurations belonging to other exams or modalities. They can only be deleted
+                  here, because they do not apply to this study.
                 </p>
                 <ul className="flex flex-col gap-2">
                   {otherList.map(item => renderSavedItem(item, true))}

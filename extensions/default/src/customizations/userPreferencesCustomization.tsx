@@ -197,10 +197,10 @@ const FIXED_OVERLAY_ITEMS: Record<
   cornerTopLeft: [],
   cornerTopRight: [],
   cornerBottomLeft: [
-    { key: FIXED_WL_KEY, label: 'Window/Level (fisso)' },
-    { key: FIXED_ZOOM_KEY, label: 'Zoom (fisso)' },
+    { key: FIXED_WL_KEY, label: 'Window/Level (fixed)' },
+    { key: FIXED_ZOOM_KEY, label: 'Zoom (fixed)' },
   ],
-  cornerBottomRight: [{ key: FIXED_INSTANCE_KEY, label: 'Istanza (fissa)' }],
+  cornerBottomRight: [{ key: FIXED_INSTANCE_KEY, label: 'Instance (fixed)' }],
 };
 
 const getFixedKeysForCorner = (cornerKey: keyof OverlaySelections) =>
@@ -630,7 +630,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
         if (uiNotificationService?.show) {
           uiNotificationService.show({
             title: 'Viewport preferences',
-            message: 'Username o AETitle mancante',
+            message: 'Username or AE title missing',
             type: 'error',
           });
         }
@@ -740,7 +740,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
               value="viewport"
               data-cy="viewport"
             >
-              Preferenze Viewport
+              Viewport
             </TabsTrigger>
           </TabsList>
 
@@ -766,7 +766,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
             <UserPreferencesModal.SubHeading>Viewport preferences</UserPreferencesModal.SubHeading>
             <div className="flex flex-col gap-4 text-sm text-muted-foreground">
               <div>
-                Seleziona fino a 4 tag DICOM per ogni angolo.
+                Choose up to four DICOM tags for each corner.
               </div>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {CORNER_CONFIGS.map(corner => (
@@ -781,7 +781,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
                       const isTruncated = isOverlayResultsTruncated(selectKey);
                       return (
                         <div key={selectKey} className="flex items-center gap-2">
-                          <div className="w-16 text-xs text-muted-foreground">Voce {index + 1}</div>
+                          <div className="w-16 text-xs text-muted-foreground">Slot {index + 1}</div>
                           <Combobox
                             data={
                               fixedItem
@@ -820,7 +820,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
                           />
                           {isTruncated && (
                             <div className="text-xs text-muted-foreground">
-                              Risultati limitati a {MAX_TAG_RESULTS}
+                              Results limited to {MAX_TAG_RESULTS}
                             </div>
                           )}
                         </div>

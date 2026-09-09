@@ -136,7 +136,7 @@ const StudyItem = ({
     const gruppo = e.currentTarget.closest('.open-priors-modes');
     const maniglia = gruppo?.parentElement?.querySelector('button');
     if (!maniglia || maniglia === e.currentTarget) {
-      console.warn('[priors] maniglia di apertura non trovata');
+      console.warn('[priors] the opening handle was not found');
       return;
     }
     maniglia.click();
@@ -328,7 +328,7 @@ const StudyItem = ({
             priorsLoadError ? (
               <div className="flex items-center justify-center gap-2 py-3">
                 <span className="text-[12px] text-[#f87171]">
-                  Errore caricamento serie. Riprova oppure apri un altro studio.
+                  The series could not be loaded. Try again, or open another study.
                 </span>
               </div>
             ) : (

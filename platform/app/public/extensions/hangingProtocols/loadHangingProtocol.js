@@ -145,7 +145,7 @@ const tryStartHangingProtocolLoad = () => {
     return true;
   }
   if (Date.now() - hpStartTime > MAX_WAIT_HP_START_MS) {
-    console.warn('[HP] Timeout avvio: servizi non pronti', {
+    console.warn('[HP] Timed out at startup: the services are not ready', {
       waitedMs: Date.now() - hpStartTime,
       hasServices: !!window.servicesManager?.services,
       mdvAllReady: window.mdvAllReady,
@@ -609,13 +609,13 @@ const loadHangingProtocol = async () => {
     }
     const services = window.servicesManager?.services;
     if (!services) {
-      console.warn('[HP] Servizi non pronti');
+      console.warn('[HP] The services are not ready');
       return false;
     }
     const { hangingProtocolService, displaySetService, uiNotificationService, viewportGridService } =
       services;
     if (!hangingProtocolService || !displaySetService || !viewportGridService) {
-      console.warn('[HP] Servizi mancanti', {
+      console.warn('[HP] Services are missing', {
         hasHP: !!hangingProtocolService,
         hasDisplaySets: !!displaySetService,
         hasViewportGrid: !!viewportGridService,
@@ -643,7 +643,7 @@ const loadHangingProtocol = async () => {
       return false;
     }
     if (!activeStudy || !displaySetsCount || !viewportsCount) {
-      console.warn('[HP] Applicazione rimandata', {
+      console.warn('[HP] Application deferred', {
         hasActiveStudy: !!activeStudy,
         displaySetsCount,
         viewportsCount,
@@ -656,13 +656,13 @@ const loadHangingProtocol = async () => {
       hangingProtocolService.setProtocol('mdvhp');
       uiNotificationService.show({
         title: 'Hanging protocol',
-        message: `Hanging protocol applicati`,
+        message: `Hanging protocols applied`,
         type: 'success',
       });
       reapplyMontageLoaded(viewportGridService, montageByIndexLoaded);
       return true;
     } catch (error) {
-      console.warn('HP - applicazione fallita, riprovo al cambio display set');
+      console.warn('[HP] Applying it failed; it will be tried again when the display set changes');
       return false;
     }
   };

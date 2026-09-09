@@ -80,7 +80,7 @@ function MdvExtensionBrowser({ appConfig, onVisibilityChange }) {
   return (
     <div className="mdv-extension-browser-container flex h-7 items-center justify-between gap-2 bg-amber-400 px-3 text-xs font-semibold text-black">
       <div className="flex items-center gap-2">
-        <span>estensione del browser non installata. Installa l'estensione per abilitare multi-schermo, schermo intero e la migliore esperienza possibile.
+        <span>The browser extension is not installed. Install it for multiple screens, full screen, and the best of what this can do.
         </span>
         {installUrl ? (
           <a

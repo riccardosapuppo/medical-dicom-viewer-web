@@ -340,7 +340,7 @@ function injectQuickDateFilter() {
   select.addEventListener('click', e => e.stopPropagation());
 
   const options = [
-    { value: '', label: 'Seleziona' },
+    { value: '', label: 'Select' },
     { value: 'today', label: 'Oggi' },
     { value: 'week', label: 'Ultima settimana' },
     { value: 'month', label: 'Last month' },
@@ -490,7 +490,7 @@ function preloadEmptyIframe() {
   const urlOriginalePerWorklist = window.location.href
   localStorage.setItem("urlOriginalePerWorklist", urlOriginalePerWorklist);
   if (aetitle) {
-    console.log('fisso aetitale')
+    console.log('the AE title is pinned')
     localStorage.setItem("aetitle", aetitle);
   }
 
@@ -703,7 +703,7 @@ function showFullscreenNotification(message) {
   const uiNotificationService = window?.servicesManager?.services?.uiNotificationService;
   if (uiNotificationService?.show) {
     uiNotificationService.show({
-      title: 'Schermo intero',
+      title: 'Full screen',
       message,
       type: 'info',
     });
@@ -1575,7 +1575,7 @@ window.addEventListener("message", (event) => {
       const style = document.createElement("style");
       style.innerHTML = event.data.css;
       document.head.appendChild(style);
-      console.log("CSS ricevuto e applicato dall'iframe");
+      console.log('CSS received and applied by the frame');
     } catch (err) {
       console.error("Could not inject the CSS into the frame", err);
     }

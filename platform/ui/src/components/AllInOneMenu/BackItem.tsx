@@ -17,7 +17,7 @@ const BackItem = ({ backLabel, onBackClick }: BackItemProps) => {
       >
         <Icons.ByName name="content-prev"></Icons.ByName>
 
-        <div className="pl-2">{backLabel || 'Torna alle opzioni di visualizzazione'}</div>
+        <div className="pl-2">{backLabel || 'Back to the display options'}</div>
       </div>
       <DividerItem></DividerItem>
     </>

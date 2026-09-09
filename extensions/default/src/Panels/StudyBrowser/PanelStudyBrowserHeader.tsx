@@ -202,7 +202,7 @@ function PanelStudyBrowserHeader({
                     className="border-secondary-light z-[1000] rounded-md border bg-black p-2 shadow-lg"
                   >
                     <div className="text-primary-active mb-2 text-[11px] font-semibold uppercase tracking-wide">
-                      Posizione pannello
+                      Panel position
                     </div>
                     <div className="flex flex-col gap-1">
                       {panelPositionOptions.map(option => (
