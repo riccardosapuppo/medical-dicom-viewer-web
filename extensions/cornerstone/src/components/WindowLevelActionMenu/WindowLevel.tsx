@@ -20,7 +20,7 @@ export function WindowLevel({
   const [showPreview, setShowPreview] = useState(false);
   const { t } = useTranslation('WindowLevelActionMenu');
   //Al click recupero la seriesIstanceUID della serie selezionata e la wl attualmente impostata
-  const wlAttuale = ottieniWLViewportSerieAttiva();
+  const currentWl = ottieniWLViewportSerieAttiva();
   const { SeriesInstanceUID } = ottieniDisplaySetSerieAttiva();
   const dicomPreset = [];
   if (SeriesInstanceUID && window.MdvDicomLuts && window.MdvDicomLuts[SeriesInstanceUID]) {
@@ -112,7 +112,7 @@ export function WindowLevel({
                         secondaryLabel={`${preset.window} / ${preset.level}`}
                         onClick={() => onSetWindowLevel(preset)}
                         onMouseEnter={() => onSetWindowLevelPreview(preset)}
-                        onMouseLeave={() => onLeaveWindowLevelPreview(wlAttuale)}
+                        onMouseLeave={() => onLeaveWindowLevelPreview(currentWl)}
                       />
                     ))}
                   </>
@@ -129,7 +129,7 @@ export function WindowLevel({
                     secondaryLabel={`${preset.window} / ${preset.level}`}
                     onClick={() => onSetWindowLevel(preset)}
                     onMouseEnter={() => onSetWindowLevelPreview(preset)}
-                    onMouseLeave={() => onLeaveWindowLevelPreview(wlAttuale)}
+                    onMouseLeave={() => onLeaveWindowLevelPreview(currentWl)}
                   />
                 ))}
               </React.Fragment>

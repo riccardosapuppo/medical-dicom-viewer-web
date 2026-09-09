@@ -235,8 +235,8 @@ function modeFactory({ modeConfiguration }) {
 
       //Versione normale o mobile
       if (!window.portableVersion) {
-        //Storico
-        if (document.body.classList.contains('storico-same-tab')) {
+        //Priors
+        if (document.body.classList.contains('priors-same-tab')) {
           toolbarService.createButtonSection('primary', [
             'MeasurementTools',
             'Pan',
@@ -250,7 +250,7 @@ function modeFactory({ modeConfiguration }) {
             'Layout',
             'Montage',
             'LayoutMPR',
-            'LayoutMPRStorico',
+            'LayoutMPRPriors',
             'Crosshairs',
             'TrackballRotate',
             'invert',
@@ -275,7 +275,7 @@ function modeFactory({ modeConfiguration }) {
             'rotate-left',
             'flipHorizontal',
             'flipVertical',
-            'gestioneHP',
+            'hangingProtocols',
           ]);
         }
         //Mobile
@@ -318,7 +318,7 @@ function modeFactory({ modeConfiguration }) {
             'Layout',
             'Montage',
             'LayoutMPR',
-            'LayoutMPRStorico',
+            'LayoutMPRPriors',
             'LayoutPTCT',
             'Crosshairs',
             'TrackballRotate',
@@ -332,12 +332,12 @@ function modeFactory({ modeConfiguration }) {
             'ReferenceLines',
             'ScaleOverlay',
             'MoreTools',
-            'gestioneHP',
+            'hangingProtocols',
             // 'setCamera',
             // 'storeState',
             // 'restoreState',
             // 'jumpIndex',
-            // 'setHPPreferiti',
+            // 'setFavouritesHangingProtocol',
           ]);
         }
       } else {

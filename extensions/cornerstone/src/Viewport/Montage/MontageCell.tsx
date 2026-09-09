@@ -6,7 +6,7 @@ import { setEnabledElement } from '../../state';
 import {
   captureImageFromImageId,
   captureImageWithAnnotationsFromElement,
-} from '../../components/Preferiti/Preferiti';
+} from '../../components/Favourites/Favourites';
 
 /**
  * Una singola cella della subgrid montage.
@@ -32,7 +32,7 @@ function MontageCell(props: {
   total: number;
   instanceNumber?: number | string | null;
   isPrimary?: boolean;
-  // Info per i Preferiti (stellina): identificano l'istanza mostrata nella cella.
+  // Info per i Favourites (stellina): identificano l'istanza mostrata nella cella.
   seriesInstanceUID?: string;
   sopInstanceUID?: string;
   seriesNumber?: number | string | null;
@@ -66,8 +66,8 @@ function MontageCell(props: {
 
   // Identificativo del FRAME mostrato nella cella. Per i multiframe tutti i frame
   // condividono lo stesso SOPInstanceUID, quindi serve questo per distinguerli nei
-  // preferiti (salvato come NumeroIstanza). Uso imageIndex+1 (la POSIZIONE nello
-  // stack), come fanno i preferiti delle viewport normali (`activeElementIndex+1`):
+  // favourites (salvato come NumeroIstanza). Uso imageIndex+1 (la POSIZIONE nello
+  // stack), come fanno i favourites delle viewport normali (`activeElementIndex+1`):
   // identità univoca per frame, niente collisioni, e match cross-viewport coerente.
   const frameNumber = imageIndex + 1;
 
@@ -167,7 +167,7 @@ function MontageCell(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageIndex]);
 
-  // ── Preferiti (stellina) ────────────────────────────────────────────────
+  // ── Favourites (stellina) ────────────────────────────────────────────────
   // Risolve il SOPInstanceUID dell'istanza attualmente mostrata nella cella:
   // prima dai metadati dell'imageId corrente (sempre allineato a ciò che si
   // vede), con fallback alla prop passata dal viewport ospitante.
@@ -188,7 +188,7 @@ function MontageCell(props: {
   }, [imageIds, imageIndex, sopInstanceUID]);
 
   const computeIsFav = useCallback((): boolean => {
-    const list = (window as any).preferiti as Array<Record<string, unknown>> | undefined;
+    const list = (window as any).favourites as Array<Record<string, unknown>> | undefined;
     if (!Array.isArray(list) || !list.length || !seriesInstanceUID) {
       return false;
     }
@@ -209,7 +209,7 @@ function MontageCell(props: {
   const [isFav, setIsFav] = useState(false);
 
   // Riallinea lo stato della stellina al cambio immagine della cella e quando
-  // i preferiti cambiano altrove (altre celle, pannello WW/WL, lista preferiti).
+  // i favourites cambiano altrove (altre celle, pannello WW/WL, lista favourites).
   useEffect(() => {
     if (isEmpty) {
       setIsFav(false);
@@ -217,8 +217,8 @@ function MontageCell(props: {
     }
     setIsFav(computeIsFav());
     const handler = () => setIsFav(computeIsFav());
-    window.addEventListener('mdv-preferiti-updated', handler);
-    return () => window.removeEventListener('mdv-preferiti-updated', handler);
+    window.addEventListener('mdv-favourites-updated', handler);
+    return () => window.removeEventListener('mdv-favourites-updated', handler);
   }, [isEmpty, computeIsFav]);
 
   const onToggleFavorite = useCallback(
@@ -233,19 +233,19 @@ function MontageCell(props: {
         return;
       }
 
-      if (!(window as any).preferiti) {
-        (window as any).preferiti = [];
+      if (!(window as any).favourites) {
+        (window as any).favourites = [];
       }
-      const list = (window as any).preferiti as Array<Record<string, unknown>>;
+      const list = (window as any).favourites as Array<Record<string, unknown>>;
 
-      // Allinea il "pulse" del pulsante preferiti globale (indica che ci sono
-      // preferiti da stampare), come fanno i preferiti delle viewport normali.
-      const syncPreferitiPulse = () => {
-        const btn = document.getElementById('preferiti-btn');
+      // Allinea il "pulse" del pulsante favourites globale (indica che ci sono
+      // favourites da stampare), come fanno i favourites delle viewport normali.
+      const syncFavouritesPulse = () => {
+        const btn = document.getElementById('favourites-btn');
         if (!btn) {
           return;
         }
-        if (((window as any).preferiti?.length || 0) > 0) {
+        if (((window as any).favourites?.length || 0) > 0) {
           btn.classList.add('pulse');
         } else {
           btn.classList.remove('pulse');
@@ -260,20 +260,20 @@ function MontageCell(props: {
 
       // ── Rimozione ──
       if (already) {
-        (window as any).preferiti = list.filter(p => !matchesThisFrame(p));
+        (window as any).favourites = list.filter(p => !matchesThisFrame(p));
         setIsFav(false);
-        syncPreferitiPulse();
+        syncFavouritesPulse();
         uiNotificationService?.show?.({
-          title: 'Preferiti',
-          message: 'Preferito rimosso',
+          title: 'Favourites',
+          message: 'Favourite rimosso',
           type: 'error',
         });
-        window.dispatchEvent(new Event('mdv-preferiti-updated'));
+        window.dispatchEvent(new Event('mdv-favourites-updated'));
         return;
       }
 
       // ── Aggiunta ──
-      // Stesse 4 versioni catturate dai preferiti delle viewport normali
+      // Stesse 4 versioni catturate dai favourites delle viewport normali
       // (clean / printBase / overlay / annotated) così il print builder le usa
       // in modo identico.
       const element = elementRef.current;
@@ -309,17 +309,17 @@ function MontageCell(props: {
         DataUrlAnnotated: annotated,
         DataUrlAnnotationOverlay: overlay || null,
         NumeroSerie: seriesNumber,
-        DescrizioneSerie: seriesDescription,
+        SeriesDescription: seriesDescription,
         NumeroIstanza: frameNumber,
       });
       setIsFav(true);
-      syncPreferitiPulse();
+      syncFavouritesPulse();
       uiNotificationService?.show?.({
-        title: 'Preferiti',
+        title: 'Favourites',
         message: 'Added to favourites',
         type: 'success',
       });
-      window.dispatchEvent(new Event('mdv-preferiti-updated'));
+      window.dispatchEvent(new Event('mdv-favourites-updated'));
     },
     [
       resolveSopUID,

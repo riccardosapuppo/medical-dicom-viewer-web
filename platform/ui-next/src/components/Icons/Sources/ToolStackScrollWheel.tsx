@@ -8,7 +8,7 @@ import type { IconProps } from '../types';
  * ottiene impostando un colore. Era un'immagine che veniva tinta da una catena
  * di filtri - brightness, sepia, saturate, hue-rotate - messa li' per ottenere
  * il rosso aziendale. Una tinta scritta come filtro non compare in nessuna
- * ricerca di colori, ed e' sopravvissuta a tre passate di ritinta.
+ * search di colori, ed e' sopravvissuta a tre passate di ritinta.
  */
 export const ToolStackScrollWheel = (props: IconProps) => (
   <svg

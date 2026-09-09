@@ -63,7 +63,7 @@ const Onboarding = ({
      * Serve perche' questo effetto scatta al cambio di rotta, mentre lo studio
      * ci mette una ventina di secondi ad arrivare dall'archivio. Shepherd
      * risolve il bersaglio dei passi quando il giro parte: se il bersaglio non
-     * c'e' ancora, il riquadro viene appeso a <body> e finisce sotto il bordo
+     * c'e' ancora, il box viene appeso a <body> e finisce sotto il bordo
      * inferiore della pagina - presente per il codice, invisibile per chi
      * guarda, con la pagina velata e nessun modo di chiuderlo.
      */

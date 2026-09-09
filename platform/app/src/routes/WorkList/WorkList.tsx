@@ -388,7 +388,7 @@ function WorkList({
         ).openStudyInInternalTab(url, {
           // Il primo dato che c e, nell ordine in cui si riconosce uno studio.
           //
-          // Non tutti gli studi hanno un nome paziente - LIDC-IDRI-0001
+          // Non tutti gli studi hanno un nome patient - LIDC-IDRI-0001
           // nell'archivio dimostrativo non ce l'ha - e senza ripiego la scheda
           // usciva senza etichetta. Il separatore si scrive solo se c e
           // qualcosa da separare.
@@ -399,7 +399,7 @@ function WorkList({
             .filter(Boolean)
             .join(' — '),
           tooltip: `Patient: ${patientName}
-Descrizione: ${description}
+Description: ${description}
 Accession: ${accession}
 Modality: ${modalities}`,
         });
@@ -418,9 +418,9 @@ Modality: ${modalities}`,
       return (
         <Tooltip>
           <TooltipTrigger asChild>
-            {/* truncate taglia solo dentro una larghezza che esista.
-                Su uno span in linea, senza larghezza, il testo si distende quanto
-                gli pare: la descrizione di uno studio usciva dalla sua colonna e
+            {/* truncate taglia solo dentro una width che esista.
+                Su uno span in linea, senza width, il testo si distende quanto
+                gli pare: la description di uno studio usciva dalla sua colonna e
                 finiva sopra la modality accanto. A blocco, con il massimo fissato
                 a quanto e' largo cio' che lo contiene, il taglio ha su cosa
                 lavorare. */}

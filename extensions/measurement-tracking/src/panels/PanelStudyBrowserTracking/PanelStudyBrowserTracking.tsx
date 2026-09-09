@@ -46,7 +46,7 @@ const shouldHideThumbnail = ds => {
   return false;
 };
 
-const mostraPrimoStudioStorico = true;
+const showFirstPriorStudy = true;
 const INVALID_STUDY_DESCRIPTION_VALUES = new Set([
   'no data studio',
   'no data study',
@@ -235,17 +235,17 @@ export default function PanelStudyBrowserTracking({
   ]);
   const [studyDisplayList, setStudyDisplayList] = useState([]);
   // Local priors: 'idle' | 'loading' | 'done'
-  const [statoStorico, setStatoStorico] = useState('idle');
+  const [priorsState, setPriorsState] = useState('idle');
   const [hasLoadedViewports, setHasLoadedViewports] = useState(false);
   const [displaySets, setDisplaySets] = useState([]);
   const [displaySetsLoadingState, setDisplaySetsLoadingState] = useState({});
   const [thumbnailImageSrcMap, setThumbnailImageSrcMap] = useState({});
   const [jumpToDisplaySet, setJumpToDisplaySet] = useState(null);
   const requestedSeriesByStudyUIDRef = useRef(new Set());
-  // Studi le cui serie sono state chieste dal pre-caricamento automatico (non dall'utente).
+  // Studi le cui serie sono state chieste dal pre-loading automatico (non dall'utente).
   const studiPrecaricatiRef = useRef(new Set());
   // Ultima tab scelta esplicitamente cliccando: non va abbandonata se ancora vuota.
-  const tabSceltaDaUtenteRef = useRef(null);
+  const userChosenTabRef = useRef(null);
   // Ultimo studio espanso in ciascuna tab: rientrando nella tab lo si riapre.
   const ultimoStudioPerTabRef = useRef({});
 
@@ -368,12 +368,12 @@ export default function PanelStudyBrowserTracking({
       return;
     }
 
-    // Stato del caricamento storico: alimenta il badge "Ricerca in corso" della tab
+    // Stato del caricamento priors: alimenta il badge "Search in corso" della tab
     // "Local priors". allSettled perche' una query fallita non deve lasciare il badge
     // acceso per sempre.
-    setStatoStorico('loading');
+    setPriorsState('loading');
     Promise.allSettled(studyUIDs.map(sid => fetchStudiesForPatient(sid))).then(() =>
-      setStatoStorico('done')
+      setPriorsState('done')
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [StudyInstanceUIDs, getStudiesForPatientByMRN]);
@@ -688,7 +688,7 @@ export default function PanelStudyBrowserTracking({
     }
 
     requestedSeriesByStudyUIDRef.current.add(normalized);
-    // Traccia permanente: serve a riconoscere il jump generato da questo pre-caricamento
+    // Traccia permanente: serve a riconoscere il jump generato da questo pre-loading
     // (vedi l'effetto di jumpToDisplaySet) e distinguerlo da un jump voluto dall'utente.
     studiPrecaricatiRef.current.add(normalized);
     const madeInClient = true;
@@ -715,15 +715,15 @@ export default function PanelStudyBrowserTracking({
     }
 
     // Mantieni sempre "Studio attuale" come default: evita switch automatici allo
-    // storico durante i primi render quando i dati della tab primaria non sono
+    // priors durante i primi render quando i dati della tab primaria non sono
     // ancora stati popolati.
     if (activeTabName === 'primary') {
       return;
     }
 
-    // Idem per una tab aperta esplicitamente dall'utente: se e' vuota di solito lo storico
+    // Idem per una tab aperta esplicitamente dall'utente: se e' vuota di solito lo priors
     // sta ancora caricando, e riportarlo indietro gli farebbe perdere il click.
-    if (tabSceltaDaUtenteRef.current === activeTabName) {
+    if (userChosenTabRef.current === activeTabName) {
       return;
     }
 
@@ -752,13 +752,13 @@ export default function PanelStudyBrowserTracking({
     }
 
     // Rientrando in una tab si riapre l'ultimo studio che vi era stato espanso, se c'e'
-    // ancora nell'elenco.
+    // ancora nell'list.
     const memorizzato = ultimoStudioPerTabRef.current[activeTabName];
     const memorizzatoAncoraPresente =
       memorizzato && activeTab.studies.some(study => study.studyInstanceUid === memorizzato);
 
     // Senza memoria: solo "Studio attuale" apre da se' il primo studio. Nelle tab dello
-    // storico non si espande nulla finche' non e' l'utente a scegliere.
+    // priors non si espande nulla finche' non e' l'utente a scegliere.
     const daEspandere = memorizzatoAncoraPresente
       ? memorizzato
       : activeTabName === 'primary'
@@ -824,11 +824,11 @@ export default function PanelStudyBrowserTracking({
       return;
     }
     const { tabName, StudyInstanceUID } = thumbnailLocation;
-    // Il pre-caricamento automatico delle serie genera un jump che, con lo storico remoto,
+    // Il pre-loading automatico delle serie genera un jump che, con lo priors remoto,
     // puo' arrivare secondi dopo: non deve riportare l'utente sulla tab che ha appena
     // lasciato. I jump voluti (referto creato, doppio click) non passano di qui.
-    const jumpDaPrecaricamento = studiPrecaricatiRef.current.has(StudyInstanceUID);
-    if (!jumpDaPrecaricamento || tabName === activeTabName) {
+    const jumpFromPreload = studiPrecaricatiRef.current.has(StudyInstanceUID);
+    if (!jumpFromPreload || tabName === activeTabName) {
       setActiveTabName(tabName);
     }
     const studyExpanded = expandedStudyInstanceUIDs.includes(StudyInstanceUID);
@@ -838,14 +838,14 @@ export default function PanelStudyBrowserTracking({
     }
   }, [expandedStudyInstanceUIDs, jumpToDisplaySet, tabs]);
 
-  // Badge di stato in cima alla lista dello storico. E' manipolazione DOM diretta come
+  // Badge di stato in cima alla lista dello priors. E' manipolazione DOM diretta come
   // il resto di questo pannello, perche' si innesta nella scrollbar renderizzata da StudyBrowser.
-  const disegnaBadgeStorico = () => {
+  const drawPriorsBadge = () => {
     const contenitore = document.querySelector('.ohif-scrollbar');
     if (!contenitore) {
       return;
     }
-    const esistente = document.getElementById('stato-storico');
+    const esistente = document.getElementById('priors-state');
     if (esistente) {
       esistente.remove();
     }
@@ -857,14 +857,14 @@ export default function PanelStudyBrowserTracking({
     let testo;
     let classe = '';
 
-    // Badge durante la ricerca, poi solo se la tab e' rimasta vuota (altrimenti la lista
+    // Badge durante la search, poi solo se la tab e' rimasta vuota (altrimenti la lista
     // parla da se' e il badge sparisce).
-    if (statoStorico === 'loading') {
-      testo = 'Ricerca in corso';
+    if (priorsState === 'loading') {
+      testo = 'Search in corso';
       classe = 'loading';
     } else {
-      const tabStorico = tabs.find(tab => tab.name === 'all');
-      if (tabStorico?.studies?.length) {
+      const tabPriors = tabs.find(tab => tab.name === 'all');
+      if (tabPriors?.studies?.length) {
         return;
       }
       testo = 'No local prior studies';
@@ -872,38 +872,38 @@ export default function PanelStudyBrowserTracking({
 
     contenitore.insertAdjacentHTML(
       'afterbegin',
-      `<div class="${classe}" id="stato-storico"><p>${testo}</p></div>`
+      `<div class="${classe}" id="priors-state"><p>${testo}</p></div>`
     );
   };
 
-  // Il badge va ridisegnato quando la ricerca cambia stato mentre la tab e' gia' aperta
-  // (es. lo storico finisce di caricare e "Ricerca in corso" sparisce).
+  // Il badge va ridisegnato quando la search cambia stato mentre la tab e' gia' aperta
+  // (es. lo priors finisce di caricare e "Search in corso" sparisce).
   useEffect(() => {
-    disegnaBadgeStorico();
+    drawPriorsBadge();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statoStorico, activeTabName, studyDisplayList]);
+  }, [priorsState, activeTabName, studyDisplayList]);
 
   const onClickedtabName = clickedTabName => {
-    tabSceltaDaUtenteRef.current = clickedTabName;
+    userChosenTabRef.current = clickedTabName;
     try {
       // document.querySelector('[data-cy="FixReferenceLines"]').style.display = 'none'
-      if (document.getElementById('stato-storico')) {
-        document.getElementById('stato-storico').remove();
+      if (document.getElementById('priors-state')) {
+        document.getElementById('priors-state').remove();
       }
       if (document.querySelector('.ohif-scrollbar .bg-black')) {
         document.querySelector('.ohif-scrollbar .bg-black').style.display = 'block';
       }
 
-      //Mostro sempre il primo storico se clicco la relativa tab così da far vedere le anteprime
+      //Mostro sempre il primo priors se clicco la relativa tab così da far vedere le anteprime
 
-      // if (clickedTabName === 'all' && mostraPrimoStudioStorico) {
+      // if (clickedTabName === 'all' && showFirstPriorStudy) {
       //   setTimeout(() => {
-      //     const storicoItems = document.querySelectorAll('.ohif-scrollbar button');
-      //     if (storicoItems && storicoItems.length > 0) {
-      //       storicoItems[0].click();
+      //     const priorsItems = document.querySelectorAll('.ohif-scrollbar button');
+      //     if (priorsItems && priorsItems.length > 0) {
+      //       priorsItems[0].click();
       //     }
       //   }, 0);
-      //   mostraPrimoStudioStorico = false;
+      //   showFirstPriorStudy = false;
       // }
 
       // Il badge lo ridisegna l'effetto su activeTabName: qui quello nuovo non e' ancora

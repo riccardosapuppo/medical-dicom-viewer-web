@@ -68,7 +68,7 @@ const ErrorBoundary = ({
   isPage,
 }) => {
 
-  if (!window.mostraErroriFrontend) {
+  if (!window.showFrontendErrors) {
     return
   }
 

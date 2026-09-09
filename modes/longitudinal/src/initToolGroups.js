@@ -347,7 +347,7 @@ function initMontageToolGroup(extensionManager, toolGroupService, commandsManage
   // specifica della serie, quindi l'annotazione resta legata a quell'immagine
   // (come in una viewport normale). NON includiamo i tool cross-viewport
   // (ReferenceLines/Crosshairs/ReferenceCursors): privi di senso tra celle della
-  // stessa serie. Il crash storico su getHandleNearImagePoint è risolto alla
+  // stessa serie. Il crash priors su getHandleNearImagePoint è risolto alla
   // radice in initCornerstoneTools (guard su BaseTool).
   const tools = {
     active: [

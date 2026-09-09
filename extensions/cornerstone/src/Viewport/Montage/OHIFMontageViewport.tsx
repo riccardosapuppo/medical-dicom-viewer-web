@@ -12,7 +12,7 @@ import './Montage.css';
 import {
   applyFraming,
   framingBeforeResize,
-} from '../../../../../platform/app/public/estensioni/gestioneHP/framing';
+} from '../../../../../platform/app/public/extensions/hangingProtocols/framing';
 
 /**
  * Viewport "Montage": suddivide UNA viewport OHIF in una subgrid interna di
@@ -95,7 +95,7 @@ function OHIFMontageViewport(props: withAppTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displaySetUID]);
 
-  // Badge descrizione serie (a livello griglia) + tooltip moderno SOLO se il
+  // Badge description serie (a livello griglia) + tooltip moderno SOLO se il
   // testo è troncato. Misuriamo la troncatura (scrollWidth > clientWidth) e ci
   // riaggiorniamo sui resize della badge (cambio layout/finestra). Quando NON è
   // troncato il badge resta `pointer-events:none` (vedi CSS): nessun tooltip e
@@ -499,7 +499,7 @@ function OHIFMontageViewport(props: withAppTypes) {
     };
 
     const onPointerDown = (e: PointerEvent) => {
-      // Non intercettare i click sulla stellina dei preferiti né sulla scrollbar.
+      // Non intercettare i click sulla stellina dei favourites né sulla scrollbar.
       if ((e.target as HTMLElement)?.closest?.('.montage-cell-fav, .scroll')) {
         return;
       }
@@ -573,7 +573,7 @@ function OHIFMontageViewport(props: withAppTypes) {
       }}
       data-montage-viewport-id={viewportId}
     >
-      {/* Descrizione serie (una sola, a livello griglia: tutte le celle mostrano
+      {/* Description serie (una sola, a livello griglia: tutte le celle mostrano
           la STESSA serie) → si capisce quale serie si sta vedendo. */}
       {seriesBadgeText && (
         <>
@@ -582,14 +582,14 @@ function OHIFMontageViewport(props: withAppTypes) {
             className={`montage-series-badge${
               seriesBadgeTruncated ? ' montage-series-badge--truncated' : ''
             }`}
-            // Limita alla larghezza della PRIMA cella (meno la stellina): così il
+            // Limita alla width della PRIMA cella (meno la stellina): così il
             // badge non attraversa le posizioni delle stelle delle altre celle
             // (ogni cella ha la sua stellina in alto a sinistra).
             style={{ maxWidth: `calc(${100 / cols}% - 44px)` }}
           >
             {seriesBadgeText}
           </div>
-          {/* Tooltip moderno con la descrizione COMPLETA: solo se il testo è
+          {/* Tooltip moderno con la description COMPLETA: solo se il testo è
               troncato (altrimenti è già tutto visibile). È un sibling separato
               perché il badge ha overflow:hidden (per l'ellissi), che taglierebbe
               un eventuale ::after interno. Si mostra all'hover del badge (vedi

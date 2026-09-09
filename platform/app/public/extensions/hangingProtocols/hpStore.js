@@ -1,16 +1,16 @@
 /**
  * hpStore.js — Data-layer (no-DOM) per la gestione degli Hanging Protocol custom.
  *
- * Estratto/rifattorizzato da salvataggioHP.js: contiene SOLO logica dati
+ * Estratto/rifattorizzato da saveHangingProtocol.js: contiene SOLO logica dati
  * (lettura/scrittura preferenze, matching, cattura dello stato viewport e
  * composizione dell'Hanging Protocol). Nessuna manipolazione del DOM: la UI
  * vive nel componente React HangingProtocolManager.
  *
  * Riusato sia dalla modale React sia (indirettamente, per le stesse regole di
- * matching) da caricamentoHP.js.
+ * matching) da loadHangingProtocol.js.
  */
 import { metaData, getRenderingEngine } from '@cornerstonejs/core';
-import { letturaPreferenzeAPI } from './caricamentoHP';
+import { letturaPreferenzeAPI } from './loadHangingProtocol';
 import {
   deriveViewKey,
   deriveViewDimKey,
@@ -35,7 +35,7 @@ const getUrlParam = name => {
 };
 
 // La "partizione" (postazione) e l'aetitle sono sinonimi in questo sistema
-// (vedi aperturaStorico.js). Le config viaggiano per (partizione, utente):
+// (vedi openPriors.js). Le config viaggiano per (partizione, utente):
 // lato server sono già salvate in userdata/{aetitle}/{user}/preferenze.json.
 const getPartizione = () => window.mdvAETitle || getUrlParam('partizione') || getUrlParam('aetitle');
 const getUsername = () => window.mdvUsername || getUrlParam('User');
@@ -99,7 +99,7 @@ const tryResolveStudyInfoFromMetadata = () => {
 };
 
 // I metadati dello studio sono già disponibili (displaySets caricati)? In tal caso
-// qualunque descrizione/modality ancora vuota è un valore DEFINITIVO (studio senza nome
+// qualunque description/modality ancora vuota è un valore DEFINITIVO (studio senza nome
 // / senza modality nei metadati), non un "sto ancora caricando": inutile aspettare oltre.
 const studyMetadataAvailable = () => {
   const displaySetService = window.servicesManager?.services?.displaySetService;
@@ -153,11 +153,11 @@ export const normalizzaModality = value =>
     .map(item => normalizza(item))
     .filter(Boolean);
 
-// Chiave d'IDENTITÀ di una config "exam description": la descrizione normalizzata.
+// Chiave d'IDENTITÀ di una config "exam description": la description normalizzata.
 // (vuoto/assente/spazi/maiuscole diverse → stessa chiave). Usata identica da
 // salvataggio, eliminazione, de-duplica e dalla modale, così si sovrascrive/elimina
 // sempre la stessa entry (nessun duplicato "fantasma" per gli studi senza nome).
-export const canonEsameKey = value => normalizza(value);
+export const canonExamKey = value => normalizza(value);
 
 // Chiave d'IDENTITÀ di una config "modality": l'INSIEME ORDINATO delle modalità
 // (case-insensitive). Così 'CT\MR' e 'MR\CT' (l'ordine dipende dall'ordine dei
@@ -170,7 +170,7 @@ export const canonModalityKey = value =>
 
 // Collassa le entry array tenendo l'ULTIMA occorrenza per chiave d'identità (la più
 // recente: i salvataggi vengono aggiunti in coda). Serve perché le entry legacy salvate
-// per studi SENZA NOME avevano `nomeEsame: undefined` (chiave sparita dal JSON con
+// per studi SENZA NOME avevano `examName: undefined` (chiave sparita dal JSON con
 // JSON.stringify) mentre le nuove usano '': erano trattate come DIVERSE dal salvataggio/
 // eliminazione ma UGUALI dal caricamento → duplicati "fantasma" non sovrascrivibili.
 const dedupByKey = (arr, keyFn) => {
@@ -190,17 +190,17 @@ export const ensureHpStructure = hp => {
   ) {
     safeHp.studioSpecifico = {};
   }
-  safeHp.nomeEsame = dedupByKey(
-    Array.isArray(safeHp.nomeEsame)
-      ? safeHp.nomeEsame.filter(item => item && typeof item === 'object')
+  safeHp.examName = dedupByKey(
+    Array.isArray(safeHp.examName)
+      ? safeHp.examName.filter(item => item && typeof item === 'object')
       : [],
-    item => canonEsameKey(item?.nomeEsame)
+    item => canonExamKey(item?.examName)
   );
   safeHp.modality = dedupByKey(
     Array.isArray(safeHp.modality)
       ? safeHp.modality.filter(item => item && typeof item === 'object')
       : [],
-    item => canonModalityKey(item?.nomeModality)
+    item => canonModalityKey(item?.modalityName)
   );
   return safeHp;
 };
@@ -236,7 +236,7 @@ export const parseLayout = (entry = {}) => {
 
 /**
  * Default retro-compatibile: le entry salvate prima dell'introduzione dei flag
- * non hanno il campo `captured`. In quel caso il comportamento storico era:
+ * non hanno il campo `captured`. In quel caso il comportamento priors era:
  * griglia + serie + istanza + zoom/pan (il window level non veniva MAI salvato).
  */
 export const LEGACY_CAPTURED = Object.freeze({
@@ -280,20 +280,20 @@ export const getAppliedHpConfig = (preferenzeJson, ctx = getContext()) => {
       entry: hp.studioSpecifico[ctx.studyInstanceUIDs],
     };
   }
-  const nomeEsameNormalizzato = normalizza(ctx.studyDescription);
-  const matchEsame = (hp.nomeEsame || []).find(
-    item => normalizza(item?.nomeEsame) === nomeEsameNormalizzato
+  const normalisedExamName = normalizza(ctx.studyDescription);
+  const matchExam = (hp.examName || []).find(
+    item => normalizza(item?.examName) === normalisedExamName
   );
-  if (matchEsame) {
-    return { tipo: 'descrizioneEsame', key: matchEsame.nomeEsame, entry: matchEsame };
+  if (matchExam) {
+    return { tipo: 'examDescription', key: matchExam.examName, entry: matchExam };
   }
   const modalityCandidates = normalizzaModality(ctx.modality);
   const matchModality = (hp.modality || []).find(item => {
-    const savedCandidates = normalizzaModality(item?.nomeModality);
+    const savedCandidates = normalizzaModality(item?.modalityName);
     return savedCandidates.some(value => modalityCandidates.includes(value));
   });
   if (matchModality) {
-    return { tipo: 'modality', key: matchModality.nomeModality, entry: matchModality };
+    return { tipo: 'modality', key: matchModality.modalityName, entry: matchModality };
   }
   return null;
 };
@@ -332,7 +332,7 @@ const resolveSeriesLabelFromEntry = (entry, index) => {
 // postazione condivisa un altro utente leggerebbe la config di chi l'ha preceduto.
 const localStorageKey = () => {
   const ctx = getContext();
-  return `preferenzeUtente-${ctx.aetitle}-${ctx.username}`;
+  return `userPreferences-${ctx.aetitle}-${ctx.username}`;
 };
 
 /**
@@ -478,7 +478,7 @@ const readColormap = viewport => {
 
 /**
  * captureOptions = { grid, series, instance, windowLevel, zoomPan, colorLut }
- * scope = 'specificStudy' | 'descrizioneEsame' | 'modality'
+ * scope = 'specificStudy' | 'examDescription' | 'modality'
  *   (per 'specificStudy' la serie viene agganciata via SeriesInstanceUID,
  *    altrimenti via SeriesDescription / SeriesNumber).
  */
@@ -574,8 +574,8 @@ export const captureCurrentState = (scope, captureOptions) => {
         position: cameraViewport.position,
         viewPresentation: cameraViewPresentation,
       };
-      // Inquadratura RELATIVA (framing.js): scala-invariante, quindi valida anche
-      // quando l'HP verra' applicato in una cella di dimensioni diverse (storico
+      // Framing RELATIVA (framing.js): scala-invariante, quindi valida anche
+      // quando l'HP verra' applicato in una cella di dimensioni diverse (priors
       // affiancato, altri monitor). I campi assoluti sopra restano come fallback
       // per le build precedenti a questa modifica.
       const framingData = isMontage ? null : captureFraming(viewport);
@@ -612,7 +612,7 @@ export const captureCurrentState = (scope, captureOptions) => {
     colorByIndex.push(isMontage ? null : colormap);
 
     // --- Series ---
-    const descrizioneSerieFromUi =
+    const seriesDescriptionFromUi =
       element.parentElement?.querySelector('[title="Series description"]')?.textContent?.trim() ||
       '';
     const displaySetUIDs = viewportGridService.getDisplaySetsUIDsForViewport?.(viewportId) || [];
@@ -640,15 +640,15 @@ export const captureCurrentState = (scope, captureOptions) => {
     const instanceMeta = imageId ? metaData.get('instance', imageId) : null;
     const seriesInstanceUID = match ? match[1] : displaySetSeriesInstanceUID;
     const seriesNumber = instanceMeta?.SeriesNumber ?? displaySetSeriesNumber;
-    const descrizioneSerieFromMeta = instanceMeta?.SeriesDescription || '';
-    let descrizioneSerie =
-      descrizioneSerieFromUi || descrizioneSerieFromMeta || displaySetSeriesDescription;
-    if (typeof descrizioneSerie === 'string') {
-      descrizioneSerie = descrizioneSerie.trim();
+    const seriesDescriptionFromMeta = instanceMeta?.SeriesDescription || '';
+    let seriesDescription =
+      seriesDescriptionFromUi || seriesDescriptionFromMeta || displaySetSeriesDescription;
+    if (typeof seriesDescription === 'string') {
+      seriesDescription = seriesDescription.trim();
     }
-    if (!descrizioneSerie && seriesInstanceUID) {
+    if (!seriesDescription && seriesInstanceUID) {
       const ds = (displaySetService?.getDisplaySetsForSeries?.(seriesInstanceUID) || [])[0];
-      descrizioneSerie = ds?.SeriesDescription || ds?.instances?.[0]?.SeriesDescription || '';
+      seriesDescription = ds?.SeriesDescription || ds?.instances?.[0]?.SeriesDescription || '';
     }
 
     // --- Istanza corrente ---
@@ -664,10 +664,10 @@ export const captureCurrentState = (scope, captureOptions) => {
     istanzeSpecifiche.push(numeroIstanza);
 
     serieLabels.push(
-      descrizioneSerie && seriesNumber != null
-        ? `Series ${seriesNumber} ${descrizioneSerie}`
-        : descrizioneSerie
-          ? `Series ${descrizioneSerie}`
+      seriesDescription && seriesNumber != null
+        ? `Series ${seriesNumber} ${seriesDescription}`
+        : seriesDescription
+          ? `Series ${seriesDescription}`
           : seriesNumber != null
             ? `Series ${seriesNumber}`
             : 'Series'
@@ -684,13 +684,13 @@ export const captureCurrentState = (scope, captureOptions) => {
       ];
     } else {
       // Cross-studio (exam description / modality). La regola LEGACY su nome/numero
-      // serie resta come FALLBACK a peso basso (comportamento storico invariato)...
+      // serie resta come FALLBACK a peso basso (comportamento priors invariato)...
       const legacyRule =
-        !descrizioneSerie && seriesNumber != null
+        !seriesDescription && seriesNumber != null
           ? { attribute: 'SeriesNumber', constraint: { equals: seriesNumber }, weight: 1 }
-          : { attribute: 'SeriesDescription', constraint: { equals: descrizioneSerie }, weight: 1 };
+          : { attribute: 'SeriesDescription', constraint: { equals: seriesDescription }, weight: 1 };
       seriesMatchingRules = [legacyRule];
-      // ...e, SE la serie di questa cella ha un'identita' di VISTA nomenclatura-
+      // ...e, SE la serie di questa cella ha un'identita' di VISTA nomenclature-
       // indipendente (lateralita' + ViewCode; tipicamente mammografia, ma vale per
       // qualunque serie che porti quei tag), si aggiunge una regola a peso ALTO cosi'
       // vince sul nome/numero (che cambiano fra studi con nomenclature diverse).
@@ -811,12 +811,12 @@ const buildEntry = (captureState, extra = {}) => ({
 
 const SCOPE_TO_CAPTURE = {
   studioSpecifico: 'specificStudy',
-  descrizioneEsame: 'descrizioneEsame',
+  examDescription: 'examDescription',
   modality: 'modality',
 };
 
 /**
- * scope = 'studioSpecifico' | 'descrizioneEsame' | 'modality'
+ * scope = 'studioSpecifico' | 'examDescription' | 'modality'
  * Ritorna { ok, reason? }.
  */
 export const saveConfig = async (scope, captureOptions) => {
@@ -824,7 +824,7 @@ export const saveConfig = async (scope, captureOptions) => {
   const payload = await readPreferenze();
   const hp = payload.json.hp;
 
-  if (scope === 'descrizioneEsame' && ctx.studyDescription === '') {
+  if (scope === 'examDescription' && ctx.studyDescription === '') {
     // consentito ma documentato: la config varrà per gli esami senza nome
   }
   if (scope === 'modality' && ctx.modality === '') {
@@ -835,22 +835,22 @@ export const saveConfig = async (scope, captureOptions) => {
 
   if (scope === 'studioSpecifico') {
     hp.studioSpecifico[ctx.studyInstanceUIDs] = buildEntry(captureState);
-  } else if (scope === 'descrizioneEsame') {
-    const entry = buildEntry(captureState, { nomeEsame: ctx.studyDescription });
-    // Confronto NORMALIZZATO: sovrascrive l'entry esistente (anche legacy con nomeEsame
+  } else if (scope === 'examDescription') {
+    const entry = buildEntry(captureState, { examName: ctx.studyDescription });
+    // Confronto NORMALIZZATO: sovrascrive l'entry esistente (anche legacy con examName
     // assente/undefined, o con spazi/maiuscole diverse) invece di crearne un duplicato
     // "fantasma". Rimuove tutte le normalize-uguali e ne tiene una sola, la più recente.
     const target = normalizza(ctx.studyDescription);
-    hp.nomeEsame = hp.nomeEsame.filter(item => normalizza(item?.nomeEsame) !== target);
-    hp.nomeEsame.push(entry);
+    hp.examName = hp.examName.filter(item => normalizza(item?.examName) !== target);
+    hp.examName.push(entry);
   } else if (scope === 'modality') {
-    const entry = buildEntry(captureState, { nomeModality: ctx.modality });
+    const entry = buildEntry(captureState, { modalityName: ctx.modality });
     // Chiave CANONICA (insieme ordinato): sovrascrive la config della STESSA combinazione
     // di modality (anche con ordine token diverso, es. 'CT\MR' vs 'MR\CT') senza creare
     // doppioni; NON tocca config di combinazioni diverse ma sovrapposte (es. 'PT\CT') →
     // niente perdita di dati. Coerente con delete/dedup/modale (existsForScope).
     const target = canonModalityKey(ctx.modality);
-    hp.modality = hp.modality.filter(item => canonModalityKey(item?.nomeModality) !== target);
+    hp.modality = hp.modality.filter(item => canonModalityKey(item?.modalityName) !== target);
     hp.modality.push(entry);
   } else {
     return { ok: false, reason: 'The scope is not valid' };
@@ -862,8 +862,8 @@ export const saveConfig = async (scope, captureOptions) => {
 };
 
 /**
- * scope = 'studioSpecifico' | 'descrizioneEsame' | 'modality'
- * key = StudyInstanceUID | nomeEsame | nomeModality (la chiave REALE memorizzata).
+ * scope = 'studioSpecifico' | 'examDescription' | 'modality'
+ * key = StudyInstanceUID | examName | modalityName (la chiave REALE memorizzata).
  */
 export const deleteConfig = async (scope, key) => {
   const payload = await readPreferenze();
@@ -871,15 +871,15 @@ export const deleteConfig = async (scope, key) => {
 
   if (scope === 'studioSpecifico') {
     delete hp.studioSpecifico[key];
-  } else if (scope === 'descrizioneEsame') {
+  } else if (scope === 'examDescription') {
     // Confronto NORMALIZZATO: elimina l'entry mostrata (chiave '' per gli esami senza
     // nome) anche se salvata come undefined/vuota/case diverso, senza colpire per errore
     // un'altra entry (bug "elimina quella sbagliata / quella salvata in precedenza").
     const target = normalizza(key);
-    hp.nomeEsame = hp.nomeEsame.filter(item => normalizza(item?.nomeEsame) !== target);
+    hp.examName = hp.examName.filter(item => normalizza(item?.examName) !== target);
   } else if (scope === 'modality') {
     const target = canonModalityKey(key);
-    hp.modality = hp.modality.filter(item => canonModalityKey(item?.nomeModality) !== target);
+    hp.modality = hp.modality.filter(item => canonModalityKey(item?.modalityName) !== target);
   } else {
     return { ok: false, reason: 'The scope is not valid' };
   }
@@ -895,7 +895,7 @@ export const deleteConfig = async (scope, key) => {
 
 const SCOPE_LABEL = {
   studioSpecifico: 'Studio specifico',
-  descrizioneEsame: 'Exam description',
+  examDescription: 'Exam description',
   modality: 'Modality',
 };
 
@@ -942,7 +942,7 @@ const seriesRuleMatches = (rule, displaySets) => {
     }
     // Regole basate sulla VISTA (mammografia): l'applicabilità va verificata
     // ricalcolando l'identità di vista sui displaySet dello studio corrente, non con
-    // il ramo generico `return true` (che darebbe sempre applicabile → niente avviso
+    // il ramo generico `return true` (che darebbe sempre applicabile → niente notice
     // "no series available" né "Carica solo griglia").
     if (attr === MDV_VIEW_KEY_ATTR) {
       return deriveViewKey(ds) === value;
@@ -984,7 +984,7 @@ const isRelevant = (scope, key, ctx) => {
   if (scope === 'studioSpecifico') {
     return key === ctx.studyInstanceUIDs;
   }
-  if (scope === 'descrizioneEsame') {
+  if (scope === 'examDescription') {
     return normalizza(key) === normalizza(ctx.studyDescription);
   }
   if (scope === 'modality') {
@@ -1015,7 +1015,7 @@ const describeEntry = (scope, key, entry, ctx, applied, displaySets) => {
     title:
       scope === 'studioSpecifico'
         ? 'Questo studio'
-        : scope === 'descrizioneEsame'
+        : scope === 'examDescription'
           ? key || '(unnamed exam)'
           : key,
     layout: { rows, columns },
@@ -1031,7 +1031,7 @@ const describeEntry = (scope, key, entry, ctx, applied, displaySets) => {
 };
 
 /**
- * Ritorna l'elenco di TUTTE le entry salvate, ognuna con la propria chiave reale
+ * Ritorna l'list di TUTTE le entry salvate, ognuna con la propria chiave reale
  * di delete (sempre eliminabile, risolve il bug della config "orfana") e con i
  * flag `relevant` (stesso ambito dello studio corrente) e `applicable` (le serie
  * referenziate esistono nello studio corrente). La UI separa rilevanti vs gestione.
@@ -1054,11 +1054,11 @@ export const listSavedConfigs = (preferenzeJson, ctx = getContext()) => {
       )
     );
   }
-  hp.nomeEsame.forEach(entry => {
-    out.push(describeEntry('descrizioneEsame', entry?.nomeEsame ?? '', entry, ctx, applied, displaySets));
+  hp.examName.forEach(entry => {
+    out.push(describeEntry('examDescription', entry?.examName ?? '', entry, ctx, applied, displaySets));
   });
   hp.modality.forEach(entry => {
-    out.push(describeEntry('modality', entry?.nomeModality ?? '', entry, ctx, applied, displaySets));
+    out.push(describeEntry('modality', entry?.modalityName ?? '', entry, ctx, applied, displaySets));
   });
   return out;
 };

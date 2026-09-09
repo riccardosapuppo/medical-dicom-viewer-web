@@ -1,4 +1,4 @@
-#preferiti-tools {
+#favourites-tools {
   position: fixed;
   top: 0;
   width: 20%;
@@ -12,25 +12,25 @@
   z-index: 50;
 }
 
-#preferiti-tools img {
+#favourites-tools img {
   cursor: pointer;
 }
 
-#preferiti-tools .rimuovi-preferito-btn {
+#favourites-tools .remove-favourite-btn {
   background: #38bdf8;
   width: 100%;
   margin-top: 2px;
 }
 
-#preferiti-tools #intestazione {
+#favourites-tools #intestazione {
   display: flex;
 }
 
-#preferiti-tools #intestazione img {
+#favourites-tools #intestazione img {
   margin-right: 15px;
 }
 
-#preferiti-tools #intestazione p {
+#favourites-tools #intestazione p {
   background: #252525;
   color: #fff;
   text-transform: uppercase;
@@ -38,13 +38,13 @@
   width: 100%;
 }
 
-#area-lista-preferiti {
+#favourites-list-area {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
   padding-top: 20px;
 }
-#area-lista-preferiti .col {
+#favourites-list-area .col {
   flex: 0 1 calc(33.333% - 16px);
   box-sizing: border-box;
   font-size: 0.8rem;
@@ -53,7 +53,7 @@
   border-radius: 2px;
 }
 
-#area-lista-preferiti img {
+#favourites-list-area img {
   height: 111px;
   object-fit: cover;
   margin-bottom: 4px;

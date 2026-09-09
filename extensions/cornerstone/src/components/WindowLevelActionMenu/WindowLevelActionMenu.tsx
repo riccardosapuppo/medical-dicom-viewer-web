@@ -5,7 +5,7 @@ import { AllInOneMenu } from '@ohif/ui';
 import { useViewportGrid } from '@ohif/ui-next';
 import { Colormap } from './Colormap';
 import { Colorbar } from './Colorbar';
-import { Preferiti } from '../Preferiti/Preferiti';
+import { Favourites } from '../Favourites/Favourites';
 import { setViewportColorbar } from './Colorbar';
 import { WindowLevelPreset } from '../../types/WindowLevel';
 import { ColorbarProperties } from '../../types/Colorbar';
@@ -66,7 +66,7 @@ export function WindowLevelActionMenu({
   const [is3DVolume, setIs3DVolume] = useState(false);
   const [rangeValue, setRangeValue] = useState(0);
   const [selectedRenderingMethod, setSelectedRenderingMethod] = useState('mip');
-  const [isPreferito, setIsPreferito] = useState(false);
+  const [isFavourite, setIsFavourite] = useState(false);
 
   let _selectedRenderingMethod;
 
@@ -107,7 +107,7 @@ export function WindowLevelActionMenu({
       _selectedRenderingMethod = event.target.value; //lo cambia in tempo reale
       setSelectedRenderingMethod(event.target.value); //memorizza lo stato quando passo da una viewport ad un'altra o dopo riattivazione
       //Passo live da mip/minip o viceversa
-      const spessoreAttuale =
+      const currentThickness =
         event.target.parentElement.parentElement.parentElement.querySelector('.spessore-div span')
           .textContent || 0;
       const slabThicknessBlendMode = _selectedRenderingMethod === 'mip' ? 1 : 2;
@@ -120,7 +120,7 @@ export function WindowLevelActionMenu({
       const crosshairsTool = new CrosshairsTool({}, customToolProps);
       const { cornerstoneViewportService } = servicesManager.services;
       const viewport = cornerstoneViewportService.getCornerstoneViewport(viewportId);
-      crosshairsTool.setSlabThickness(viewport, spessoreAttuale); // Utilizza il valore passato
+      crosshairsTool.setSlabThickness(viewport, currentThickness); // Utilizza il valore passato
       viewport.render();
     }, 0);
   };
@@ -187,7 +187,7 @@ export function WindowLevelActionMenu({
 
     const seriesInstanceUID = displaySets?.[0]?.instance?.SeriesInstanceUID;
     if (!seriesInstanceUID) {
-      setIsPreferito(false);
+      setIsFavourite(false);
     }
 
     const getCurrentSopUID = () => {
@@ -219,18 +219,18 @@ export function WindowLevelActionMenu({
       return instances[safeIndex]?.SOPInstanceUID || displaySets?.[0]?.instance?.SOPInstanceUID;
     };
 
-    const updatePreferitoState = () => {
+    const updateFavouriteState = () => {
       const sopUID = getCurrentSopUID();
-      const isCurrentPreferito = !!(
+      const isCurrentFavourite = !!(
         seriesInstanceUID &&
         sopUID &&
-        window.preferiti?.some(
-          preferito =>
-            preferito.SeriesInstanceUID === seriesInstanceUID &&
-            preferito.SOPInstanceUID === sopUID
+        window.favourites?.some(
+          favourite =>
+            favourite.SeriesInstanceUID === seriesInstanceUID &&
+            favourite.SOPInstanceUID === sopUID
         )
       );
-      setIsPreferito(isCurrentPreferito);
+      setIsFavourite(isCurrentFavourite);
     };
 
     const viewportType =
@@ -243,15 +243,15 @@ export function WindowLevelActionMenu({
       (viewportType === Enums.ViewportType.ORTHOGRAPHIC && Enums.Events.VOLUME_NEW_IMAGE) ||
       Enums.Events.IMAGE_RENDERED;
 
-    const onPreferitiUpdated = () => updatePreferitoState();
+    const onFavouritesUpdated = () => updateFavouriteState();
 
-    element.addEventListener(eventId, updatePreferitoState);
-    window.addEventListener('mdv-preferiti-updated', onPreferitiUpdated);
-    updatePreferitoState();
+    element.addEventListener(eventId, updateFavouriteState);
+    window.addEventListener('mdv-favourites-updated', onFavouritesUpdated);
+    updateFavouriteState();
 
     return () => {
-      element.removeEventListener(eventId, updatePreferitoState);
-      window.removeEventListener('mdv-preferiti-updated', onPreferitiUpdated);
+      element.removeEventListener(eventId, updateFavouriteState);
+      window.removeEventListener('mdv-favourites-updated', onFavouritesUpdated);
     };
   }, [cornerstoneViewportService, viewportId, displaySets]);
 
@@ -384,10 +384,10 @@ export function WindowLevelActionMenu({
         </AllInOneMenu.ItemPanel>
       </AllInOneMenu.IconMenu>
 
-      {/* Preferiti */}
+      {/* Favourites */}
       {!isMPR && (
         <AllInOneMenu.IconMenu
-          icon={isPreferito ? 'preferitiActive' : 'preferiti'}
+          icon={isFavourite ? 'favouritesActive' : 'favourites'}
           verticalDirection={verticalDirection}
           horizontalDirection={horizontalDirection}
           iconClassName={classNames(
@@ -397,8 +397,8 @@ export function WindowLevelActionMenu({
             // `group-hover:visible` (senza named group) non scatta mai →
             // l'icona compariva solo dopo il click sul viewport.
             activeViewportId === viewportId
-              ? 'visible preferiti-btn'
-              : 'preferiti-btn invisible group-hover/pane:visible',
+              ? 'visible favourites-btn'
+              : 'favourites-btn invisible group-hover/pane:visible',
             'flex shrink-0 cursor-pointer rounded active:text-white text-primary-light',
             isLight ? ' hover:bg-secondary-dark' : 'hover:bg-secondary-light/60'
           )}
@@ -410,7 +410,7 @@ export function WindowLevelActionMenu({
         >
           <AllInOneMenu.ItemPanel>
             {
-              <Preferiti
+              <Favourites
                 viewportId={viewportId}
                 displaySets={displaySets.filter(ds => !nonWLModalities.includes(ds.Modality))}
                 commandsManager={commandsManager}

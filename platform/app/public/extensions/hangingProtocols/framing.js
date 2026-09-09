@@ -1,24 +1,24 @@
 /**
- * framing.js — Inquadratura RELATIVA delle viewport (modello "workstation DICOM").
+ * framing.js — Framing RELATIVA delle viewport (modello "workstation DICOM").
  *
- * PERCHÉ ESISTE. OHIF memorizza l'inquadratura come pan in PIXEL CANVAS + zoom
+ * PERCHÉ ESISTE. OHIF memorizza l'framing come pan in PIXEL CANVAS + zoom
  * relativo al fit. I pixel perdono significato appena la cella cambia dimensione:
- * storico affiancato (cella 691→260 px: la serie portata al bordo finisce fuori),
+ * priors affiancato (cella 691→260 px: la serie portata al bordo finisce fuori),
  * toggle one-up (la cella cresce, lo zoom scala col fit ma il pan resta in px →
  * l'immagine "cambia posizione"), HP applicato in una cella diversa da quella del
  * salvataggio. Lo standard DICOM (Displayed Area Selection + Display Set
- * Horizontal/Vertical Justification) modella l'inquadratura in forma RELATIVA:
+ * Horizontal/Vertical Justification) modella l'framing in forma RELATIVA:
  * questo modulo fa lo stesso.
  *
- * IL MODELLO. Un'inquadratura è { v:3, cell:[cw,ch], fill:[fx,fy], x:{...}, y:{...} }:
+ * IL MODELLO. Un'framing è { v:3, cell:[cw,ch], fill:[fx,fy], x:{...}, y:{...} }:
  *   cell/fill = dimensione della cella alla cattura e quanto l'immagine la
  *            riempie su ciascun asse. Lo zoom viene ri-derivato conservando il
  *            riempimento sull'asse della cella CAMBIATO DI MENO fra cattura e
- *            applicazione: nello storico cambia solo la larghezza → si conserva
- *            l'altezza → stessa grandezza (sborda in larghezza, ancorata al
- *            bordo); nel one-up crescono entrambe → cresce col riquadro. Vale
+ *            applicazione: nello priors cambia solo la width → si conserva
+ *            l'height → stessa grandezza (sborda in width, ancorata al
+ *            bordo); nel one-up crescono entrambe → cresce col box. Vale
  *            per qualsiasi orientamento dell'immagine e qualsiasi zoom, ed è
- *            simmetrico (chiudere lo storico riporta alla grandezza di prima).
+ *            simmetrico (chiudere lo priors riporta alla grandezza di prima).
  *            Le regole "asse dominante" tentate prima fallivano: una cella più
  *            stretta dell'immagine cambia l'asse dominante e rimpicciolisce
  *            ogni immagine di un fattore SUO (due CC affiancate disallineate),
@@ -38,9 +38,9 @@
  *              lato → la porzione visibile resta la stessa.
  *
  * REGOLE DI VITA (le più importanti):
- *   1. L'inquadratura la cambia SOLO l'utente (pan/zoom/reset/HP). Un cambio di
+ *   1. L'framing la cambia SOLO l'utente (pan/zoom/reset/HP). Un cambio di
  *      geometria non la cambia mai: la RI-APPLICA ricalcolando la camera.
- *   2. Riconciliazione anti-deriva: framingBeforeResize() riusa l'inquadratura
+ *   2. Riconciliazione anti-deriva: framingBeforeResize() riusa l'framing
  *      memorizzata se la camera corrente è ancora quella derivata da noi
  *      (l'utente non ha toccato nulla) → one-up e ritorno sono reversibili al
  *      pixel, nessun effetto cricchetto. Se l'utente ha toccato, si ricattura.
@@ -119,7 +119,7 @@ const axisCapture = (lo, extent, cell) => {
   return { mode: 'edge', side, over: (side === 'start' ? gStart : gEnd) / extent };
 };
 
-/** Fotografa l'inquadratura corrente in forma relativa (null se non misurabile). */
+/** Fotografa l'framing corrente in forma relativa (null se non misurabile). */
 export const captureFraming = vp => {
   try {
     if (!framingSupported(vp)) {
@@ -155,7 +155,7 @@ const axisTarget = (axis, extent, cell) => {
 };
 
 // Inquadrature salvate dai formati precedenti (v1/v2, solo sessioni di prova):
-// convertite al volo. Senza `cell` si usa l'asse indicato (o l'altezza).
+// convertite al volo. Senza `cell` si usa l'asse indicato (o l'height).
 const upgradeFraming = f => {
   if (!f || f.v === 3) {
     return f;
@@ -192,7 +192,7 @@ const withCameraEventsSuppressed = (vp, fn) => {
 // Snapshot della camera che ABBIAMO derivato: oltre a zoom e centro include
 // orientamento e flip, perche' una rotazione (roll) o un flip cambiano solo
 // viewUp/flip* lasciando focalPoint e parallelScale intatti: senza confrontarli
-// la riconciliazione riuserebbe un'inquadratura misurata PRIMA della rotazione.
+// la riconciliazione riuserebbe un'framing misurata PRIMA della rotazione.
 const snapshotCamera = vp => {
   const c = vp.getCamera();
   return {
@@ -237,7 +237,7 @@ const _store = new Map();
 
 /**
  * Da chiamare PRIMA del resize dell'engine (stato "vecchio" coerente).
- * Riusa l'inquadratura memorizzata se l'utente non ha toccato la camera
+ * Riusa l'framing memorizzata se l'utente non ha toccato la camera
  * dall'ultima applicazione (reversibilità), altrimenti ricattura.
  */
 export const framingBeforeResize = vp => {
@@ -263,8 +263,8 @@ export const framingBeforeResize = vp => {
 };
 
 /**
- * Ricalcola la camera dall'inquadratura relativa, sulle dimensioni ATTUALI.
- * Ritorna true se l'inquadratura è stata gestita (anche se non serviva muovere
+ * Ricalcola la camera dall'framing relativa, sulle dimensioni ATTUALI.
+ * Ritorna true se l'framing è stata gestita (anche se non serviva muovere
  * nulla); false solo se non applicabile (il chiamante usi il suo fallback).
  */
 export const applyFraming = (vp, framing) => {

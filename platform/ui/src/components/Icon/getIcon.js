@@ -1,11 +1,11 @@
 import hpIcon from './../../assets/icons/hp.png';
 import logoMdv from './../../assets/icons/logo_mdv.png';
 import mprDirect from './../../assets/icons/mpr.png';
-import preferiti from './../../assets/icons/preferiti.png';
-import preferitiActive from './../../assets/icons/preferiti-active.png';
-import { ReactComponent as storicoExpand } from './../../assets/icons/storico-expand.svg';
-import { ReactComponent as storicoSameWindow } from './../../assets/icons/storico-same-window.svg';
-import { ReactComponent as storicoNewWindow } from './../../assets/icons/storico-new-window.svg';
+import favourites from './../../assets/icons/favourites.png';
+import favouritesActive from './../../assets/icons/favourites-active.png';
+import { ReactComponent as priorsExpand } from './../../assets/icons/priors-expand.svg';
+import { ReactComponent as priorsSameWindow } from './../../assets/icons/priors-same-window.svg';
+import { ReactComponent as priorsNewWindow } from './../../assets/icons/priors-new-window.svg';
 import { ReactComponent as hideInfoDicom } from './../../assets/icons/tool-hide-info-dicom.svg';
 import { ReactComponent as toolStackScroll } from './../../assets/icons/tool-stack-scroll.svg';
 
@@ -28,11 +28,11 @@ const ICONS = {
   printer: PrinterIcon,
   /** Mdv **/
   hideInfoDicom: hideInfoDicom,
-  storicoExpand: storicoExpand,
-  storicoSameWindow: storicoSameWindow,
-  storicoNewWindow: storicoNewWindow,
-  preferiti: preferiti,
-  preferitiActive: preferitiActive,
+  priorsExpand: priorsExpand,
+  priorsSameWindow: priorsSameWindow,
+  priorsNewWindow: priorsNewWindow,
+  favourites: favourites,
+  favouritesActive: favouritesActive,
   logoMdv: logoMdv,
   hpIcon: hpIcon,
   mprDirect: mprDirect,

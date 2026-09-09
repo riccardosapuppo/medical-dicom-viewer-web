@@ -1,8 +1,8 @@
 /**
- * mammoView.js — Identità di VISTA nomenclatura-indipendente per l'aggancio
+ * mammoView.js — Identità di VISTA nomenclature-indipendente per l'aggancio
  * serie→cella negli Hanging Protocol.
  *
- * Problema: fra studi con nomenclatura diversa (es. mammografie di anni/apparecchi
+ * Problema: fra studi con nomenclature diversa (es. mammografie di anni/apparecchi
  * diversi) SeriesDescription e SeriesNumber cambiano, quindi il match serie→cella
  * (che oggi si basa su quei due) finisce nella cella la serie SBAGLIATA. I tag DICOM
  * di vista, invece, sono standard e stabili: lateralità (R/L) + proiezione (ViewCode,
@@ -90,7 +90,7 @@ const meaningToCanonical = m => {
 };
 
 /**
- * Proiezione canonica, indipendente dalla nomenclatura E dallo schema di codifica.
+ * Proiezione canonica, indipendente dalla nomenclature E dallo schema di codifica.
  * Precedenza deterministica (così la stessa vista dà lo stesso token qualunque sia il
  * campo popolato): codice noto → significato → ViewPosition → "SCHEMA:CODICE" grezzo.
  * Ritorna '' se non determinabile.
@@ -175,7 +175,7 @@ export const deriveViewDimKey = ds => {
 
 // Registrazione idempotente degli attributi custom sul matcher OHIF.
 // Il callback riceve (metadataInstance = displaySet, options) → passiamo il displaySet
-// alle derive*(). Chiamata sia all'avvio (caricamentoHP) sia in applyConfigNow (modale).
+// alle derive*(). Chiamata sia all'avvio (loadHangingProtocol) sia in applyConfigNow (modale).
 let _registered = false;
 export const registerMdvHPAttributes = hangingProtocolService => {
   if (_registered || typeof hangingProtocolService?.addCustomAttribute !== 'function') {

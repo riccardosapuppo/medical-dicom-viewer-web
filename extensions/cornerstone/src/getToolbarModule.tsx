@@ -109,9 +109,9 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
 
         if (
           (toolName === 'Crosshairs' &&
-            document.body.classList.contains('storico-injected-iframe')) ||
+            document.body.classList.contains('priors-injected-iframe')) ||
           (toolName === 'TrackballRotate' &&
-            document.body.classList.contains('storico-injected-iframe'))
+            document.body.classList.contains('priors-injected-iframe'))
         ) {
           return {
             disabled: false,
@@ -352,7 +352,7 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
         });
 
         if (!areReconstructable) {
-          if (window.location.href.includes('storico=same-tab')) {
+          if (window.location.href.includes('priors=same-tab')) {
             window.parent.postMessage('disable-secondo-mpr', '*');
           }
           return {
@@ -365,7 +365,7 @@ export default function getToolbarModule({ commandsManager, servicesManager }: w
         const isMpr = protocol?.id === 'mpr';
 
         //Se sono un iframe dico al genitore di attivare il secondo mpr
-        if (window.location.href.includes('storico=same-tab')) {
+        if (window.location.href.includes('priors=same-tab')) {
           window.parent.postMessage('secondo-mpr', '*');
         }
 

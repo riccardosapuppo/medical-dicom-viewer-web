@@ -200,7 +200,7 @@ function PanelMeasurementTableTracking({ servicesManager, extensionManager }: wi
           />
         )}
         <MeasurementTable
-          title="Misurazioni"
+          title="Measurements"
           data={displayMeasurementsWithoutFindings}
           servicesManager={servicesManager}
           onClick={jumpToImage}

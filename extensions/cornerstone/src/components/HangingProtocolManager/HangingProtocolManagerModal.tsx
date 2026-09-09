@@ -19,9 +19,9 @@ import {
   applyConfigNow,
   normalizza,
   canonModalityKey,
-} from '../../../../../platform/app/public/estensioni/gestioneHP/hpStore';
+} from '../../../../../platform/app/public/extensions/hangingProtocols/hpStore';
 
-type Scope = 'studioSpecifico' | 'descrizioneEsame' | 'modality';
+type Scope = 'studioSpecifico' | 'examDescription' | 'modality';
 
 type CaptureOptions = {
   grid: boolean;
@@ -36,13 +36,13 @@ const TOGGLES: Array<{ key: keyof CaptureOptions; label: string; hint: string }>
   { key: 'series', label: 'Series', hint: 'Aggancia ogni viewport alla sua serie' },
   { key: 'instance', label: 'Istanza specifica', hint: "L'immagine/slice visualizzata" },
   { key: 'windowLevel', label: 'Window Level', hint: 'Luminosità/contrasto (WW/WC)' },
-  { key: 'zoomPan', label: 'Zoom / Pan', hint: 'Inquadratura corrente' },
+  { key: 'zoomPan', label: 'Zoom / Pan', hint: 'Framing corrente' },
   { key: 'colorLut', label: 'Color LUT', hint: 'Mappa colore (colormap)' },
 ];
 
 const SCOPE_TABS: Array<{ value: Scope; label: string }> = [
   { value: 'studioSpecifico', label: 'Studio' },
-  { value: 'descrizioneEsame', label: 'Esame' },
+  { value: 'examDescription', label: 'Esame' },
   { value: 'modality', label: 'Modality' },
 ];
 
@@ -186,22 +186,22 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
     if (scope === 'studioSpecifico') {
       return !!hp.studioSpecifico?.[ctx.studyInstanceUIDs];
     }
-    if (scope === 'descrizioneEsame') {
+    if (scope === 'examDescription') {
       // Confronto NORMALIZZATO, coerente con save/delete/caricamento: così il pulsante
       // mostra "Overwrite" (e chiede conferma) anche per un'entry legacy senza nome.
       const target = normalizza(ctx.studyDescription);
-      return (hp.nomeEsame || []).some((i: any) => normalizza(i?.nomeEsame) === target);
+      return (hp.examName || []).some((i: any) => normalizza(i?.examName) === target);
     }
     // Chiave CANONICA (insieme ordinato), coerente con saveConfig/deleteConfig/dedup:
     // "Overwrite" appare solo se esiste una config della STESSA combinazione di modality
     // → il salvataggio la sovrascrive davvero (niente doppione), e combinazioni diverse
     // ma sovrapposte (es. 'PT\CT' vs 'CT') restano config distinte.
     const target = canonModalityKey(ctx.modality);
-    return (hp.modality || []).some((i: any) => canonModalityKey(i?.nomeModality) === target);
+    return (hp.modality || []).some((i: any) => canonModalityKey(i?.modalityName) === target);
   }, [preferenzeJson, scope, ctx]);
 
   const modalityMissing = scope === 'modality' && !ctx.modality;
-  const esameSenzaNome = scope === 'descrizioneEsame' && !ctx.studyDescription;
+  const unnamedExam = scope === 'examDescription' && !ctx.studyDescription;
 
   const doSave = useCallback(async () => {
     setConfirmOverwrite(false);
@@ -377,12 +377,12 @@ export default function HangingProtocolManagerModal({ hide }: ModalProps) {
               Si applicherà <span className="text-foreground font-medium">solo a questo studio</span>.
             </p>
           </TabsContent>
-          <TabsContent value="descrizioneEsame">
+          <TabsContent value="examDescription">
             <p className="text-muted-foreground py-2 text-sm">
-              Si applicherà a tutti gli esami con descrizione{' '}
+              Si applicherà a tutti gli esami con description{' '}
               <span className="text-foreground font-medium">{ctx.studyDescription || '(senza nome)'}</span>.
             </p>
-            {esameSenzaNome && (
+            {unnamedExam && (
               <p className="text-destructive flex items-center gap-1 text-sm">
                 <Icons.StatusWarning className="h-4 w-4" />
                 Questo esame non ha un nome: la config varrà per tutti gli esami senza nome.

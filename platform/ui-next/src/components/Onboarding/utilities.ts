@@ -66,9 +66,9 @@ const customMiddleware = {
     //
     // Qui il corpo della pagina non coincide con la finestra: il
     // visualizzatore disegna in un contenitore a posizione fissa e lascia il
-    // corpo senza altezza propria. Misurando l'eccedenza contro quello, la
+    // corpo senza height propria. Misurando l'eccedenza contro quello, la
     // correzione verticale spingeva ogni passo esattamente sul bordo
-    // inferiore - il riquadro esisteva, per il codice era visibile, e nessuno
+    // inferiore - il box esisteva, per il codice era visibile, e nessuno
     // lo vedeva.
     const overflow = await detectOverflow(state, {
       rootBoundary: 'viewport',

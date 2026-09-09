@@ -74,7 +74,7 @@ function LoadingIndicatorProgress({ className, textBlock, progress }) {
         className
       )}
     >
-      {/* Logo Mdv sopra la barra, proporzionato alla larghezza della barra. */}
+      {/* Logo Mdv sopra la barra, proporzionato alla width della barra. */}
       <img
         src="assets/logo_mdv.png"
         alt="Mdv"

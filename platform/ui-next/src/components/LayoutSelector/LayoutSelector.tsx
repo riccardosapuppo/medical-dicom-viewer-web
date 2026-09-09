@@ -302,10 +302,10 @@ const GridSelector = ({ rows = 3, columns = 4, className }: GridSelectorProps) =
     return x <= hoverX && y <= hoverY;
   };
 
-  const isSelectionFromStorico = (e) => {
+  const isSelectionFromPriors = (e) => {
     try {
       const classeElClicked = e.currentTarget.parentElement.parentElement.className
-      if (classeElClicked.includes('custom-layout-storico')) {
+      if (classeElClicked.includes('custom-layout-priors')) {
         return true
       }
       return false
@@ -320,12 +320,12 @@ const GridSelector = ({ rows = 3, columns = 4, className }: GridSelectorProps) =
     const x = index % columns;
     const y = Math.floor(index / columns);
 
-    if (isSelectionFromStorico(e)) {
+    if (isSelectionFromPriors(e)) {
       document.querySelector('[data-cy="Layout"] button').click() //Riclicco il pulsante griglia così da nasconderlo in automatico
       const numRows = y + 1
       const numCols = x + 1
-      const customLayoutStorico = `custom${numRows}x${numCols}`
-      return document.getElementById('iframe-storico').contentWindow.postMessage(customLayoutStorico);
+      const customLayoutPriors = `custom${numRows}x${numCols}`
+      return document.getElementById('priors-iframe').contentWindow.postMessage(customLayoutPriors);
     }
     onSelection({
       numRows: y + 1,

@@ -486,7 +486,7 @@ body.mdv-study-panel-bottom .mdv-study-accordion-item-bottom {
   overflow: hidden !important;
 }
 
-/* Elemento root Radix AccordionContent — ha data-state="open/closed" e prende altezza dal contenuto */
+/* Elemento root Radix AccordionContent — ha data-state="open/closed" e prende height dal contenuto */
 body.mdv-study-panel-bottom .mdv-study-accordion-item-bottom > [data-state] {
   flex: 1 1 auto !important;
   min-height: 0 !important;
@@ -555,7 +555,7 @@ body.mdv-study-panel-bottom .mdv-study-accordion-trigger-bottom svg {
   display: none !important;
 }
 
-body.mdv-study-panel-bottom .mdv-study-accordion-item-bottom .open-storico-modes {
+body.mdv-study-panel-bottom .mdv-study-accordion-item-bottom .open-priors-modes {
   display: none !important;
 }
 
@@ -939,7 +939,7 @@ body.mdv-scheda-esterna #mdv-tab-container {
   border-bottom: 1px solid #1c222b;
 }
 
-/* Filtri ed elenco sono un oggetto solo.
+/* Filtri ed list sono un oggetto solo.
    Erano due blocchi neri su una pagina nera - contenitori che non si vedono - e
    la colonna centrale si leggeva come testo appoggiato al vuoto. */
 .mdv-pannello-lista {
@@ -959,7 +959,7 @@ body.mdv-scheda-esterna #mdv-tab-container {
 /* La pagina della lista studi allinea la testata al corpo.
    La classe bg-black sul body la mette la lista studi e solo lei (vedi
    WorkList.tsx), quindi la regola vale li' e non nel visualizzatore, dove la
-   barra e' a tutta larghezza perche' contiene la barra degli strumenti.
+   barra e' a tutta width perche' contiene la barra degli strumenti.
 
    Senza questo il marchio resta a otto pixel dal bordo mentre il contenuto
    comincia a duecentosettantacinque: due allineamenti diversi nella stessa
@@ -976,10 +976,10 @@ body.mdv-lista-studi .logo-container {
   }
 }
 
-/* L'elenco NON riempie la finestra, ed e' una scelta.
+/* L'list NON riempie la finestra, ed e' una scelta.
 
    Ci ho provato: con tre studi il pannello finiva a meta' schermo e sotto
-   restava il nero. Ma l'altezza si ferma su una scatola con display: table -
+   restava il nero. Ma l'height si ferma su una scatola con display: table -
    il contenitore interno dell'area scorrevole - e forzandola la tabella
    distribuiva lo spazio fra intestazione e righe, staccando i filtri dai dati
    con trecento pixel di vuoto in mezzo. Peggio del problema.
@@ -988,11 +988,11 @@ body.mdv-lista-studi .logo-container {
    legge come una scheda posata. Un pannello alto quanto lo schermo con dentro
    un buco si legge come un errore. Restano tre studi: sono tre.
 
-   Se un giorno l'elenco dovesse riempire davvero, la strada e' cambiare il
+   Se un giorno l'list dovesse riempire davvero, la strada e' cambiare il
    contenitore dell'area scorrevole, non tirare la tabella. */
 
-/* Il marchio si misura in ALTEZZA, non in larghezza.
-   La barra e' alta una quarantina di pixel: vincolando la larghezza, un
+/* Il marchio si misura in ALTEZZA, non in width.
+   La barra e' alta una quarantina di pixel: vincolando la width, un
    marchio piu' largo che alto ci finisce dentro per caso, e uno tagliato
    diversamente no. Con max-width: 200 questo veniva alto cinquantadue e
    sbordava sotto, addosso al titolo della pagina e al pannello. */
@@ -1033,7 +1033,7 @@ body.mdv-lista-studi .logo-container {
 
 /* Lo stato attivo si imposta, non si ricava da una catena di filtri.
    Questa catena tingeva l'icona del rosso aziendale, ed essendo un filtro e non
-   un colore non compariva in nessuna ricerca di colori: e' sopravvissuta a tre
+   un colore non compariva in nessuna search di colori: e' sopravvissuta a tre
    passate di ritinta. L'icona ora disegna con currentColor. */
 [data-cy='StackScroll'][data-active='true'] {
   color: #38bdf8;
@@ -1362,7 +1362,7 @@ input[type='range']::-webkit-slider-thumb {
   > * {
     flex-shrink: 0;
   }
-  .preferiti-btn {
+  .favourites-btn {
     margin-top: 2px;
   }
 }
@@ -1462,7 +1462,7 @@ input[type='range']::-webkit-slider-thumb {
   }
 }
 
-.standard-layout-storico-same-tab {
+.standard-layout-priors-same-tab {
   border-top: 1px solid;
   padding-top: 10px;
 }
@@ -1642,7 +1642,7 @@ input[type='range']::-webkit-slider-thumb {
       background-color: hsl(199deg 93% 60% / 65%);
     }
   }
-  .chiudi-modalita-mpr {
+  .close-mpr-mode {
     background-color: #38bdf8;
     border-radius: 2px;
     padding: 0 2px;
@@ -1666,7 +1666,7 @@ input[type='range']::-webkit-slider-thumb {
       font-size: 0.7rem;
     }
   }
-  .open-storico-modes {
+  .open-priors-modes {
     pointer-events: none;
     background-color: #1e1e1e;
     display: flex;
@@ -1683,13 +1683,13 @@ input[type='range']::-webkit-slider-thumb {
 
     /* Icons.LayoutCommon1x2 disegna con stroke="currentColor": basta impostare il colore.
        Il vecchio filter: invert(1), pensato per l'icona precedente, la rendeva scura. */
-    #storico-same-window {
+    #priors-same-window {
       color: #fff;
     }
-    #storico-expand:hover,
-    #storico-same-window:hover,
-    #storico-same-window.active,
-    #storico-new-window:hover {
+    #priors-expand:hover,
+    #priors-same-window:hover,
+    #priors-same-window.active,
+    #priors-new-window:hover {
       g {
         stroke: #0ea5e9;
       }
@@ -1697,7 +1697,7 @@ input[type='range']::-webkit-slider-thumb {
         stroke: #0ea5e9 !important;
       }
     }
-    #storico-new-window:hover {
+    #priors-new-window:hover {
       g {
         fill: #0ea5e9;
       }
@@ -1727,7 +1727,7 @@ input[type='range']::-webkit-slider-thumb {
 
 /* Selettore Subgrid (Montage): preset "Standard" disposti in riga come nel
  * selettore layout principale. Classe dedicata (non `.standard-layout`) per NON
- * ereditare l'accoppiamento col MPR/storico (es. `.hp-mpr-active` che nasconde
+ * ereditare l'accoppiamento col MPR/priors (es. `.hp-mpr-active` che nasconde
  * `.standard-layout`/`.custom-layout`, o le regole nth-child responsive). */
 .montage-standard-layout {
   .flex.flex-col.gap-0 {
@@ -1735,20 +1735,20 @@ input[type='range']::-webkit-slider-thumb {
   }
 }
 
-.standard-layout-storico {
+.standard-layout-priors {
   .text-muted-foreground {
     color: hsl(204.92deg 46% 65%) !important;
   }
 }
 
-.advanced-layout-storico {
+.advanced-layout-priors {
   display: none;
   .text-muted-foreground {
     color: hsl(204.92deg 46% 65%) !important;
   }
 }
 
-.custom-layout-storico {
+.custom-layout-priors {
   display: none;
   .text-muted-foreground {
     color: hsl(204.92deg 46% 65%) !important;
@@ -1756,7 +1756,7 @@ input[type='range']::-webkit-slider-thumb {
 }
 
 .secondo-mpr-attivo {
-  .advanced-layout-storico {
+  .advanced-layout-priors {
     display: block;
   }
 }
@@ -1766,7 +1766,7 @@ input[type='range']::-webkit-slider-thumb {
 }
 
 .parent-Crosshairs,
-.parent-CrosshairsStorico,
+.parent-CrosshairsPriors,
 .parent-TrackballRotate {
   display: none;
 }
@@ -1780,7 +1780,7 @@ input[type='range']::-webkit-slider-thumb {
   .parent-TrackballRotate {
     display: block;
   }
-  .advanced-layout-studio-principale {
+  .advanced-layout-main-study {
     display: block;
   }
 
@@ -1814,7 +1814,7 @@ input[type='range']::-webkit-slider-thumb {
   }
 }
 
-.caricamento-layout-mpr {
+.mpr-layout-loading {
   .cornerstone-viewport-element {
     visibility: hidden;
   }
@@ -1932,7 +1932,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   animation: pulse 1s infinite;
 }
 
-#stato-storico {
+#priors-state {
   margin: 1rem;
   padding: 8px;
   color: #155724;
@@ -1951,20 +1951,20 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
 }
 
 /* Il pannello studi e' stretto: il testo deve andare a capo, non essere troncato. */
-#stato-storico p {
+#priors-state p {
   margin: 0;
   white-space: normal;
   overflow-wrap: anywhere;
 }
 
-/* Ricerca in corso: spinner discreto, niente lampeggio. */
-#stato-storico.loading {
+/* Search in corso: spinner discreto, niente lampeggio. */
+#priors-state.loading {
   color: #0c5460;
   background-color: #d1ecf1;
   border-color: #bee5eb;
 }
 
-#stato-storico.loading p::before {
+#priors-state.loading p::before {
   content: '';
   display: inline-block;
   width: 0.7em;
@@ -1977,7 +1977,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   animation: spin 0.8s linear infinite;
 }
 
-.parent-LayoutMPRStorico {
+.parent-LayoutMPRPriors {
   display: none;
 }
 
@@ -2043,20 +2043,20 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   }
 }
 
-.storico-injected-iframe {
+.priors-injected-iframe {
   .div-icone-right-viewport {
     .all-in-one-menu {
       min-width: 193px !important;
     }
   }
-  .custom-layout-storico {
+  .custom-layout-priors {
     display: block;
   }
   .mdv-main-area {
     border: 1px solid #212832;
     padding: 1px 3px;
   }
-  .parent-LayoutMPRStorico {
+  .parent-LayoutMPRPriors {
     display: block;
   }
   .parent-Capture,
@@ -2076,7 +2076,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   }
 }
 
-.storico-same-tab {
+.priors-same-tab {
   .tab-studio-mdv {
     display: none !important;
   }
@@ -2127,7 +2127,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
   background-color: rgba(255, 255, 255, 0.11) !important;
 }
 
-/* La data dello studio aperto in bianco pieno, la descrizione un filo piu' leggibile. */
+/* La data dello studio aperto in bianco pieno, la description un filo piu' leggibile. */
 .mdv-study-expanded .text-muted-foreground {
   color: rgba(255, 255, 255, 0.75);
 }
@@ -2155,7 +2155,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
 /*
  * Il giro guidato sta sulla superficie scura come tutto il resto.
  *
- * Era una scheda di colore pieno: il marchio applicato all'intero riquadro,
+ * Era una scheda di colore pieno: il marchio applicato all'intero box,
  * che sul tema chiaro di partenza reggeva e qui, sopra immagini in scala di
  * grigi, e' la cosa piu' accesa dello schermo. L'accento resta dove serve a
  * qualcosa: il titolo, e il pulsante che porta avanti.
@@ -2367,7 +2367,7 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
     width: 100%;
     overflow-x: scroll;
   }
-  .preferiti-btn {
+  .favourites-btn {
     display: none;
   }
 
@@ -2376,16 +2376,16 @@ body.hp-ptct-active[data-drag-modality] .viewport-parent-div[data-drop-compatibl
     flex-wrap: nowrap !important;
     left: 43% !important;
   }
-  .div-info-paziente {
+  .div-patient-info {
     display: none;
   }
-  /*Nascondo il pannello dx ma solo se non Ã¨ lo storico splittato*/
+  /*Nascondo il pannello dx ma solo se non Ã¨ lo priors splittato*/
   .right.mdv-new-panel {
     display: none !important;
   }
 
   .parent-LayoutMPR,
-  .parent-gestioneHP,
+  .parent-hangingProtocols,
   .parent-Capture,
   .parent-Cine,
   .parent-Probe {

@@ -1,6 +1,6 @@
 declare global {
   interface Window {
-    erroriFetch: (error: unknown) => void;
+    fetchErrors: (error: unknown) => void;
     // StudyInstanceUIDs dell'URL, valorizzato in config/default.js
     mdvStudyInstanceUIDs?: string;
     config?: { fetchErrorMessage?: string };
@@ -17,12 +17,12 @@ declare global {
  * sessione da far scadere — e li' quella frase e' semplicemente falsa, scritta
  * a tutto schermo sopra uno studio che un attimo prima si vedeva.
  *
- * Cosi' il messaggio lo decide chi ospita la pagina, e il valore predefinito
+ * Cosi' il message lo decide chi ospita la pagina, e il valore predefinito
  * resta quello di prima.
  */
 const MESSAGGIO_PREDEFINITO = 'Sessione scaduta';
 
-/** Il messaggio finisce dentro dell'HTML, quindi non ci entra come markup. */
+/** Il message finisce dentro dell'HTML, quindi non ci entra come markup. */
 function testo(valore: string): string {
   return valore
     .split('&').join('&amp;')
@@ -30,13 +30,13 @@ function testo(valore: string): string {
     .split('>').join('&gt;');
 }
 
-window.erroriFetch = error => {
+window.fetchErrors = error => {
   const message = typeof error === 'string' ? error : error?.message;
   if (!message) {
     return;
   }
   // L'overlay a tutto schermo blocca la sessione: ha senso solo se a fallire e' lo studio
-  // effettivamente aperto. Se l'errore riguarda una serie dello storico l'utente sta
+  // effettivamente aperto. Se l'errore riguarda una serie dello priors l'utente sta
   // solo sfogliando, e bloccarlo sarebbe sbagliato oltre che fuorviante: uno studio
   // precedente che non arriva non e' una sessione scaduta.
   const studyUIDDallErrore = message.match(/studies\/([0-9.]+)/);
@@ -54,7 +54,7 @@ window.erroriFetch = error => {
     message.includes("Couldn't retrieve") &&
     message.includes('frames/')
   ) {
-    const messaggio = testo(window.config?.fetchErrorMessage || MESSAGGIO_PREDEFINITO);
+    const message = testo(window.config?.fetchErrorMessage || MESSAGGIO_PREDEFINITO);
 
     document.body.insertAdjacentHTML(
       'beforeend',
@@ -73,7 +73,7 @@ window.erroriFetch = error => {
         font-size: 2em;
         z-index: 9999;
       ">
-        <p>${messaggio}</p>
+        <p>${message}</p>
       </div>
     `
     );

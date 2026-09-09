@@ -31,7 +31,7 @@ const APP_CONFIG = process.env.APP_CONFIG || 'config/default.js';
 // Erano tutti e quattro senza ripiego, e chi seguiva il README con "yarn dev"
 // otteneva un server senza inoltro: ogni richiesta di studi tornava indietro
 // dal server di sviluppo invece che dall archivio, e la sola cosa che si
-// vedeva era un avviso di sorgente dati irraggiungibile. Le variabili
+// vedeva era un notice di sorgente dati irraggiungibile. Le variabili
 // d ambiente restano, per puntare altrove.
 const PROXY_TARGET = process.env.PROXY_TARGET || '/pacs/dicom-web';
 const PROXY_DOMAIN = process.env.PROXY_DOMAIN || 'http://localhost:8042';
@@ -113,13 +113,13 @@ module.exports = (env, argv) => {
   const mergedConfig = merge(baseConfig, {
     entry: {
       app: ENTRY_TARGET,
-      preferitiBtn: path.join(__dirname, '../public/estensioni/preferiti/preferiti.js'),
-      tabs: path.join(__dirname, '../public/estensioni/tabsAndExplorer/explorer.js'),
-      explorer: path.join(__dirname, '../public/estensioni/tabsAndExplorer/tabs.js'),
-      editorBtn: path.join(__dirname, '../public/estensioni/editor/editorBtn.js'),
-      caricamentoHP: path.join(__dirname, '../public/estensioni/gestioneHP/caricamentoHP.js'),
-      mostraChangelogAggiornamenti: path.join(__dirname, '../public/estensioni/mostraChangelogAggiornamenti/mostraChangelogAggiornamenti.js'),
-      erroriFetch: path.join(__dirname, '../public/estensioni/erroriFetch/erroriFetch.ts'),
+      favouritesBtn: path.join(__dirname, '../public/extensions/favourites/favourites.js'),
+      tabs: path.join(__dirname, '../public/extensions/tabsAndExplorer/explorer.js'),
+      explorer: path.join(__dirname, '../public/extensions/tabsAndExplorer/tabs.js'),
+      editorBtn: path.join(__dirname, '../public/extensions/editor/editorBtn.js'),
+      loadHangingProtocol: path.join(__dirname, '../public/extensions/hangingProtocols/loadHangingProtocol.js'),
+      updateChangelog: path.join(__dirname, '../public/extensions/updateChangelog/updateChangelog.js'),
+      fetchErrors: path.join(__dirname, '../public/extensions/fetchErrors/fetchErrors.ts'),
     },
     output: {
       path: DIST_DIR,

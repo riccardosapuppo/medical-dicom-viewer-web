@@ -50,8 +50,8 @@ const StudyBrowser = ({
     'left' | 'right' | 'top' | 'bottom'
   >(getInitialStudyBrowserPanelPosition);
   const isBottomDocked = studyBrowserPanelPosition === 'bottom';
-  const [storicoPickerOpen, setStoricoPickerOpen] = useState(false);
-  const storicoPickerRef = useRef<HTMLDivElement>(null);
+  const [priorsPickerOpen, setPriorsPickerOpen] = useState(false);
+  const priorsPickerRef = useRef<HTMLDivElement>(null);
   const skipAutoExpandRef = useRef(false);
   const [bottomSelectedStudyUid, setBottomSelectedStudyUid] = useState<string | null>(null);
 
@@ -106,22 +106,22 @@ const StudyBrowser = ({
     }
   }, [activeTabName, expandedStudyInstanceUIDs, isBottomDocked, onClickStudy, tabs]);
 
-  // Close popover storico quando clicco fuori
+  // Close popover priors quando clicco fuori
   useEffect(() => {
-    if (!storicoPickerOpen) return;
+    if (!priorsPickerOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (storicoPickerRef.current && !storicoPickerRef.current.contains(e.target as Node)) {
-        setStoricoPickerOpen(false);
+      if (priorsPickerRef.current && !priorsPickerRef.current.contains(e.target as Node)) {
+        setPriorsPickerOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [storicoPickerOpen]);
+  }, [priorsPickerOpen]);
 
-  // Dati storico per il popover bottom
-  const storicoTab = (tabs as any[]).find(tab => tab.name !== 'primary');
-  const storicoStudies: any[] = storicoTab?.studies ?? [];
-  const isStoricoActive = activeTabName !== 'primary';
+  // Dati priors per il popover bottom
+  const priorsTab = (tabs as any[]).find(tab => tab.name !== 'primary');
+  const priorsStudies: any[] = priorsTab?.studies ?? [];
+  const isPriorsActive = activeTabName !== 'primary';
 
   // In bottom mode, quando clicco "Local priors" con più studi, apri popover
   const handleBottomTabClick = (tabName: string) => {
@@ -130,11 +130,11 @@ const StudyBrowser = ({
       const studies = tab?.studies ?? [];
       if (studies.length > 1) {
         (onClickTab as Function)(tabName);
-        setStoricoPickerOpen(prev => !prev);
+        setPriorsPickerOpen(prev => !prev);
         return;
       }
     }
-    setStoricoPickerOpen(false);
+    setPriorsPickerOpen(false);
     (onClickTab as Function)(tabName);
   };
 
@@ -165,7 +165,7 @@ const StudyBrowser = ({
     return studiesToRender.map(
       ({ studyInstanceUid, date, description, numInstances, modalities, displaySets }) => {
         const isExpanded = isBottomDocked || (expandedStudyInstanceUIDs as string[]).includes(studyInstanceUid);
-        const isStorico =
+        const isPrior =
           studyInstanceUid !== (window as any).mdvStudyInstanceUIDs && !(window as any).portableVersion;
 
         return (
@@ -189,7 +189,7 @@ const StudyBrowser = ({
               ThumbnailMenuItems={ThumbnailMenuItems}
               StudyMenuItems={StudyMenuItems}
               StudyInstanceUID={studyInstanceUid}
-              isStorico={isStorico}
+              isPrior={isPrior}
               isBottomDocked={isBottomDocked}
             />
           </React.Fragment>
@@ -210,9 +210,9 @@ const StudyBrowser = ({
         >
           {/* La fascia esiste per le linguette, e senza quelle non ha nulla dentro.
 
-              Era alta quarantotto pixel fissi. Quando il paziente non ha esami
+              Era alta quarantotto pixel fissi. Quando il patient non ha esami
               precedenti le linguette non si disegnano, e restava una striscia
-              vuota sopra l'elenco delle serie: misurata, zero figli.
+              vuota sopra l'list delle serie: misurata, zero figli.
 
               Collassa invece di sparire perche il comando di ordinamento vive qui
               dentro: non disegna niente (vedi il return anticipato in
@@ -234,7 +234,7 @@ const StudyBrowser = ({
             🟢 Vista MPR{' '}
             <span
               onClick={() => disableMPRView()}
-              className="chiudi-modalita-mpr float-right"
+              className="close-mpr-mode float-right"
             >
               Close
             </span>
@@ -242,11 +242,11 @@ const StudyBrowser = ({
         </div>
       )}
 
-      {/* Popover storico studi — solo in bottom mode con più studi */}
-      {isBottomDocked && storicoPickerOpen && isStoricoActive && storicoStudies.length > 1 && (
+      {/* Popover priors studi — solo in bottom mode con più studi */}
+      {isBottomDocked && priorsPickerOpen && isPriorsActive && priorsStudies.length > 1 && (
         <div
-          ref={storicoPickerRef}
-          className="mdv-storico-picker"
+          ref={priorsPickerRef}
+          className="mdv-priors-picker"
           style={{
             position: 'fixed',
             left: 0,
@@ -264,9 +264,9 @@ const StudyBrowser = ({
           }}
         >
           <div style={{ padding: '4px 12px 6px', fontSize: '11px', color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Studi disponibili ({storicoStudies.length})
+            Studi disponibili ({priorsStudies.length})
           </div>
-          {storicoStudies.map((study: any) => {
+          {priorsStudies.map((study: any) => {
             const isSelected = bottomSelectedStudyUid
               ? study.studyInstanceUid === bottomSelectedStudyUid
               : (expandedStudyInstanceUIDs as string[]).includes(study.studyInstanceUid);
@@ -280,7 +280,7 @@ const StudyBrowser = ({
                   if (!(expandedStudyInstanceUIDs as string[]).includes(study.studyInstanceUid)) {
                     (onClickStudy as Function)(study.studyInstanceUid);
                   }
-                  setStoricoPickerOpen(false);
+                  setPriorsPickerOpen(false);
                 }}
                 style={{
                   display: 'flex',
@@ -300,7 +300,7 @@ const StudyBrowser = ({
                 }}
               >
                 <div style={{ minWidth: 0, flex: 1, position: 'relative' }}
-                  className="mdv-storico-study-row"
+                  className="mdv-priors-study-row"
                 >
                   <div
                     style={{ fontSize: '12px', color: '#e5e5e5', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}

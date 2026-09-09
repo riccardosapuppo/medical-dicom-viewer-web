@@ -15,7 +15,7 @@
  */
 
 /** I due pulsanti di un passo, nuovi per ogni passo. */
-const prosegui = () => [
+const stepButtons = () => [
   {
     text: 'Close',
     action() {
@@ -45,28 +45,28 @@ export default {
           id: 'scorrimento',
           title: 'Scrolling a series',
           text: 'The mouse wheel moves from one image to the next. The bar down the right edge of the viewport says where you are.',
-          buttons: prosegui(),
+          buttons: stepButtons(),
         },
         {
           id: 'subgrid',
           title: 'The subgrid',
           text: 'It splits one viewport into rows and columns, each on a different image of the same series, so a long series can be read without scrolling it a slice at a time. The cells share the cache and the tools, so brightness, zoom and panning stay in step.',
-          buttons: prosegui(),
+          buttons: stepButtons(),
         },
         {
           id: 'mpr',
           title: 'Reconstruction on three planes',
           text: 'It opens the axial, sagittal and coronal planes of one series with the crosshairs locked together. It is a mode of its own: while it is on, the layout selector shows different entries, and you leave it from the Close button at the top left. It needs a graphics card; without one the button stays off and says why.',
-          buttons: prosegui(),
+          buttons: stepButtons(),
         },
         {
           id: 'hanging',
           title: 'Saving the arrangement',
           text: 'It captures how you are reading the study, the grid, which series sits where, the window of each viewport, and puts it back on the next study of the same kind. You can tie it to this study, to this kind of exam, or to the whole modality.',
-          buttons: prosegui(),
+          buttons: stepButtons(),
         },
         {
-          id: 'preferiti',
+          id: 'favourites',
           title: 'Favourites',
           text: 'The star at the top right of each viewport marks the image. Marked images land in the right-hand panel, ready to pick up when the report is written.',
           buttons: [

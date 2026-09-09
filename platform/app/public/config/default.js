@@ -19,7 +19,7 @@ let useCPURendering = new URLSearchParams(new URL(window.location.href).search).
  * La ricostruzione multiplanare resta indisponibile: quella vuole la scheda
  * grafica.
  */
-const contestoGrafico = (() => {
+const graphicsContext = (() => {
   try {
     const c = document.createElement('canvas');
     return Boolean(c.getContext('webgl2') || c.getContext('webgl'));
@@ -28,7 +28,7 @@ const contestoGrafico = (() => {
   }
 })();
 
-if (!contestoGrafico) {
+if (!graphicsContext) {
   console.warn(
     'No WebGL context: the images are drawn by the processor. ' +
       'Studies open and the tools work; scrolling a long series ' +
@@ -50,7 +50,7 @@ const modality = new URLSearchParams(new URL(window.location.href).search).get('
  * ognuno sbagliava a modo suo.
  *
  * Restano scrivibili, e questo conta quanto il resto: sei punti negli hanging
- * protocol posano qui la descrizione dell'esame e la modality quando
+ * protocol posano qui la description dell'esame e la modality quando
  * l'indirizzo non le porta, ricavandole dai metadati DICOM. Rendendole di sola
  * lettura quel codice sollevava e il pannello non si apriva piu.
  *
@@ -90,14 +90,14 @@ let origin = window.location.origin;
 //
 // Tre interruttori vivevano qui: uno diceva al visualizzatore di stare dentro
 // l'applicazione che lo apriva, e da li' dipendeva l'origine a cui chiedere le
-// cose; gli altri due accendevano una terza scheda che cercava lo storico del
-// paziente su un secondo archivio, interrogandolo attraverso un backend. Ne'
+// cose; gli altri due accendevano una terza scheda che cercava lo priors del
+// patient su un secondo archivio, interrogandolo attraverso un backend. Ne'
 // quella pagina ne' quel backend fanno parte di questo repository, quindi sono
 // spariti gli interruttori e non solo i loro valori: lasciarli a falso avrebbe
 // tenuto in piedi del codice che nessuno puo' accendere, e quindi nessuno puo'
 // provare.
 window.portableVersion = false;
-window.mostraErroriFrontend = false //Qualcosa è andato storto errore
+window.showFrontendErrors = false //Qualcosa è andato storto errore
 
 // The demonstration archive, served by Orthanc and reached through the
 // development proxy: same origin, so no cross-origin headers to configure on
@@ -168,7 +168,7 @@ window.config = {
   showWarningMessageForCrossOrigin: false,
   // Spenta: la finestra del prodotto a monte si intitola col nome di quel
   // prodotto e scrive il testo in un grigio che su questo tema non si legge.
-  // Lo stesso avviso lo da la sonda in cima a questo file, in console, e il
+  // Lo stesso notice lo da la sonda in cima a questo file, in console, e il
   // pulsante di ricostruzione porta la conseguenza scritta sopra di se.
   showCPUFallbackMessage: false,
   showLoadingIndicator: true,
@@ -180,9 +180,9 @@ window.config = {
   useExperimentalUI: true,
   autoImageSliceSync: true,
   // Il parametro nell indirizzo lo forza; altrimenti decide la sonda qui sopra.
-  useCPURendering: useCPURendering ? true : !contestoGrafico,
+  useCPURendering: useCPURendering ? true : !graphicsContext,
   mdvExtensionBrowserUrl: 'https://chrome.google.com/webstore/detail/REPLACE_ME',
-  mostraavvisoEstensioneMdvBrowserNonInstallata: false,
+  showMissingBrowserExtensionNotice: false,
   // Request slots coordinated by SmartImageLoadManager (global TCP budget).
   // Stack prefetch (nearby images for scroll) is NEVER blocked.
   // Only cross-series prefetch (StudyPrefetcherService) is paused during scroll.
@@ -475,7 +475,7 @@ window.config = {
     },
   ],
   httpErrorHandler: error => {
-    window.erroriFetch(error);
+    window.fetchErrors(error);
     // This is 429 when rejected from the public idc sandbox too often.
     console.warn(error.status);
 

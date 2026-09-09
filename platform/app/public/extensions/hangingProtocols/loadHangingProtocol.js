@@ -113,7 +113,7 @@ const MAX_WAIT_HP_START_MS = 120000;
 const HP_START_INTERVAL_MS = 250;
 const hpStartTime = Date.now();
 
-const canStartCaricamentoHP = () => {
+const canStartHangingProtocolLoad = () => {
   const services = window.servicesManager?.services;
   const hasServices =
     !!services?.hangingProtocolService &&
@@ -134,14 +134,14 @@ const canStartCaricamentoHP = () => {
   }
 };
 
-const tryStartCaricamentoHP = () => {
-  if (window.caricamentoHP) {
+const tryStartHangingProtocolLoad = () => {
+  if (window.loadHangingProtocol) {
     return true;
   }
-  if (canStartCaricamentoHP()) {
-    window.caricamentoHP = true;
+  if (canStartHangingProtocolLoad()) {
+    window.loadHangingProtocol = true;
     console.log('[HP] Loading started');
-    caricamentoHP();
+    loadHangingProtocol();
     return true;
   }
   if (Date.now() - hpStartTime > MAX_WAIT_HP_START_MS) {
@@ -199,15 +199,15 @@ const applyViewportOverlayFromPreferences = preferenze => {
   }
 };
 
-const intervalCaricamentoHP = setInterval(() => {
-  if (tryStartCaricamentoHP()) {
-    clearInterval(intervalCaricamentoHP);
+const hangingProtocolLoadInterval = setInterval(() => {
+  if (tryStartHangingProtocolLoad()) {
+    clearInterval(hangingProtocolLoadInterval);
   }
 }, HP_START_INTERVAL_MS);
 
 window.addEventListener('load', () => {
-  if (tryStartCaricamentoHP()) {
-    clearInterval(intervalCaricamentoHP);
+  if (tryStartHangingProtocolLoad()) {
+    clearInterval(hangingProtocolLoadInterval);
   }
 });
 
@@ -219,7 +219,7 @@ window.addEventListener('load', () => {
   let colormapByIndex;
 
 // Flags "cosa è stato salvato" (retro-compatibile con entry senza `captured`:
-// comportamento storico = griglia + serie + istanza + zoom/pan, niente window level).
+// comportamento priors = griglia + serie + istanza + zoom/pan, niente window level).
 const resolveCaptured = captured => {
   const c = captured && typeof captured === 'object' ? captured : null;
   if (c) {
@@ -292,7 +292,7 @@ const reapplyMontageLoaded = (viewportGridService, montageByIndex) => {
   setTimeout(apply, 600);
 };
 
-const caricamentoHP = async () => {
+const loadHangingProtocol = async () => {
   // Registra gli attributi custom di vista (lat|ViewCode, 2D/3D) PRIMA di applicare
   // l'HP salvato: le seriesMatchingRules basate sulla vista li usano al caricamento.
   registerMdvHPAttributes(window.servicesManager?.services?.hangingProtocolService);
@@ -303,7 +303,7 @@ const caricamentoHP = async () => {
   const username = urlParams.get('User') || window.mdvUsername;
   // Cache locale per (partizione, utente): senza l'utente, su postazione condivisa
   // un altro utente leggerebbe la config di chi l'ha preceduto.
-  const preferenzeKey = `preferenzeUtente-${aetitle}-${username}`;
+  const preferenzeKey = `userPreferences-${aetitle}-${username}`;
   let mdvhp;
 
   let istanzeSpecifiche = [];
@@ -312,9 +312,9 @@ const caricamentoHP = async () => {
   let capturedFlags;
   let montageByIndexLoaded;
   let studyInstanceUID = new URLSearchParams(new URL(url).search).get('StudyInstanceUIDs') || window.mdvStudyInstanceUIDs;
-  let nomeEsameStudioHP = new URLSearchParams(new URL(url).search).get('StudyDescription') || window.mdvStudyDescription;
+  let studyExamNameHP = new URLSearchParams(new URL(url).search).get('StudyDescription') || window.mdvStudyDescription;
   let modalityStudioHP = new URLSearchParams(new URL(url).search).get('Modality') || window.mdvModality;
-  let esameTrovato = false;
+  let examFound = false;
   let preferenzeRemote;
   const normalizza = value => (value || '').toString().trim().toUpperCase();
   const normalizzaModality = value =>
@@ -327,7 +327,7 @@ const caricamentoHP = async () => {
   const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   const applicaFallbackDaMetadata = () => {
-    if (nomeEsameStudioHP && modalityStudioHP) {
+    if (studyExamNameHP && modalityStudioHP) {
       return true;
     }
     const displaySetService = window.servicesManager?.services?.displaySetService;
@@ -344,12 +344,12 @@ const caricamentoHP = async () => {
     const referenceInstance =
       displaySetWithInstance?.instance || displaySetWithInstance?.instances?.[0];
 
-    if (!nomeEsameStudioHP) {
+    if (!studyExamNameHP) {
       const studyDescriptionFromMetadata =
         referenceInstance?.StudyDescription || displaySetWithInstance?.StudyDescription;
       if (studyDescriptionFromMetadata) {
-        nomeEsameStudioHP = studyDescriptionFromMetadata;
-        window.mdvStudyDescription = nomeEsameStudioHP;
+        studyExamNameHP = studyDescriptionFromMetadata;
+        window.mdvStudyDescription = studyExamNameHP;
       }
     }
 
@@ -368,10 +368,10 @@ const caricamentoHP = async () => {
       }
     }
 
-    return !!(nomeEsameStudioHP || modalityStudioHP);
+    return !!(studyExamNameHP || modalityStudioHP);
   };
 
-  // Metadati dello studio già disponibili? Allora una descrizione/modality ancora vuota
+  // Metadati dello studio già disponibili? Allora una description/modality ancora vuota
   // è un valore DEFINITIVO (studio senza nome), non "sto ancora caricando".
   const metadataDisponibili = () => {
     const displaySetService = window.servicesManager?.services?.displaySetService;
@@ -384,7 +384,7 @@ const caricamentoHP = async () => {
   };
 
   const ensureStudyInfoFromMetadata = async () => {
-    if (nomeEsameStudioHP && modalityStudioHP) {
+    if (studyExamNameHP && modalityStudioHP) {
       return;
     }
 
@@ -394,7 +394,7 @@ const caricamentoHP = async () => {
 
     while (Date.now() - start <= timeoutMs) {
       applicaFallbackDaMetadata();
-      if (nomeEsameStudioHP && modalityStudioHP) {
+      if (studyExamNameHP && modalityStudioHP) {
         return;
       }
       // Risolto tutto il possibile: non aspettare i 5s pieni sugli studi senza nome/modality.
@@ -411,14 +411,14 @@ const caricamentoHP = async () => {
   }
 
   await ensureStudyInfoFromMetadata();
-  const nomeEsameNormalizzato = normalizza(nomeEsameStudioHP);
+  const normalisedExamName = normalizza(studyExamNameHP);
   console.log('[HP] Studio', {
     studyInstanceUID,
-    nomeEsameStudioHP,
+    studyExamNameHP,
     modalityStudioHP,
   });
 
-  if (!nomeEsameStudioHP && !modalityStudioHP) {
+  if (!studyExamNameHP && !modalityStudioHP) {
     console.warn(
       "StudyDescription and Modality could not be determined from the URL or the metadata. Only study-specific hanging protocols will be applied."
     );
@@ -437,75 +437,75 @@ const caricamentoHP = async () => {
     localStorage.setItem(preferenzeKey, JSON.stringify(preferenzeRemote.json));
     applyViewportOverlayFromPreferences(preferenzeRemote.json);
   }
-  const preferenzeUtenteCache = JSON.parse(localStorage.getItem(preferenzeKey));
-  applyViewportOverlayFromPreferences(preferenzeUtenteCache);
+  const userPreferencesCache = JSON.parse(localStorage.getItem(preferenzeKey));
+  applyViewportOverlayFromPreferences(userPreferencesCache);
 
-  let preferenzeUtenteStudioSpecifico = preferenzeUtenteCache?.hp.studioSpecifico;
-  let preferenzeUtenteDescrizioneEsame = preferenzeUtenteCache?.hp.nomeEsame;
-  if (!preferenzeUtenteDescrizioneEsame) {
+  let userPreferencesForThisStudy = userPreferencesCache?.hp.studioSpecifico;
+  let userPreferencesByExamDescription = userPreferencesCache?.hp.examName;
+  if (!userPreferencesByExamDescription) {
     console.warn('No user preference found for this exam description');
   }
-  let preferenzeUtenteModality = preferenzeUtenteCache?.hp.modality;
+  let userPreferencesByModality = userPreferencesCache?.hp.modality;
   //Prima do priorità allo studio specifico ovvero se gli hanging protocol hanno quello studyInstanceUID
-  if (preferenzeUtenteStudioSpecifico && preferenzeUtenteStudioSpecifico[studyInstanceUID]) {
-    cameraSettings = preferenzeUtenteStudioSpecifico[studyInstanceUID].camera;
-    cameraByIndex = preferenzeUtenteStudioSpecifico[studyInstanceUID].cameraByIndex;
-    voiSettings = preferenzeUtenteStudioSpecifico[studyInstanceUID].voi;
-    voiByIndex = preferenzeUtenteStudioSpecifico[studyInstanceUID].voiByIndex;
-    colormapSettings = preferenzeUtenteStudioSpecifico[studyInstanceUID].colormap;
-    colormapByIndex = preferenzeUtenteStudioSpecifico[studyInstanceUID].colormapByIndex;
-    capturedFlags = preferenzeUtenteStudioSpecifico[studyInstanceUID].captured;
-    montageByIndexLoaded = preferenzeUtenteStudioSpecifico[studyInstanceUID].montageByIndex;
-    istanzeSpecifiche = preferenzeUtenteStudioSpecifico[studyInstanceUID].istanzeSpecifiche;
-    mdvhp = preferenzeUtenteStudioSpecifico[studyInstanceUID].performanceHP;
-    // window.hpCamera = preferenzeUtenteStudioSpecifico[studyInstanceUID].camera;
+  if (userPreferencesForThisStudy && userPreferencesForThisStudy[studyInstanceUID]) {
+    cameraSettings = userPreferencesForThisStudy[studyInstanceUID].camera;
+    cameraByIndex = userPreferencesForThisStudy[studyInstanceUID].cameraByIndex;
+    voiSettings = userPreferencesForThisStudy[studyInstanceUID].voi;
+    voiByIndex = userPreferencesForThisStudy[studyInstanceUID].voiByIndex;
+    colormapSettings = userPreferencesForThisStudy[studyInstanceUID].colormap;
+    colormapByIndex = userPreferencesForThisStudy[studyInstanceUID].colormapByIndex;
+    capturedFlags = userPreferencesForThisStudy[studyInstanceUID].captured;
+    montageByIndexLoaded = userPreferencesForThisStudy[studyInstanceUID].montageByIndex;
+    istanzeSpecifiche = userPreferencesForThisStudy[studyInstanceUID].istanzeSpecifiche;
+    mdvhp = userPreferencesForThisStudy[studyInstanceUID].performanceHP;
+    // window.hpCamera = userPreferencesForThisStudy[studyInstanceUID].camera;
     hpTrovati = true;
     tipoMatch = 'studioSpecifico';
   }
   //Se non c'è lo studio specifico itero per controllare se presente exam description o modality salvata negli HP
   else {
-    // NB: nessun `break` → in caso di duplicati "fantasma" (entry legacy con nomeEsame
+    // NB: nessun `break` → in caso di duplicati "fantasma" (entry legacy con examName
     // assente/undefined + entry nuove con ''), vince l'ULTIMA occorrenza = la più
     // recente (i salvataggi vengono aggiunti in coda). Guarisce i dati già corrotti
     // anche prima che un nuovo salvataggio li deduplichi tramite ensureHpStructure.
-    for (let i = 0; i < (preferenzeUtenteDescrizioneEsame || []).length; i++) {
-      if (normalizza(preferenzeUtenteDescrizioneEsame[i].nomeEsame) === nomeEsameNormalizzato) {
-        cameraSettings = preferenzeUtenteDescrizioneEsame[i].camera;
-        cameraByIndex = preferenzeUtenteDescrizioneEsame[i].cameraByIndex;
-        voiSettings = preferenzeUtenteDescrizioneEsame[i].voi;
-        voiByIndex = preferenzeUtenteDescrizioneEsame[i].voiByIndex;
-        colormapSettings = preferenzeUtenteDescrizioneEsame[i].colormap;
-        colormapByIndex = preferenzeUtenteDescrizioneEsame[i].colormapByIndex;
-        capturedFlags = preferenzeUtenteDescrizioneEsame[i].captured;
-        montageByIndexLoaded = preferenzeUtenteDescrizioneEsame[i].montageByIndex;
-        istanzeSpecifiche = preferenzeUtenteDescrizioneEsame[i].istanzeSpecifiche;
-        mdvhp = preferenzeUtenteDescrizioneEsame[i].performanceHP;
-        // window.hpCamera = preferenzeUtenteDescrizioneEsame[i].camera;
-        esameTrovato = true;
+    for (let i = 0; i < (userPreferencesByExamDescription || []).length; i++) {
+      if (normalizza(userPreferencesByExamDescription[i].examName) === normalisedExamName) {
+        cameraSettings = userPreferencesByExamDescription[i].camera;
+        cameraByIndex = userPreferencesByExamDescription[i].cameraByIndex;
+        voiSettings = userPreferencesByExamDescription[i].voi;
+        voiByIndex = userPreferencesByExamDescription[i].voiByIndex;
+        colormapSettings = userPreferencesByExamDescription[i].colormap;
+        colormapByIndex = userPreferencesByExamDescription[i].colormapByIndex;
+        capturedFlags = userPreferencesByExamDescription[i].captured;
+        montageByIndexLoaded = userPreferencesByExamDescription[i].montageByIndex;
+        istanzeSpecifiche = userPreferencesByExamDescription[i].istanzeSpecifiche;
+        mdvhp = userPreferencesByExamDescription[i].performanceHP;
+        // window.hpCamera = userPreferencesByExamDescription[i].camera;
+        examFound = true;
         hpTrovati = true;
-        tipoMatch = 'descrizioneEsame';
+        tipoMatch = 'examDescription';
       }
     }
     // Non ho trovato nulla finora, provo per modality
-    if (!esameTrovato) {
+    if (!examFound) {
       // eslint-disable-next-line no-lone-blocks
       {
-        for (let i = 0; i < (preferenzeUtenteModality || []).length; i++) {
+        for (let i = 0; i < (userPreferencesByModality || []).length; i++) {
           const modalityCandidates = normalizzaModality(modalityStudioHP);
-          const savedCandidates = normalizzaModality(preferenzeUtenteModality[i].nomeModality);
+          const savedCandidates = normalizzaModality(userPreferencesByModality[i].modalityName);
           const hasMatch = savedCandidates.some(item => modalityCandidates.includes(item));
           if (modalityCandidates.length && hasMatch) {
-            cameraSettings = preferenzeUtenteModality[i].camera;
-            cameraByIndex = preferenzeUtenteModality[i].cameraByIndex;
-            voiSettings = preferenzeUtenteModality[i].voi;
-            voiByIndex = preferenzeUtenteModality[i].voiByIndex;
-            colormapSettings = preferenzeUtenteModality[i].colormap;
-            colormapByIndex = preferenzeUtenteModality[i].colormapByIndex;
-            capturedFlags = preferenzeUtenteModality[i].captured;
-            montageByIndexLoaded = preferenzeUtenteModality[i].montageByIndex;
-            istanzeSpecifiche = preferenzeUtenteModality[i].istanzeSpecifiche;
-            mdvhp = preferenzeUtenteModality[i].performanceHP;
-            // window.hpCamera = preferenzeUtenteModality[i].camera;
+            cameraSettings = userPreferencesByModality[i].camera;
+            cameraByIndex = userPreferencesByModality[i].cameraByIndex;
+            voiSettings = userPreferencesByModality[i].voi;
+            voiByIndex = userPreferencesByModality[i].voiByIndex;
+            colormapSettings = userPreferencesByModality[i].colormap;
+            colormapByIndex = userPreferencesByModality[i].colormapByIndex;
+            capturedFlags = userPreferencesByModality[i].captured;
+            montageByIndexLoaded = userPreferencesByModality[i].montageByIndex;
+            istanzeSpecifiche = userPreferencesByModality[i].istanzeSpecifiche;
+            mdvhp = userPreferencesByModality[i].performanceHP;
+            // window.hpCamera = userPreferencesByModality[i].camera;
             hpTrovati = true;
             tipoMatch = 'modality';
           }
@@ -517,13 +517,13 @@ const caricamentoHP = async () => {
     console.log('[HP] Match', {
       tipo: tipoMatch,
       studyInstanceUID,
-      nomeEsameStudioHP,
+      studyExamNameHP,
       modalityStudioHP,
     });
   } else {
     console.warn('[HP] No hanging protocol found for this study', {
       studyInstanceUID,
-      nomeEsameStudioHP,
+      studyExamNameHP,
       modalityStudioHP,
     });
   }
@@ -552,7 +552,7 @@ const caricamentoHP = async () => {
     }
   }
 
-  // Rimappa impostazioni per-viewport (mappa per-id `mdvhp-i` oppure array per-indice) → mappa per-id.
+  // Rimappa settings per-viewport (mappa per-id `mdvhp-i` oppure array per-indice) → mappa per-id.
   const remapPerViewport = (byViewportId, byIndex) => {
     const remapped = {};
     if (byViewportId && Object.keys(byViewportId).some(key => key.startsWith('mdvhp-'))) {

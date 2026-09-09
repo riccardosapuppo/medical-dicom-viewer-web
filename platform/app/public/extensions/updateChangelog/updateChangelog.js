@@ -32,6 +32,6 @@
 //     </div>
 //     `
 //   );
-//   const preferitiBtn = document.getElementById('preferiti-btn');
-//   preferitiBtn.addEventListener('click', createPreferitiFunc);
+//   const favouritesBtn = document.getElementById('favourites-btn');
+//   favouritesBtn.addEventListener('click', createFavourites);
 // };

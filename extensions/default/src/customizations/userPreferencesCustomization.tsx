@@ -654,7 +654,7 @@ function UserPreferencesModalDefault({ hide }: { hide: () => void }) {
         return;
       }
 
-      const cacheKey = `preferenzeUtente-${aetitle}`;
+      const cacheKey = `userPreferences-${aetitle}`;
       try {
         const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
         cached.viewportOverlayTags = overlayTags;

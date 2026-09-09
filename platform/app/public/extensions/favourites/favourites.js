@@ -6,7 +6,7 @@ import saveHP from '../saveHP';
 = POPUP PER VISUALIZZARE LE IMMAGINI DEI PREFERITI
 ======================================================
 */
-window.viewPreferitoPopup = imgSrc => {
+window.viewFavouritePopup = imgSrc => {
   const w = window.innerWidth * 0.8;
   const h = window.innerHeight * 0.8;
   const popup = window.open('', '_blank', `width=${w},height=${h}`);
@@ -21,33 +21,33 @@ window.viewPreferitoPopup = imgSrc => {
 = FUNZIONE GLOBALE PER RIMUOVERE UN PREFERITO
 ======================================================
 */
-window.rimuoviPreferito = sopUID => {
-  if (!window.preferiti) return;
+window.removeFavourite = sopUID => {
+  if (!window.favourites) return;
 
   // Rimuovi dalla lista globale
-  window.preferiti = window.preferiti.filter(p => p.SOPInstanceUID !== sopUID);
-  window.dispatchEvent(new Event('mdv-preferiti-updated'));
+  window.favourites = window.favourites.filter(p => p.SOPInstanceUID !== sopUID);
+  window.dispatchEvent(new Event('mdv-favourites-updated'));
 
   // Aggiorna pannello se aperto
-  const area = document.getElementById('area-lista-preferiti');
+  const area = document.getElementById('favourites-list-area');
   if (area) {
     area.innerHTML = '';
 
-    window.preferiti.forEach(p => {
+    window.favourites.forEach(p => {
       area.insertAdjacentHTML(
         'beforeend',
         `
         <div style="margin-bottom:10px;border-bottom:1px solid #374151;padding-bottom:10px;">
           <img src="${p.DataUrl}"
-                onclick="window.viewPreferitoPopup('${p.DataUrl}')"
+                onclick="window.viewFavouritePopup('${p.DataUrl}')"
                 style="width:100%;max-height:180px;object-fit:contain;cursor:pointer;">
-          <p>Series ${p.NumeroSerie} - ${p.DescrizioneSerie}</p>
+          <p>Series ${p.NumeroSerie} - ${p.SeriesDescription}</p>
           <p>N° Istanza: ${p.NumeroIstanza}</p>
 
-          <button onclick="window.rimuoviPreferito('${p.SOPInstanceUID}')"
+          <button onclick="window.removeFavourite('${p.SOPInstanceUID}')"
                   style="margin-top:6px;padding:0px 10px;background:#b91c1c;
                          color:white;border:none;border-radius:4px;cursor:pointer;">
-             Rimuovi preferito
+             Rimuovi favourite
           </button>
         </div>
         `
@@ -61,30 +61,30 @@ window.rimuoviPreferito = sopUID => {
 = AGGANCIO DEL PULSANTE ALLA BARRA
 ======================================================
 */
-const preferitiInitInterval = () => {
+const favouritesInitInterval = () => {
   const intv = setInterval(() => {
     const btn = document.getElementById('trackedMeasurements-btn');
     if (btn) {
       clearInterval(intv);
-      injectPreferitiBtn();
+      injectFavouritesBtn();
     }
   }, 100);
   setTimeout(() => clearInterval(intv), 10000);
 };
 
-const injectPreferitiBtn = () => {
-  if (document.getElementById('preferiti-btn')) return;
+const injectFavouritesBtn = () => {
+  if (document.getElementById('favourites-btn')) return;
 
   const tracked = document.getElementById('trackedMeasurements-btn');
 
   tracked.parentElement.insertAdjacentHTML(
     'afterend',
-    `<div id="preferiti-btn" class="text-primary-active hover:cursor-pointer">
-        <img style="width:22px" src="./assets/preferiti.png" />
+    `<div id="favourites-btn" class="text-primary-active hover:cursor-pointer">
+        <img style="width:22px" src="./assets/favourites.png" />
      </div>`
   );
 
-  document.getElementById('preferiti-btn').addEventListener('click', createPreferitiFunc);
+  document.getElementById('favourites-btn').addEventListener('click', createFavourites);
 };
 
 /*
@@ -92,16 +92,16 @@ const injectPreferitiBtn = () => {
 = PANNELLO PREFERITI LATERALE
 ======================================================
 */
-const createPreferitiFunc = () => {
-  if (document.getElementById('preferiti-tools')) return;
+const createFavourites = () => {
+  if (document.getElementById('favourites-tools')) return;
 
-  const hasPreferiti = window.preferiti && window.preferiti.length > 0;
+  const hasFavourites = window.favourites && window.favourites.length > 0;
 
   const html = `
-    <div id="preferiti-tools" style="
+    <div id="favourites-tools" style="
       position:fixed;
       top:0; left:100%;
-      width:${window.sonoUnoStorico ? '40%' : '20%'};
+      width:${window.iAmAPrior ? '40%' : '20%'};
       height:100%;
       background:#111;
       color:#fff;
@@ -112,38 +112,38 @@ const createPreferitiFunc = () => {
     ">
 
       <div style="display:flex;gap:10px;align-items:center;">
-        <img id="chiudi-button" src="./assets/right-arrow.png"
+        <img id="close-button" src="./assets/right-arrow.png"
              style="width:22px;cursor:pointer;">
-        <p>${window.sonoUnoStorico ? 'Favourites on priors' : 'Preferiti'}</p>
+        <p>${window.iAmAPrior ? 'Favourites on priors' : 'Favourites'}</p>
       </div>
 
-      <div id="area-lista-preferiti"></div>
+      <div id="favourites-list-area"></div>
     </div>
   `;
 
   document.body.insertAdjacentHTML('beforeend', html);
 
-  const panel = document.getElementById('preferiti-tools');
-  const area = document.getElementById('area-lista-preferiti');
+  const panel = document.getElementById('favourites-tools');
+  const area = document.getElementById('favourites-list-area');
 
-  if (hasPreferiti) {
-    window.preferiti.forEach(p => {
+  if (hasFavourites) {
+    window.favourites.forEach(p => {
       area.insertAdjacentHTML(
         'beforeend',
         `
         <div style="margin-bottom:10px;border-bottom:1px solid #374151;padding-bottom:10px;">
           <img src="${p.DataUrl}"
-               onclick="window.viewPreferitoPopup('${p.DataUrl}')"
+               onclick="window.viewFavouritePopup('${p.DataUrl}')"
                style="width:100%;max-height:180px;object-fit:contain;cursor:pointer;">
-          <p>Series ${p.NumeroSerie} - ${p.DescrizioneSerie}</p>
+          <p>Series ${p.NumeroSerie} - ${p.SeriesDescription}</p>
           <p>N° Istanza: ${p.NumeroIstanza}</p>
 
-          <button onclick="window.rimuoviPreferito('${p.SOPInstanceUID}')"
+          <button onclick="window.removeFavourite('${p.SOPInstanceUID}')"
                   style="margin-top:6px;padding:0px 10px;
                          background:#b91c1c;color:white;
                          border:none;border-radius:4px;
                          cursor:pointer;">
-             Rimuovi preferito
+             Rimuovi favourite
           </button>
         </div>
         `
@@ -153,10 +153,10 @@ const createPreferitiFunc = () => {
 
   // animazione apertura
   setTimeout(() => {
-    panel.style.left = window.sonoUnoStorico ? '60%' : '80%';
+    panel.style.left = window.iAmAPrior ? '60%' : '80%';
   }, 10);
 
-  document.getElementById('chiudi-button').onclick = () => {
+  document.getElementById('close-button').onclick = () => {
     panel.style.left = '100%';
     setTimeout(() => panel.remove(), 250);
   };
@@ -170,7 +170,7 @@ const createPreferitiFunc = () => {
 if (!window.portableVersion) {
   window.addEventListener('panelOpen', e => {
     if (!e.detail.isOpen && e.detail.side !== 'left') {
-      preferitiInitInterval();
+      favouritesInitInterval();
     }
   });
 }

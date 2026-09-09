@@ -1,10 +1,10 @@
 {
   "AccessionNumber": "Accession #",
   "Empty": "Boş",
-  "MRN": "ID Paziente",
+  "MRN": "ID Patient",
   "Modality": "Modalite",
   "PatientName": "Hasta Adı",
   "StudyDate": "Çalışma Zamanı",
-  "Descrizione": "Açıklama",
+  "Description": "Açıklama",
   "StudyList": "Çalışma Listesi"
 }

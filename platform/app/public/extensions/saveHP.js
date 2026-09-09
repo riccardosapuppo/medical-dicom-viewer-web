@@ -13,7 +13,7 @@ const generateRandomString = length => {
 const saveHP = () => {
   //Parto da una configurazione di base
   let baseHP = {
-    id: `@mdv/preferiti`,
+    id: `@mdv/favourites`,
     description: 'Apply the hanging protocol for saved favourites',
     name: `customMdv`,
     createdDate: '2021-02-23T19:22:08.894Z',
@@ -57,13 +57,13 @@ const saveHP = () => {
   // baseHP.stages[0].viewportStructure.properties.rows = Number(window.layout.split('x')[1]);
   // baseHP.stages[0].viewportStructure.properties.columns = Number(window.layout.split('x')[0]);
 
-  if (!window.preferiti || window.preferiti.length === 0) {
-    window.hpPreferiti = null;
+  if (!window.favourites || window.favourites.length === 0) {
+    window.favouritesHangingProtocol = null;
     return;
   }
-  for (let i = 0; i < window.preferiti.length; i++) {
-    const descrizioneSerie = window.preferiti[i].DescrizioneSerie;
-    const numeroIstanza = window.preferiti[i].NumeroIstanza;
+  for (let i = 0; i < window.favourites.length; i++) {
+    const seriesDescription = window.favourites[i].SeriesDescription;
+    const numeroIstanza = window.favourites[i].NumeroIstanza;
     const displaySetKey = `DisplaySet${i}`;
     //Series
     baseHP.displaySetSelectors[displaySetKey] = {};
@@ -71,7 +71,7 @@ const saveHP = () => {
       {
         attribute: 'SeriesDescription',
         constraint: {
-          contains: descrizioneSerie,
+          contains: seriesDescription,
         },
       },
     ];
@@ -91,7 +91,7 @@ const saveHP = () => {
       ],
     });
   }
-  window.hpPreferiti = JSON.parse(JSON.stringify(baseHP));
+  window.favouritesHangingProtocol = JSON.parse(JSON.stringify(baseHP));
 };
 
 window.saveHP = saveHP;

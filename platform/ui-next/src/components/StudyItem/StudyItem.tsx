@@ -7,9 +7,9 @@ import { Icons } from '@ohif/ui-next';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../Tooltip';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../Accordion';
-import openStorico from '../../../../app/public/estensioni/aperturaStorico/aperturaStorico.js';
+import openPriors from '../../../../app/public/extensions/openPriors/openPriors.js';
 
-const STORICO_SERIES_LOADING_TIMEOUT_MS = 12000;
+const PRIORS_SERIES_LOADING_TIMEOUT_MS = 12000;
 const INVALID_STUDY_DESCRIPTION_VALUES = new Set([
   'no data studio',
   'no data study',
@@ -64,7 +64,7 @@ const getWindowStudyDescription = () => {
   return appWindow.mdvStudyDescription || '';
 };
 
-const resolveStudyDescription = ({ description, isStorico, displaySets }) => {
+const resolveStudyDescription = ({ description, isPrior, displaySets }) => {
   const fromDescription = normalizeStudyDescription(description);
   if (fromDescription) {
     return fromDescription;
@@ -79,7 +79,7 @@ const resolveStudyDescription = ({ description, isStorico, displaySets }) => {
     return fromDisplaySets;
   }
 
-  if (!isStorico) {
+  if (!isPrior) {
     const fromWindow = normalizeStudyDescription(getWindowStudyDescription());
     if (fromWindow) {
       return fromWindow;
@@ -109,7 +109,7 @@ const StudyItem = ({
   onDoubleClickThumbnail,
   onClickUntrack,
   viewPreset = 'thumbnails',
-  isStorico,
+  isPrior,
   ThumbnailMenuItems,
   StudyMenuItems,
   StudyInstanceUID,
@@ -117,10 +117,10 @@ const StudyItem = ({
 }: withAppTypes) => {
   const isStudyUIDDefined =
     studyInstanceUID !== undefined && studyInstanceUID !== null && studyInstanceUID !== '';
-  const resolvedDescription = resolveStudyDescription({ description, isStorico, displaySets });
+  const resolvedDescription = resolveStudyDescription({ description, isPrior, displaySets });
 
   /**
-   * Apre la riga dello studio storico, mostrandone le anteprime.
+   * Apre la riga dello studio priors, mostrandone le anteprime.
    *
    * Risaliva tre genitori a partire da e.target e cliccava il primo bottone
    * che trovava. Ma e.target e cio che si e cliccato davvero: premendo il
@@ -133,31 +133,31 @@ const StudyItem = ({
    * che nel DOM viene prima.
    */
   const espandi = e => {
-    const gruppo = e.currentTarget.closest('.open-storico-modes');
+    const gruppo = e.currentTarget.closest('.open-priors-modes');
     const maniglia = gruppo?.parentElement?.querySelector('button');
     if (!maniglia || maniglia === e.currentTarget) {
-      console.warn('[storico] maniglia di apertura non trovata');
+      console.warn('[priors] maniglia di apertura non trovata');
       return;
     }
     maniglia.click();
   };
 
-  const isLoadingStoricoDisplaySets =
-    isStorico && isExpanded && isStudyUIDDefined && (!displaySets || displaySets.length === 0);
-  const [storicoLoadError, setStoricoLoadError] = useState(false);
+  const isLoadingPriorsDisplaySets =
+    isPrior && isExpanded && isStudyUIDDefined && (!displaySets || displaySets.length === 0);
+  const [priorsLoadError, setPriorsLoadError] = useState(false);
 
   useEffect(() => {
-    if (!isLoadingStoricoDisplaySets) {
-      setStoricoLoadError(false);
+    if (!isLoadingPriorsDisplaySets) {
+      setPriorsLoadError(false);
       return;
     }
 
     const timeoutId = setTimeout(() => {
-      setStoricoLoadError(true);
-    }, STORICO_SERIES_LOADING_TIMEOUT_MS);
+      setPriorsLoadError(true);
+    }, PRIORS_SERIES_LOADING_TIMEOUT_MS);
 
     return () => clearTimeout(timeoutId);
-  }, [isLoadingStoricoDisplaySets, studyInstanceUID]);
+  }, [isLoadingPriorsDisplaySets, studyInstanceUID]);
 
   return (
     <Accordion
@@ -174,7 +174,7 @@ const StudyItem = ({
       // Accordion CONTROLLATO da isExpanded (stato del pannello). Prima era uncontrolled con
       // defaultValue basato su isActive: letto solo al mount e vero solo per lo studio in
       // viewport, mentre freccia ed evidenziazione seguono isExpanded. Nelle tab dello
-      // storico i due divergevano e il primo studio appariva "aperto" pur essendo chiuso.
+      // priors i due divergevano e il primo studio appariva "aperto" pur essendo chiuso.
       value={isBottomDocked || isExpanded ? 'study-item' : ''}
     >
       <AccordionItem
@@ -256,20 +256,20 @@ const StudyItem = ({
             </div>
           </div>
         </AccordionTrigger>
-        {isStorico && isStudyUIDDefined && (
-          <div className="open-storico-modes">
+        {isPrior && isStudyUIDDefined && (
+          <div className="open-priors-modes">
             <Tooltip
               position="bottom"
               content="Espandi e mostra anteprime"
               isDisabled={isExpanded ? true : false}
             >
               <button
-                id="storico-expand"
+                id="priors-expand"
                 onClick={e => espandi(e)}
               >
                 <Icon
                   style={{ transform: isExpanded && 'rotate(180deg)' }}
-                  name="storicoExpand"
+                  name="priorsExpand"
                 ></Icon>
               </button>
             </Tooltip>
@@ -278,10 +278,10 @@ const StudyItem = ({
               content="Open here as a separate study"
             >
               <button
-                id="storico-same-window"
-                onClick={e => openStorico(e, 'stessaScheda', studyInstanceUID)}
+                id="priors-same-window"
+                onClick={e => openPriors(e, 'stessaScheda', studyInstanceUID)}
               >
-                {/* <Icon name="storico-same-window"></Icon> */}
+                {/* <Icon name="priors-same-window"></Icon> */}
                 <Icons.LayoutCommon1x2 />
               </button>
             </Tooltip>
@@ -290,16 +290,16 @@ const StudyItem = ({
               content="Open in a new tab"
             >
               <button
-                id="storico-new-window"
-                onClick={e => openStorico(e, 'nuovaScheda', studyInstanceUID)}
+                id="priors-new-window"
+                onClick={e => openPriors(e, 'nuovaScheda', studyInstanceUID)}
               >
-                <Icon name="storicoNewWindow"></Icon>
+                <Icon name="priorsNewWindow"></Icon>
               </button>
             </Tooltip>
           </div>
         )}
 
-        {/* {isStorico && isStudyUIDDefined && (
+        {/* {isPrior && isStudyUIDDefined && (
           <div className="open-study-new-tab">
 
             <button onClick={e => espandi(e)}>{isExpanded ? 'Collapse' : 'Espandi'}</button>
@@ -308,11 +308,11 @@ const StudyItem = ({
                 opacity: 0.2,
               }}
               disabled
-              onClick={() => openStorico('stessaScheda', studyInstanceUID)}
+              onClick={() => openPriors('stessaScheda', studyInstanceUID)}
             >
               Apri in questa scheda
             </button>
-            <button onClick={() => openStorico('nuovaScheda', studyInstanceUID)}>
+            <button onClick={() => openPriors('nuovaScheda', studyInstanceUID)}>
               Open in a new tab
             </button>
           </div>
@@ -323,8 +323,8 @@ const StudyItem = ({
             event.stopPropagation();
           }}
         >
-          {isLoadingStoricoDisplaySets ? (
-            storicoLoadError ? (
+          {isLoadingPriorsDisplaySets ? (
+            priorsLoadError ? (
               <div className="flex items-center justify-center gap-2 py-3">
                 <span className="text-[12px] text-[#f87171]">
                   Errore caricamento serie. Riprova oppure apri un altro studio.
@@ -372,7 +372,7 @@ StudyItem.propTypes = {
   onDoubleClickThumbnail: PropTypes.func,
   onClickUntrack: PropTypes.func,
   viewPreset: PropTypes.string,
-  isStorico: PropTypes.bool,
+  isPrior: PropTypes.bool,
   StudyMenuItems: PropTypes.func,
   StudyInstanceUID: PropTypes.string,
   isBottomDocked: PropTypes.bool,

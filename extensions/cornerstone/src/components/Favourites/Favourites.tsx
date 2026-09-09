@@ -13,7 +13,7 @@ import { ColorbarProps } from '../../types/Colorbar';
 
 const DEBUG_STORAGE_KEY = 'mdv-debug-print';
 
-function isPreferitiDebugEnabled(): boolean {
+function isFavouritesDebugEnabled(): boolean {
   try {
     const win = window as Window & { __MDV_PRINT_DEBUG__?: boolean };
     return win.__MDV_PRINT_DEBUG__ === true || localStorage.getItem(DEBUG_STORAGE_KEY) === '1';
@@ -22,11 +22,11 @@ function isPreferitiDebugEnabled(): boolean {
   }
 }
 
-function logPreferitiDebug(...args: unknown[]): void {
-  if (!isPreferitiDebugEnabled()) {
+function logFavouritesDebug(...args: unknown[]): void {
+  if (!isFavouritesDebugEnabled()) {
     return;
   }
-  console.log('[PreferitiCapture]', ...args);
+  console.log('[FavouritesCapture]', ...args);
 }
 
 export async function captureImageFromImageId(imageId, viewport) {
@@ -59,7 +59,7 @@ export async function captureImageFromImageId(imageId, viewport) {
       requestType: Enums.RequestType.Thumbnail,
     });
   } catch (error) {
-    console.warn('Preferiti: failed to render image for capture', error);
+    console.warn('Favourites: failed to render image for capture', error);
     return null;
   }
 
@@ -220,15 +220,15 @@ function computeImageRectInCanvas(
 ): RectInCanvas | null {
   const viaBounds = computeImageRectViaBounds(viewport, cornerstoneCanvas);
   if (isRectReasonable(viaBounds, cornerstoneCanvas)) {
-    logPreferitiDebug('rect via bounds', viaBounds);
+    logFavouritesDebug('rect via bounds', viaBounds);
     return viaBounds;
   }
   const viaAspect = computeImageRectViaAspectFit(viewport, cornerstoneCanvas);
   if (isRectReasonable(viaAspect, cornerstoneCanvas)) {
-    logPreferitiDebug('rect via aspect-fit', viaAspect);
+    logFavouritesDebug('rect via aspect-fit', viaAspect);
     return viaAspect;
   }
-  logPreferitiDebug('no rect computed', { viaBounds, viaAspect });
+  logFavouritesDebug('no rect computed', { viaBounds, viaAspect });
   return null;
 }
 
@@ -355,7 +355,7 @@ export async function captureImageWithAnnotationsFromElement(
       (viewportElement.querySelector('canvas.cornerstone-canvas') as HTMLCanvasElement | null) ||
       (viewportElement.querySelector('canvas') as HTMLCanvasElement | null);
     if (!cornerstoneCanvas) {
-      logPreferitiDebug('trace', traceId, 'abort: canvas not found');
+      logFavouritesDebug('trace', traceId, 'abort: canvas not found');
       return null;
     }
 
@@ -379,7 +379,7 @@ export async function captureImageWithAnnotationsFromElement(
       ? Math.round(options.targetHeight)
       : Math.max(1, cornerstoneCanvas.height || displayH);
 
-    logPreferitiDebug('trace', traceId, 'capture-start', {
+    logFavouritesDebug('trace', traceId, 'capture-start', {
       displayW,
       displayH,
       targetW: out.width,
@@ -390,7 +390,7 @@ export async function captureImageWithAnnotationsFromElement(
 
     const ctx = out.getContext('2d');
     if (!ctx) {
-      logPreferitiDebug('trace', traceId, 'abort: no canvas context');
+      logFavouritesDebug('trace', traceId, 'abort: no canvas context');
       return null;
     }
 
@@ -424,7 +424,7 @@ export async function captureImageWithAnnotationsFromElement(
         const cctx = cropped.getContext('2d');
         if (cctx) {
           cctx.drawImage(out, rx, ry, rw, rh, 0, 0, rw, rh);
-          logPreferitiDebug('trace', traceId, 'cropped-to-image-rect', {
+          logFavouritesDebug('trace', traceId, 'cropped-to-image-rect', {
             rx,
             ry,
             rw,
@@ -439,7 +439,7 @@ export async function captureImageWithAnnotationsFromElement(
     };
 
     if (!drawAnnotations) {
-      logPreferitiDebug('trace', traceId, 'capture-end-no-annotations', {
+      logFavouritesDebug('trace', traceId, 'capture-end-no-annotations', {
         outputW: out.width,
         outputH: out.height,
       });
@@ -454,13 +454,13 @@ export async function captureImageWithAnnotationsFromElement(
     const candidateSvgs = getCandidateAnnotationSvgs(viewportElement);
     const visibleSvgs = candidateSvgs.filter(isElementVisible);
     const svgs = visibleSvgs.length ? visibleSvgs : candidateSvgs;
-    logPreferitiDebug('trace', traceId, 'svg-layers', {
+    logFavouritesDebug('trace', traceId, 'svg-layers', {
       candidates: candidateSvgs.length,
       visible: visibleSvgs.length,
       selected: svgs.length,
     });
     if (!svgs.length) {
-      logPreferitiDebug('trace', traceId, 'no-svg-layers');
+      logFavouritesDebug('trace', traceId, 'no-svg-layers');
       return drawBase ? out.toDataURL('image/png') : null;
     }
 
@@ -476,7 +476,7 @@ export async function captureImageWithAnnotationsFromElement(
         'path,line,polyline,polygon,circle,ellipse,rect,text,use'
       );
       if (!hasDrawableNodes) {
-        logPreferitiDebug('trace', traceId, 'svg-skip-no-drawable', {
+        logFavouritesDebug('trace', traceId, 'svg-skip-no-drawable', {
           svgIndex,
           id: svg.id,
           className: svg.className?.baseVal || svg.getAttribute('class') || '',
@@ -513,7 +513,7 @@ export async function captureImageWithAnnotationsFromElement(
         URL.revokeObjectURL(svgUrl);
         if (!svgImage) {
           failedSvgCount++;
-          logPreferitiDebug('trace', traceId, 'svg-load-failed', {
+          logFavouritesDebug('trace', traceId, 'svg-load-failed', {
             svgIndex,
             serializedLength: svgString.length,
           });
@@ -527,7 +527,7 @@ export async function captureImageWithAnnotationsFromElement(
 
         ctx.drawImage(svgImage, relativeX, relativeY, drawW, drawH);
         drawnSvgCount++;
-        logPreferitiDebug('trace', traceId, 'svg-drawn', {
+        logFavouritesDebug('trace', traceId, 'svg-drawn', {
           svgIndex,
           id: svg.id,
           className: svg.className?.baseVal || svg.getAttribute('class') || '',
@@ -538,20 +538,20 @@ export async function captureImageWithAnnotationsFromElement(
         });
       } catch (error) {
         failedSvgCount++;
-        logPreferitiDebug('trace', traceId, 'svg-compose-error', { svgIndex, error });
-        console.warn('Preferiti: failed to compose one SVG layer', error);
+        logFavouritesDebug('trace', traceId, 'svg-compose-error', { svgIndex, error });
+        console.warn('Favourites: failed to compose one SVG layer', error);
       }
     }
 
     if (!drawnSvgCount) {
-      logPreferitiDebug('trace', traceId, 'no-svg-drawn', {
+      logFavouritesDebug('trace', traceId, 'no-svg-drawn', {
         totalSvgs: svgs.length,
         drawableSvgCount,
         failedSvgCount,
       });
     }
 
-    logPreferitiDebug('trace', traceId, 'capture-end', {
+    logFavouritesDebug('trace', traceId, 'capture-end', {
       drawnSvgCount,
       failedSvgCount,
       drawableSvgCount,
@@ -563,24 +563,24 @@ export async function captureImageWithAnnotationsFromElement(
     // per finalize() → tutti i PNG hanno dimensioni 1:1 e sono allineabili.
     return finalize();
   } catch (error) {
-    logPreferitiDebug('trace', traceId, 'capture-error', error);
-    console.warn('Preferiti: failed to capture annotated image', error);
+    logFavouritesDebug('trace', traceId, 'capture-error', error);
+    console.warn('Favourites: failed to capture annotated image', error);
     return null;
   }
 }
 
 // Ri-cattura le 4 versioni (clean / printBase / overlay / annotated) di un
-// preferito dato un viewport+element già risolti. Lavora a basso livello
+// favourite dato un viewport+element già risolti. Lavora a basso livello
 // (niente cornerstoneViewportService) così è chiamabile sia dal componente
 // React sia dal listener globale.
 //
-// Best-effort: se la cattura fallisce, lascia il preferito invariato.
-async function recapturePreferitoForViewport(
+// Best-effort: se la cattura fallisce, lascia il favourite invariato.
+async function recaptureFavouriteForViewport(
   viewport: unknown,
   viewportElement: HTMLElement | null
 ): Promise<boolean> {
   if (!viewport) return false;
-  const list = (window as Window & { preferiti?: Array<Record<string, unknown>> }).preferiti;
+  const list = (window as Window & { favourites?: Array<Record<string, unknown>> }).favourites;
   if (!Array.isArray(list) || !list.length) return false;
 
   try {
@@ -600,12 +600,12 @@ async function recapturePreferitoForViewport(
       | undefined)?.sopInstanceUID;
     if (!currentSop) return false;
 
-    // Trova il preferito corrispondente all'istanza attualmente mostrata
+    // Trova il favourite corrispondente all'istanza attualmente mostrata
     const target = list.find(
       p => p && (p as { SOPInstanceUID?: string }).SOPInstanceUID === currentSop
     );
     if (!target) {
-      // L'istanza visibile non è un preferito: niente recapture.
+      // L'istanza visibile non è un favourite: niente recapture.
       return false;
     }
 
@@ -635,7 +635,7 @@ async function recapturePreferitoForViewport(
     (target as Record<string, unknown>).DataUrlPrintBase = printBase;
     (target as Record<string, unknown>).DataUrlAnnotationOverlay = overlay || null;
     (target as Record<string, unknown>).DataUrlAnnotated = annotated;
-    logPreferitiDebug('preferito-recaptured', {
+    logFavouritesDebug('favourite-recaptured', {
       sopUID: currentSop,
       cleanLength: cleanUrl.length,
       printBaseLength: printBase.length,
@@ -644,25 +644,25 @@ async function recapturePreferitoForViewport(
     });
     return true;
   } catch (e) {
-    console.warn('Preferiti: failed to recapture preferito', e);
+    console.warn('Favourites: failed to recapture favourite', e);
     return false;
   }
 }
 
 // ============================================================
-// LISTENER GLOBALE annotazioni → ricattura preferito attivo
+// LISTENER GLOBALE annotazioni → ricattura favourite attivo
 // ------------------------------------------------------------
 // Installato a module-load (NON dentro al componente React) così è SEMPRE
 // attivo, anche quando l'utente non ha mai aperto il pannello WW/WL e
-// quindi nessun componente <Preferiti /> è stato mai montato.
+// quindi nessun componente <Favourites /> è stato mai montato.
 //
 // Quando arriva un evento ANNOTATION_ADDED/MODIFIED/REMOVED:
 //  1. Risolve il viewport dall'evento (renderingEngineId + viewportId)
 //  2. Estrae l'element del viewport
 //  3. Debounce 250ms (anti-burst per i drag)
-//  4. Chiama recapturePreferitoForViewport()
-//  5. Se la ricattura va a buon fine, dispatcha mdv-preferiti-updated
-//     che il bridge in preferiti.js inoltra all'iframe del builder.
+//  4. Chiama recaptureFavouriteForViewport()
+//  5. Se la ricattura va a buon fine, dispatcha mdv-favourites-updated
+//     che il bridge in favourites.js inoltra all'iframe del builder.
 // ============================================================
 let _annotationRecaptureTimer: ReturnType<typeof setTimeout> | null = null;
 let _annotationRecaptureInFlight = false;
@@ -696,8 +696,8 @@ function resolveViewportsForAnnotationEvent(detail: {
   }
 
   // Path 2: nessun viewportId nel detail (caso ANNOTATION_REMOVED).
-  // Ritorniamo TUTTI gli enabled elements; recapturePreferitoForViewport
-  // fa già lo skip se l'istanza corrente non è un preferito.
+  // Ritorniamo TUTTI gli enabled elements; recaptureFavouriteForViewport
+  // fa già lo skip se l'istanza corrente non è un favourite.
   try {
     const all = (csGetEnabledElements?.() as Array<{ viewport?: unknown }>) || [];
     const result: Array<{ viewport: unknown; element: HTMLElement | null }> = [];
@@ -735,11 +735,11 @@ function installGlobalAnnotationRecaptureListener(): void {
         if (!candidates.length) return;
         let anyOk = false;
         for (const cand of candidates) {
-          const ok = await recapturePreferitoForViewport(cand.viewport, cand.element);
+          const ok = await recaptureFavouriteForViewport(cand.viewport, cand.element);
           if (ok) anyOk = true;
         }
         if (anyOk) {
-          window.dispatchEvent(new Event('mdv-preferiti-updated'));
+          window.dispatchEvent(new Event('mdv-favourites-updated'));
         }
       } finally {
         _annotationRecaptureInFlight = false;
@@ -752,28 +752,28 @@ function installGlobalAnnotationRecaptureListener(): void {
   csEventTarget.addEventListener(csToolsEnums.Events.ANNOTATION_REMOVED, onAnnotationEvent);
 
   // FALLBACK MOUSEUP: lo spostamento del solo label/textBox di una
-  // misurazione (es. il "1.38 cm US Region") NON triggera
+  // measurement (es. il "1.38 cm US Region") NON triggera
   // ANNOTATION_MODIFIED in Cornerstone3D (vedi LengthTool._dragCallback:
   // per movingTextBox non setta annotation.invalidated, quindi
   // triggerAnnotationModified non viene mai chiamato). Per intercettare
   // anche questi spostamenti, ascoltiamo i mouseup A LIVELLO DOCUMENT e
   // schediamo una recapture. Il dispatcher è lo stesso (debounce 250ms +
-  // recapturePreferitoForViewport che skip se l'istanza visibile non è
-  // un preferito), quindi il costo è trascurabile per i mouseup "vuoti".
+  // recaptureFavouriteForViewport che skip se l'istanza visibile non è
+  // un favourite), quindi il costo è trascurabile per i mouseup "vuoti".
   document.addEventListener(
     'mouseup',
     () => onAnnotationEvent(new CustomEvent('mdv-mouseup-recapture', { detail: {} })),
     true
   );
 
-  logPreferitiDebug('global-annotation-listener-installed');
+  logFavouritesDebug('global-annotation-listener-installed');
 }
 
 // Installa subito a module-load. Cornerstone core esporta `eventTarget`
 // come singleton creato eagerly, quindi è già pronto qui.
 installGlobalAnnotationRecaptureListener();
 
-export function Preferiti({
+export function Favourites({
   viewportId,
   displaySets,
   commandsManager,
@@ -846,26 +846,26 @@ export function Preferiti({
     [cornerstoneViewportService, viewportId]
   );
 
-  const isPreferitoForIndex = useCallback(
+  const isFavouriteForIndex = useCallback(
     index => {
-      if (!window.preferiti?.length) {
+      if (!window.favourites?.length) {
         return false;
       }
       const sopUID = getSopUIDAtIndex(index);
       if (!SeriesInstanceUID || !sopUID) {
         return false;
       }
-      return window.preferiti.some(
-        preferito =>
-          preferito.SeriesInstanceUID === SeriesInstanceUID && preferito.SOPInstanceUID === sopUID
+      return window.favourites.some(
+        favourite =>
+          favourite.SeriesInstanceUID === SeriesInstanceUID && favourite.SOPInstanceUID === sopUID
       );
     },
     [SeriesInstanceUID, getSopUIDAtIndex]
   );
 
   const [activeElementIndex, setActiveElementIndex] = useState(getActiveElementIndex);
-  const [isPreferito, setIsPreferito] = useState(() =>
-    isPreferitoForIndex(getActiveElementIndex())
+  const [isFavourite, setIsFavourite] = useState(() =>
+    isFavouriteForIndex(getActiveElementIndex())
   );
 
   useEffect(() => {
@@ -905,19 +905,19 @@ export function Preferiti({
   }, [cornerstoneViewportService, viewportId, getActiveElementIndex]);
 
   useEffect(() => {
-    const currentIsPreferito = isPreferitoForIndex(activeElementIndex);
-    setIsPreferito(currentIsPreferito);
-  }, [activeElementIndex, isPreferitoForIndex]);
+    const currentIsFavourite = isFavouriteForIndex(activeElementIndex);
+    setIsFavourite(currentIsFavourite);
+  }, [activeElementIndex, isFavouriteForIndex]);
 
   // NB: il listener annotazioni è installato a module-load (vedi
   // installGlobalAnnotationRecaptureListener sopra), NON dentro questo
   // componente, così è sempre attivo anche quando il pannello WW/WL non
-  // è mai stato aperto e il componente <Preferiti /> non è stato montato.
+  // è mai stato aperto e il componente <Favourites /> non è stato montato.
 
-  const onSetPreferito = useCallback(
+  const onSetFavourite = useCallback(
     async e => {
       const { uiNotificationService } = servicesManager.services;
-      const checked = e; //Mi indica se sto checkando o meno l'opzione per aggiunta/rimozione preferito      // Inizializza window.preferiti se non esiste
+      const checked = e; //Mi indica se sto checkando o meno l'opzione per aggiunta/rimozione favourite      // Inizializza window.favourites se non esiste
       const instance = getInstanceAtIndex(activeElementIndex);
       const sopUID = getSopUIDAtIndex(activeElementIndex);
       const imageId = getImageIdAtIndex(activeElementIndex);
@@ -926,72 +926,72 @@ export function Preferiti({
         return;
       }
 
-      if (!window.preferiti) {
-        window.preferiti = [];
+      if (!window.favourites) {
+        window.favourites = [];
       }
-      if (!checked && document.getElementById('preferiti-btn')) {
-        document.getElementById('preferiti-btn').classList.remove('pulse');
-        // Filtra l'array preferiti rimuovendo l'elemento che corrisponde ai criteri
-        window.preferiti = window.preferiti.filter(preferito => {
+      if (!checked && document.getElementById('favourites-btn')) {
+        document.getElementById('favourites-btn').classList.remove('pulse');
+        // Filtra l'array favourites rimuovendo l'elemento che corrisponde ai criteri
+        window.favourites = window.favourites.filter(favourite => {
           return !(
-            preferito.SeriesInstanceUID === SeriesInstanceUID && preferito.SOPInstanceUID === sopUID
+            favourite.SeriesInstanceUID === SeriesInstanceUID && favourite.SOPInstanceUID === sopUID
           );
         });
-        setIsPreferito(false);
-        //Se ho la clipbooard preferiti aperta, aggiorno i preferiti in tempo reale dopo la rimozione
-        if (document.getElementById('area-lista-preferiti')) {
-          document.getElementById('area-lista-preferiti').remove();
+        setIsFavourite(false);
+        //Se ho la clipbooard favourites aperta, aggiorno i favourites in tempo reale dopo la rimozione
+        if (document.getElementById('favourites-list-area')) {
+          document.getElementById('favourites-list-area').remove();
           document
-            .getElementById('preferiti-tools')
-            .insertAdjacentHTML('beforeend', '<div id="area-lista-preferiti"></div>');
+            .getElementById('favourites-tools')
+            .insertAdjacentHTML('beforeend', '<div id="favourites-list-area"></div>');
 
-          for (const preferito of window.preferiti) {
-            document.getElementById('area-lista-preferiti').insertAdjacentHTML(
+          for (const favourite of window.favourites) {
+            document.getElementById('favourites-list-area').insertAdjacentHTML(
               'afterbegin',
               `
             <div class="col">
-            <img onclick="window.viewPreferitoPopup('${preferito.DataUrl}')" src=${preferito.DataUrl} />
-            <p>Series ${preferito.NumeroSerie} - ${preferito.DescrizioneSerie}</p>
-            <p>N¶ø istanza: ${preferito.NumeroIstanza}</p>
-            <button class="rimuovi-preferito-btn" onclick="window.rimuoviPreferito('${preferito.SOPInstanceUID}')">Rimuovi</button>
+            <img onclick="window.viewFavouritePopup('${favourite.DataUrl}')" src=${favourite.DataUrl} />
+            <p>Series ${favourite.NumeroSerie} - ${favourite.SeriesDescription}</p>
+            <p>N¶ø istanza: ${favourite.NumeroIstanza}</p>
+            <button class="remove-favourite-btn" onclick="window.removeFavourite('${favourite.SOPInstanceUID}')">Rimuovi</button>
             </div>
             `
             );
           }
         }
         uiNotificationService.show({
-          title: 'Preferiti',
-          message: `Preferito rimosso`,
+          title: 'Favourites',
+          message: `Favourite rimosso`,
           type: 'error',
         });
-        window.dispatchEvent(new Event('mdv-preferiti-updated'));
+        window.dispatchEvent(new Event('mdv-favourites-updated'));
       }
 
-      // Aggiungo l'elemento ai preferiti salvando screen dell'intera div con misurazioni e tutto
-      // if (!isAlreadyPreferito && checked) {
+      // Aggiungo l'elemento ai favourites salvando screen dell'intera div con measurements e tutto
+      // if (!isAlreadyFavourite && checked) {
       //   captureScreenshot().then(imgData => {
       //     const SOPInstanceUID = displaySets[0].instances[activeElementIndex].SOPInstanceUID;
       //     const NumeroSerie = displaySets[0].instances[activeElementIndex].SeriesNumber;
-      //     const DescrizioneSerie = displaySets[0].instances[activeElementIndex].SeriesDescription;
+      //     const SeriesDescription = displaySets[0].instances[activeElementIndex].SeriesDescription;
       //     const NumeroIstanza = activeElementIndex + 1;
-      //     window.preferiti.push({
+      //     window.favourites.push({
       //       SeriesInstanceUID,
       //       SOPInstanceUID: SOPInstanceUID,
       //       DataUrl: imgData,
       //       NumeroSerie: NumeroSerie,
-      //       DescrizioneSerie: DescrizioneSerie,
+      //       SeriesDescription: SeriesDescription,
       //       NumeroIstanza: NumeroIstanza,
       //     });
-      //     //Se ho la clipbooard preferiti aperta, inserisco il preferito in tempo reale
-      //     if (document.getElementById('area-lista-preferiti')) {
-      //       document.getElementById('area-lista-preferiti').insertAdjacentHTML(
+      //     //Se ho la clipbooard favourites aperta, inserisco il favourite in tempo reale
+      //     if (document.getElementById('favourites-list-area')) {
+      //       document.getElementById('favourites-list-area').insertAdjacentHTML(
       //         'afterbegin',
       //         `
       //       <div class="col">
-      //       <img onclick="window.viewPreferitoPopup('${imgData}')" src=${imgData} />
-      //       <p>Series ${NumeroSerie} - ${DescrizioneSerie}</p>
+      //       <img onclick="window.viewFavouritePopup('${imgData}')" src=${imgData} />
+      //       <p>Series ${NumeroSerie} - ${SeriesDescription}</p>
       //       <p>N¶ø istanza: ${NumeroIstanza}</p>
-      //       <button class="rimuovi-preferito-btn" onclick="window.rimuoviPreferito('${SOPInstanceUID}')">Rimuovi</button>
+      //       <button class="remove-favourite-btn" onclick="window.removeFavourite('${SOPInstanceUID}')">Rimuovi</button>
       //       </div>
       //       `
       //       );
@@ -999,12 +999,12 @@ export function Preferiti({
       //   });
       // }
 
-      //Capture del canvas senza misurazioni e altro anzichÇ¸ di tutta la div
-      if (!isPreferito && checked && document.getElementById('preferiti-btn')) {
+      //Capture del canvas senza measurements e altro anzichÇ¸ di tutta la div
+      if (!isFavourite && checked && document.getElementById('favourites-btn')) {
         const viewport = cornerstoneViewportService.getCornerstoneViewport(viewportId);
         const SOPInstanceUID = sopUID;
         const NumeroSerie = instance?.SeriesNumber ?? displaySets?.[0]?.instance?.SeriesNumber;
-        const DescrizioneSerie =
+        const SeriesDescription =
           instance?.SeriesDescription ?? displaySets?.[0]?.instance?.SeriesDescription;
         const NumeroIstanza = activeElementIndex + 1;
         const imgData =
@@ -1014,7 +1014,7 @@ export function Preferiti({
           return;
         }
 
-        // Capture ANCHE una versione con le annotazioni (misurazioni
+        // Capture ANCHE una versione con le annotazioni (measurements
         // length/area/...) componendo il canvas + il layer SVG. Best-effort:
         // se fallisce ricadiamo sul DataUrl pulito così il print builder
         // continua a funzionare anche senza annotazioni.
@@ -1047,7 +1047,7 @@ export function Preferiti({
             drawAnnotations: true,
             viewport,
           })) || imgDataPrintBase;
-        logPreferitiDebug('preferito-save', {
+        logFavouritesDebug('favourite-save', {
           sopUID: SOPInstanceUID,
           cleanLength: imgData.length,
           printBaseLength: imgDataPrintBase.length,
@@ -1059,7 +1059,7 @@ export function Preferiti({
           hasViewportElement: !!viewportElementForCapture,
         });
 
-        window.preferiti.push({
+        window.favourites.push({
           SeriesInstanceUID,
           SOPInstanceUID: SOPInstanceUID,
           DataUrl: imgData,
@@ -1067,41 +1067,41 @@ export function Preferiti({
           DataUrlAnnotated: imgDataAnnotated,
           DataUrlAnnotationOverlay: annotationOverlayDataUrl || null,
           NumeroSerie: NumeroSerie,
-          DescrizioneSerie: DescrizioneSerie,
+          SeriesDescription: SeriesDescription,
           NumeroIstanza: NumeroIstanza,
         });
-        setIsPreferito(true);
+        setIsFavourite(true);
 
-        //Se ho la clipbooard preferiti aperta, inserisco il preferito in tempo reale
-        if (document.getElementById('area-lista-preferiti')) {
-          document.getElementById('area-lista-preferiti').insertAdjacentHTML(
+        //Se ho la clipbooard favourites aperta, inserisco il favourite in tempo reale
+        if (document.getElementById('favourites-list-area')) {
+          document.getElementById('favourites-list-area').insertAdjacentHTML(
             'afterbegin',
             `
         <div class="col">
-        <img onclick="window.viewPreferitoPopup('${imgData}')" src=${imgData} />
-        <p>Series ${NumeroSerie} - ${DescrizioneSerie}</p>
+        <img onclick="window.viewFavouritePopup('${imgData}')" src=${imgData} />
+        <p>Series ${NumeroSerie} - ${SeriesDescription}</p>
         <p>N¶ø istanza: ${NumeroIstanza}</p>
-        <button class="rimuovi-preferito-btn" onclick="window.rimuoviPreferito('${SOPInstanceUID}')">Rimuovi</button>
+        <button class="remove-favourite-btn" onclick="window.removeFavourite('${SOPInstanceUID}')">Rimuovi</button>
         </div>
       `
           );
         }
 
-        document.getElementById('preferiti-btn').classList.add('pulse');
+        document.getElementById('favourites-btn').classList.add('pulse');
 
         uiNotificationService.show({
-          title: 'Preferiti',
+          title: 'Favourites',
           message: `Added to favourites`,
           type: 'success',
         });
-        window.dispatchEvent(new Event('mdv-preferiti-updated'));
+        window.dispatchEvent(new Event('mdv-favourites-updated'));
       }
 
-      document.querySelector('.mdv-selected .preferiti-btn').click(); //Nascondo cosÇª lo switch appena aperto
+      document.querySelector('.mdv-selected .favourites-btn').click(); //Nascondo cosÇª lo switch appena aperto
     },
     [
       displaySets,
-      isPreferito,
+      isFavourite,
       SeriesInstanceUID,
       activeElementIndex,
       servicesManager,
@@ -1130,14 +1130,14 @@ export function Preferiti({
       className="all-in-one-menu-item flex w-full justify-center"
     >
       <div className="mr-2 w-[28px]"></div>
-      {/* <button onClick={onSetPreferito}>
-        {!isAlreadyPreferito ? 'Add to favourites' : 'Rimuovi'}
+      {/* <button onClick={onSetFavourite}>
+        {!isAlreadyFavourite ? 'Add to favourites' : 'Rimuovi'}
       </button> */}
       <SwitchButton
-        label={!isPreferito ? 'Add to favourites' : 'Remove from favourites'}
-        checked={isPreferito}
+        label={!isFavourite ? 'Add to favourites' : 'Remove from favourites'}
+        checked={isFavourite}
         onChange={e => {
-          void onSetPreferito(e);
+          void onSetFavourite(e);
         }}
       />
     </div>

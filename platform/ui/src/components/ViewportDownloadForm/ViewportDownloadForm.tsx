@@ -145,7 +145,7 @@ const ViewportDownloadForm = ({
 
   const error_messages = {
     width: 'The smallest width allowed is 100px.',
-    height: "L'altezza minima valida è 100px.",
+    height: "L'height minima valida è 100px.",
     filename: 'Il nome del file non può essere vuoto.',
   };
 

@@ -198,11 +198,11 @@ function DataSourceWrapper(props: withAppTypes) {
           }
 
           // Il testo prendeva il colore da chi lo conteneva, e su questo tema
-          // usciva grigio scuro su nero: il riquadro compariva praticamente
+          // usciva grigio scuro su nero: il box compariva praticamente
           // vuoto. I colori qui sono quelli del tema, dichiarati.
           //
           // E dice cosa fare. Chi apre il progetto per la prima volta trova
-          // questo avviso quando l archivio non e' avviato, e sapere che si
+          // questo notice quando l archivio non e' avviato, e sapere che si
           // avvia con docker compose vale piu che sapere il nome interno
           // della sorgente.
           servicesManager.services.uiModalService.show({

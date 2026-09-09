@@ -18,7 +18,7 @@ const injectEditorBtn = () => {
   if (document.getElementById('editor-btn')) {
     return
   }
-  //Attacco pulsante sotto quello delle misurazioni nel pannello a dx
+  //Attacco pulsante sotto quello delle measurements nel pannello a dx
   document.getElementById('trackedMeasurements-btn').parentElement.insertAdjacentHTML(
     'afterend',
     `
@@ -36,17 +36,17 @@ const createEditorFunc = () => {
   const editorToolsHtml = `
     <div id="editor-tools">
         <div id="intestazione">
-        <img id="chiudi-editor-button" style="width:22px" src="./assets/right-arrow.png" />
-        <p>${window.sonoUnoStorico ? 'Notes on priors' : 'Note'}</p>
+        <img id="close-editor-button" style="width:22px" src="./assets/right-arrow.png" />
+        <p>${window.iAmAPrior ? 'Notes on priors' : 'Note'}</p>
         </div>
          <div id="main-area-editor">
-            <div id="area-note-salvate">
+            <div id="saved-notes-area">
 
             </div>
             <div id="area-editor">
 
              </div>
-      <button id="salva-testo">Save note per questo studio</button>
+      <button id="save-text">Save note per questo studio</button>
       </div>
     </div>
   `;
@@ -58,30 +58,30 @@ const createEditorFunc = () => {
 
   //Animazione comparsa editor-tools
   setTimeout(() => {
-    document.getElementById('editor-tools').style.left = `${window.sonoUnoStorico ? '60%' : '80%'}`;
-    //Adatto la larghezza della griglia in base all'apertura del nuovo pannello
+    document.getElementById('editor-tools').style.left = `${window.iAmAPrior ? '60%' : '80%'}`;
+    //Adatto la width della griglia in base all'apertura del nuovo pannello
     if (
-      document.body.classList.contains('storico-injected-iframe') ||
-      document.body.classList.contains('storico-same-tab')
+      document.body.classList.contains('priors-injected-iframe') ||
+      document.body.classList.contains('priors-same-tab')
     ) {
       return;
-    } //Non applico riadattamento se cìè uno storico sulla destra
+    } //Non applico riadattamento se cìè uno priors sulla destra
     setTimeout(() => {
       const widthPannelloSx = parseFloat(
         window.getComputedStyle(document.querySelector('.mdv-new-panel')).width
       );
-      const leftPositionPreferitiPanel = parseFloat(
+      const favouritesPanelLeftPosition = parseFloat(
         window.getComputedStyle(document.getElementById('editor-tools')).left
       );
-      const valoreDefinitivo = leftPositionPreferitiPanel - widthPannelloSx;
+      const valoreDefinitivo = favouritesPanelLeftPosition - widthPannelloSx;
       document.querySelector('[data-cy="viewport-grid"]').style.width = `${valoreDefinitivo}px`;
     }, 350);
   }, 0);
 
   let nota = {};
-  const inserisciNotaDom = () => {
+  const insertNoteIntoDom = () => {
     let savedDelta = localStorage.getItem('quillContent');
-    let notaTrovata = false;
+    let noteFound = false;
     if (!savedDelta) {
       return;
     }
@@ -90,16 +90,16 @@ const createEditorFunc = () => {
       savedDelta.forEach(element => {
         if (element.studyInstanceUID === window.mdvStudyInstanceUIDs) {
           nota.ops = element.ops;
-          notaTrovata = true;
+          noteFound = true;
         }
       });
-      if (notaTrovata) {
+      if (noteFound) {
         console.log('Contenuto caricato correttamente.');
-        const areaNoteSalvate = document.getElementById('area-note-salvate');
-        areaNoteSalvate.insertAdjacentHTML(
+        const savedNotesArea = document.getElementById('saved-notes-area');
+        savedNotesArea.insertAdjacentHTML(
           'afterbegin',
           `
-      <div onclick="window.handleNotaClick(this)" class="nota-salvata">
+      <div onclick="window.handleNotaClick(this)" class="saved-note">
           <p>Carica nota salvata</p>
         </div>`
         );
@@ -123,9 +123,9 @@ const createEditorFunc = () => {
 
   const salvaTesto = () => {
     //Ottengo le note attuali
-    let noteAttuali = [];
+    let currentNotes = [];
     if (localStorage.getItem('quillContent')) {
-      noteAttuali = JSON.parse(localStorage.getItem('quillContent'));
+      currentNotes = JSON.parse(localStorage.getItem('quillContent'));
     }
     const delta = quill.getContents();
     delta.studyInstanceUID = window.mdvStudyInstanceUIDs;
@@ -133,20 +133,20 @@ const createEditorFunc = () => {
     const studyInstanceUID = window.mdvStudyInstanceUIDs; // UID corrente
 
     // Controlla se l'array di note attuali è vuoto
-    if (noteAttuali.length === 0) {
+    if (currentNotes.length === 0) {
       // Se è vuoto, inserisci direttamente il delta
-      noteAttuali.push(delta);
+      currentNotes.push(delta);
     } else {
       let found = false;
 
       // Cicla attraverso l'array delle note attuali
-      for (let i = 0; i < noteAttuali.length; i++) {
+      for (let i = 0; i < currentNotes.length; i++) {
         // Controlla se esiste già un elemento con lo stesso studyInstanceUID
-        if (noteAttuali[i].studyInstanceUID === studyInstanceUID) {
+        if (currentNotes[i].studyInstanceUID === studyInstanceUID) {
           // Se lo trovi, sostituisci l'elemento con il nuovo delta
           found = true;
           if (confirm('This study already has a saved note. Overwrite it?') == true) {
-            noteAttuali[i] = delta;
+            currentNotes[i] = delta;
           } else {
             return;
           }
@@ -156,24 +156,24 @@ const createEditorFunc = () => {
 
       // Se non è stato trovato alcun elemento con lo stesso UID, aggiungi il nuovo delta
       if (!found) {
-        noteAttuali.push(delta);
+        currentNotes.push(delta);
       }
     }
-    const noteAttualiString = JSON.stringify(noteAttuali);
-    localStorage.setItem('quillContent', noteAttualiString);
+    const currentNotesString = JSON.stringify(currentNotes);
+    localStorage.setItem('quillContent', currentNotesString);
 
     console.log('Saved.');
     alert('Saved');
 
-    if (document.querySelector('.nota-salvata')) {
-      document.querySelector('.nota-salvata').remove();
+    if (document.querySelector('.saved-note')) {
+      document.querySelector('.saved-note').remove();
     }
-    inserisciNotaDom();
+    insertNoteIntoDom();
   };
-  document.getElementById('salva-testo').addEventListener('click', salvaTesto);
-  inserisciNotaDom();
+  document.getElementById('save-text').addEventListener('click', salvaTesto);
+  insertNoteIntoDom();
 
-  document.getElementById('chiudi-editor-button').addEventListener('click', () => {
+  document.getElementById('close-editor-button').addEventListener('click', () => {
     document.querySelector('[data-cy="viewport-grid"]').style.width = '100%';
     document.getElementById('editor-tools').style.left = '100%';
     setTimeout(() => {

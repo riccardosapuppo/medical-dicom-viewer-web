@@ -93,21 +93,21 @@ const debounceTime = 200;
 let debounceTimeout;
 
 /**
- * Modalita' "storico affiancato": lo studio precedente vive in un iframe
- * (#iframe-storico) con la propria toolbar nascosta via CSS. Ogni comando
+ * Modalita' "priors affiancato": lo studio precedente vive in un iframe
+ * (#priors-iframe) con la propria toolbar nascosta via CSS. Ogni comando
  * lanciato dallo studio principale (toolbar o scorciatoia) viene inoltrato
  * all'iframe, che lo esegue sulla propria viewport attiva.
- * Il messaggio e' l'id del bottone di toolbar (o un nome comando storico);
- * per i comandi con parametri si usa {type: 'mdv-storico-command', ...}.
- * Lato iframe la gestione sta in public/estensioni/aperturaStorico.
+ * Il message e' l'id del bottone di toolbar (o un nome comando priors);
+ * per i comandi con parametri si usa {type: 'mdv-priors-command', ...}.
+ * Lato iframe la gestione sta in public/extensions/openPriors.
  */
-function _postToStorico(message: unknown) {
-  const iframeStorico = document.getElementById('iframe-storico') as HTMLIFrameElement | null;
-  if (!iframeStorico?.contentWindow) {
+function _postToPriors(message: unknown) {
+  const priorsIframe = document.getElementById('priors-iframe') as HTMLIFrameElement | null;
+  if (!priorsIframe?.contentWindow) {
     return;
   }
   try {
-    iframeStorico.contentWindow.postMessage(message, window.location.origin);
+    priorsIframe.contentWindow.postMessage(message, window.location.origin);
   } catch (err) {
     console.warn('Priors: forwarding the command failed', err);
   }
@@ -565,8 +565,8 @@ function commandsModule({
      * aggiuntive: imposta solo viewportOptions.montage.
      */
     toggleMontage: ({ rows, cols } = {}) => {
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico('MontageAuto');
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors('MontageAuto');
 
       const activeViewportId = viewportGridService.getActiveViewportId();
       const { viewports } = viewportGridService.getState();
@@ -633,9 +633,9 @@ function commandsModule({
      * attivando la montage se non già attiva.
      */
     setMontageLayout: ({ rows, cols }) => {
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico({
-        type: 'mdv-storico-command',
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors({
+        type: 'mdv-priors-command',
         commandName: 'setMontageLayout',
         commandOptions: { rows, cols },
       });
@@ -1090,8 +1090,8 @@ function commandsModule({
       });
     },
     toggleCine: () => {
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico('cine');
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors('cine');
 
       const { viewports } = viewportGridService.getState();
       const { isCineEnabled } = cineService.getState();
@@ -1279,7 +1279,7 @@ function commandsModule({
     toggleEnabledDisabledToolbar({ value, itemId, toolGroupId }) {
       const toolName = itemId || value;
 
-      _postToStorico(toolName);
+      _postToPriors(toolName);
 
       // Modo canonico OHIF: getToolGroup(undefined) risolve internamente il
       // toolGroup della viewport ATTIVA (gestisce anche le celle della
@@ -1335,7 +1335,7 @@ function commandsModule({
       const toolName = itemId || value;
       toolGroupId = toolGroupId ?? _getActiveViewportToolGroupId();
 
-      _postToStorico(toolName);
+      _postToPriors(toolName);
 
       const toolGroup = toolGroupService.getToolGroup(toolGroupId);
       if (!toolGroup || !toolGroup.hasTool(toolName)) {
@@ -1357,8 +1357,8 @@ function commandsModule({
         return;
       }
 
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico(toolName);
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors(toolName);
 
       const toolIsActive = [
         Enums.ToolModes.Active,
@@ -1383,8 +1383,8 @@ function commandsModule({
       // Sometimes it is passed as value (tools with options), sometimes as itemId (toolbar buttons)
       toolName = toolName || itemId || value;
 
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico(toolName);
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors(toolName);
 
       toolGroupIds = toolGroupIds.length ? toolGroupIds : toolGroupService.getToolGroupIds();
 
@@ -1485,18 +1485,18 @@ function commandsModule({
       }
     },
     storeState: () => {
-      //memorizzo tutte le impostazioni attuali della griglia con le relative serie
+      //memorizzo tutte le settings attuali della griglia con le relative serie
 
       storeState();
     },
     restoreState: () => {
-      //ripristino  tutte le impostazioni precedentemente salvate
+      //ripristino  tutte le settings precedentemente salvate
       restoreState();
     },
-    setHPPreferiti: () => {
+    setFavouritesHangingProtocol: () => {
       window.saveHP();
     },
-    gestioneHP: () => {
+    hangingProtocols: () => {
       const { uiModalService } = servicesManager.services;
       if (uiModalService) {
         uiModalService.show({
@@ -1507,8 +1507,8 @@ function commandsModule({
       }
     },
     hideInfoDicom: () => {
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico('hideInfoDicom');
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors('hideInfoDicom');
 
       document.body.classList.toggle('hide-info-dicom');
     },
@@ -1609,8 +1609,8 @@ function commandsModule({
             // non-fatal
           }
 
-          //Se sono nell'iframe dello storico mando un messaggio al genitore dicendo che l'mpr è stato appena disabilitato
-          if (window.location.href.includes('storico=same-tab')) {
+          //Se sono nell'iframe dello priors mando un message al genitore dicendo che l'mpr è stato appena disabilitato
+          if (window.location.href.includes('priors=same-tab')) {
             window.parent.postMessage('uscita-da-secondo-mpr', '*');
           }
 
@@ -1713,12 +1713,12 @@ function commandsModule({
             }
             //Save stato attuale
             storeState();
-            //Verifico che la serie selezionata su cui attivare l'mpr sia dello studio attuale o magari dello storico così la clicco subito dopo l'attivazione
-            if (!document.body.classList.contains('storico-same-tab')) {
-              // Le linguette di studio ci sono solo quando c e uno storico.
+            //Verifico che la serie selezionata su cui attivare l'mpr sia dello studio attuale o magari dello priors così la clicco subito dopo l'attivazione
+            if (!document.body.classList.contains('priors-same-tab')) {
+              // Le linguette di studio ci sono solo quando c e uno priors.
               //
-              // Servono a scegliere in quale elenco cercare la miniatura della
-              // serie. Se il paziente non ha esami precedenti non vengono
+              // Servono a scegliere in quale list cercare la miniatura della
+              // serie. Se il patient non ha esami precedenti non vengono
               // disegnate affatto, e qui si chiamava click() su undefined:
               // l attivazione dell MPR si fermava con un TypeError, e il
               // pulsante sembrava non fare niente.
@@ -1735,17 +1735,17 @@ function commandsModule({
                 `#thumbnail-${activeDisplaySetInstanceUID} img`
               ); //Attivo l'mpr sulla serie attualmente attiva
 
-              //Se da qualche altra parte specifico window.instanceUIDMPRDaCliccare (es. attivazione storico da iframe, do priorità a questo)
+              //Se da qualche altra parte specifico window.instanceUIDMPRDaCliccare (es. attivazione priors da iframe, do priorità a questo)
               if (window.instanceUIDMPRDaCliccare) {
                 ActiveThumbnail = document.querySelector(
                   `#thumbnail-${window.instanceUIDMPRDaCliccare} img`
                 );
                 if (!ActiveThumbnail) {
                   //Se non trovo ActiveThumbnail, è probabile che non mi trovo nella tab corrispondente
-                  //(o sono nello storico o nello studio attuale) e ActiveThumbnail si potrebbe trovare in una delle due (tab inattiva)
+                  //(o sono nello priors o nello studio attuale) e ActiveThumbnail si potrebbe trovare in una delle due (tab inattiva)
                   //
                   // La linguetta inattiva esiste solo se ce ne sono due. Senza
-                  // storico non c e, e qui si chiamava click() su null.
+                  // priors non c e, e qui si chiamava click() su null.
                   document.querySelector('.inactive-tab-study')?.click();
                   setTimeout(() => {
                     ActiveThumbnail = document.querySelector(
@@ -2234,12 +2234,12 @@ function commandsModule({
         toolGroupIds: groupIds,
       });
     },
-    mprDirectClickForStorico: () => {
-      if (!document.getElementById('iframe-storico')) {
+    mprDirectClickForPriors: () => {
+      if (!document.getElementById('priors-iframe')) {
         return;
       }
       document.body.classList.add('secondo-mpr-attivo');
-      _postToStorico('attiva-mpr');
+      _postToPriors('attiva-mpr');
     },
     ptctDirectClick: () => {
       // Helper: restore a specific viewport grid state snapshot (captured
@@ -2438,8 +2438,8 @@ function commandsModule({
       }
     },
     rotateViewport: ({ rotation }) => {
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico(`rotateViewport-${rotation.toString()}`);
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors(`rotateViewport-${rotation.toString()}`);
 
       // Montage: ruota TUTTE le celle dello stesso angolo (rimangono allineate).
       const montage = _getMontageCells();
@@ -2479,8 +2479,8 @@ function commandsModule({
       }
     },
     flipViewportHorizontal: () => {
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico('flipViewportHorizontal');
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors('flipViewportHorizontal');
 
       // Montage: applica lo stesso flip a tutte le celle.
       const montageH = _getMontageCells();
@@ -2506,8 +2506,8 @@ function commandsModule({
       viewport.render();
     },
     flipViewportVertical: () => {
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico('flipViewportVertical');
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors('flipViewportVertical');
 
       // Montage: applica lo stesso flip a tutte le celle.
       const montageV = _getMontageCells();
@@ -2533,8 +2533,8 @@ function commandsModule({
       viewport.render();
     },
     invertViewport: ({ element }) => {
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico('invertViewport');
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors('invertViewport');
 
       // Montage: inverte TUTTE le celle insieme (stesso stato finale).
       if (element === undefined) {
@@ -2588,8 +2588,8 @@ function commandsModule({
       });
     },
     resetViewport: () => {
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico('resetViewport');
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors('resetViewport');
 
       // Montage: reset di tutte le celle (proprietà + fit camera).
       const montageReset = _getMontageCells();
@@ -2614,8 +2614,8 @@ function commandsModule({
       viewport.render();
     },
     zoomOneToOne: () => {
-      //Passo il comando anche all'eventuale iframe storico
-      _postToStorico('zoomOneToOne');
+      //Passo il comando anche all'eventuale iframe priors
+      _postToPriors('zoomOneToOne');
 
       const enabledElement = _getActiveViewportEnabledElement();
 
@@ -2775,13 +2775,13 @@ function commandsModule({
      * @param options.type - The type of synchronization to perform
      */
     toggleSynchronizer: ({ type, viewports, syncId, toggledState, itemId }) => {
-      //Passo il comando anche all'eventuale iframe storico, ma solo per il
+      //Passo il comando anche all'eventuale iframe priors, ma solo per il
       //toggle voluto dall'utente (toolbar -> itemId, scorciatoia -> solo type).
       //Le riattivazioni automatiche arrivano con toggledState e non vanno
-      //propagate, altrimenti spegnerebbero il sync dello storico.
-      const storicoSyncItemId = itemId || (type === 'imageSlice' ? 'ImageSliceSync' : null);
-      if (toggledState === undefined && storicoSyncItemId) {
-        _postToStorico(storicoSyncItemId);
+      //propagate, altrimenti spegnerebbero il sync dello priors.
+      const priorsSyncItemId = itemId || (type === 'imageSlice' ? 'ImageSliceSync' : null);
+      if (toggledState === undefined && priorsSyncItemId) {
+        _postToPriors(priorsSyncItemId);
       }
 
       const fn = toggleSyncFunctions[type];
@@ -3377,7 +3377,7 @@ function commandsModule({
     // ESC ("Delete the last measurement"):
     //  1) se c'è un disegno IN CORSO (handle in posizionamento), lo annulla
     //     (cornerstone `cancelActiveManipulations`, che ritorna l'UID annullato);
-    //  2) altrimenti elimina l'ULTIMA misurazione creata (la più recente).
+    //  2) altrimenti elimina l'ULTIMA measurement creata (la più recente).
     cancelMeasurement: () => {
       const tryCancelOnElement = (element?: HTMLDivElement): boolean => {
         if (!element) {
@@ -3407,7 +3407,7 @@ function commandsModule({
         return;
       }
 
-      // 2) Nessun disegno in corso → elimina l'ultima misurazione creata.
+      // 2) Nessun disegno in corso → elimina l'ultima measurement creata.
       const measurements = measurementService.getMeasurements();
       if (measurements?.length) {
         const last = measurements[measurements.length - 1];
@@ -3510,8 +3510,8 @@ function commandsModule({
     setToolEnabled: {
       commandFn: actions.setToolEnabled,
     },
-    gestioneHP: {
-      commandFn: actions.gestioneHP,
+    hangingProtocols: {
+      commandFn: actions.hangingProtocols,
     },
     hideInfoDicom: {
       commandFn: actions.hideInfoDicom,
@@ -3519,8 +3519,8 @@ function commandsModule({
     mprDirectClick: {
       commandFn: actions.mprDirectClick,
     },
-    mprDirectClickForStorico: {
-      commandFn: actions.mprDirectClickForStorico,
+    mprDirectClickForPriors: {
+      commandFn: actions.mprDirectClickForPriors,
     },
     ptctDirectClick: {
       commandFn: actions.ptctDirectClick,
@@ -3529,8 +3529,8 @@ function commandsModule({
       commandFn: actions.toggleCrosshairs,
     },
 
-    setHPPreferiti: {
-      commandFn: actions.setHPPreferiti,
+    setFavouritesHangingProtocol: {
+      commandFn: actions.setFavouritesHangingProtocol,
     },
     storeState: {
       commandFn: actions.storeState,

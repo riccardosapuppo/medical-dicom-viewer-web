@@ -54,8 +54,8 @@ const linkedSeriesBadgeItem = {
   inheritsFrom: 'ohif.overlayItem.linkedSeries',
 };
 
-const storicoLabelItem = {
-  id: 'StoricoLabel',
+const priorsLabelItem = {
+  id: 'PriorsLabel',
   customizationType: 'ohif.overlayItem',
   label: '',
   title: 'Priors label',
@@ -63,9 +63,9 @@ const storicoLabelItem = {
   condition: ({ referenceInstance }) =>
     ((referenceInstance?.StudyInstanceUID &&
       referenceInstance?.StudyInstanceUID !== window.mdvStudyInstanceUIDs) ||
-      window.sonoUnoStorico === true) &&
+      window.iAmAPrior === true) &&
     !window.portableVersion,
-  contentF: ({ referenceInstance }) => 'STORICO',
+  contentF: ({ referenceInstance }) => 'PRIORS',
 };
 
 const studyDateItem = {
@@ -149,7 +149,7 @@ const topLeftItems = {
     studyDateItem,
     seriesNumberItem,
     seriesDescriptionItem,
-    storicoLabelItem,
+    priorsLabelItem,
   ],
 };
 

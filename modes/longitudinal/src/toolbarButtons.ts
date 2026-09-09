@@ -681,12 +681,12 @@ const toolbarButtons: Button[] = [
     },
   },
   {
-    id: 'LayoutMPRStorico',
+    id: 'LayoutMPRPriors',
     uiType: 'ohif.radioGroup',
     props: {
       icon: 'mprDirect',
       label: 'MPR, prior study',
-      commands: 'mprDirectClickForStorico',
+      commands: 'mprDirectClickForPriors',
     },
   },
   {
@@ -931,23 +931,23 @@ const toolbarButtons: Button[] = [
     },
   },
   {
-    id: 'setHPPreferiti',
+    id: 'setFavouritesHangingProtocol',
     uiType: 'ohif.radioGroup',
     props: {
-      icon: 'setHPPreferiti',
-      label: 'setHPPreferiti',
-      commands: 'setHPPreferiti',
+      icon: 'setFavouritesHangingProtocol',
+      label: 'setFavouritesHangingProtocol',
+      commands: 'setFavouritesHangingProtocol',
       evaluate: 'evaluate.action',
     },
   },
   {
-    id: 'gestioneHP',
+    id: 'hangingProtocols',
     uiType: 'ohif.radioGroup',
     props: {
       icon: 'hpIcon',
       label: 'Hanging Protocol',
       tooltip: 'Save the viewport arrangement and put it back on the next study',
-      commands: 'gestioneHP',
+      commands: 'hangingProtocols',
       evaluate: 'evaluate.action',
     },
   },

@@ -239,7 +239,7 @@ function ViewerLayout({
 
   return (
     <div>
-      {isTopWindow && appConfig?.mostraavvisoEstensioneMdvBrowserNonInstallata !== false ? (
+      {isTopWindow && appConfig?.showMissingBrowserExtensionNotice !== false ? (
         <MdvExtensionBrowser
           appConfig={appConfig}
           onVisibilityChange={setShowExtensionBanner}
@@ -266,7 +266,7 @@ function ViewerLayout({
           <ResizablePanelGroup {...resizablePanelGroupProps}>
             {/* LEFT SIDEPANELS */}
 
-            {hasLeftPanels && !window.sonoUnoStorico ? (
+            {hasLeftPanels && !window.iAmAPrior ? (
               <>
                 <ResizablePanel {...resizableLeftPanelProps}>
                   <SidePanelWithServices
@@ -296,8 +296,8 @@ function ViewerLayout({
               </div>
             </ResizablePanel>
 
-            {/* Pannello dx storico */}
-            {hasRightPanels && window.sonoUnoStorico ? (
+            {/* Pannello dx priors */}
+            {hasRightPanels && window.iAmAPrior ? (
               <>
                 <ResizablePanel {...resizableLeftPanelProps}>
                   <SidePanelWithServices

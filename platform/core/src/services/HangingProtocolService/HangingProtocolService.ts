@@ -911,14 +911,14 @@ export default class HangingProtocolService extends PubSubService {
 
     try {
       // let protocol;
-      // if (window.hpPreferiti) {
-      //   protocol = this._validateProtocol(window.hpPreferiti);
+      // if (window.favouritesHangingProtocol) {
+      //   protocol = this._validateProtocol(window.favouritesHangingProtocol);
       // } else {
       //   protocol = this._validateProtocol(foundProtocol);
       // }
       const protocol = this._validateProtocol(foundProtocol);
-      // if (protocol.id === '@mdv/preferiti') {
-      // if (window.hpPreferiti) {
+      // if (protocol.id === '@mdv/favourites') {
+      // if (window.favouritesHangingProtocol) {
       //   const generateRandomString = length => {
       //     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       //     let result = '';
@@ -931,11 +931,11 @@ export default class HangingProtocolService extends PubSubService {
       //     return result;
       //   };
 
-      //   const newID = window.hpPreferiti.id;
+      //   const newID = window.favouritesHangingProtocol.id;
       //   //Se il protocollo è uno presente nella condizione, essendo dinamico forzo la riaggiunta. Praticamente gli hanging protocol vengono caricati solamente all'inizio,
-      //   //se ho degli hanging protocol da modificare live come nel caso dei preferiti, devo riaggiungerlo con le modifiche
-      //   this.addProtocol(newID, window.hpPreferiti);
-      //   protocol = window.hpPreferiti;
+      //   //se ho degli hanging protocol da modificare live come nel caso dei favourites, devo riaggiungerlo con le modifiche
+      //   this.addProtocol(newID, window.favouritesHangingProtocol);
+      //   protocol = window.favouritesHangingProtocol;
       // }
       if (options) {
         this._validateOptions(options);

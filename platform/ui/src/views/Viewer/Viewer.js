@@ -30,7 +30,7 @@ const Viewer = () => {
             side="right"
             iconName="list-bullets"
             iconLabel="Measure"
-            componentLabel="Misurazioni"
+            componentLabel="Measurements"
             defaultIsOpen={false}
           >
             <div className="flex justify-center p-2 text-white">panel placeholder</div>

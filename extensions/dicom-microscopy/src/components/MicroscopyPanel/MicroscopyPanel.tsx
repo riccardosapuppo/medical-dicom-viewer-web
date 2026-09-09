@@ -329,7 +329,7 @@ function MicroscopyPanel(props: IMicroscopyPanelProps) {
         data-cy={'measurements-panel'}
       >
         <MeasurementTable
-          title="Misurazioni"
+          title="Measurements"
           servicesManager={props.servicesManager}
           data={data}
           onClick={onMeasurementItemClickHandler}

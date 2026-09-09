@@ -2,7 +2,7 @@ import React from 'react';
 import type { IconProps } from '../types';
 
 /**
- * Icona "Subgrid (Montage)": un riquadro viewport (bordo spesso) suddiviso
+ * Icona "Subgrid (Montage)": un box viewport (bordo spesso) suddiviso
  * internamente in più celle (linee sottili) → comunica una subgrid DENTRO
  * una singola viewport, non un nuovo layout della griglia principale.
  */

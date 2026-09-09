@@ -55,7 +55,7 @@ Stack: ${error.stack}
     toast.success(t('Copied to clipboard'));
   };
 
-  if (!window.mostraErroriFrontend) {
+  if (!window.showFrontendErrors) {
     return null;
   }
 

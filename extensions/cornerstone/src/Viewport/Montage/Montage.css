@@ -47,8 +47,8 @@
   background-color: #000;
 }
 
-/* Descrizione serie (una per subgrid, in alto a sinistra).
- *  - left:34px → NON copre la stellina dei preferiti (in alto a sinistra di ogni
+/* Description serie (una per subgrid, in alto a sinistra).
+ *  - left:34px → NON copre la stellina dei favourites (in alto a sinistra di ogni
  *    cella, ~24px), che resta visibile e cliccabile;
  *  - sfondo OPACO → copre la linea separatore delle celle che eventualmente
  *    attraversa (prima, semitrasparente, la si vedeva sotto);
@@ -82,7 +82,7 @@
   cursor: help;
 }
 
-/* Tooltip moderno con la descrizione serie completa: nascosto, compare
+/* Tooltip moderno con la description serie completa: nascosto, compare
  * all'hover del badge troncato (sibling immediato). Sta SOTTO il badge, a
  * sinistra, e va a capo. Sopra le celle (z-index alto). */
 .montage-series-tooltip {
@@ -157,9 +157,9 @@
   z-index: 2;
 }
 
-/* Stellina "Preferiti" per la singola cella: aggiunge/rimuove l'istanza
- * mostrata dai preferiti (stesso window.preferiti delle viewport normali).
- * Visibile in hover sulla cella, e SEMPRE quando l'istanza è già un preferito
+/* Stellina "Favourites" per la singola cella: aggiunge/rimuove l'istanza
+ * mostrata dai favourites (stesso window.favourites delle viewport normali).
+ * Visibile in hover sulla cella, e SEMPRE quando l'istanza è già un favourite
  * (così si vede a colpo d'occhio quali celle sono salvate). */
 .montage-cell-fav {
   position: absolute;
@@ -197,7 +197,7 @@
   color: #ffd54a;
 }
 
-/* Preferito attivo: sempre visibile e stella piena dorata. */
+/* Favourite attivo: sempre visibile e stella piena dorata. */
 .montage-cell-fav.is-fav {
   opacity: 1;
   color: #ffc928;

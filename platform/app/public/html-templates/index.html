@@ -192,7 +192,7 @@
     <!--
       Override "Global settings" (tab admin). Script SINCRONO servito dal
       backend: applica i flag effettivi a window.config PRIMA dei bundle e delle
-      estensioni (preferiti.js/tabs.js leggono window.config al load). Deve stare
+      extensions (favourites.js/tabs.js leggono window.config al load). Deve stare
       DOPO app-config.js e PRIMA degli entry. Il backend risponde no-store; se non
       raggiungibile, restano i valori di app-config.js.
     -->
@@ -220,32 +220,32 @@
     <!-- EXTENSIONS -->
     <link
       rel="stylesheet"
-      href="<%= PUBLIC_URL %>estensioni/preferiti/preferiti.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
+      href="<%= PUBLIC_URL %>extensions/favourites/favourites.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
     />
     <link
       rel="stylesheet"
-      href="<%= PUBLIC_URL %>estensioni/editor/editorBtn.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
+      href="<%= PUBLIC_URL %>extensions/editor/editorBtn.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
     />
     <link
       rel="stylesheet"
-      href="<%= PUBLIC_URL %>estensioni/gestioneHP/gestioneHP.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
+      href="<%= PUBLIC_URL %>extensions/hangingProtocols/hangingProtocols.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
     />
     <link
       rel="stylesheet"
-      href="<%= PUBLIC_URL %>estensioni/aperturaStorico/aperturaStorico.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
+      href="<%= PUBLIC_URL %>extensions/openPriors/openPriors.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
     />
     <link
       rel="stylesheet"
-      href="<%= PUBLIC_URL %>estensioni/mostraChangelogAggiornamenti/mostraChangelogAggiornamenti.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
+      href="<%= PUBLIC_URL %>extensions/updateChangelog/updateChangelog.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
     />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <link
-      href="<%= PUBLIC_URL %>estensioni/editor/quill.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
+      href="<%= PUBLIC_URL %>extensions/editor/quill.css<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"
       rel="stylesheet"
     />
-    <script src="<%= PUBLIC_URL %>estensioni/editor/quill.js<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"></script>
+    <script src="<%= PUBLIC_URL %>extensions/editor/quill.js<%= CACHE_BUSTER ? '?v=' + CACHE_BUSTER : '' %>"></script>
 
     <% if (htmlWebpackPlugin && htmlWebpackPlugin.files && htmlWebpackPlugin.files.css) { %>
       <% htmlWebpackPlugin.files.css.forEach(function(file) { %>

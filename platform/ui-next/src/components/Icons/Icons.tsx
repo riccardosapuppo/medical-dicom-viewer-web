@@ -209,11 +209,11 @@ import notificationWarning from '../../../assets/icons/warning.png';
 import mprDirect from '../../../assets/icons/mpr.png';
 import { ToolStackScrollWheel } from './Sources/ToolStackScrollWheel';
 import { ToolHideOverlayInfo } from './Sources/ToolHideOverlayInfo';
-import storicoExpand from '../../../assets/icons/storico-expand.svg';
-import storicoSameWindow from '../../../assets/icons/storico-same-window.svg';
-import storicoNewWindow from '../../../assets/icons/storico-new-window.svg';
-import preferiti from '../../../assets/icons/preferiti.png';
-import preferitiActive from '../../../assets/icons/preferiti-active.png';
+import priorsExpand from '../../../assets/icons/priors-expand.svg';
+import priorsSameWindow from '../../../assets/icons/priors-same-window.svg';
+import priorsNewWindow from '../../../assets/icons/priors-new-window.svg';
+import favourites from '../../../assets/icons/favourites.png';
+import favouritesActive from '../../../assets/icons/favourites-active.png';
 import logoMdv from '../../../assets/icons/logo_mdv.png';
 import hpIcon from '../../../assets/icons/hp.png';
 import Undo from './Sources/Undo';
@@ -267,33 +267,33 @@ export const Icons = {
   // filtro. Vedi i due file in Sources/ per il perche'.
   toolStackScroll: ToolStackScrollWheel,
   hideInfoDicom: ToolHideOverlayInfo,
-  storicoExpand: (props: ImageIconProps) => (
+  priorsExpand: (props: ImageIconProps) => (
     <ImageWrapper
-      src={storicoExpand}
+      src={priorsExpand}
       {...props}
     />
   ),
-  storicoSameWindow: (props: ImageIconProps) => (
+  priorsSameWindow: (props: ImageIconProps) => (
     <ImageWrapper
-      src={storicoSameWindow}
+      src={priorsSameWindow}
       {...props}
     />
   ),
-  storicoNewWindow: (props: ImageIconProps) => (
+  priorsNewWindow: (props: ImageIconProps) => (
     <ImageWrapper
-      src={storicoNewWindow}
+      src={priorsNewWindow}
       {...props}
     />
   ),
-  preferiti: (props: ImageIconProps) => (
+  favourites: (props: ImageIconProps) => (
     <ImageWrapper
-      src={preferiti}
+      src={favourites}
       {...props}
     />
   ),
-  preferitiActive: (props: ImageIconProps) => (
+  favouritesActive: (props: ImageIconProps) => (
     <ImageWrapper
-      src={preferitiActive}
+      src={favouritesActive}
       {...props}
     />
   ),

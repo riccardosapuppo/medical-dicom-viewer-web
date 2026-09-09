@@ -1,5 +1,5 @@
 import { metaData } from '@cornerstonejs/core';
-import { letturaPreferenzeAPI } from './caricamentoHP';
+import { letturaPreferenzeAPI } from './loadHangingProtocol';
 
 let uiNotificationService;
 let mdvHP = {
@@ -396,8 +396,8 @@ const ensureHpStructure = hp => {
   ) {
     safeHp.studioSpecifico = {};
   }
-  safeHp.nomeEsame = Array.isArray(safeHp.nomeEsame)
-    ? safeHp.nomeEsame.filter(item => item && typeof item === 'object')
+  safeHp.examName = Array.isArray(safeHp.examName)
+    ? safeHp.examName.filter(item => item && typeof item === 'object')
     : [];
   safeHp.modality = Array.isArray(safeHp.modality)
     ? safeHp.modality.filter(item => item && typeof item === 'object')
@@ -416,7 +416,7 @@ const ensurePreferenzePayload = preferenzePayload => {
   return safePayload;
 };
 
-const logHpSalvataggio = (tipo, entry) => {
+const logHangingProtocolSave = (tipo, entry) => {
   console.log('[HP] Salvataggio', {
     tipo,
     aetitle,
@@ -437,16 +437,16 @@ const getAppliedHpConfig = preferenzeJson => {
   if (hp.studioSpecifico?.[studyInstanceUIDs]) {
     return { tipo: 'studioSpecifico', entry: hp.studioSpecifico[studyInstanceUIDs] };
   }
-  const nomeEsameNormalizzato = normalizza(studyDescription);
-  const matchEsame = (hp.nomeEsame || []).find(
-    item => normalizza(item?.nomeEsame) === nomeEsameNormalizzato
+  const normalisedExamName = normalizza(studyDescription);
+  const matchExam = (hp.examName || []).find(
+    item => normalizza(item?.examName) === normalisedExamName
   );
-  if (matchEsame) {
-    return { tipo: 'descrizioneEsame', entry: matchEsame };
+  if (matchExam) {
+    return { tipo: 'examDescription', entry: matchExam };
   }
   const modalityCandidates = normalizzaModality(modality);
   const matchModality = (hp.modality || []).find(item => {
-    const savedCandidates = normalizzaModality(item?.nomeModality);
+    const savedCandidates = normalizzaModality(item?.modalityName);
     return savedCandidates.some(value => modalityCandidates.includes(value));
   });
   if (matchModality) {
@@ -575,7 +575,7 @@ const buildSavedConfigHtml = (tipo, entry) => {
   const typeLabel =
     tipo === 'studioSpecifico'
       ? 'Attivi per: Studio specifico'
-      : tipo === 'descrizioneEsame'
+      : tipo === 'examDescription'
         ? 'Active for: exam description'
         : tipo === 'modality'
           ? 'Attivi per: Modality'
@@ -584,7 +584,7 @@ const buildSavedConfigHtml = (tipo, entry) => {
   const typeValue =
     tipo === 'studioSpecifico'
       ? studyInstanceUIDs
-      : tipo === 'descrizioneEsame'
+      : tipo === 'examDescription'
         ? studyDescription || ''
         : tipo === 'modality'
           ? modality || ''
@@ -640,15 +640,15 @@ const renderSavedConfig = preferenzeJson => {
   }
   container.innerHTML = buildSavedConfigHtml(match.tipo, match.entry);
 };
-async function salvataggioHP() {
+async function saveHangingProtocol() {
   await ensureStudyInfoFromMetadata();
   await creaDIV();
 }
 
-function hpAttualmenteSalvati() {
+function currentlySavedHangingProtocols() {
   syncStudyInfo();
   const configAttiva = [];
-  const key = `preferenzeUtente-${aetitle}`;
+  const key = `userPreferences-${aetitle}`;
   const cachedRaw = localStorage.getItem(key);
   if (!cachedRaw) {
     return configAttiva;
@@ -662,21 +662,21 @@ function hpAttualmenteSalvati() {
   }
 
   const hp = ensureHpStructure(cachedPreferences?.hp);
-  const preferenzeUtenteStudioSpecifico = hp.studioSpecifico;
-  const preferenzeUtenteEsame = hp.nomeEsame;
-  const preferenzeUtenteModality = hp.modality;
-  if (preferenzeUtenteStudioSpecifico[studyInstanceUIDs]) {
+  const userPreferencesForThisStudy = hp.studioSpecifico;
+  const userPreferencesByExam = hp.examName;
+  const userPreferencesByModality = hp.modality;
+  if (userPreferencesForThisStudy[studyInstanceUIDs]) {
     configAttiva.push('studioSpecifico');
   }
 
-  for (let i = 0; i < preferenzeUtenteEsame.length; i++) {
-    if (preferenzeUtenteEsame[i]?.nomeEsame === studyDescription) {
-      configAttiva.push('descrizioneEsame');
+  for (let i = 0; i < userPreferencesByExam.length; i++) {
+    if (userPreferencesByExam[i]?.examName === studyDescription) {
+      configAttiva.push('examDescription');
     }
   }
 
-  for (let i = 0; i < preferenzeUtenteModality.length; i++) {
-    if (modality !== '' && preferenzeUtenteModality[i]?.nomeModality === modality) {
+  for (let i = 0; i < userPreferencesByModality.length; i++) {
+    if (modality !== '' && userPreferencesByModality[i]?.modalityName === modality) {
       configAttiva.push('modality');
     }
   }
@@ -691,7 +691,7 @@ async function creaDIV() {
     return;
   }
 
-  const configAttiva = hpAttualmenteSalvati(); //Verifico gli HP attualmente attivi per lo studio
+  const configAttiva = currentlySavedHangingProtocols(); //Verifico gli HP attualmente attivi per lo studio
 
   const menuHP = /*html*/ `
   <div id="menu-hp">
@@ -721,11 +721,11 @@ async function creaDIV() {
 
   <div class="opzione-hp">
   <h3>Save the configuration attuale solo per questo tipo di <span style="color:#38bdf8">esame</span></h3>
-  <p>Gli Hanging Protocol si applicheranno a tutti gli esami con descrizione <span style="font-weight: 600;">${studyDescription}</span></p>
-  <p style="color:red;display:none" id="hp-descrizioneesame-presente">Hai attualmente una configurazione salvata per tutti gli esami con descrizione "${studyDescription}" </p>
-  <p style="color:red;display:none" id="esame-senza-nome">Questo esame non ha un nome, se salvi la configurazione quest'ultima si applicherà a tutti gli esami senza nome. </p>
-  <button id="save-hp-config-exam">${configAttiva.includes('descrizioneEsame') ? 'Overwrite the current configuration' : 'Save for this kind of exam'} </button>
-  <button style=${configAttiva.includes('descrizioneEsame') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-exam">Elimina configurazione salvata</button>
+  <p>Gli Hanging Protocol si applicheranno a tutti gli esami con description <span style="font-weight: 600;">${studyDescription}</span></p>
+  <p style="color:red;display:none" id="hp-descrizioneesame-presente">Hai attualmente una configurazione salvata per tutti gli esami con description "${studyDescription}" </p>
+  <p style="color:red;display:none" id="unnamed-exam">Questo esame non ha un nome, se salvi la configurazione quest'ultima si applicherà a tutti gli esami senza nome. </p>
+  <button id="save-hp-config-exam">${configAttiva.includes('examDescription') ? 'Overwrite the current configuration' : 'Save for this kind of exam'} </button>
+  <button style=${configAttiva.includes('examDescription') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-exam">Elimina configurazione salvata</button>
   </div>
 
   <div style="margin-right:0" class="opzione-hp">
@@ -782,7 +782,7 @@ async function creaDIV() {
     console.warn('The remote hanging protocol preferences were not fetched');
     let cached = {};
     try {
-      cached = JSON.parse(localStorage.getItem(`preferenzeUtente-${aetitle}`) || '{}');
+      cached = JSON.parse(localStorage.getItem(`userPreferences-${aetitle}`) || '{}');
     } catch (err) {
       console.warn('The cached hanging protocol preferences are not valid', err);
     }
@@ -795,14 +795,14 @@ async function creaDIV() {
 }
 
 async function componiHP(modalita) {
-  //modalita='specificStudy', 'descrizioneEsame', 'modality'
+  //modalita='specificStudy', 'examDescription', 'modality'
   //Ottengo gli HP aggiornati in tempo reale
   const preferenzeRemoteRaw = await letturaPreferenzeAPI(aetitle, username, studyInstanceUIDs);
   if (!preferenzeRemoteRaw) {
     return console.warn('The hanging protocol preferences could not be fetched');
   }
   const preferenzeRemote = ensurePreferenzePayload(preferenzeRemoteRaw);
-  const attualiHP = preferenzeRemote.json.hp;
+  const currentHangingProtocols = preferenzeRemote.json.hp;
   serieLabels = [];
   istanzeSpecifiche = [];
   mdvHP.stages[0].viewportStructure.properties.rows = Number(window.layout.split('x')[1]);
@@ -840,7 +840,7 @@ async function componiHP(modalita) {
     };
     cameraHP[hpViewportId] = cameraData;
     cameraByIndex.push(cameraData);
-    const descrizioneSerieFromUi =
+    const seriesDescriptionFromUi =
       element.parentElement.querySelector('[title="Series description"]')?.textContent?.trim() ||
       '';
     const displaySetService = window.servicesManager?.services?.displaySetService;
@@ -870,16 +870,16 @@ async function componiHP(modalita) {
     const instanceMeta = imageId ? metaData.get('instance', imageId) : null;
     const seriesInstanceUID = match ? match[1] : displaySetSeriesInstanceUID;
     const seriesNumber = instanceMeta?.SeriesNumber ?? displaySetSeriesNumber;
-    const descrizioneSerieFromMeta = instanceMeta?.SeriesDescription || '';
-    let descrizioneSerie =
-      descrizioneSerieFromUi || descrizioneSerieFromMeta || displaySetSeriesDescription;
-    if (typeof descrizioneSerie === 'string') {
-      descrizioneSerie = descrizioneSerie.trim();
+    const seriesDescriptionFromMeta = instanceMeta?.SeriesDescription || '';
+    let seriesDescription =
+      seriesDescriptionFromUi || seriesDescriptionFromMeta || displaySetSeriesDescription;
+    if (typeof seriesDescription === 'string') {
+      seriesDescription = seriesDescription.trim();
     }
-    if (!descrizioneSerie && seriesInstanceUID) {
+    if (!seriesDescription && seriesInstanceUID) {
       const displaySets = displaySetService?.getDisplaySetsForSeries?.(seriesInstanceUID) || [];
       const ds = displaySets[0];
-      descrizioneSerie = ds?.SeriesDescription || ds?.instances?.[0]?.SeriesDescription || '';
+      seriesDescription = ds?.SeriesDescription || ds?.instances?.[0]?.SeriesDescription || '';
     }
     // // //
     let numeroIstanza = null;
@@ -893,11 +893,11 @@ async function componiHP(modalita) {
     }
     istanzeSpecifiche.push(numeroIstanza);
     const seriesLabel = (() => {
-      if (descrizioneSerie && seriesNumber != null) {
-        return `Series ${seriesNumber} ${descrizioneSerie}`;
+      if (seriesDescription && seriesNumber != null) {
+        return `Series ${seriesNumber} ${seriesDescription}`;
       }
-      if (descrizioneSerie) {
-        return `Series ${descrizioneSerie}`;
+      if (seriesDescription) {
+        return `Series ${seriesDescription}`;
       }
       if (seriesNumber != null) {
         return `Series ${seriesNumber}`;
@@ -907,7 +907,7 @@ async function componiHP(modalita) {
     serieLabels.push(seriesLabel);
     const displaySetKey = `DisplaySet${i}`;
     //Series (se salvo come studio specifico mi vado a settare la SeriesInstanceUID piuttosto che la SeriesDescription)
-    const usaSeriesNumber = modalita !== 'specificStudy' && !descrizioneSerie && seriesNumber != null;
+    const usaSeriesNumber = modalita !== 'specificStudy' && !seriesDescription && seriesNumber != null;
     const attributoMatch =
       modalita === 'specificStudy'
         ? 'SeriesInstanceUID'
@@ -918,7 +918,7 @@ async function componiHP(modalita) {
       ? { contains: seriesInstanceUID }
       : usaSeriesNumber
         ? { equals: seriesNumber }
-        : { equals: descrizioneSerie };
+        : { equals: seriesDescription };
     mdvHP.displaySetSelectors[displaySetKey].seriesMatchingRules = [
       {
         attribute: attributoMatch,
@@ -936,13 +936,13 @@ async function componiHP(modalita) {
   return {
     cameraHP: cameraHP,
     cameraByIndex: cameraByIndex,
-    attualiHP: attualiHP,
+    currentHangingProtocols: currentHangingProtocols,
     preferenzeRemote: preferenzeRemote,
   };
 }
 
 async function saveSpecificStudy() {
-  const configAttiva = hpAttualmenteSalvati();
+  const configAttiva = currentlySavedHangingProtocols();
   if (configAttiva.includes('studioSpecifico')) {
     if (!confirm('Overwrite the current configuration?') == true) {
       return;
@@ -950,10 +950,10 @@ async function saveSpecificStudy() {
   }
 
   const hpComposed = await componiHP('specificStudy');
-  if (!hpComposed?.preferenzeRemote?.json || !hpComposed?.attualiHP) {
+  if (!hpComposed?.preferenzeRemote?.json || !hpComposed?.currentHangingProtocols) {
     return;
   }
-  const { cameraHP = {}, cameraByIndex = [], attualiHP = {}, preferenzeRemote = {} } = hpComposed;
+  const { cameraHP = {}, cameraByIndex = [], currentHangingProtocols = {}, preferenzeRemote = {} } = hpComposed;
 
   const entry = {
     performanceHP: mdvHP,
@@ -968,16 +968,16 @@ async function saveSpecificStudy() {
     istanzeSpecifiche: istanzeSpecifiche,
     serieLabels: serieLabels,
   };
-  attualiHP.studioSpecifico[studyInstanceUIDs] = entry;
-  logHpSalvataggio('studioSpecifico', entry);
-  preferenzeRemote.json.hp = attualiHP;
+  currentHangingProtocols.studioSpecifico[studyInstanceUIDs] = entry;
+  logHangingProtocolSave('studioSpecifico', entry);
+  preferenzeRemote.json.hp = currentHangingProtocols;
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
-  localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
+  localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   document.getElementById('menu-hp').remove();
   uiNotificationService.show({
     title: 'Hanging protocol',
@@ -987,24 +987,24 @@ async function saveSpecificStudy() {
 }
 
 async function saveConfigExam() {
-  const configAttiva = hpAttualmenteSalvati();
-  if (configAttiva.includes('descrizioneEsame')) {
+  const configAttiva = currentlySavedHangingProtocols();
+  if (configAttiva.includes('examDescription')) {
     if (!confirm('Overwrite the current configuration?') == true) {
       return;
     }
   }
-  const hpComposed = await componiHP('descrizioneEsame');
-  if (!hpComposed?.preferenzeRemote?.json || !hpComposed?.attualiHP) {
+  const hpComposed = await componiHP('examDescription');
+  if (!hpComposed?.preferenzeRemote?.json || !hpComposed?.currentHangingProtocols) {
     return;
   }
-  const { cameraHP = {}, cameraByIndex = [], attualiHP = {}, preferenzeRemote = {} } = hpComposed;
-  if (!Array.isArray(attualiHP.nomeEsame)) {
-    attualiHP.nomeEsame = [];
+  const { cameraHP = {}, cameraByIndex = [], currentHangingProtocols = {}, preferenzeRemote = {} } = hpComposed;
+  if (!Array.isArray(currentHangingProtocols.examName)) {
+    currentHangingProtocols.examName = [];
   }
 
-  const index = attualiHP.nomeEsame.findIndex(element => element?.nomeEsame === studyDescription);
+  const index = currentHangingProtocols.examName.findIndex(element => element?.examName === studyDescription);
   const entry = {
-    nomeEsame: studyDescription,
+    examName: studyDescription,
     performanceHP: mdvHP,
     layoutGriglia: window.layout,
     layoutPersonalizzato: null,
@@ -1019,21 +1019,21 @@ async function saveConfigExam() {
   };
   if (index !== -1) {
     // Overwrite l'oggetto esistente
-    attualiHP.nomeEsame[index] = entry;
+    currentHangingProtocols.examName[index] = entry;
   } else {
     // Aggiungi il nuovo oggetto all'array
-    attualiHP.nomeEsame.push(entry);
+    currentHangingProtocols.examName.push(entry);
   }
-  logHpSalvataggio('descrizioneEsame', entry);
+  logHangingProtocolSave('examDescription', entry);
 
-  preferenzeRemote.json.hp = attualiHP;
+  preferenzeRemote.json.hp = currentHangingProtocols;
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
-  localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
+  localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   document.getElementById('menu-hp').remove();
   uiNotificationService.show({
     title: 'Hanging protocol',
@@ -1043,24 +1043,24 @@ async function saveConfigExam() {
 }
 
 async function saveConfigModality() {
-  const configAttiva = hpAttualmenteSalvati();
+  const configAttiva = currentlySavedHangingProtocols();
   if (configAttiva.includes('modality')) {
     if (!confirm('Overwrite the current configuration?') == true) {
       return;
     }
   }
   const hpComposed = await componiHP('modality');
-  if (!hpComposed?.preferenzeRemote?.json || !hpComposed?.attualiHP) {
+  if (!hpComposed?.preferenzeRemote?.json || !hpComposed?.currentHangingProtocols) {
     return;
   }
-  const { cameraHP = {}, cameraByIndex = [], attualiHP = {}, preferenzeRemote = {} } = hpComposed;
-  if (!Array.isArray(attualiHP.modality)) {
-    attualiHP.modality = [];
+  const { cameraHP = {}, cameraByIndex = [], currentHangingProtocols = {}, preferenzeRemote = {} } = hpComposed;
+  if (!Array.isArray(currentHangingProtocols.modality)) {
+    currentHangingProtocols.modality = [];
   }
 
-  const index = attualiHP.modality.findIndex(element => element?.nomeModality === modality);
+  const index = currentHangingProtocols.modality.findIndex(element => element?.modalityName === modality);
   const entry = {
-    nomeModality: modality,
+    modalityName: modality,
     performanceHP: mdvHP,
     layoutGriglia: window.layout,
     layoutPersonalizzato: null,
@@ -1075,21 +1075,21 @@ async function saveConfigModality() {
   };
   if (index !== -1) {
     // Overwrite l'oggetto esistente
-    attualiHP.modality[index] = entry;
+    currentHangingProtocols.modality[index] = entry;
   } else {
     // Aggiungi il nuovo oggetto all'array
-    attualiHP.modality.push(entry);
+    currentHangingProtocols.modality.push(entry);
   }
-  logHpSalvataggio('modality', entry);
+  logHangingProtocolSave('modality', entry);
 
-  preferenzeRemote.json.hp = attualiHP;
+  preferenzeRemote.json.hp = currentHangingProtocols;
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
-  localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
+  localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   document.getElementById('menu-hp').remove();
   uiNotificationService.show({
     title: 'Hanging protocol',
@@ -1108,16 +1108,16 @@ async function deleteConfigSpecificStudy() {
     return console.warn('The hanging protocol preferences could not be fetched');
   }
   const preferenzeRemote = ensurePreferenzePayload(preferenzeRemoteRaw);
-  const attualiHP = preferenzeRemote.json.hp;
-  delete attualiHP.studioSpecifico[studyInstanceUIDs];
-  preferenzeRemote.json.hp = attualiHP;
+  const currentHangingProtocols = preferenzeRemote.json.hp;
+  delete currentHangingProtocols.studioSpecifico[studyInstanceUIDs];
+  preferenzeRemote.json.hp = currentHangingProtocols;
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
-  localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
+  localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   uiNotificationService.show({
     title: 'Hanging protocol',
     message: `Configuration deleted`,
@@ -1136,21 +1136,21 @@ async function deleteConfigExam() {
     return console.warn('The hanging protocol preferences could not be fetched');
   }
   const preferenzeRemote = ensurePreferenzePayload(preferenzeRemoteRaw);
-  const attualiHP = preferenzeRemote.json.hp;
-  if (!Array.isArray(attualiHP.nomeEsame)) {
-    attualiHP.nomeEsame = [];
+  const currentHangingProtocols = preferenzeRemote.json.hp;
+  if (!Array.isArray(currentHangingProtocols.examName)) {
+    currentHangingProtocols.examName = [];
   }
 
-  attualiHP.nomeEsame = attualiHP.nomeEsame.filter(item => item?.nomeEsame !== studyDescription);
+  currentHangingProtocols.examName = currentHangingProtocols.examName.filter(item => item?.examName !== studyDescription);
 
-  preferenzeRemote.json.hp = attualiHP;
+  preferenzeRemote.json.hp = currentHangingProtocols;
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
-  localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
+  localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   uiNotificationService.show({
     title: 'Hanging protocol',
     message: `Configuration deleted`,
@@ -1169,20 +1169,20 @@ async function deleteConfigModality() {
     return console.warn('The hanging protocol preferences could not be fetched');
   }
   const preferenzeRemote = ensurePreferenzePayload(preferenzeRemoteRaw);
-  const attualiHP = preferenzeRemote.json.hp;
-  if (!Array.isArray(attualiHP.modality)) {
-    attualiHP.modality = [];
+  const currentHangingProtocols = preferenzeRemote.json.hp;
+  if (!Array.isArray(currentHangingProtocols.modality)) {
+    currentHangingProtocols.modality = [];
   }
-  attualiHP.modality = attualiHP.modality.filter(item => item?.nomeModality !== modality);
+  currentHangingProtocols.modality = currentHangingProtocols.modality.filter(item => item?.modalityName !== modality);
 
-  preferenzeRemote.json.hp = attualiHP;
+  preferenzeRemote.json.hp = currentHangingProtocols;
 
   const resScrittura = await scritturaPreferenzeAPI(aetitle, username, preferenzeRemote.json);
   if (!resScrittura) {
     return console.warn('The hanging protocol preferences could not be saved');
   }
   //A questo punto li setto in localStorage
-  localStorage.setItem(`preferenzeUtente-${aetitle}`, JSON.stringify(preferenzeRemote.json));
+  localStorage.setItem(`userPreferences-${aetitle}`, JSON.stringify(preferenzeRemote.json));
   uiNotificationService.show({
     title: 'Hanging protocol',
     message: `Configuration deleted`,
@@ -1230,4 +1230,4 @@ async function scritturaPreferenzeAPI(aetitle, username, body) {
   }
 }
 
-export default salvataggioHP;
+export default saveHangingProtocol;

@@ -8,7 +8,7 @@ import { primaryAxial } from './hps/primaryAxial';
 import { frameView } from './hps/frameView';
 import { frameView3x3 } from './hps/frameView3x3';
 import { frameView4x4 } from './hps/frameView4x4';
-import { preferiti } from './hps/preferiti';
+import { favourites } from './hps/favourites';
 import { mdvHP } from './hps/mdvHP';
 
 function getHangingProtocolModule() {
@@ -54,8 +54,8 @@ function getHangingProtocolModule() {
     //   protocol: frameView4x4,
     // },
     // {
-    //   name: preferiti.id,
-    //   protocol: preferiti,
+    //   name: favourites.id,
+    //   protocol: favourites,
     // },
     // {
     //   name: mdvHP.id,

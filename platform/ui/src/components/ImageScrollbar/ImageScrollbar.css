@@ -1,8 +1,8 @@
 /*
  * Scrollbar serie (dentro ogni viewport con più di un'immagine).
- * Stile sottile e chiaro: track fine e tenue a tutta altezza + thumb chiaro
+ * Stile sottile e chiaro: track fine e tenue a tutta height + thumb chiaro
  * arrotondato. L'input range è ruotato 90° per diventare verticale (la
- * "larghezza" dell'input = lunghezza verticale, l'"altezza" = spessore).
+ * "width" dell'input = lunghezza verticale, l'"height" = spessore).
  */
 .scroll {
   height: calc(100% - 30px);
@@ -45,7 +45,7 @@
   border: none;
 }
 
-/* ---- Track: linea sottile e tenue, a tutta altezza ---- */
+/* ---- Track: linea sottile e tenue, a tutta height ---- */
 .scroll .scroll-holder .imageSlider::-webkit-slider-runnable-track {
   height: 3px;
   border: none;

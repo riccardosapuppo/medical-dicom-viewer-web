@@ -45,9 +45,9 @@ export function StudyBrowserViewOptions({ tabs, onSelectTab, activeTabName }: wi
 
   // Una linguetta sola non e una scelta.
   //
-  // Quando il paziente non ha esami precedenti resta il solo "Studio attuale":
+  // Quando il patient non ha esami precedenti resta il solo "Studio attuale":
   // un pulsante gia acceso, che porta dove si e gia. Occupa una fascia alta
-  // quarantotto pixel sopra l'elenco delle serie per non dire niente.
+  // quarantotto pixel sopra l'list delle serie per non dire niente.
   if (!tabs || tabs.length < 2) {
     return null;
   }
@@ -60,7 +60,7 @@ export function StudyBrowserViewOptions({ tabs, onSelectTab, activeTabName }: wi
             const { name, label, studies } = tab;
             const isActive = activeTabName === name;
             // Nessuna tab viene disabilitata: una lista vuota di solito significa solo
-            // che lo storico non ha ancora finito di caricare. Disabilitare il bottone
+            // che lo priors non ha ancora finito di caricare. Disabilitare il bottone
             // faceva perdere il primo click senza dare alcun riscontro all'utente.
             const isDisabled = false;
             const baseClasses = `${label && label.replace(/\s+/g, '').toLowerCase()} qualestudio-btn leading-none font-sans text-center justify-center items-center outline-none transition duration-300 ease-in-out focus:outline-none text-primary-light hover:bg-primary-light hover:text-black focus:text-black focus:bg-primary-light active:opacity-80 bg-black inline-flex border outline-none border border-r-0 last:border-r border border-secondary-light first:rounded-l-md last:rounded-r-md min-w-18 p-2 text-base text-white border-l-0 last:border-r-0`;

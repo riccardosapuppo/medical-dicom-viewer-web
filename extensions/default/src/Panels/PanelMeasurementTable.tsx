@@ -218,7 +218,7 @@ export default function PanelMeasurementTable({
         data-cy={'measurements-panel'}
       >
         <MeasurementTable
-          title={t('Misurazioni')}
+          title={t('Measurements')}
           servicesManager={servicesManager}
           data={displayMeasurements}
           onClick={jumpToImage}

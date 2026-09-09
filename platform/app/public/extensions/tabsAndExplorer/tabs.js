@@ -27,8 +27,8 @@ const isStudyListEnabled = window?.config?.showStudyList !== false;
 const PIANI = {
   nascosto: -1,
   contenuto: 1,
-  barraSchede: 10,
-  schedaPaziente: 11,
+  tabBar: 10,
+  patientTab: 11,
   modale: 100,
 };
 
@@ -170,14 +170,14 @@ function getQueryParamCaseInsensitive(...keys) {
  * Cerca un elemento il cui title parli di accession e ne legge il testo. Va
  * pero tenuta fuori dalla barra delle linguette: ogni linguetta di studio porta
  * come title il riassunto costruito dalla lista, che contiene la riga
- * "Accession: ...". Senza questa esclusione la linguetta del paziente si
+ * "Accession: ...". Senza questa esclusione la linguetta del patient si
  * prendeva l accession di un ALTRO studio aperto, e due schede diverse
  * mostravano lo stesso numero - erano lo stesso studio a vedersi, e non lo era.
  */
 function getAccessionFromDom() {
-  const barraSchede = document.getElementById('mdv-tab-container');
+  const tabBar = document.getElementById('mdv-tab-container');
   const nodesWithTitle = Array.from(document.querySelectorAll('[title]')).filter(
-    node => !barraSchede || !barraSchede.contains(node)
+    node => !tabBar || !tabBar.contains(node)
   );
   for (const node of nodesWithTitle) {
     const title = normalizeInfoText(node.getAttribute('title'));
@@ -204,7 +204,7 @@ function getPatientNameForTab() {
 }
 
 /**
- * L identificativo del paziente, che c e anche quando il nome non c e.
+ * L identificativo del patient, che c e anche quando il nome non c e.
  *
  * Il DICOM puo non avere PatientName - LIDC-IDRI-0001 nell archivio
  * dimostrativo non ce l ha - ma PatientID viene riempito sempre. Sta in
@@ -229,15 +229,15 @@ function getAccessionForTab() {
 }
 
 /**
- * L etichetta della scheda: chi e il paziente, e quale esame.
+ * L etichetta della scheda: chi e il patient, e quale esame.
  *
- * Sono i due dati con cui si riconosce uno studio in un elenco di lavoro, ed e
+ * Sono i due dati con cui si riconosce uno studio in un list di lavoro, ed e
  * la forma del progetto da cui questo deriva. Avevo messo un ripiego, "Studio",
- * che per uno studio senza nome paziente - LIDC-IDRI-0001 nell archivio
+ * che per uno studio senza nome patient - LIDC-IDRI-0001 nell archivio
  * dimostrativo non ce l ha - restava li per sempre: la scheda non diceva piu
  * quale studio fosse, e due schede diverse si leggevano uguali.
  *
- * Il nome, se manca, cede all identificativo del paziente, che c e sempre ed e
+ * Il nome, se manca, cede all identificativo del patient, che c e sempre ed e
  * quello che l intestazione mostra comunque. Il trattino si scrive solo se c e
  * qualcosa da separare: senza accession finiva appeso al nulla e faceva andare
  * a capo la crocetta di chiusura.
@@ -261,8 +261,8 @@ function updatePatientTabDescription() {
   // in momenti diversi - l accession un commit React prima - quindi bastava il
   // nome perche il giro finisse e l accession non comparisse mai. Si ferma
   // quando li ha entrambi, o quando scade il tempo.
-  const descrizione = buildPatientTabDescription();
-  titleNode.textContent = descrizione;
+  const description = buildPatientTabDescription();
+  titleNode.textContent = description;
   // Riuscita vuol dire che l etichetta e completa: identita e accession.
   // Chi non ha ne l una ne l altra si ferma comunque allo scadere del tempo.
   return Boolean(getPatientNameForTab() || getPatientIdForTab()) && Boolean(getAccessionForTab());
@@ -281,7 +281,7 @@ function startPatientTabInfoRefresh() {
   //
   // Erano trenta tentativi da 350 millisecondi: dieci secondi e mezzo. Uno
   // studio dall archivio ne impiega venti o trenta, quindi il giro finiva
-  // prima che i dati del paziente esistessero, e l etichetta restava "Studio"
+  // prima che i dati del patient esistessero, e l etichetta restava "Studio"
   // per sempre.
   const ATTESA_MASSIMA_MS = 60000;
   const PASSO_MS = 350;
@@ -445,7 +445,7 @@ function injectCssIntoIframe(iframe) {
         .logo-container
         {top: 22px; !important;}
 
-        .div-info-paziente{
+        .div-patient-info{
         display:none
         }
         `
@@ -509,7 +509,7 @@ function preloadEmptyIframe() {
   // Veniva marcata pronta nell istante in cui l iframe viene creato, prima di
   // avere caricato qualunque cosa: premendo il "+" si rivelava una pagina che
   // stava ancora disegnando, e il contenuto compariva a pezzi. Il segnale vero
-  // e il messaggio mdv-iframe-ready, lo stesso che usano le schede di studio.
+  // e il message mdv-iframe-ready, lo stesso che usano le schede di studio.
   // Il tempo massimo evita che un segnale mancato lasci il "+" in attesa per
   // sempre.
   startIframeReadyTimeout(iframeId, 'Lista studi');
@@ -563,7 +563,7 @@ function openRouteInModal(url) {
   // Lo studio gia aperto si mostra, non si riapre.
   //
   // Il controllo guardava solo le schede create da qui, e non quella del
-  // paziente, che e la prima e non passa da questa funzione. Riaprendo dalla
+  // patient, che e la prima e non passa da questa funzione. Riaprendo dalla
   // lista lo studio che si stava gia guardando si otteneva una seconda scheda
   // dello stesso studio, indistinguibile dalla prima.
   const studioDellaScheda = window.mdvStudyInstanceUIDs;
@@ -657,7 +657,7 @@ if (window.self === window.top) {
   // Aperto vuol dire anche "e quello di questa pagina".
 //
 // La lista usa questo per segnare le righe gia aperte. Guardava solo le schede
-// create qui, quindi lo studio della linguetta paziente non risultava aperto -
+// create qui, quindi lo studio della linguetta patient non risultava aperto -
 // e cliccandolo non succedeva quello che la riga prometteva, perche la
 // deduplicazione lo riconosce e riporta alla sua linguetta.
 window.mdvIsStudyOpenInTab = studyId =>
@@ -821,7 +821,7 @@ function startMainAreaHeightSync() {
     observeLayoutTarget('.mdv-bar');
     observeLayoutTarget('#mdv-tab-container');
     observeLayoutTarget('.toolbar-child-flex');
-    observeLayoutTarget('.div-info-paziente');
+    observeLayoutTarget('.div-patient-info');
 
     mainAreaHeightMutationObserver = new MutationObserver(() => {
       observeLayoutTarget('.mdv-bar');
@@ -968,7 +968,7 @@ function injectTabs(target) {
   plusTab.style.fontWeight = 'bold';
   plusTab.style.borderRadius = '4px';
   plusTab.style.userSelect = 'none';
-  plusTab.style.zIndex = String(PIANI.barraSchede);
+  plusTab.style.zIndex = String(PIANI.tabBar);
   plusTab.style.whiteSpace = 'nowrap';
 
   plusTab.addEventListener('mouseenter', () => {
@@ -1026,12 +1026,12 @@ function injectTabs(target) {
       const viewportWidth =
         window.visualViewport?.width || window.innerWidth || document.documentElement.clientWidth || 0;
       if (viewportWidth > 0) {
-        //Con lo storico affiancato la barra dei tab deve fermarsi al bordo
-        //dell'iframe: lo storico e' allineato in alto e coprirebbe i tab che
+        //Con lo priors affiancato la barra dei tab deve fermarsi al bordo
+        //dell'iframe: lo priors e' allineato in alto e coprirebbe i tab che
         //sconfinano nella sua meta'.
-        const iframeStorico = document.getElementById('iframe-storico');
-        const bordoStorico = iframeStorico ? iframeStorico.getBoundingClientRect().left : 0;
-        const limiteDestro = bordoStorico > safeLeft ? bordoStorico : viewportWidth;
+        const priorsIframe = document.getElementById('priors-iframe');
+        const priorsBorder = priorsIframe ? priorsIframe.getBoundingClientRect().left : 0;
+        const limiteDestro = priorsBorder > safeLeft ? priorsBorder : viewportWidth;
         const maxWidth = Math.max(220, Math.floor(limiteDestro - safeLeft - 12));
         container.style.maxWidth = `${maxWidth}px`;
       }
@@ -1157,9 +1157,9 @@ function setExplorerUiVisibility(isExplorer) {
   if (toolbar) {
     toolbar.style.display = isExplorer ? 'none' : '';
   }
-  const infoPazienteDiv = document.querySelector('.div-info-paziente');
-  if (infoPazienteDiv) {
-    infoPazienteDiv.style.display = isExplorer ? 'none' : '';
+  const patientInfoDiv = document.querySelector('.div-patient-info');
+  if (patientInfoDiv) {
+    patientInfoDiv.style.display = isExplorer ? 'none' : '';
   }
 
   scheduleMainAreaHeightSync();
@@ -1218,7 +1218,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   // Lo studio gia aperto si mostra, non si riapre.
   //
   // Il controllo guardava solo le schede create da qui, e non quella del
-  // paziente, che e la prima e non passa da questa funzione. Riaprendo dalla
+  // patient, che e la prima e non passa da questa funzione. Riaprendo dalla
   // lista lo studio che si stava gia guardando si otteneva una seconda scheda
   // dello stesso studio, indistinguibile dalla prima.
   const studioDellaScheda = window.mdvStudyInstanceUIDs;
@@ -1261,7 +1261,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   tab.style.cursor = 'pointer';
   tab.style.userSelect = 'none';
   tab.style.whiteSpace = 'nowrap';
-  tab.style.zIndex = String(PIANI.barraSchede);
+  tab.style.zIndex = String(PIANI.tabBar);
   tab.style.transition = 'background 0.2s';
   tab.style.border = '1px solid transparent';
 
@@ -1274,7 +1274,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   titleSpan.style.overflow = 'hidden';
   titleSpan.style.whiteSpace = 'nowrap';
   titleSpan.style.textOverflow = 'ellipsis';
-  titleSpan.style.maxWidth = '270px';      // ← decide tu la larghezza
+  titleSpan.style.maxWidth = '270px';      // ← decide tu la width
   titleSpan.style.display = 'inline-block';
   titleSpan.style.flexShrink = '1';
 
@@ -1406,7 +1406,7 @@ function showIframeForTab(iframeId) {
   //
   // Era l'unica esentata: veniva rivelata subito, cosi' la pagina si svuotava e
   // il suo contenuto compariva a pezzi. Aspetta lo stesso segnale delle altre -
-  // il messaggio mdv-iframe-ready che ogni scheda manda quando ha disegnato -
+  // il message mdv-iframe-ready che ogni scheda manda quando ha disegnato -
   // e lo scambio diventa uno solo.
   if (iframe && iframe.dataset.loaded !== 'true') {
     pendingIframeId = resolvedIframeId;
@@ -1443,7 +1443,7 @@ function showIframeForTab(iframeId) {
   setPatientTabActive(resolvedIframeId === 'none');
   setExplorerUiVisibility(resolvedIframeId === 'mdv-dynamic-iframe-empty');
 
-  // Tab paziente → nessun iframe visibile
+  // Tab patient → nessun iframe visibile
   if (resolvedIframeId === 'none') {
     updatePatientCloseButton();
     return;
@@ -1476,7 +1476,7 @@ function showIframeForTab(iframeId) {
     patientTab.style.opacity = '1';
     patientTab.style.display = 'block';
     patientTab.style.pointerEvents = 'auto';
-    patientTab.style.zIndex = String(PIANI.schedaPaziente);
+    patientTab.style.zIndex = String(PIANI.patientTab);
     patientTab.dataset.visible = "true";
   } else {
     // Se l’iframe NON è quello del pulsante +, nascondo la tab principale
@@ -1494,7 +1494,7 @@ function showIframeForTab(iframeId) {
 
       patientTab.style.opacity = '1';
       patientTab.style.pointerEvents = 'auto';
-      patientTab.style.zIndex = String(PIANI.schedaPaziente);
+      patientTab.style.zIndex = String(PIANI.patientTab);
       patientTab.dataset.visible = "true";
 
     }
@@ -1503,7 +1503,7 @@ function showIframeForTab(iframeId) {
 
       patientTab.style.opacity = '1';
       patientTab.style.pointerEvents = 'auto';
-      patientTab.style.zIndex = String(PIANI.schedaPaziente);
+      patientTab.style.zIndex = String(PIANI.patientTab);
       patientTab.dataset.visible = "true";
 
     }
@@ -1544,7 +1544,7 @@ function removeDynamicTab(tab) {
     const patientTab = document.getElementById('explorer-tab-btn');
     patientTab.style.opacity = '1';
     patientTab.style.pointerEvents = 'auto';
-    patientTab.style.zIndex = String(PIANI.schedaPaziente);
+    patientTab.style.zIndex = String(PIANI.patientTab);
     patientTab.dataset.visible = "true";
     updatePatientCloseButton();
     return;

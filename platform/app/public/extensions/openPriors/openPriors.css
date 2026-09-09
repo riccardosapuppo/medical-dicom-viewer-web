@@ -23,7 +23,7 @@
   animation: spin 1s linear infinite;
 }
 
-.storico-same-tab {
+.priors-same-tab {
   border: 1px solid #53708d;
   padding: 1px 3px;
   margin-left: 10px;
@@ -39,7 +39,7 @@
     }
   }
 
-  /* Controlli finestra stile mac (tabs.js): la finestra dello storico e'
+  /* Controlli finestra stile mac (tabs.js): la finestra dello priors e'
      un iframe, si chiude col suo pulsante dedicato. */
   #mdv-window-controls {
     display: none !important;
@@ -53,12 +53,12 @@
     display: none !important;
   }
 
-  .chiudi-modalita-mpr {
+  .close-mpr-mode {
     right: 5px;
     position: absolute;
   }
 
-  #preferiti-tools,
+  #favourites-tools,
   #editor-tools {
     width: 40%;
   }
@@ -69,19 +69,19 @@
   }
   .text-muted-foreground.flex.items-center.justify-center span:after {
     visibility: visible;
-    content: 'Storico';
+    content: 'Priors';
     color: #0ea5e9;
     left: -13px;
     position: relative;
   }
 }
 
-[data-cy='LayoutMPRStorico'] {
+[data-cy='LayoutMPRPriors'] {
   opacity: 0.5;
   pointer-events: none;
 }
 
-[data-cy='LayoutMPRStorico']::after {
+[data-cy='LayoutMPRPriors']::after {
   content: 'S';
   position: absolute;
   bottom: 0px;
@@ -97,34 +97,34 @@
   border: 2px solid white;
 }
 
-.advanced-layout-storico-same-tab {
+.advanced-layout-priors-same-tab {
   display: none;
   filter: hue-rotate(205deg);
 }
 
-.standard-layout-storico-same-tab,
-.custom-layout-storico-same-tab {
+.standard-layout-priors-same-tab,
+.custom-layout-priors-same-tab {
   filter: hue-rotate(205deg);
 }
 
 .secondo-mpr-attivo {
-  .standard-layout-storico-same-tab,
-  .custom-layout-storico-same-tab {
+  .standard-layout-priors-same-tab,
+  .custom-layout-priors-same-tab {
     display: none;
   }
-  .advanced-layout-storico-same-tab {
+  .advanced-layout-priors-same-tab {
     display: block;
   }
   .parent-Crosshairs,
   .parent-TrackballRotate {
     display: block;
   }
-  [data-cy='LayoutMPRStorico'] {
+  [data-cy='LayoutMPRPriors'] {
     background: #1a237e;
   }
 }
 
-.chiudi-iframe {
+.close-iframe {
   color: #fff;
   position: absolute;
   left: 3px;

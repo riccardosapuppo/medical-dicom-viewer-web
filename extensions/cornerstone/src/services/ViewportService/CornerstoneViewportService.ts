@@ -36,7 +36,7 @@ import {
   clearFraming,
   framingBeforeResize,
   notifyFramingApplied,
-} from '../../../../../platform/app/public/estensioni/gestioneHP/framing';
+} from '../../../../../platform/app/public/extensions/hangingProtocols/framing';
 import { ViewportProperties } from '@cornerstonejs/core/types';
 import { useLutPresentationStore } from '../../stores/useLutPresentationStore';
 import { usePositionPresentationStore } from '../../stores/usePositionPresentationStore';
@@ -774,7 +774,7 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
     }
 
     return viewport.setStack(imageIdsToSet, initialImageIndexToUse).then(() => {
-      // Nuovo stack sulla stessa viewport: l'inquadratura relativa memorizzata
+      // Nuovo stack sulla stessa viewport: l'framing relativa memorizzata
       // apparteneva al contenuto precedente.
       clearFraming(viewport.id);
       if (!window.mdvAllReady) {
@@ -813,10 +813,10 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
         ) {
           const applyCameraAndVoi = () => {
             if (hpCameraSettings) {
-              // Inquadratura RELATIVA salvata nell'HP (framing.js): indipendente
+              // Framing RELATIVA salvata nell'HP (framing.js): indipendente
               // dalla dimensione della cella, quindi corretta anche quando l'HP
               // viene applicato in una cella diversa da quella del salvataggio
-              // (storico affiancato, monitor diversi). Se assente o non
+              // (priors affiancato, monitor diversi). Se assente o non
               // applicabile, percorso precedente INVARIATO.
               if (applyFraming(viewport, (hpCameraSettings as any).framing)) {
                 notifyFramingApplied(viewport);
@@ -1647,10 +1647,10 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
       // resize prima.
       this.beforeResizePositionPresentations.clear();
       const viewports = this.getRenderingEngine().getViewports();
-      // Inquadratura RELATIVA per viewport (vedi estensioni/gestioneHP/framing.js):
+      // Framing RELATIVA per viewport (vedi extensions/hangingProtocols/framing.js):
       // fotografata PRIMA del resize (stato cornerstone ancora coerente) e
       // ri-applicata DOPO, cosi' la posizione scelta dall'utente sopravvive al
-      // cambio di dimensione della cella (storico affiancato, one-up, pannelli).
+      // cambio di dimensione della cella (priors affiancato, one-up, pannelli).
       const framingsBeforeResize = new Map<string, any>();
 
       // Store the current position presentations for each viewport.
@@ -1694,7 +1694,7 @@ class CornerstoneViewportService extends PubSubService implements IViewportServi
       renderingEngine.resize(isImmediate);
       renderingEngine.render();
 
-      // Ricalcola la camera dall'inquadratura relativa sulle NUOVE dimensioni.
+      // Ricalcola la camera dall'framing relativa sulle NUOVE dimensioni.
       // Sovrascrive il pan in pixel appena ripristinato da setPresentations, che
       // non e' robusto al cambio di dimensione (e' la causa del bug "le serie
       // spariscono"). Interruttore: window.mdvFramingOff = true.

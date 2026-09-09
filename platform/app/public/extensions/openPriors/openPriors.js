@@ -1,8 +1,8 @@
 /* eslint-disable default-case */
 
-const STORICO_IFRAME_READY_TIMEOUT_MS = 25000;
-let storicoReadyTimeoutId = null;
-let storicoPendingPreloader = null;
+const PRIORS_IFRAME_READY_TIMEOUT_MS = 25000;
+let priorsReadyTimeoutId = null;
+let priorsPendingPreloader = null;
 
 function normalizeValue(value) {
   if (value === null || value === undefined) {
@@ -40,7 +40,7 @@ function getParamCaseInsensitive(params, ...keys) {
   return '';
 }
 
-function parseStoricoLink(linkValue) {
+function parsePriorsLink(linkValue) {
   const raw = normalizeValue(linkValue);
   if (!raw) {
     return {};
@@ -59,7 +59,7 @@ function parseStoricoLink(linkValue) {
   }
 }
 
-function resolveStoricoContext(e, studyInstanceUID, options = {}) {
+function resolvePriorsContext(e, studyInstanceUID, options = {}) {
   const normalizedOptions =
     typeof options === 'string' ? { aetitle: options } : options || {};
   const target = e?.currentTarget;
@@ -68,7 +68,7 @@ function resolveStoricoContext(e, studyInstanceUID, options = {}) {
       '[data-study-instance-uid],[data-study-instance-uids],[data-studyuid],[data-study],[data-aetitle],[data-partizione],[data-url]'
     ) || null;
 
-  const parsedLink = parseStoricoLink(
+  const parsedLink = parsePriorsLink(
     normalizedOptions.url ||
     getDataAttributeValue(target, ['url', 'viewerUrl', 'link']) ||
     getDataAttributeValue(carrier, ['url', 'viewerUrl', 'link']) ||
@@ -116,31 +116,31 @@ function resolveStoricoContext(e, studyInstanceUID, options = {}) {
   };
 }
 
-function clearStoricoLoadingState({ removePreloader = false } = {}) {
-  if (storicoReadyTimeoutId) {
-    clearTimeout(storicoReadyTimeoutId);
-    storicoReadyTimeoutId = null;
+function clearPriorsLoadingState({ removePreloader = false } = {}) {
+  if (priorsReadyTimeoutId) {
+    clearTimeout(priorsReadyTimeoutId);
+    priorsReadyTimeoutId = null;
   }
-  if (removePreloader && storicoPendingPreloader?.isConnected) {
-    storicoPendingPreloader.remove();
+  if (removePreloader && priorsPendingPreloader?.isConnected) {
+    priorsPendingPreloader.remove();
   }
-  storicoPendingPreloader = null;
+  priorsPendingPreloader = null;
 }
 
-function showStoricoLoadingError(
+function showPriorsLoadingError(
   message = 'The prior study could not be loaded. Check the token, the AE title, and whether the data is there.'
 ) {
-  if (!storicoPendingPreloader || !storicoPendingPreloader.isConnected) {
-    clearStoricoLoadingState();
+  if (!priorsPendingPreloader || !priorsPendingPreloader.isConnected) {
+    clearPriorsLoadingState();
     return;
   }
 
-  if (storicoReadyTimeoutId) {
-    clearTimeout(storicoReadyTimeoutId);
-    storicoReadyTimeoutId = null;
+  if (priorsReadyTimeoutId) {
+    clearTimeout(priorsReadyTimeoutId);
+    priorsReadyTimeoutId = null;
   }
 
-  const preloader = storicoPendingPreloader;
+  const preloader = priorsPendingPreloader;
   preloader.innerHTML = '';
   preloader.style.display = 'flex';
   preloader.style.alignItems = 'center';
@@ -177,7 +177,7 @@ function showStoricoLoadingError(
   closeButton.style.borderRadius = '4px';
   closeButton.style.cursor = 'pointer';
   closeButton.addEventListener('click', () => {
-    window.postMessage('chiudi-iframe-storico', '*');
+    window.postMessage('close-priors-iframe', '*');
   });
 
   wrapper.appendChild(title);
@@ -187,90 +187,90 @@ function showStoricoLoadingError(
 }
 
 // ---------------------------------------------------------------------------
-// ALLINEAMENTO VERTICALE DELLO STORICO AFFIANCATO
+// ALLINEAMENTO VERTICALE DELLO PRIORS AFFIANCATO
 //
-// L'iframe dello storico e' un float inserito DOPO la barra dei tab dello
-// studio principale, quindi parte gia' piu' in basso di tutta l'altezza della
-// barra; al suo interno ha a sua volta la propria etichetta paziente, che
+// L'iframe dello priors e' un float inserito DOPO la barra dei tab dello
+// studio principale, quindi parte gia' piu' in basso di tutta l'height della
+// barra; al suo interno ha a sua volta la propria etichetta patient, che
 // finiva percio' ben sotto quella dello studio principale e faceva scendere
-// anche la griglia dello storico.
-// Invece di inseguire numeri fissi (l'altezza dipende da header, banner
+// anche la griglia dello priors.
+// Invece di inseguire numeri fissi (l'height dipende da header, banner
 // estensione, zoom del browser) misuriamo a runtime: l'iframe viene tirato su
-// con un margine negativo finche' la sua etichetta e' alla stessa altezza di
+// con un margine negativo finche' la sua etichetta e' alla stessa height di
 // quella principale, e la sua area viewport viene chiusa esattamente sul fondo
 // di quella dello studio principale. Vale per qualsiasi configurazione.
 // ---------------------------------------------------------------------------
 
-let storicoAllineamentoIntervalId = null;
-let storicoAllineamentoResizeId = null;
+let priorsAlignmentIntervalId = null;
+let priorsAlignmentResizeId = null;
 
-function stopAllineamentoStorico() {
-  if (storicoAllineamentoIntervalId) {
-    clearInterval(storicoAllineamentoIntervalId);
-    storicoAllineamentoIntervalId = null;
+function stopPriorsAlignment() {
+  if (priorsAlignmentIntervalId) {
+    clearInterval(priorsAlignmentIntervalId);
+    priorsAlignmentIntervalId = null;
   }
 }
 
 /**
- * Allinea l'iframe dello storico allo studio principale.
+ * Allinea l'iframe dello priors allo studio principale.
  * @returns {boolean} true se le misure erano disponibili ed e' stato applicato.
  */
-function allineaStoricoAlloStudioPrincipale() {
-  const iframe = document.getElementById('iframe-storico');
-  const areaPrincipale = document.querySelector('.mdv-main-area');
-  if (!iframe || !areaPrincipale) {
+function alignPriorsToMainStudy() {
+  const iframe = document.getElementById('priors-iframe');
+  const mainArea = document.querySelector('.mdv-main-area');
+  if (!iframe || !mainArea) {
     return false;
   }
 
-  let documentoStorico = null;
+  let priorsDocument = null;
   try {
-    documentoStorico = iframe.contentDocument;
+    priorsDocument = iframe.contentDocument;
   } catch (_) {
     return false; //iframe non ancora accessibile
   }
-  const areaStorico = documentoStorico?.querySelector('.mdv-main-area');
-  if (!areaStorico) {
+  const priorsArea = priorsDocument?.querySelector('.mdv-main-area');
+  if (!priorsArea) {
     return false;
   }
 
-  //Riferimento per l'allineamento in alto: l'etichetta paziente se c'e' da
+  //Riferimento per l'allineamento in alto: l'etichetta patient se c'e' da
   //entrambe le parti (e' quella che l'utente vede), altrimenti l'area viewport.
-  const barraTabPrincipale = document.getElementById('mdv-tab-container');
-  const barraTabStorico = documentoStorico.getElementById('mdv-tab-container');
-  const usoBarraTab = Boolean(barraTabPrincipale && barraTabStorico);
-  const riferimentoPrincipale = usoBarraTab ? barraTabPrincipale : areaPrincipale;
-  const riferimentoStorico = usoBarraTab ? barraTabStorico : areaStorico;
+  const mainTabBar = document.getElementById('mdv-tab-container');
+  const priorsTabBar = priorsDocument.getElementById('mdv-tab-container');
+  const tabBarUse = Boolean(mainTabBar && priorsTabBar);
+  const mainRef = tabBarUse ? mainTabBar : mainArea;
+  const priorsRef = tabBarUse ? priorsTabBar : priorsArea;
 
-  //1) Etichetta dello storico alla stessa altezza di quella principale.
+  //1) Etichetta dello priors alla stessa height di quella principale.
   iframe.style.marginTop = '0px';
   const scarto = Math.round(
     iframe.getBoundingClientRect().top +
-      riferimentoStorico.getBoundingClientRect().top -
-      riferimentoPrincipale.getBoundingClientRect().top
+      priorsRef.getBoundingClientRect().top -
+      mainRef.getBoundingClientRect().top
   );
   if (scarto > 0) {
     iframe.style.marginTop = `-${scarto}px`;
   }
 
-  //2) Cornice e griglia dello storico chiuse sul fondo di quella principale.
-  //   Le regole CSS .storico-same-tab sono !important, quindi lo sono anche
+  //2) Cornice e griglia dello priors chiuse sul fondo di quella principale.
+  //   Le regole CSS .priors-same-tab sono !important, quindi lo sono anche
   //   queste altezze calcolate.
-  const fondoPrincipale = areaPrincipale.getBoundingClientRect().bottom;
+  const mainBackground = mainArea.getBoundingClientRect().bottom;
   const cimaIframe = iframe.getBoundingClientRect().top;
 
-  const corpoStorico = documentoStorico.body;
-  const altezzaCorpo = Math.round(
-    fondoPrincipale - (cimaIframe + corpoStorico.getBoundingClientRect().top)
+  const priorsBody = priorsDocument.body;
+  const bodyHeight = Math.round(
+    mainBackground - (cimaIframe + priorsBody.getBoundingClientRect().top)
   );
-  if (altezzaCorpo > 0) {
-    corpoStorico.style.setProperty('height', `${altezzaCorpo}px`, 'important');
+  if (bodyHeight > 0) {
+    priorsBody.style.setProperty('height', `${bodyHeight}px`, 'important');
   }
 
-  const altezzaArea = Math.round(
-    fondoPrincipale - (cimaIframe + areaStorico.getBoundingClientRect().top)
+  const areaHeight = Math.round(
+    mainBackground - (cimaIframe + priorsArea.getBoundingClientRect().top)
   );
-  if (altezzaArea > 0) {
-    areaStorico.style.setProperty('height', `${altezzaArea}px`, 'important');
+  if (areaHeight > 0) {
+    priorsArea.style.setProperty('height', `${areaHeight}px`, 'important');
   }
 
   return true;
@@ -280,65 +280,65 @@ function allineaStoricoAlloStudioPrincipale() {
  * Avvia l'allineamento: la barra dei tab dentro l'iframe viene creata in modo
  * asincrono, quindi riproviamo finche' le misure ci sono (max ~10s).
  */
-function avviaAllineamentoStorico() {
-  stopAllineamentoStorico();
+function startPriorsAlignment() {
+  stopPriorsAlignment();
 
   let tentativi = 0;
   let concluso = false;
   const prova = () => {
     tentativi += 1;
-    const fatto = allineaStoricoAlloStudioPrincipale();
+    const fatto = alignPriorsToMainStudy();
     if (fatto || tentativi > 40) {
       concluso = true;
-      stopAllineamentoStorico();
+      stopPriorsAlignment();
       if (fatto) {
         //Ritocco finale a layout assestato (pannelli laterali, hanging protocol).
-        setTimeout(allineaStoricoAlloStudioPrincipale, 500);
+        setTimeout(alignPriorsToMainStudy, 500);
       }
     }
   };
 
   prova();
   if (!concluso) {
-    storicoAllineamentoIntervalId = setInterval(prova, 250);
+    priorsAlignmentIntervalId = setInterval(prova, 250);
   }
 }
 
 //Il ridimensionamento della finestra cambia le altezze di header e barra tab.
 window.addEventListener('resize', () => {
-  if (!document.getElementById('iframe-storico')) {
+  if (!document.getElementById('priors-iframe')) {
     return;
   }
-  clearTimeout(storicoAllineamentoResizeId);
-  storicoAllineamentoResizeId = setTimeout(allineaStoricoAlloStudioPrincipale, 150);
+  clearTimeout(priorsAlignmentResizeId);
+  priorsAlignmentResizeId = setTimeout(alignPriorsToMainStudy, 150);
 });
 
-function markStoricoIframeReady() {
-  if (storicoPendingPreloader?.isConnected) {
-    storicoPendingPreloader.remove();
+function markPriorsIframeReady() {
+  if (priorsPendingPreloader?.isConnected) {
+    priorsPendingPreloader.remove();
   }
-  clearStoricoLoadingState();
+  clearPriorsLoadingState();
   //Il preloader occupava la meta' destra: solo ora l'iframe e' al suo posto
   //e ha senso misurarlo per allinearlo allo studio principale.
-  avviaAllineamentoStorico();
+  startPriorsAlignment();
 }
 
-function startStoricoLoadingWatch(preloader) {
-  clearStoricoLoadingState();
-  storicoPendingPreloader = preloader;
+function startPriorsLoadingWatch(preloader) {
+  clearPriorsLoadingState();
+  priorsPendingPreloader = preloader;
 
-  storicoReadyTimeoutId = setTimeout(() => {
-    showStoricoLoadingError();
-  }, STORICO_IFRAME_READY_TIMEOUT_MS);
+  priorsReadyTimeoutId = setTimeout(() => {
+    showPriorsLoadingError();
+  }, PRIORS_IFRAME_READY_TIMEOUT_MS);
 }
 
-const openStorico = (e, modalita, studyInstanceUID, options = {}) => {
+const openPriors = (e, modalita, studyInstanceUID, options = {}) => {
   e.stopPropagation();
   if (typeof e.preventDefault === 'function') {
     e.preventDefault();
   }
 
-  const context = resolveStoricoContext(e, studyInstanceUID, options);
+  const context = resolvePriorsContext(e, studyInstanceUID, options);
   if (!context.studyInstanceUID) {
     console.warn('The prior study cannot be opened: the StudyInstanceUID is missing.');
     return;
@@ -349,8 +349,8 @@ const openStorico = (e, modalita, studyInstanceUID, options = {}) => {
   const params = new URLSearchParams(url.search);
 
   params.set('StudyInstanceUIDs', context.studyInstanceUID);
-  params.delete('storico');
-  params.set('storicoOpenTs', `${Date.now()}`);
+  params.delete('priors');
+  params.set('priorsOpenTs', `${Date.now()}`);
 
   if (context.aetitle) {
     params.set('aetitle', context.aetitle);
@@ -366,15 +366,15 @@ const openStorico = (e, modalita, studyInstanceUID, options = {}) => {
   const newUrl = `${url.origin}${url.pathname}?${params.toString()}`;
 
   if (modalita === 'stessaScheda') {
-    const iframeStorico = document.getElementById('iframe-storico');
+    const priorsIframe = document.getElementById('priors-iframe');
     const isAlreadyActive = e.currentTarget?.classList?.contains('active');
-    if (iframeStorico && isAlreadyActive) {
-      window.postMessage('chiudi-iframe-storico', '*');
+    if (priorsIframe && isAlreadyActive) {
+      window.postMessage('close-priors-iframe', '*');
       return;
     }
 
     //Coloro l'icona cliccata di quello studio specifico
-    for (const a of document.querySelectorAll('#storico-same-window')) {
+    for (const a of document.querySelectorAll('#priors-same-window')) {
       a.classList.remove('active');
     }
     e.currentTarget.classList.add('active');
@@ -387,7 +387,7 @@ const openStorico = (e, modalita, studyInstanceUID, options = {}) => {
 const createPreloader = (message = 'Loading the prior studies...') => {
   const preloader = document.createElement('div');
   preloader.className = 'preloader';
-  preloader.setAttribute('data-storico-preloader', 'true');
+  preloader.setAttribute('data-priors-preloader', 'true');
 
   const text = document.createElement('div');
   text.textContent = message;
@@ -403,7 +403,7 @@ const createPreloader = (message = 'Loading the prior studies...') => {
   return preloader;
 };
 
-const salvaSerieDaRicliccare = () => {
+const saveSeriesToClickAgain = () => {
   const { viewportGridService } = window.servicesManager.services;
   const { activeViewportId, viewports } = viewportGridService.getState();
   const activeViewport = viewports.get(activeViewportId);
@@ -413,7 +413,7 @@ const salvaSerieDaRicliccare = () => {
 
 const fixlayoutViewportsMPR = () => {
   //Disattivo e riattivo mpr salvando la serie attualmente attiva
-  salvaSerieDaRicliccare();
+  saveSeriesToClickAgain();
   document.querySelector('[data-cy="LayoutMPR"]').click(); //Disattivo MPR
   document.body.classList.add('loading-spinner-into-grid'); //Non mostro il cambio vista griglia ma metto uno spinner
 
@@ -425,23 +425,23 @@ const fixlayoutViewportsMPR = () => {
 
     // window.instanceUIDMPRDaCliccare = null;
 
-    //A fine fix ritorno sempre e comunque nella tab dello storico da cui sono partito
+    //A fine fix ritorno sempre e comunque nella tab dello priors da cui sono partito
     document.querySelector('.storicosulcloud').click();
   }, 500);
 };
 
 function split2Studies(urlToOpen) {
-  clearStoricoLoadingState({ removePreloader: true });
-  stopAllineamentoStorico();
-  if (document.getElementById('iframe-storico')) {
-    document.getElementById('iframe-storico').remove(); //Sovrascrivo sempre
+  clearPriorsLoadingState({ removePreloader: true });
+  stopPriorsAlignment();
+  if (document.getElementById('priors-iframe')) {
+    document.getElementById('priors-iframe').remove(); //Sovrascrivo sempre
   }
   //Se è attivo l'mpr lo disabilito e lo riabilito quando lo schermo è già diviso in quanto il ridimensionamento
   //della finestra lo farebbe sfasare random, abilitandolo invece a schermo già diviso non da problemi
   if (document.body.classList.contains('hp-mpr-active')) {
     fixlayoutViewportsMPR();
   }
-  document.body.classList.add('storico-injected-iframe');
+  document.body.classList.add('priors-injected-iframe');
   document.body.classList.remove('secondo-mpr-attivo');
   const mainArea = document.querySelector('.mdv-main-area');
   mainArea.style.width = '50%';
@@ -450,13 +450,13 @@ function split2Studies(urlToOpen) {
   // Crea un nuovo iframe
   const iframe = document.createElement('iframe');
   const iframeUrl = new URL(urlToOpen, window.location.origin);
-  iframeUrl.searchParams.set('storico', 'same-tab');
+  iframeUrl.searchParams.set('priors', 'same-tab');
   iframe.src = iframeUrl.toString();
-  iframe.id = 'iframe-storico';
+  iframe.id = 'priors-iframe';
   iframe.dataset.loaded = 'false';
 
   // Applica lo stile all'iframe
-  iframe.style.width = '50%'; // Imposta l'iframe al 50% della larghezza
+  iframe.style.width = '50%'; // Imposta l'iframe al 50% della width
   iframe.style.height = '100vh'; // Altezza a tutta la vista
   iframe.style.border = 'none'; // Rimuove il bordo
   iframe.style.float = 'left'; // Imposta anche qui il float
@@ -471,64 +471,64 @@ function split2Studies(urlToOpen) {
 
   // Inserisci l'iframe dopo il main area
   preloader.parentNode.insertBefore(iframe, preloader.nextSibling);
-  startStoricoLoadingWatch(preloader);
+  startPriorsLoadingWatch(preloader);
   // mainArea.parentNode.insertBefore(iframe, mainArea.nextSibling);
   // Aggiungi un listener per aspettare il caricamento dell'iframe
   iframe.onload = function () {
     try {
       const iframeDocument = iframe.contentWindow.document;
-      if (window.location.href.includes('storico=same-tab')) {
-        iframeDocument.body.classList.add('storico-same-tab');
+      if (window.location.href.includes('priors=same-tab')) {
+        iframeDocument.body.classList.add('priors-same-tab');
       }
     } catch (err) {
-      console.warn('Impossibile applicare classe storico-same-tab su iframe:', err);
+      console.warn('Impossibile applicare classe priors-same-tab su iframe:', err);
     }
   };
-  //A questo punto avvio un listener per ascoltare eventuali messaggi dall'iframe listener
+  //A questo punto avvio un listener per ascoltare eventuali messages dall'iframe listener
   ascoltoMessaggiIframeFiglio();
 }
 
-//Se sono già uno storico mi differenzio
-if (window.location.href.includes('storico=same-tab')) {
-  document.body.classList.add('storico-same-tab');
+//Se sono già uno priors mi differenzio
+if (window.location.href.includes('priors=same-tab')) {
+  document.body.classList.add('priors-same-tab');
   //Aggiungo il pulsante chiudi per rimuovere eventualmente l'iframe
   document.body.insertAdjacentHTML(
     'beforebegin',
     `
-    <button class="chiudi-iframe">x</button>
+    <button class="close-iframe">x</button>
     `
   );
-  const chiudiIframeBtn = document.querySelector('.chiudi-iframe');
-  chiudiIframeBtn.addEventListener('click', () => {
-    window.parent.postMessage('chiudi-iframe-storico', '*');
+  const closeIframeBtn = document.querySelector('.close-iframe');
+  closeIframeBtn.addEventListener('click', () => {
+    window.parent.postMessage('close-priors-iframe', '*');
   });
 
-  window.sonoUnoStorico = true;
+  window.iAmAPrior = true;
 
-  //Attivo listener per ricevere messaggi dal padre
+  //Attivo listener per ricevere messages dal padre
   window.addEventListener(
     'message',
     function (event) {
       if (event.origin !== window.location.origin) {
         return;
       }
-      const messaggioRicevuto = event.data;
-      activateCommandOnIframe(messaggioRicevuto);
+      const messageReceived = event.data;
+      activateCommandOnIframe(messageReceived);
     },
     false
   );
 }
 
 // ---------------------------------------------------------------------------
-// PONTE COMANDI: studio principale -> iframe dello storico
+// PONTE COMANDI: studio principale -> iframe dello priors
 //
-// Nella modalita' "storico affiancato" la toolbar dell'iframe e' nascosta via
+// Nella modalita' "priors affiancato" la toolbar dell'iframe e' nascosta via
 // CSS e i comandi arrivano dallo studio principale via postMessage. Prima si
 // simulavano i click sui bottoni (data-cy + setTimeout annidati): approccio
 // fragile, che falliva per tutto cio' che vive dentro un menu a tendina (Reset
 // e gli altri "MoreTools") e per i tool senza un case dedicato (Scale, Cursori
 // di riferimento, Link images, Zoom 1:1, ...).
-// Ora il messaggio viene risolto sull'id del bottone di toolbar e passato a
+// Ora il message viene risolto sull'id del bottone di toolbar e passato a
 // toolbarService.recordInteraction: e' la stessa identica strada del click
 // reale (esegue i comandi con le loro opzioni e aggiorna lo stato del bottone),
 // quindi ogni strumento della toolbar risulta sincronizzato senza dover
@@ -536,8 +536,8 @@ if (window.location.href.includes('storico=same-tab')) {
 // ---------------------------------------------------------------------------
 
 //Messaggi "storici" (nomi comando) -> id del bottone di toolbar corrispondente.
-//Tutti gli altri messaggi sono gia' id di bottone (es. 'ScaleOverlay', 'Pan').
-const STORICO_TOOLBAR_ITEM_BY_MESSAGE = {
+//Tutti gli altri messages sono gia' id di bottone (es. 'ScaleOverlay', 'Pan').
+const PRIORS_TOOLBAR_ITEM_BY_MESSAGE = {
   cine: 'Cine',
   resetViewport: 'Reset',
   zoomOneToOne: 'ZoomOneToOne',
@@ -551,9 +551,9 @@ const STORICO_TOOLBAR_ITEM_BY_MESSAGE = {
 };
 
 //Preset avanzati 3D/MPR: il selettore layout li segna anche come classe sul body.
-const STORICO_PRESET_BODY_CLASSES = ['fourUp', 'main3D', 'primaryAxial', 'only3D', 'primary3D'];
+const PRIORS_PRESET_BODY_CLASSES = ['fourUp', 'main3D', 'primaryAxial', 'only3D', 'primary3D'];
 
-function getStoricoServices() {
+function getPriorsServices() {
   return window.servicesManager?.services || null;
 }
 
@@ -564,15 +564,15 @@ function getStoricoServices() {
  * aggiorna lo stato della toolbar.
  * @returns {boolean} true se il bottone esiste (comando gestito).
  */
-function runToolbarItemOnStorico(itemId) {
-  const services = getStoricoServices();
+function runToolbarItemOnPriors(itemId) {
+  const services = getPriorsServices();
   const toolbarService = services?.toolbarService;
   const buttonProps = toolbarService?.getButtonProps?.(itemId);
   if (!buttonProps) {
     return false;
   }
 
-  //Se nello storico il bottone e' disabilitato (es. Crosshairs fuori dall'MPR)
+  //Se nello priors il bottone e' disabilitato (es. Crosshairs fuori dall'MPR)
   //non eseguo nulla, esattamente come farebbe il click reale.
   if (buttonProps.disabled === true) {
     return true;
@@ -585,8 +585,8 @@ function runToolbarItemOnStorico(itemId) {
   return true;
 }
 
-/** Esegue un comando OHIF puro (messaggi strutturati dal padre). */
-function runCommandOnStorico(commandName, commandOptions = {}) {
+/** Esegue un comando OHIF puro (messages strutturati dal padre). */
+function runCommandOnPriors(commandName, commandOptions = {}) {
   if (!commandName || !window.commandsManager?.run) {
     return false;
   }
@@ -595,26 +595,26 @@ function runCommandOnStorico(commandName, commandOptions = {}) {
 }
 
 /** Layout griglia scelto dal padre ('layout-common-2x3', 'custom2x3'). */
-function applyGridLayoutOnStorico(numRows, numCols) {
+function applyGridLayoutOnPriors(numRows, numCols) {
   if (!numRows || !numCols) {
     return false;
   }
   //Come il selettore layout: il cambio griglia annulla l'MPR da hanging protocol.
   document.body.classList.remove('hp-mpr-active');
   window.mprIsActive = false;
-  return runCommandOnStorico('setViewportGridLayout', { numRows, numCols });
+  return runCommandOnPriors('setViewportGridLayout', { numRows, numCols });
 }
 
 /** Preset avanzato = id di hanging protocol ('mpr', 'fourUp', 'main3D', ...). */
-function applyHangingProtocolOnStorico(protocolId) {
-  const services = getStoricoServices();
+function applyHangingProtocolOnPriors(protocolId) {
+  const services = getPriorsServices();
   const hangingProtocolService = services?.hangingProtocolService;
   if (!hangingProtocolService?.protocols?.get?.(protocolId)) {
     return false;
   }
 
-  STORICO_PRESET_BODY_CLASSES.forEach(preset => document.body.classList.remove(preset));
-  if (STORICO_PRESET_BODY_CLASSES.includes(protocolId)) {
+  PRIORS_PRESET_BODY_CLASSES.forEach(preset => document.body.classList.remove(preset));
+  if (PRIORS_PRESET_BODY_CLASSES.includes(protocolId)) {
     document.body.classList.add(protocolId);
   }
 
@@ -629,7 +629,7 @@ function applyHangingProtocolOnStorico(protocolId) {
   }
 
   //Maschera di caricamento come nel selettore layout dello studio principale.
-  document.body.classList.add('caricamento-layout-mpr');
+  document.body.classList.add('mpr-layout-loading');
   window.mdvProtocolToApply = protocolId;
   hangingProtocolService.setProtocol(protocolId);
 
@@ -640,7 +640,7 @@ function applyHangingProtocolOnStorico(protocolId) {
     if (activeDisplaySetInstanceUID) {
       document.querySelector(`#thumbnail-${activeDisplaySetInstanceUID} img`)?.click();
     }
-    document.body.classList.remove('caricamento-layout-mpr');
+    document.body.classList.remove('mpr-layout-loading');
   }, 500);
   return true;
 }
@@ -651,12 +651,12 @@ function activateCommandOnIframe(command) {
   }
 
   try {
-    //Messaggio strutturato: comando OHIF con opzioni (es. subgrid r x c).
+    //Message strutturato: comando OHIF con opzioni (es. subgrid r x c).
     if (typeof command === 'object') {
-      if (command.type === 'mdv-storico-command') {
-        runCommandOnStorico(command.commandName, command.commandOptions || {});
-      } else if (command.type === 'mdv-storico-toolbar') {
-        runToolbarItemOnStorico(command.itemId);
+      if (command.type === 'mdv-priors-command') {
+        runCommandOnPriors(command.commandName, command.commandOptions || {});
+      } else if (command.type === 'mdv-priors-toolbar') {
+        runToolbarItemOnPriors(command.itemId);
       }
       return;
     }
@@ -668,40 +668,40 @@ function activateCommandOnIframe(command) {
     //Layout griglia: 'layout-common-2x3' (Standard) e 'custom2x3' (Personalizzato).
     const gridLayout = command.match(/^(?:layout-common-|custom)(\d+)x(\d+)$/);
     if (gridLayout) {
-      applyGridLayoutOnStorico(Number(gridLayout[1]), Number(gridLayout[2]));
+      applyGridLayoutOnPriors(Number(gridLayout[1]), Number(gridLayout[2]));
       return;
     }
 
-    const itemId = Object.prototype.hasOwnProperty.call(STORICO_TOOLBAR_ITEM_BY_MESSAGE, command)
-      ? STORICO_TOOLBAR_ITEM_BY_MESSAGE[command]
+    const itemId = Object.prototype.hasOwnProperty.call(PRIORS_TOOLBAR_ITEM_BY_MESSAGE, command)
+      ? PRIORS_TOOLBAR_ITEM_BY_MESSAGE[command]
       : command;
-    if (runToolbarItemOnStorico(itemId)) {
+    if (runToolbarItemOnPriors(itemId)) {
       return;
     }
 
     //Non e' un bottone di toolbar: ultimo tentativo come preset layout avanzato.
-    if (applyHangingProtocolOnStorico(command)) {
+    if (applyHangingProtocolOnPriors(command)) {
       return;
     }
 
-    console.warn('Storico: comando non gestito ->', command);
+    console.warn('Priors: comando non gestito ->', command);
   } catch (err) {
     console.error('Could not pass the command to the frame: ', err);
   }
 }
 
-//MAIN - Ricevo messaggi dall'iframe
+//MAIN - Ricevo messages dall'iframe
 function listenerEvent(event) {
   if (event.origin !== window.location.origin) {
-    console.warn('Messaggio ricevuto da un origine non sicura:', event.origin);
+    console.warn('Message ricevuto da un origine non sicura:', event.origin);
     return;
   }
 
   if (event.data?.type === 'mdv-iframe-ready') {
-    const iframeStorico = document.getElementById('iframe-storico');
-    if (iframeStorico && event.source === iframeStorico.contentWindow) {
-      iframeStorico.dataset.loaded = 'true';
-      markStoricoIframeReady();
+    const priorsIframe = document.getElementById('priors-iframe');
+    if (priorsIframe && event.source === priorsIframe.contentWindow) {
+      priorsIframe.dataset.loaded = 'true';
+      markPriorsIframeReady();
     }
     return;
   }
@@ -719,23 +719,23 @@ function listenerEvent(event) {
     }, 0);
   };
 
-  const closeStoricoIframe = () => {
-    clearStoricoLoadingState({ removePreloader: true });
-    stopAllineamentoStorico();
+  const closePriorsIframe = () => {
+    clearPriorsLoadingState({ removePreloader: true });
+    stopPriorsAlignment();
 
-    const studioPrincipale = document.querySelector('.mdv-main-area');
-    if (studioPrincipale) {
-      studioPrincipale.style.maxWidth = 'none';
+    const mainStudy = document.querySelector('.mdv-main-area');
+    if (mainStudy) {
+      mainStudy.style.maxWidth = 'none';
     }
-    document.body.classList.remove('storico-injected-iframe');
+    document.body.classList.remove('priors-injected-iframe');
     document.body.classList.remove('secondo-mpr-attivo');
-    document.getElementById('iframe-storico')?.remove();
+    document.getElementById('priors-iframe')?.remove();
     const mainArea = document.querySelector('.mdv-main-area');
     if (mainArea) {
       mainArea.style.width = '100%';
     }
 
-    for (const a of document.querySelectorAll('#storico-same-window')) {
+    for (const a of document.querySelectorAll('#priors-same-window')) {
       a.classList.remove('active');
     }
     //Fix mpr 3D - quando si passa dallo schermo diviso al pieno schermo e ho un 3d Attivo, questo viene tagliato. Metto il preset mpr e poi
@@ -744,25 +744,25 @@ function listenerEvent(event) {
 
     listaPreset3D.forEach(preset3D => {
       if (document.body.classList.contains(preset3D)) {
-        salvaSerieDaRicliccare();
+        saveSeriesToClickAgain();
         fix3DOnClosedIframe();
       }
     });
   };
 
-  const messaggioRicevuto = event.data;
-  console.log(messaggioRicevuto);
-  switch (messaggioRicevuto) {
-    case 'chiudi-iframe-storico':
-      closeStoricoIframe();
+  const messageReceived = event.data;
+  console.log(messageReceived);
+  switch (messageReceived) {
+    case 'close-priors-iframe':
+      closePriorsIframe();
       break;
     case 'secondo-mpr':
-      document.querySelector('[data-cy="LayoutMPRStorico"]').style.pointerEvents = 'all';
-      document.querySelector('[data-cy="LayoutMPRStorico"]').style.opacity = '1';
+      document.querySelector('[data-cy="LayoutMPRPriors"]').style.pointerEvents = 'all';
+      document.querySelector('[data-cy="LayoutMPRPriors"]').style.opacity = '1';
       break;
     case 'disable-secondo-mpr':
-      document.querySelector('[data-cy="LayoutMPRStorico"]').style.pointerEvents = 'none';
-      document.querySelector('[data-cy="LayoutMPRStorico"]').style.opacity = '0.5';
+      document.querySelector('[data-cy="LayoutMPRPriors"]').style.pointerEvents = 'none';
+      document.querySelector('[data-cy="LayoutMPRPriors"]').style.opacity = '0.5';
       break;
     case 'uscita-da-secondo-mpr':
       document.body.classList.remove('secondo-mpr-attivo');
@@ -778,4 +778,4 @@ function ascoltoMessaggiIframeFiglio() {
   window.addEventListener('message', listenerEvent);
 }
 
-export default openStorico;
+export default openPriors;

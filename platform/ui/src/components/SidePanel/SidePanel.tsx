@@ -181,7 +181,7 @@ const SidePanel = ({
   const updatePanelOpen = useCallback(
     (panelOpen: boolean, side: string) => {
       setPanelOpen(panelOpen);
-      // Lancio un evento personalizzato che intercetto dalle estensioni js. Ogni volta che il pannello dx si apre/chiude viene distrutto/ricreato il componente e perdo tutto.
+      // Lancio un evento personalizzato che intercetto dalle extensions js. Ogni volta che il pannello dx si apre/chiude viene distrutto/ricreato il componente e perdo tutto.
       //Di conseguenza ricreo il tutto alla ricezione da parte del figlio dell'evento
 
       const event = new CustomEvent('panelOpen', { detail: { isOpen: panelOpen, side: side } });

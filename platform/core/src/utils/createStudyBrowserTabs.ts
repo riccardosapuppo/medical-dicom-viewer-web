@@ -159,9 +159,9 @@ export function createStudyBrowserTabs(
     },
   ];
 
-  // La tab dello storico compare se lo storico c e.
+  // La tab dello priors compare se lo priors c e.
   //
-  // Prima c era sempre, e quando il paziente non aveva esami precedenti
+  // Prima c era sempre, e quando il patient non aveva esami precedenti
   // offriva una scheda che diceva solo "No prior studies". Una linguetta che
   // non porta da nessuna parte fa perdere un click a tutti quelli che la
   // provano, e non aggiunge niente a chi lo sapeva gia.

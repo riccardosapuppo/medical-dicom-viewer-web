@@ -646,15 +646,15 @@ const SidePanel = ({
       isExpanded = false;
 
       const mainArea = document.querySelector('.mdv-main-area');
-      const barraHeaderInBasso = document.querySelector('.mdv-bar');
-      const posizioneYBarraHeaderInBasso = barraHeaderInBasso.getBoundingClientRect().y;
-      mainArea.style.height = posizioneYBarraHeaderInBasso - 2 + 'px';
+      const bottomHeaderBar = document.querySelector('.mdv-bar');
+      const bottomHeaderBarY = bottomHeaderBar.getBoundingClientRect().y;
+      mainArea.style.height = bottomHeaderBarY - 2 + 'px';
       mainArea.style.top = '2px';
     }
     primoAvvio = false; // Imposta `primoAvvio` a false per evitare chiamate successive
   };
 
-  //Al primo avvio verifico se sono su mobile, se lo fossi al primo avvio chiudo di default il pannello e adatto l'altezza dell'intera area
+  //Al primo avvio verifico se sono su mobile, se lo fossi al primo avvio chiudo di default il pannello e adatto l'height dell'intera area
   //sopra la barra header in basso
   useEffect(() => {
     if (primoAvvio) {

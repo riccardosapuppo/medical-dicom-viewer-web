@@ -376,8 +376,8 @@ const baseTopRightItems = [
   },
 ];
 
-const storicoLabelItem = {
-  id: 'StoricoLabel',
+const priorsLabelItem = {
+  id: 'PriorsLabel',
   inheritsFrom: 'ohif.overlayItem',
   label: '',
   title: 'Priors label',
@@ -386,7 +386,7 @@ const storicoLabelItem = {
     if (window.portableVersion) {
       return false;
     }
-    if (window.sonoUnoStorico === true) {
+    if (window.iAmAPrior === true) {
       return true;
     }
 
@@ -399,7 +399,7 @@ const storicoLabelItem = {
     const suo = referenceInstance?.StudyInstanceUID;
     return Boolean(suo) && !aperti.split(',').includes(suo);
   },
-  contentF: ({ referenceInstance }) => 'STORICO',
+  contentF: ({ referenceInstance }) => 'PRIORS',
 };
 
 const linkedSeriesBadgeItem = {
@@ -425,7 +425,7 @@ const buildViewportOverlayCustomizations = overlayConfig => {
     [
       linkedSeriesBadgeItem,
       ...(hasCornerConfig(tagConfig, 'topLeft') ? configuredTopLeftItems : baseTopLeftItems),
-      storicoLabelItem,
+      priorsLabelItem,
     ].filter(Boolean)
   );
 

@@ -5,9 +5,9 @@ import { CommandsManager } from '@ohif/core';
 
 import { LayoutSelector } from '../../../../platform/ui-next/src/components/LayoutSelector';
 
-let hpSelezionato = 'mpr';
-let hpSelezionatoStorico = 'mpr';
-let showLayoutPresetsForStorico = false;
+let selectedHangingProtocol = 'mpr';
+let selectedPriorsHangingProtocol = 'mpr';
+let showLayoutPresetsForPriors = false;
 
 function ToolbarLayoutSelectorWithServices({
   commandsManager,
@@ -18,7 +18,7 @@ function ToolbarLayoutSelectorWithServices({
 }) {
   const [isDisabled, setIsDisabled] = useState(false);
   const { customizationService } = servicesManager.services;
-  showLayoutPresetsForStorico = document.getElementById('iframe-storico') ? true : false;
+  showLayoutPresetsForPriors = document.getElementById('priors-iframe') ? true : false;
 
   // Get the presets from the customization service
   const commonPresets = customizationService?.getCustomization('layoutSelector.commonPresets') || [
@@ -96,13 +96,13 @@ function ToolbarLayoutSelectorWithServices({
           commandOptions: {
             protocolId: hp.id,
           },
-          disabled: !areValid || hpSelezionato === hp.id,
+          disabled: !areValid || selectedHangingProtocol === hp.id,
         };
       })
       .filter(preset => preset !== null);
   };
 
-  const generateAdvancedPresetsStorico = ({ servicesManager }: withAppTypes) => {
+  const generateAdvancedPriorsPresets = ({ servicesManager }: withAppTypes) => {
     const { hangingProtocolService, viewportGridService, displaySetService } =
       servicesManager.services;
 
@@ -135,14 +135,14 @@ function ToolbarLayoutSelectorWithServices({
           commandOptions: {
             protocolId: hp.id,
           },
-          disabled: hpSelezionatoStorico === hp.id,
+          disabled: selectedPriorsHangingProtocol === hp.id,
         };
       })
       .filter(preset => preset !== null);
   };
 
-  const onSelectionAdvancedPresetStorico = preset => {
-    document.getElementById('iframe-storico').contentWindow.postMessage(preset);
+  const onSelectAdvancedPriorsPreset = preset => {
+    document.getElementById('priors-iframe').contentWindow.postMessage(preset);
   };
 
   // Get the advanced presets generator from the customization service
@@ -150,7 +150,7 @@ function ToolbarLayoutSelectorWithServices({
     'layoutSelector.advancedPresetGenerator'
   );
 
-  const advancedPresetsStorico = generateAdvancedPresetsStorico({ servicesManager });
+  const advancedPresetsPriors = generateAdvancedPriorsPresets({ servicesManager });
 
   // Generate the advanced presets
   const advancedPresets = advancedPresetsGenerator
@@ -223,7 +223,7 @@ function ToolbarLayoutSelectorWithServices({
   const onSelectionPreset = preset => {
     try {
       const listaPresetAvanzati = ['fourUp', 'main3D', 'primaryAxial', 'only3D', 'primary3D'];
-      document.body.classList.add('caricamento-layout-mpr');
+      document.body.classList.add('mpr-layout-loading');
       //Ripulisco ad ogni scelta preset classi precedentemente memorizzate
       listaPresetAvanzati.forEach(preset => {
         if (document.body.classList.contains(preset)) {
@@ -232,7 +232,7 @@ function ToolbarLayoutSelectorWithServices({
       });
       document.body.classList.add(preset);
 
-      hpSelezionato = preset;
+      selectedHangingProtocol = preset;
       const { hangingProtocolService, viewportGridService } = servicesManager.services;
 
       const { activeViewportId, viewports } = viewportGridService.getState();
@@ -244,7 +244,7 @@ function ToolbarLayoutSelectorWithServices({
       );
       window.instanceUIDMPRDaCliccare = activeDisplaySetInstanceUID;
 
-      hangingProtocolService.setProtocol(hpSelezionato);
+      hangingProtocolService.setProtocol(selectedHangingProtocol);
       //Memorizzo globalmente il preset selezionato così da riapplicare lo stesso eventualmente alla riattivazione dell'mpr (mprDirectClick)
       window.mdvProtocolToApply = preset;
 
@@ -252,23 +252,23 @@ function ToolbarLayoutSelectorWithServices({
         if (ActiveThumbnail) {
           ActiveThumbnail.click();
         }
-        document.body.classList.remove('caricamento-layout-mpr');
+        document.body.classList.remove('mpr-layout-loading');
       }, 500);
     } catch (err) {
       console.error('Could not switch to MPR: ', err);
     }
   };
 
-  const onSelectionStudioStorico = layout => {
-    document.getElementById('iframe-storico').contentWindow.postMessage(layout);
+  const onSelectPriorsStudy = layout => {
+    document.getElementById('priors-iframe').contentWindow.postMessage(layout);
   };
 
   // Unified selection handler that dispatches to the appropriate command
   const handleSelectionChange = useCallback(
     (commandOptions, isPreset) => {
-      if (commandOptions.storicoCommonPreset) {
+      if (commandOptions.priorsCommonPreset) {
         const { numCols, numRows } = commandOptions
-        return onSelectionStudioStorico(`layout-common-${numRows}x${numCols}`,)
+        return onSelectPriorsStudy(`layout-common-${numRows}x${numCols}`,)
       }
 
 
@@ -277,9 +277,9 @@ function ToolbarLayoutSelectorWithServices({
         return onSelectionPreset(protocolId)
       }
 
-      if (commandOptions.storicoAdvancedPreset) {
+      if (commandOptions.priorsAdvancedPreset) {
         const { protocolId } = commandOptions
-        return onSelectionAdvancedPresetStorico(protocolId)
+        return onSelectAdvancedPriorsPreset(protocolId)
       }
 
 
@@ -318,7 +318,7 @@ function ToolbarLayoutSelectorWithServices({
                 <>
                   <LayoutSelector.PresetSection
                     className={`standard-layout`}
-                    title={showLayoutPresetsForStorico ? 'Standard - Studio principale' : 'Standard'}>
+                    title={showLayoutPresetsForPriors ? 'Standard - Studio principale' : 'Standard'}>
                     {commonPresets.map((preset, index) => (
                       <LayoutSelector.Preset
                         key={`common-preset-${index}`}
@@ -332,16 +332,16 @@ function ToolbarLayoutSelectorWithServices({
                 </>
               )}
 
-              {showLayoutPresetsForStorico && (
+              {showLayoutPresetsForPriors && (
                 <LayoutSelector.PresetSection
-                  className={`standard-layout standard-layout-storico`}
+                  className={`standard-layout standard-layout-priors`}
                   title='Standard, prior study'>
                   {commonPresets.map((preset, index) => (
                     <LayoutSelector.Preset
                       key={`advanced-preset-${index}`}
                       title={preset.title}
                       icon={preset.icon}
-                      commandOptions={{ ...preset.commandOptions, storicoCommonPreset: true }}
+                      commandOptions={{ ...preset.commandOptions, priorsCommonPreset: true }}
                       disabled={preset.disabled}
                       isPreset={true}
                     />
@@ -350,8 +350,8 @@ function ToolbarLayoutSelectorWithServices({
               )}
 
               {advancedPresets.length > 0 && (
-                <LayoutSelector.PresetSection className={`advanced-layout advanced-layout-studio-principale`}
-                  title={showLayoutPresetsForStorico ? 'Avanzato - Studio principale' : 'Avanzato'}>
+                <LayoutSelector.PresetSection className={`advanced-layout advanced-layout-main-study`}
+                  title={showLayoutPresetsForPriors ? 'Avanzato - Studio principale' : 'Avanzato'}>
                   {advancedPresets.map((preset, index) => (
                     <LayoutSelector.Preset
                       key={`advanced-preset-${index}`}
@@ -366,14 +366,14 @@ function ToolbarLayoutSelectorWithServices({
               )}
 
               {advancedPresets.length > 0 && (
-                <LayoutSelector.PresetSection className={`advanced-layout advanced-layout-storico`}
+                <LayoutSelector.PresetSection className={`advanced-layout advanced-layout-priors`}
                   title='Advanced, prior study'>
                   {advancedPresets.map((preset, index) => (
                     <LayoutSelector.Preset
                       key={`advanced-preset-${index}`}
                       title={preset.title}
                       icon={preset.icon}
-                      commandOptions={{ ...preset.commandOptions, storicoAdvancedPreset: true }}
+                      commandOptions={{ ...preset.commandOptions, priorsAdvancedPreset: true }}
                       disabled={preset.disabled}
                       isPreset={true}
                     />
@@ -389,7 +389,7 @@ function ToolbarLayoutSelectorWithServices({
           {/* Right Side - Grid Layout */}
           <div className="bg-muted flex flex-col gap-2.5 border-l-2 border-solid border-black p-2">
             <div className="custom-layout">
-              <div className="text-muted-foreground text-xs">{showLayoutPresetsForStorico ? 'Personalizzato - Studio principale' : 'Personalizzato'}</div>
+              <div className="text-muted-foreground text-xs">{showLayoutPresetsForPriors ? 'Personalizzato - Studio principale' : 'Personalizzato'}</div>
               <LayoutSelector.GridSelector
                 rows={rows}
                 columns={columns}
@@ -397,7 +397,7 @@ function ToolbarLayoutSelectorWithServices({
 
             </div>
 
-            <div className="custom-layout custom-layout-storico">
+            <div className="custom-layout custom-layout-priors">
               <div className="text-muted-foreground text-xs"> Personalizzato - Studio precedente</div>
               <LayoutSelector.GridSelector
                 rows={rows}
