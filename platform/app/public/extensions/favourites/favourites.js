@@ -41,8 +41,8 @@ window.removeFavourite = sopUID => {
           <img src="${p.DataUrl}"
                 onclick="window.viewFavouritePopup('${p.DataUrl}')"
                 style="width:100%;max-height:180px;object-fit:contain;cursor:pointer;">
-          <p>Series ${p.NumeroSerie} - ${p.SeriesDescription}</p>
-          <p>N° Istanza: ${p.NumeroIstanza}</p>
+          <p>Series ${p.seriesNumber} - ${p.SeriesDescription}</p>
+          <p>N° Istanza: ${p.instanceNumber}</p>
 
           <button onclick="window.removeFavourite('${p.SOPInstanceUID}')"
                   style="margin-top:6px;padding:0px 10px;background:#b91c1c;
@@ -135,8 +135,8 @@ const createFavourites = () => {
           <img src="${p.DataUrl}"
                onclick="window.viewFavouritePopup('${p.DataUrl}')"
                style="width:100%;max-height:180px;object-fit:contain;cursor:pointer;">
-          <p>Series ${p.NumeroSerie} - ${p.SeriesDescription}</p>
-          <p>N° Istanza: ${p.NumeroIstanza}</p>
+          <p>Series ${p.seriesNumber} - ${p.SeriesDescription}</p>
+          <p>N° Istanza: ${p.instanceNumber}</p>
 
           <button onclick="window.removeFavourite('${p.SOPInstanceUID}')"
                   style="margin-top:6px;padding:0px 10px;

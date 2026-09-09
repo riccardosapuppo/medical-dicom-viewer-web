@@ -66,18 +66,17 @@ export async function captureImageFromImageId(imageId, viewport) {
   return canvas.toDataURL('image/png');
 }
 
-// Capture il viewport completo con le annotazioni.
-// Base: render del canvas Cornerstone (stessa geometria del viewport).
-// Overlay: layer SVG annotation con computed style inline.
+// Captures the whole viewport, annotations included.
+// Base: a render of the cornerstone canvas, the viewport's own geometry.
+// Overlay: the SVG annotation layer, with computed style inlined.
 //
-// IMPORTANTE - param `viewport`:
-// Se passato, usiamo viewport.worldToCanvas + getImageData() per calcolare
-// il bounding box DELL'IMMAGINE NATIVA dentro il canvas viewport, e
-// croppiamo l'output a quel rect. Senza questo crop, l'output contiene
-// l'intero canvas viewport (che ha bordi neri attorno se l'aspect ratio
-// dell'immagine non corrisponde a quello del viewport), e nel print builder
-// `composeImageOnBlack` fitterebbe TUTTO il PNG (compresi i bordi neri)
-// nella cella, facendo apparire l'immagine più piccola del dovuto.
+// About the `viewport` parameter: when it is given, viewport.worldToCanvas and
+// getImageData() give the bounding box of the NATIVE IMAGE inside the viewport
+// canvas, and the output is cropped to that rect. Without the crop the output holds
+// the whole viewport canvas, black borders and all, which appear whenever the image's
+// aspect ratio does not match the viewport's. The print builder's
+// `composeImageOnBlack` would then fit the WHOLE PNG, borders included, into the
+// cell, and the image would come out smaller than it should be.
 type CaptureAnnotatedOptions = {
   targetWidth?: number;
   targetHeight?: number;
@@ -88,7 +87,7 @@ type CaptureAnnotatedOptions = {
 
 type RectInCanvas = { x: number; y: number; w: number; h: number };
 
-// Estrae le dimensioni dell'immagine nativa (in voxel) dal viewport.
+// Reads the native image size, in voxels, off the viewport.
 function getNativeImageSize(viewport: unknown): [number, number] | null {
   if (!viewport || typeof viewport !== 'object') return null;
   const vp = viewport as {
@@ -109,8 +108,8 @@ function getNativeImageSize(viewport: unknown): [number, number] | null {
   }
 }
 
-// Strategia A: usa vtkImageData.getBounds() per i 4 corner del rect immagine
-// in world coordinates, poi proietta a canvas via worldToCanvas.
+// Strategy A: vtkImageData.getBounds() gives the image rect's four corners in world
+// coordinates, and worldToCanvas projects them onto the canvas.
 function computeImageRectViaBounds(
   viewport: unknown,
   cornerstoneCanvas: HTMLCanvasElement
@@ -173,7 +172,7 @@ function computeImageRectViaBounds(
   }
 }
 
-// Strategia B (fallback): aspect-fit centrato dell'immagine nativa nel canvas.
+// Strategy B, the fallback: centre the native image in the canvas, fitted to aspect.
 function computeImageRectViaAspectFit(
   viewport: unknown,
   cornerstoneCanvas: HTMLCanvasElement
@@ -280,7 +279,7 @@ function inlineComputedStylesIntoClone(sourceNode: Node, cloneNode: Node): void 
       styleTarget.setProperty(propertyName, propertyValue, priority);
     }
 
-    // Copia anche eventuali CSS custom properties (--foo) usate dai tool.
+    // Custom CSS properties (--foo) used by the tools are copied too.
     for (let i = 0; i < computedStyle.length; i++) {
       const propertyName = computedStyle.item(i);
       if (!propertyName || !propertyName.startsWith('--')) {
@@ -397,16 +396,16 @@ export async function captureImageWithAnnotationsFromElement(
     if (drawBase) {
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, out.width, out.height);
-      // Base annotata = render reale del viewport canvas.
+      // The annotated base is a real render of the viewport canvas.
       ctx.drawImage(cornerstoneCanvas, 0, 0, out.width, out.height);
     } else {
       ctx.clearRect(0, 0, out.width, out.height);
     }
 
-    // Helper locale: cropa `out` al rect fisico dell'immagine se viewport
-    // è disponibile, altrimenti ritorna l'output intero. Usato sia dal
-    // path "no annotations" sia dal path completo, così TUTTI i PNG salvati
-    // (printBase, overlay, annotated) hanno le stesse dimensioni 1:1.
+    // Local helper: crops `out` to the image's physical rect when a viewport is
+    // available, and returns the whole output otherwise. Used by both the
+    // "no annotations" path and the full one, so EVERY saved PNG (printBase,
+    // overlay, annotated) comes out the same size, 1:1.
     const finalize = (): string => {
       const rect = options.viewport
         ? computeImageRectInCanvas(options.viewport, cornerstoneCanvas)
@@ -443,11 +442,11 @@ export async function captureImageWithAnnotationsFromElement(
         outputW: out.width,
         outputH: out.height,
       });
-      // Anche il path "no annotations" deve passare per finalize() così
-      // DataUrlPrintBase è croppato esattamente come overlay e annotated.
-      // Senza questo, printBase salvato sarebbe il viewport intero (es.
-      // 1753×322) mentre overlay/annotated sarebbero croppati al rect
-      // (es. 392×293) → aspect ratio diverso → builder fitterebbe male.
+      // The "no annotations" path has to go through finalize() too, so that
+      // DataUrlPrintBase is cropped exactly like overlay and annotated. Without it,
+      // the saved printBase would be the whole viewport (1753 by 322, say) while
+      // overlay and annotated were cropped to the rect (392 by 293), a different
+      // aspect ratio, and the builder would fit them badly.
       return finalize();
     }
 
@@ -559,8 +558,8 @@ export async function captureImageWithAnnotationsFromElement(
       outputH: out.height,
     });
 
-    // Stesso crop usato dal path no-annotations: TUTTI gli output passano
-    // per finalize() → tutti i PNG hanno dimensioni 1:1 e sono allineabili.
+    // The same crop the no-annotations path uses: EVERY output goes through
+    // finalize(), so every PNG is 1:1 and they line up with each other.
     return finalize();
   } catch (error) {
     logFavouritesDebug('trace', traceId, 'capture-error', error);
@@ -569,12 +568,12 @@ export async function captureImageWithAnnotationsFromElement(
   }
 }
 
-// Ri-cattura le 4 versioni (clean / printBase / overlay / annotated) di un
-// favourite dato un viewport+element già risolti. Lavora a basso livello
-// (niente cornerstoneViewportService) così è chiamabile sia dal componente
-// React sia dal listener globale.
+// Recaptures the four versions of a favourite (clean, printBase, overlay, annotated)
+// from a viewport and element that are already resolved. It works at a low level, with
+// no cornerstoneViewportService, so both the React component and the global listener
+// can call it.
 //
-// Best-effort: se la cattura fallisce, lascia il favourite invariato.
+// Best effort: if the capture fails, the favourite is left as it was.
 async function recaptureFavouriteForViewport(
   viewport: unknown,
   viewportElement: HTMLElement | null
@@ -600,16 +599,16 @@ async function recaptureFavouriteForViewport(
       | undefined)?.sopInstanceUID;
     if (!currentSop) return false;
 
-    // Trova il favourite corrispondente all'istanza attualmente mostrata
+    // Find the favourite that matches the instance currently on screen
     const target = list.find(
       p => p && (p as { SOPInstanceUID?: string }).SOPInstanceUID === currentSop
     );
     if (!target) {
-      // L'istanza visibile non è un favourite: niente recapture.
+      // The visible instance is not a favourite, so nothing to recapture.
       return false;
     }
 
-    // Capture clean alla risoluzione DICOM nativa (per backward compat)
+    // A clean capture at the native DICOM resolution, kept for backwards compatibility
     const cleanUrl = await captureImageFromImageId(currentImageId, viewport);
     if (!cleanUrl) return false;
 
@@ -650,36 +649,34 @@ async function recaptureFavouriteForViewport(
 }
 
 // ============================================================
-// LISTENER GLOBALE annotazioni → ricattura favourite attivo
+// GLOBAL ANNOTATION LISTENER, which recaptures the active favourite
 // ------------------------------------------------------------
-// Installato a module-load (NON dentro al componente React) così è SEMPRE
-// attivo, anche quando l'utente non ha mai aperto il pannello WW/WL e
-// quindi nessun componente <Favourites /> è stato mai montato.
+// Installed at module load, NOT inside the React component, so it is ALWAYS on, even
+// when nobody has opened the window level panel and no <Favourites /> has ever been
+// mounted.
 //
-// Quando arriva un evento ANNOTATION_ADDED/MODIFIED/REMOVED:
-//  1. Risolve il viewport dall'evento (renderingEngineId + viewportId)
-//  2. Estrae l'element del viewport
-//  3. Debounce 250ms (anti-burst per i drag)
-//  4. Chiama recaptureFavouriteForViewport()
-//  5. Se la ricattura va a buon fine, dispatcha mdv-favourites-updated
-//     che il bridge in favourites.js inoltra all'iframe del builder.
+// When an ANNOTATION_ADDED, MODIFIED or REMOVED event arrives:
+//  1. resolve the viewport from the event (renderingEngineId plus viewportId)
+//  2. take the viewport's element
+//  3. debounce by 250ms, which absorbs the burst a drag produces
+//  4. call recaptureFavouriteForViewport()
+//  5. if the recapture works, dispatch mdv-favourites-updated, which the bridge in
+//     favourites.js forwards to the builder's frame.
 // ============================================================
 let _annotationRecaptureTimer: ReturnType<typeof setTimeout> | null = null;
 let _annotationRecaptureInFlight = false;
 let _annotationListenerInstalled = false;
 
-// Risolve la lista di viewport candidati per la ricattura a partire da un
-// evento annotation. ANNOTATION_ADDED/MODIFIED includono viewportId+
-// renderingEngineId nel detail, ma ANNOTATION_REMOVED arriva con
-// solo `{ annotation, annotationManagerUID }` (vedi annotationState.js
-// di @cornerstonejs/tools/removeAnnotation). In quel caso facciamo
-// fallback su TUTTI gli enabled elements e ricatturiamo quelli che
-// stanno mostrando un'istanza preferita.
+// Works out which viewports are candidates for a recapture, given an annotation event.
+// ANNOTATION_ADDED and MODIFIED carry viewportId and renderingEngineId in the detail,
+// but ANNOTATION_REMOVED arrives with only `{ annotation, annotationManagerUID }` (see
+// annotationState.js in @cornerstonejs/tools/removeAnnotation). In that case this falls
+// back to EVERY enabled element and recaptures the ones showing a favourite instance.
 function resolveViewportsForAnnotationEvent(detail: {
   viewportId?: string;
   renderingEngineId?: string;
 }): Array<{ viewport: unknown; element: HTMLElement | null }> {
-  // Path 1: il detail ci dice già qual è il viewport
+  // Path 1: the detail already says which viewport it is
   if (detail?.viewportId && detail?.renderingEngineId) {
     try {
       const enabled = csGetEnabledElementByIds(
@@ -695,9 +692,9 @@ function resolveViewportsForAnnotationEvent(detail: {
     }
   }
 
-  // Path 2: nessun viewportId nel detail (caso ANNOTATION_REMOVED).
-  // Ritorniamo TUTTI gli enabled elements; recaptureFavouriteForViewport
-  // fa già lo skip se l'istanza corrente non è un favourite.
+  // Path 2: no viewportId in the detail, which is the ANNOTATION_REMOVED case. Return
+  // EVERY enabled element; recaptureFavouriteForViewport already skips the ones whose
+  // current instance is not a favourite.
   try {
     const all = (csGetEnabledElements?.() as Array<{ viewport?: unknown }>) || [];
     const result: Array<{ viewport: unknown; element: HTMLElement | null }> = [];
@@ -751,15 +748,14 @@ function installGlobalAnnotationRecaptureListener(): void {
   csEventTarget.addEventListener(csToolsEnums.Events.ANNOTATION_MODIFIED, onAnnotationEvent);
   csEventTarget.addEventListener(csToolsEnums.Events.ANNOTATION_REMOVED, onAnnotationEvent);
 
-  // FALLBACK MOUSEUP: lo spostamento del solo label/textBox di una
-  // measurement (es. il "1.38 cm US Region") NON triggera
-  // ANNOTATION_MODIFIED in Cornerstone3D (vedi LengthTool._dragCallback:
-  // per movingTextBox non setta annotation.invalidated, quindi
-  // triggerAnnotationModified non viene mai chiamato). Per intercettare
-  // anche questi spostamenti, ascoltiamo i mouseup A LIVELLO DOCUMENT e
-  // schediamo una recapture. Il dispatcher è lo stesso (debounce 250ms +
-  // recaptureFavouriteForViewport che skip se l'istanza visibile non è
-  // un favourite), quindi il costo è trascurabile per i mouseup "vuoti".
+  // MOUSEUP FALLBACK: moving only the label or text box of a measurement (the
+  // "1.38 cm US Region", say) does NOT trigger ANNOTATION_MODIFIED in Cornerstone3D
+  // (see LengthTool._dragCallback: for movingTextBox it does not set
+  // annotation.invalidated, so triggerAnnotationModified is never called). To catch
+  // those moves too, mouseup is listened for AT DOCUMENT LEVEL and a recapture is
+  // scheduled. The dispatcher is the same one (250ms debounce, and
+  // recaptureFavouriteForViewport skips when the visible instance is not a favourite),
+  // so an empty mouseup costs next to nothing.
   document.addEventListener(
     'mouseup',
     () => onAnnotationEvent(new CustomEvent('mdv-mouseup-recapture', { detail: {} })),
@@ -769,8 +765,8 @@ function installGlobalAnnotationRecaptureListener(): void {
   logFavouritesDebug('global-annotation-listener-installed');
 }
 
-// Installa subito a module-load. Cornerstone core esporta `eventTarget`
-// come singleton creato eagerly, quindi è già pronto qui.
+// Installed straight away at module load. Cornerstone core exports `eventTarget` as a
+// singleton created eagerly, so it is already there by this point.
 installGlobalAnnotationRecaptureListener();
 
 export function Favourites({
@@ -785,7 +781,7 @@ export function Favourites({
 
   const { cornerstoneViewportService } = servicesManager.services;
 
-  // Recupera l'UID corrente dal primo elemento di displaySets
+  // Take the current UID from the first entry in displaySets
   const { SeriesInstanceUID } = displaySets[0].instance || {};
 
   const getActiveElementIndex = useCallback(() => {
@@ -909,10 +905,10 @@ export function Favourites({
     setIsFavourite(currentIsFavourite);
   }, [activeElementIndex, isFavouriteForIndex]);
 
-  // NB: il listener annotazioni è installato a module-load (vedi
-  // installGlobalAnnotationRecaptureListener sopra), NON dentro questo
-  // componente, così è sempre attivo anche quando il pannello WW/WL non
-  // è mai stato aperto e il componente <Favourites /> non è stato montato.
+  // The annotation listener is installed at module load, see
+  // installGlobalAnnotationRecaptureListener above, and NOT inside this component, so
+  // it stays on even when the window level panel has never been opened and no
+  // <Favourites /> has ever been mounted.
 
   const onSetFavourite = useCallback(
     async e => {
@@ -931,14 +927,14 @@ export function Favourites({
       }
       if (!checked && document.getElementById('favourites-btn')) {
         document.getElementById('favourites-btn').classList.remove('pulse');
-        // Filtra l'array favourites rimuovendo l'elemento che corrisponde ai criteri
+        // Filter the favourites array, dropping the entry that matches
         window.favourites = window.favourites.filter(favourite => {
           return !(
             favourite.SeriesInstanceUID === SeriesInstanceUID && favourite.SOPInstanceUID === sopUID
           );
         });
         setIsFavourite(false);
-        //Se ho la clipbooard favourites aperta, aggiorno i favourites in tempo reale dopo la rimozione
+        // With the favourites clipboard open, refresh it as soon as one is removed
         if (document.getElementById('favourites-list-area')) {
           document.getElementById('favourites-list-area').remove();
           document
@@ -951,8 +947,8 @@ export function Favourites({
               `
             <div class="col">
             <img onclick="window.viewFavouritePopup('${favourite.DataUrl}')" src=${favourite.DataUrl} />
-            <p>Series ${favourite.NumeroSerie} - ${favourite.SeriesDescription}</p>
-            <p>N¶ø istanza: ${favourite.NumeroIstanza}</p>
+            <p>Series ${favourite.seriesNumber} - ${favourite.SeriesDescription}</p>
+            <p>Instance: ${favourite.instanceNumber}</p>
             <button class="remove-favourite-btn" onclick="window.removeFavourite('${favourite.SOPInstanceUID}')">Remove</button>
             </div>
             `
@@ -961,52 +957,21 @@ export function Favourites({
         }
         uiNotificationService.show({
           title: 'Favourites',
-          message: `Favourite rimosso`,
+          message: `Favourite removed`,
           type: 'error',
         });
         window.dispatchEvent(new Event('mdv-favourites-updated'));
       }
 
-      // Aggiungo l'elemento ai favourites salvando screen dell'intera div con measurements e tutto
-      // if (!isAlreadyFavourite && checked) {
-      //   captureScreenshot().then(imgData => {
-      //     const SOPInstanceUID = displaySets[0].instances[activeElementIndex].SOPInstanceUID;
-      //     const NumeroSerie = displaySets[0].instances[activeElementIndex].SeriesNumber;
-      //     const SeriesDescription = displaySets[0].instances[activeElementIndex].SeriesDescription;
-      //     const NumeroIstanza = activeElementIndex + 1;
-      //     window.favourites.push({
-      //       SeriesInstanceUID,
-      //       SOPInstanceUID: SOPInstanceUID,
-      //       DataUrl: imgData,
-      //       NumeroSerie: NumeroSerie,
-      //       SeriesDescription: SeriesDescription,
-      //       NumeroIstanza: NumeroIstanza,
-      //     });
-      //     //Se ho la clipbooard favourites aperta, inserisco il favourite in tempo reale
-      //     if (document.getElementById('favourites-list-area')) {
-      //       document.getElementById('favourites-list-area').insertAdjacentHTML(
-      //         'afterbegin',
-      //         `
-      //       <div class="col">
-      //       <img onclick="window.viewFavouritePopup('${imgData}')" src=${imgData} />
-      //       <p>Series ${NumeroSerie} - ${SeriesDescription}</p>
-      //       <p>N¶ø istanza: ${NumeroIstanza}</p>
-      //       <button class="remove-favourite-btn" onclick="window.removeFavourite('${SOPInstanceUID}')">Remove</button>
-      //       </div>
-      //       `
-      //       );
-      //     }
-      //   });
-      // }
 
-      //Capture del canvas senza measurements e altro anzichÇ¸ di tutta la div
+      // Capture the canvas on its own rather than the whole div
       if (!isFavourite && checked && document.getElementById('favourites-btn')) {
         const viewport = cornerstoneViewportService.getCornerstoneViewport(viewportId);
         const SOPInstanceUID = sopUID;
-        const NumeroSerie = instance?.SeriesNumber ?? displaySets?.[0]?.instance?.SeriesNumber;
+        const seriesNumber = instance?.SeriesNumber ?? displaySets?.[0]?.instance?.SeriesNumber;
         const SeriesDescription =
           instance?.SeriesDescription ?? displaySets?.[0]?.instance?.SeriesDescription;
-        const NumeroIstanza = activeElementIndex + 1;
+        const instanceNumber = activeElementIndex + 1;
         const imgData =
           (await captureImageFromImageId(imageId, viewport)) ||
           document.querySelector('.mdv-selected .cornerstone-canvas')?.toDataURL('image/png');
@@ -1014,16 +979,15 @@ export function Favourites({
           return;
         }
 
-        // Capture ANCHE una versione con le annotazioni (measurements
-        // length/area/...) componendo il canvas + il layer SVG. Best-effort:
-        // se fallisce ricadiamo sul DataUrl pulito così il print builder
-        // continua a funzionare anche senza annotazioni.
+        // Capture a version WITH the annotations too (length, area and the rest) by
+        // composing the canvas and the SVG layer. Best effort: if that fails this
+        // falls back to the clean DataUrl, so the print builder keeps working even
+        // without annotations.
         //
-        // NB: passiamo `viewport` a captureImageWithAnnotationsFromElement
-        // così quest'ultima può calcolare il rect dell'immagine nativa e
-        // croppare l'output escludendo i bordi neri del viewport (senza
-        // crop, il print builder fitterebbe anche i bordi nella cella e
-        // l'immagine apparirebbe rimpicciolita).
+        // `viewport` is passed to captureImageWithAnnotationsFromElement so it can
+        // work out the native image's rect and crop the viewport's black borders out
+        // of the output. Without the crop the print builder would fit the borders into
+        // the cell as well, and the image would look shrunken.
         const viewportInfoForCapture = cornerstoneViewportService.getViewportInfo(viewportId);
         const viewportElementForCapture =
           (viewportInfoForCapture?.getElement?.() as HTMLElement | null) ?? null;
@@ -1066,9 +1030,9 @@ export function Favourites({
           DataUrlPrintBase: imgDataPrintBase,
           DataUrlAnnotated: imgDataAnnotated,
           DataUrlAnnotationOverlay: annotationOverlayDataUrl || null,
-          NumeroSerie: NumeroSerie,
+          seriesNumber: seriesNumber,
           SeriesDescription: SeriesDescription,
-          NumeroIstanza: NumeroIstanza,
+          instanceNumber: instanceNumber,
         });
         setIsFavourite(true);
 
@@ -1079,8 +1043,8 @@ export function Favourites({
             `
         <div class="col">
         <img onclick="window.viewFavouritePopup('${imgData}')" src=${imgData} />
-        <p>Series ${NumeroSerie} - ${SeriesDescription}</p>
-        <p>N¶ø istanza: ${NumeroIstanza}</p>
+        <p>Series ${seriesNumber} - ${SeriesDescription}</p>
+        <p>Instance: ${instanceNumber}</p>
         <button class="remove-favourite-btn" onclick="window.removeFavourite('${SOPInstanceUID}')">Remove</button>
         </div>
       `
@@ -1097,7 +1061,7 @@ export function Favourites({
         window.dispatchEvent(new Event('mdv-favourites-updated'));
       }
 
-      document.querySelector('.mdv-selected .favourites-btn').click(); //Nascondo cosÇª lo switch appena aperto
+      document.querySelector('.mdv-selected .favourites-btn').click(); // Hides the switch just opened
     },
     [
       displaySets,

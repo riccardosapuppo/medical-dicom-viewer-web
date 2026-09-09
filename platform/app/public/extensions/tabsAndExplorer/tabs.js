@@ -3,7 +3,7 @@
 // ========================
 
 // ======================================================================
-//   FUNZIONE PER INVIARE CSS ALL'IFRAME VIA POSTMESSAGE
+//   SENDING CSS INTO THE FRAME OVER POSTMESSAGE
 // ======================================================================
 if (window.self === window.top) {
   localStorage.removeItem("aetitle");
@@ -13,16 +13,16 @@ if (window.self === window.top) {
 const isStudyListEnabled = window?.config?.showStudyList !== false;
 
 /**
- * I piani di sovrapposizione, in un posto solo.
+ * The stacking planes, in one place.
  *
  * Erano numeri sparsi - 99999, 100000, 999999, 9999999 - scelti ciascuno per
- * vincere contro qualcosa, senza un ordine scritto da nessuna parte. Bastava
- * abbassarne uno per rompere un rapporto che nessuno sapeva esistesse: la
- * barra delle schede portata sotto il contenuto faceva sparire la scheda
- * selezionata dietro il proprio iframe, che comincia sei pixel piu in alto.
+ * win against something, with no order written down anywhere. Lowering one was
+ * enough to break a relationship nobody knew existed: the tab bar moved under the
+ * content made the selected tab disappear behind its own frame, which starts six
+ * pixels higher up.
  *
- * I suggerimenti della barra strumenti si disegnano a 50: qualunque cosa
- * debba lasciarli leggere deve stare sotto quel numero.
+ * The toolbar's tooltips are drawn at 50: anything that has to leave them readable
+ * belongs below that number.
  */
 const PIANI = {
   nascosto: -1,
@@ -89,12 +89,11 @@ function markIframeFailed(iframeId, message) {
 
   const tab = document.querySelector(`.mdv-dynamic-tab[data-iframe-id="${iframeId}"]`);
   if (tab) {
-    // Una scheda fallita non deve avere il bordo della scheda attiva.
+    // A tab that failed should not carry the active tab's border.
     //
-    // Ritingendo il rosso di marchio in azzurro ho dato a questo bordo lo
-    // stesso colore che segna la scheda selezionata: le due si distinguevano
-    // solo per lo sfondo. Il rosso qui vuol dire "e andata storta", ed e uno
-    // dei casi in cui il rosso resta.
+    // Repainting the brand red as blue gave this border the same colour that marks
+    // the selected tab, and the two were then told apart only by their background.
+    // Red here means "it went wrong", and this is one of the places where red stays.
     tab.style.border = '1px solid #fca5a5';
     tab.style.background = 'rgb(40 15 15)';
     tab.title = message;
@@ -165,14 +164,14 @@ function getQueryParamCaseInsensitive(...keys) {
 }
 
 /**
- * L accession letta da cio che e disegnato, come ultima risorsa.
+ * The accession read off what is drawn, as a last resort.
  *
  * Cerca un elemento il cui title parli di accession e ne legge il testo. Va
- * pero tenuta fuori dalla barra delle linguette: ogni linguetta di studio porta
- * come title il riassunto costruito dalla lista, che contiene la riga
- * "Accession: ...". Senza questa esclusione la linguetta del patient si
- * prendeva l accession di un ALTRO studio aperto, e due schede diverse
- * mostravano lo stesso numero - erano lo stesso studio a vedersi, e non lo era.
+ * but kept away from the tab bar: every study tab carries as its title the summary
+ * built by the list, and that summary holds an "Accession: ..." line. Without this
+ * exclusion the patient tab took the accession of ANOTHER open study, and two
+ * different tabs showed the same number. They looked like one study seeing itself,
+ * and they were not.
  */
 function getAccessionFromDom() {
   const tabBar = document.getElementById('mdv-tab-container');
@@ -204,13 +203,13 @@ function getPatientNameForTab() {
 }
 
 /**
- * L identificativo del patient, che c e anche quando il nome non c e.
+ * The patient's identifier, which is there even when the name is not.
  *
- * Il DICOM puo non avere PatientName - LIDC-IDRI-0001 nell archivio
- * dimostrativo non ce l ha - ma PatientID viene riempito sempre. Sta in
+ * DICOM may carry no PatientName. LIDC-IDRI-0001 in the demonstration archive has
+ * none. PatientID is always filled in. It lives in
  * window.mdvPatientInfo, posato dall intestazione; cercarlo nei parametri
- * dell indirizzo, come facevo prima, non poteva funzionare: l indirizzo del
- * visualizzatore in questo progetto porta solo StudyInstanceUIDs.
+ * of the address, the way this used to, could not work: the viewer's address in this
+ * project carries StudyInstanceUIDs and nothing else.
  */
 function getPatientIdForTab() {
   return (
@@ -229,18 +228,18 @@ function getAccessionForTab() {
 }
 
 /**
- * L etichetta della scheda: chi e il patient, e quale esame.
+ * The tab's label: who the patient is, and which exam.
  *
- * Sono i due dati con cui si riconosce uno studio in un list di lavoro, ed e
- * la forma del progetto da cui questo deriva. Avevo messo un ripiego, "Studio",
- * che per uno studio senza nome patient - LIDC-IDRI-0001 nell archivio
- * dimostrativo non ce l ha - restava li per sempre: la scheda non diceva piu
- * quale studio fosse, e due schede diverse si leggevano uguali.
+ * Those are the two things a study is recognised by on a worklist, and it is the
+ * shape of the project this comes from. There used to be a fallback, "Study", which
+ * for a study with no patient name (LIDC-IDRI-0001 in the demonstration archive has
+ * none) stayed there for good: the tab no longer said which study it was, and two
+ * different tabs read identically.
  *
- * Il nome, se manca, cede all identificativo del patient, che c e sempre ed e
- * quello che l intestazione mostra comunque. Il trattino si scrive solo se c e
- * qualcosa da separare: senza accession finiva appeso al nulla e faceva andare
- * a capo la crocetta di chiusura.
+ * The name, when it is missing, gives way to the patient identifier, which is always
+ * there and is what the header shows anyway. The dash is written only when there is
+ * something to separate: with no accession it used to hang off nothing and pushed the
+ * close cross onto a second line.
  */
 function buildPatientTabDescription() {
   const patientName = getPatientNameForTab() || getPatientIdForTab();
@@ -254,17 +253,17 @@ function updatePatientTabDescription() {
   if (!titleNode) {
     return false;
   }
-  // L etichetta si riscrive sempre col meglio disponibile; il valore
-  // restituito dice se c e ancora qualcosa da aspettare.
+  // The label is always rewritten with the best there is; the return value says
+  // whether anything is still worth waiting for.
   //
   // Fermarsi al primo dato utile era troppo presto: nome e accession arrivano
-  // in momenti diversi - l accession un commit React prima - quindi bastava il
-  // nome perche il giro finisse e l accession non comparisse mai. Si ferma
-  // quando li ha entrambi, o quando scade il tempo.
+  // at different moments (the accession one React commit earlier), so the name alone
+  // was enough to end the loop and the accession never appeared. It stops once it has
+  // both of them, or when the time runs out.
   const description = buildPatientTabDescription();
   titleNode.textContent = description;
-  // Riuscita vuol dire che l etichetta e completa: identita e accession.
-  // Chi non ha ne l una ne l altra si ferma comunque allo scadere del tempo.
+  // Success means the label is complete: identity and accession.
+  // Anything with neither still stops when the time runs out.
   return Boolean(getPatientNameForTab() || getPatientIdForTab()) && Boolean(getAccessionForTab());
 }
 
@@ -277,12 +276,11 @@ function clearPatientTabInfoRefresh() {
 
 function startPatientTabInfoRefresh() {
   clearPatientTabInfoRefresh();
-  // L attesa va misurata su quanto ci mette uno studio ad arrivare.
+  // The wait has to be measured against how long a study takes to arrive.
   //
-  // Erano trenta tentativi da 350 millisecondi: dieci secondi e mezzo. Uno
-  // studio dall archivio ne impiega venti o trenta, quindi il giro finiva
-  // prima che i dati del patient esistessero, e l etichetta restava "Studio"
-  // per sempre.
+  // It was thirty attempts of 350 milliseconds, which is ten and a half seconds. A
+  // study from the archive takes twenty or thirty, so the loop ended before the
+  // patient's data existed at all, and the label stayed "Study" for good.
   const ATTESA_MASSIMA_MS = 60000;
   const PASSO_MS = 350;
   let attempts = 0;
@@ -405,14 +403,14 @@ function startQuickDateFilterWatcher() {
 }
 
 if (window.self !== window.top) {
-  // Pronto vuol dire "ha disegnato qualcosa", non "e' la lista studi".
+  // Ready means "it has drawn something", not "it is the study list".
   //
-  // Cercava solo i segni della lista: le colonne Accession e PatientID, o la
-  // tabella dei risultati. Una scheda che apre uno STUDIO pero' carica il
-  // visualizzatore, dove quei tre non compaiono mai. Il segnale non partiva, e
-  // dopo venticinque secondi scattava il timeout con "Errore caricamento
-  // studio. Verifica disponibilita studio/token/aetitle" - che manda a cercare
-  // un guasto dove non c'e'.
+  // It used to look only for the list's own marks: the Accession and PatientID
+  // columns, or the results table. But a tab that opens a STUDY loads the viewer,
+  // where none of those three ever appear. The signal never fired, and after
+  // twenty-five seconds the timeout put up "The study could not be loaded. Check
+  // that the study is there, and the token and the AE title", which sends somebody
+  // looking for a fault that is not there.
   const readyInterval = setInterval(() => {
     const listaPronta =
       document.querySelector('[title="Accession"]') ||
@@ -452,7 +450,7 @@ function injectCssIntoIframe(iframe) {
       : ''}
   `;
 
-  // Aspettiamo che l'iframe sia caricato
+  // Wait for the frame to load
   iframe.addEventListener("load", () => {
     try {
       console.log("invio css")
@@ -470,7 +468,7 @@ function injectCssIntoIframe(iframe) {
 }
 
 // ======================================================================
-//   PRELOAD DELL’IFRAME VUOTO (MOSTRATO DAL PULSANTE +)
+//   PRELOADING THE EMPTY FRAME, THE ONE THE + BUTTON SHOWS
 // ======================================================================
 
 function preloadEmptyIframe() {
@@ -496,31 +494,31 @@ function preloadEmptyIframe() {
     localStorage.setItem("aetitle", aetitle);
   }
 
-  // La scheda nuova si apre sulla LISTA STUDI, non sul visualizzatore.
+  // A new tab opens on the STUDY LIST, not on the viewer.
   //
-  // Puntava a /viewer/, che nell'installazione ospite era la lista e qui e' la
-  // rotta del visualizzatore: senza uno studio nell indirizzo caricava una
-  // pagina nera, e il "+" sembrava rotto. La lista sta alla radice, dove la
+  // It used to point at /viewer/, which in the host installation was the list and
+  // here is the viewer's own route: with no study in the address it loaded a black
+  // page, and the "+" looked broken. The list is at the root, where the
   // mette routerBasename.
   iframe.src = window.location.origin + ((window.PUBLIC_URL || '/').replace(/\/*$/, '/'));
 
-  // Pronto lo dice la pagina dentro, non noi qui.
+  // Whether it is ready is for the page inside to say, not for us out here.
   //
-  // Veniva marcata pronta nell istante in cui l iframe viene creato, prima di
-  // avere caricato qualunque cosa: premendo il "+" si rivelava una pagina che
-  // stava ancora disegnando, e il contenuto compariva a pezzi. Il segnale vero
-  // e il message mdv-iframe-ready, lo stesso che usano le schede di studio.
-  // Il tempo massimo evita che un segnale mancato lasci il "+" in attesa per
-  // sempre.
+  // It used to be marked ready the instant the frame is created, before it had
+  // loaded anything: pressing "+" revealed a page still drawing itself, and the
+  // content arrived in pieces. The real signal is the mdv-iframe-ready message, the
+  // same one the study tabs use. The time limit stops a missed signal leaving the
+  // "+" waiting for good.
+  //
   startIframeReadyTimeout(iframeId, 'Lista studi');
 
-  // La scheda della lista occupa la finestra come tutte le altre.
+  // The list tab fills the window like every other tab.
   //
-  // Era inchiodata a 43 pixel dall alto, perche una volta sotto ci stava la
-  // barra della pagina ospite. Adesso quella barra si nasconde quando una
-  // scheda e aperta, quindi restavano quarantatre pixel vuoti in cima con la
-  // striscia delle linguette a galleggiarci sopra: e quello che si vedeva
-  // comparire "a pezzi", ed era sempre uguale.
+  // It was nailed to 43 pixels from the top, because the host page's own bar used to
+  // sit above it. That bar now hides itself whenever a tab is open, so forty-three
+  // empty pixels were left at the top with the strip of tabs floating over them.
+  // That is what looked like the page "arriving in pieces", and it happened every
+  // single time.
   iframe.style.position = 'absolute';
   iframe.style.top = '0';
   iframe.style.left = '0';
@@ -538,7 +536,7 @@ function preloadEmptyIframe() {
   injectCssIntoIframe(iframe);
 
   iframe.addEventListener('load', () => {
-    // iframe explorer sempre visibile quando attivo
+    // the explorer frame stays visible whenever it is the active one
   });
 }
 
@@ -560,12 +558,12 @@ function openRouteInModal(url) {
   } catch (_) {
     studyId = null;
   }
-  // Lo studio gia aperto si mostra, non si riapre.
+  // A study already open is shown, not opened again.
   //
-  // Il controllo guardava solo le schede create da qui, e non quella del
-  // patient, che e la prima e non passa da questa funzione. Riaprendo dalla
-  // lista lo studio che si stava gia guardando si otteneva una seconda scheda
-  // dello stesso studio, indistinguibile dalla prima.
+  // The check looked only at tabs created here, and not at the patient's tab, which
+  // is the first one and does not come through this function. Reopening from the
+  // list the study already on screen therefore gave a second tab for the same study,
+  // indistinguishable from the first.
   const studioDellaScheda = window.mdvStudyInstanceUIDs;
   const patientTab = document.getElementById('explorer-tab-btn');
   if (studyId && studioDellaScheda && studyId === studioDellaScheda && patientTab) {
@@ -654,12 +652,12 @@ function getExistingTabForStudy(studyId) {
 }
 
 if (window.self === window.top) {
-  // Aperto vuol dire anche "e quello di questa pagina".
+  // Open also means "it is the one this page is showing".
 //
-// La lista usa questo per segnare le righe gia aperte. Guardava solo le schede
-// create qui, quindi lo studio della linguetta patient non risultava aperto -
-// e cliccandolo non succedeva quello che la riga prometteva, perche la
-// deduplicazione lo riconosce e riporta alla sua linguetta.
+// The list uses this to mark the rows already open. It looked only at tabs created
+// here, so the study behind the patient tab did not count as open, and clicking it
+// did not do what the row promised, because the de-duplication recognises it and
+// brings you back to its own tab.
 window.mdvIsStudyOpenInTab = studyId =>
   Boolean(getExistingTabForStudy(studyId)) ||
   Boolean(studyId && studyId === window.mdvStudyInstanceUIDs);
@@ -854,12 +852,12 @@ function stopTabsInitWatcher() {
 }
 
 function tryInitTabs() {
-  // Dentro un iframe la barra non si costruisce affatto.
+  // Inside a frame the bar is not built at all.
   //
-  // Prima veniva costruita e poi nascosta con un display:none iniettato
-  // dall'esterno. Se l'iniezione arrivava tardi - o non arrivava - ogni scheda
-  // aperta mostrava la propria barra con il proprio "+", e ci si ritrovava con
-  // un piu' per ogni studio aperto e le crocette accavallate in alto.
+  // It used to be built and then hidden with a display:none injected from outside.
+  // If that injection arrived late, or never arrived, every open tab showed a bar of
+  // its own with a "+" of its own, and you ended up with one plus per open study and
+  // the close crosses piled on top of each other.
   if (window.self !== window.top) {
     stopTabsInitWatcher();
     return;
@@ -1026,9 +1024,9 @@ function injectTabs(target) {
       const viewportWidth =
         window.visualViewport?.width || window.innerWidth || document.documentElement.clientWidth || 0;
       if (viewportWidth > 0) {
-        //Con lo priors affiancato la barra dei tab deve fermarsi al bordo
-        //dell'iframe: lo priors e' allineato in alto e coprirebbe i tab che
-        //sconfinano nella sua meta'.
+        // With a prior study alongside, the tab bar has to stop at the frame's edge:
+        // the prior is aligned to the top and would cover the tabs that reach into
+        // its half.
         const priorsIframe = document.getElementById('priors-iframe');
         const priorsBorder = priorsIframe ? priorsIframe.getBoundingClientRect().left : 0;
         const limiteDestro = priorsBorder > safeLeft ? priorsBorder : viewportWidth;
@@ -1069,7 +1067,7 @@ function injectTabs(target) {
     if (firstIframeTab) {
       showIframeForTab(firstIframeTab.dataset.iframeId);
 
-      // Nascondi la tab principale dopo la "chiusura"
+      // Hide the main tab once it has been "closed"
       const patientTab = document.getElementById('explorer-tab-btn');
       patientTab.style.opacity = '0';
       patientTab.style.display = 'none';
@@ -1077,7 +1075,7 @@ function injectTabs(target) {
       patientTab.style.zIndex = String(PIANI.nascosto);
       patientTab.dataset.visible = "false";
 
-      //Se ho chiuso la tab principale e ho solo una tab iframe, nascondo il pulsante chiudi da qui
+      // With the main tab closed and only one frame tab left, hide the close button here
       const dynamicTabs = document.querySelectorAll(".mdv-dynamic-tab");
       if (dynamicTabs.length === 1) {
         document.querySelector(".close-tab-iframe").style.display = "none"
@@ -1121,7 +1119,7 @@ function updatePatientCloseButton() {
     closeIframeBtn.style.display = count > 1 || patientTab.style.display !== 'none' ? "block" : "none";
   }
 
-  // Mostra/nasconde la X della tab principale
+  // Shows or hides the main tab's X
   if (closeBtn) {
     closeBtn.style.display = count > 0 ? "inline" : "none";
   }
@@ -1215,12 +1213,12 @@ window.openStudyInInternalTab = function (url, options = {}) {
   } catch (_) {
     studyId = null;
   }
-  // Lo studio gia aperto si mostra, non si riapre.
+  // A study already open is shown, not opened again.
   //
-  // Il controllo guardava solo le schede create da qui, e non quella del
-  // patient, che e la prima e non passa da questa funzione. Riaprendo dalla
-  // lista lo studio che si stava gia guardando si otteneva una seconda scheda
-  // dello stesso studio, indistinguibile dalla prima.
+  // The check looked only at tabs created here, and not at the patient's tab, which
+  // is the first one and does not come through this function. Reopening from the
+  // list the study already on screen therefore gave a second tab for the same study,
+  // indistinguishable from the first.
   const studioDellaScheda = window.mdvStudyInstanceUIDs;
   const patientTab = document.getElementById('explorer-tab-btn');
   if (studyId && studioDellaScheda && studyId === studioDellaScheda && patientTab) {
@@ -1266,7 +1264,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   tab.style.border = '1px solid transparent';
 
 
-  /* --- TITOLO CON ELLIPSIS --- */
+  /* --- TITLE WITH AN ELLIPSIS --- */
   const titleSpan = document.createElement('span');
   titleSpan.innerText = title;
 
@@ -1370,7 +1368,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   }
 
   iframe.addEventListener('load', () => {
-    // Attendo il segnale di ready dal contenuto per mostrare l'iframe
+    // Wait for the ready signal from the content before showing the frame
   });
   iframeSpinnerById.set(iframeId, spinner);
   startIframeReadyTimeout(iframeId, title);
@@ -1378,7 +1376,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   // ATTACH CLICK
   tab.addEventListener('click', () => showIframeForTab(iframeId));
 
-  // Attiva quando pronta
+  // Made active once it is ready
   pendingIframeId = iframeId;
 
   updatePatientCloseButton();
@@ -1388,7 +1386,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
 
 
 // =====================================================================
-//   MOSTRA SOLO L'IFRAME ASSOCIATO ALLA TAB
+//   SHOW ONLY THE FRAME BELONGING TO THIS TAB
 // =====================================================================
 function showIframeForTab(iframeId) {
   const resolvedIframeId =
@@ -1402,12 +1400,12 @@ function showIframeForTab(iframeId) {
     );
     return;
   }
-  // Anche la scheda del "+" si mostra quando ha finito di disegnare.
+  // The "+" tab is shown once it has finished drawing, like the others.
   //
-  // Era l'unica esentata: veniva rivelata subito, cosi' la pagina si svuotava e
-  // il suo contenuto compariva a pezzi. Aspetta lo stesso segnale delle altre -
-  // il message mdv-iframe-ready che ogni scheda manda quando ha disegnato -
-  // e lo scambio diventa uno solo.
+  // It was the only one exempt: revealed at once, so the page went blank and its
+  // content arrived in pieces. It now waits for the same signal as the rest, the
+  // mdv-iframe-ready message every tab sends when it has drawn, and the swap becomes
+  // a single one.
   if (iframe && iframe.dataset.loaded !== 'true') {
     pendingIframeId = resolvedIframeId;
     showLoadingNotification();
@@ -1417,16 +1415,16 @@ function showIframeForTab(iframeId) {
   pendingIframeId = null;
   activeIframeId = resolvedIframeId;
 
-  // Chi guarda una scheda esterna non deve vedere la barra di questa pagina.
+  // Somebody looking at another tab should not see this page's bar.
   //
-  // Ogni scheda e un visualizzatore intero in un iframe, e questa pagina e a
-  // sua volta un visualizzatore: aperta una scheda ci sono due barre identiche
-  // sovrapposte, e i comandi finiscono su quella sotto, cioe sul visualizzatore
-  // che non si sta guardando.
+  // Every tab is a whole viewer in a frame, and this page is itself a viewer: open a
+  // tab and there are two identical bars on top of each other, with the controls
+  // landing on the one underneath, which is to say on the viewer nobody is looking
+  // at.
   const schedaEsterna =
     resolvedIframeId !== 'none' && String(resolvedIframeId).startsWith('mdv-dynamic-iframe-');
   document.body.classList.toggle('mdv-scheda-esterna', schedaEsterna);
-  // Nascondi tutti gli iframe dinamici
+  // Hide every dynamic frame
   document.querySelectorAll('[id^="mdv-dynamic-iframe"]').forEach(ifr => {
     ifr.style.opacity = '0';
     ifr.style.pointerEvents = 'none';
@@ -1449,7 +1447,7 @@ function showIframeForTab(iframeId) {
     return;
   }
 
-  // Mostra iframe selezionato
+  // Show the selected frame
   if (iframe) {
     if (iframe.dataset.loaded === 'true') {
       iframe.style.opacity = '1';
@@ -1472,14 +1470,14 @@ function showIframeForTab(iframeId) {
   const patientTab = document.getElementById('explorer-tab-btn');
 
   if (resolvedIframeId === 'none') {
-    // quando apro la tab principale, deve tornare visibile
+    // opening the main tab has to bring it back into view
     patientTab.style.opacity = '1';
     patientTab.style.display = 'block';
     patientTab.style.pointerEvents = 'auto';
     patientTab.style.zIndex = String(PIANI.patientTab);
     patientTab.dataset.visible = "true";
   } else {
-    // Se l’iframe NON è quello del pulsante +, nascondo la tab principale
+    // If the frame is NOT the + button's, hide the main tab
     // Se sto mostrando un iframe REALE → nascondo la tab principale
     if (resolvedIframeId.startsWith("mdv-dynamic-iframe-") && resolvedIframeId !== "mdv-dynamic-iframe-empty") {
 
@@ -1489,7 +1487,7 @@ function showIframeForTab(iframeId) {
       // patientTab.dataset.visible = "false";
 
     }
-    // Se sto mostrando l’iframe del + → NON nascondere la tab principale
+    // If the + button's frame is the one showing, do NOT hide the main tab
     else if (resolvedIframeId === "mdv-dynamic-iframe-empty") {
 
       patientTab.style.opacity = '1';
@@ -1498,7 +1496,7 @@ function showIframeForTab(iframeId) {
       patientTab.dataset.visible = "true";
 
     }
-    // Se sto mostrando la tab principale → ovvio, la tab principale deve essere visibile
+    // If the main tab is the one showing then, plainly, it has to be visible
     else if (resolvedIframeId === 'none') {
 
       patientTab.style.opacity = '1';
@@ -1560,7 +1558,7 @@ function removeDynamicTab(tab) {
 
 
 // =====================================================================
-//   CLICK SU TAB PAZIENTE → NASCONDE TUTTI GLI IFRAME
+//   A CLICK ON THE PATIENT TAB HIDES EVERY FRAME
 // =====================================================================
 document.addEventListener('click', (e) => {
   const patientTab = document.getElementById('explorer-tab-btn');

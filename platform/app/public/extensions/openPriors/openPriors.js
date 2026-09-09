@@ -408,7 +408,7 @@ const saveSeriesToClickAgain = () => {
   const { activeViewportId, viewports } = viewportGridService.getState();
   const activeViewport = viewports.get(activeViewportId);
   const activeDisplaySetInstanceUID = activeViewport.displaySetInstanceUIDs[0];
-  window.instanceUIDMPRDaCliccare = activeDisplaySetInstanceUID;
+  window.instanceUIDMPRToClick = activeDisplaySetInstanceUID;
 };
 
 const fixlayoutViewportsMPR = () => {
@@ -423,7 +423,7 @@ const fixlayoutViewportsMPR = () => {
   setTimeout(() => {
     document.body.classList.remove('loading-spinner-into-grid');
 
-    // window.instanceUIDMPRDaCliccare = null;
+    // window.instanceUIDMPRToClick = null;
 
     //A fine fix ritorno sempre e comunque nella tab dello priors da cui sono partito
     document.querySelector('.storicosulcloud').click();
@@ -634,7 +634,7 @@ function applyHangingProtocolOnPriors(protocolId) {
   hangingProtocolService.setProtocol(protocolId);
 
   if (activeDisplaySetInstanceUID) {
-    window.instanceUIDMPRDaCliccare = activeDisplaySetInstanceUID;
+    window.instanceUIDMPRToClick = activeDisplaySetInstanceUID;
   }
   setTimeout(() => {
     if (activeDisplaySetInstanceUID) {

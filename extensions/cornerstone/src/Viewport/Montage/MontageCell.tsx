@@ -66,7 +66,7 @@ function MontageCell(props: {
 
   // Identificativo del FRAME mostrato nella cella. Per i multiframe tutti i frame
   // condividono lo stesso SOPInstanceUID, quindi serve questo per distinguerli nei
-  // favourites (salvato come NumeroIstanza). Uso imageIndex+1 (la POSIZIONE nello
+  // favourites (salvato come instanceNumber). Uso imageIndex+1 (la POSIZIONE nello
   // stack), come fanno i favourites delle viewport normali (`activeElementIndex+1`):
   // identità univoca per frame, niente collisioni, e match cross-viewport coerente.
   const frameNumber = imageIndex + 1;
@@ -202,7 +202,7 @@ function MontageCell(props: {
       p =>
         p.SeriesInstanceUID === seriesInstanceUID &&
         p.SOPInstanceUID === sopUID &&
-        String(p.NumeroIstanza) === String(frameNumber)
+        String(p.instanceNumber) === String(frameNumber)
     );
   }, [seriesInstanceUID, resolveSopUID, frameNumber]);
 
@@ -255,7 +255,7 @@ function MontageCell(props: {
       const matchesThisFrame = p =>
         p.SeriesInstanceUID === seriesInstanceUID &&
         p.SOPInstanceUID === sopUID &&
-        String(p.NumeroIstanza) === String(frameNumber);
+        String(p.instanceNumber) === String(frameNumber);
       const already = list.some(matchesThisFrame);
 
       // ── Rimozione ──
@@ -265,7 +265,7 @@ function MontageCell(props: {
         syncFavouritesPulse();
         uiNotificationService?.show?.({
           title: 'Favourites',
-          message: 'Favourite rimosso',
+          message: 'Favourite removed',
           type: 'error',
         });
         window.dispatchEvent(new Event('mdv-favourites-updated'));
@@ -308,9 +308,9 @@ function MontageCell(props: {
         DataUrlPrintBase: printBase,
         DataUrlAnnotated: annotated,
         DataUrlAnnotationOverlay: overlay || null,
-        NumeroSerie: seriesNumber,
+        seriesNumber: seriesNumber,
         SeriesDescription: seriesDescription,
-        NumeroIstanza: frameNumber,
+        instanceNumber: frameNumber,
       });
       setIsFav(true);
       syncFavouritesPulse();

@@ -16,17 +16,17 @@ import {
 
 /**
  * Viewport "Montage": suddivide UNA viewport OHIF in una subgrid interna di
- * righe×colonne celle, tutte sulla stessa serie, condividendo cache pixel,
- * strumenti e sincronizzazione (WL/VOI/zoom/pan/invert/LUT). Non crea viewport
- * OHIF aggiuntive nella griglia principale. Vedi docs/montage-viewport-design.md.
+ * rows by columns of cells, all on the same series, sharing the pixel cache, the
+ * tools and the synchronisation (window level, VOI, zoom, pan, invert, LUT). It
+ * adds no viewports to the main grid. See docs/montage-viewport-design.md.
  *
- * Le celle vivono in un RenderingEngine DEDICATO (ohif-montage-<viewportId>):
- * così le operazioni sulle celle (enable/disable/resize) NON riconfigurano
- * l'offscreen condiviso dell'engine principale e NON fanno lampeggiare le altre
- * viewport. Le celle entrano nel toolGroup 'montage' (sincronizzazione + tool).
- * La cella 0 assume l'id della viewport OHIF attiva; inoltre il viewportId viene
- * registrato come "phantom" nel toolGroup 'montage' sotto l'engine principale,
- * così la toolbar risolve correttamente lo stato dei bottoni per la viewport.
+ * The cells live in their OWN RenderingEngine (ohif-montage-<viewportId>), so
+ * enabling, disabling or resizing a cell does NOT reconfigure the main engine's
+ * shared offscreen surface and does NOT make the other viewports flash. The cells
+ * join the 'montage' tool group, which is where the sync and the tools come from.
+ * Cell 0 takes the id of the active viewport, and the viewportId is also registered
+ * as a "phantom" in the 'montage' tool group under the main engine, so the toolbar
+ * resolves the state of its buttons for that viewport correctly.
  */
 function OHIFMontageViewport(props: withAppTypes) {
   const { viewportId, displaySets, viewportOptions, dataSource, servicesManager } = props;
@@ -35,7 +35,7 @@ function OHIFMontageViewport(props: withAppTypes) {
 
   const displaySet = displaySets?.[0];
 
-  // Risolto UNA volta: tutte le celle riusano lo stesso array → cache condivisa.
+  // Resolved ONCE: every cell reuses the same array, so the cache is shared.
   const imageIds: string[] = useMemo(() => {
     if (!displaySet) {
       return [];
@@ -73,18 +73,18 @@ function OHIFMontageViewport(props: withAppTypes) {
     baseRef.current = base;
   }, [base]);
 
-  // Riallinea `base` quando cambia il layout o il numero di immagini.
+  // Realigns `base` when the layout or the number of images changes.
   useEffect(() => {
     setBase(prev => clampBase(prev, total, visibleCount));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows, cols, total]);
 
-  // Cambio serie (drag&drop di un'altra serie sulla viewport, o click su una
-  // miniatura mentre la subgrid è attiva): riparti dalla prima immagine
-  // della nuova serie. Le celle vengono rimontate (vedi `key` sotto) così
-  // ricaricano lo stack corretto invece di mostrare un "mix" vecchia/nuova.
+  // A change of series (another series dropped on the viewport, or a thumbnail
+  // clicked while the subgrid is on): start again from the first image of the new
+  // series. The cells are remounted, see `key` below, so they load the right stack
+  // instead of showing a mix of the old one and the new.
   // NB: salto il PRIMO run (mount), altrimenti azzererei il `firstImageIndex`
-  // fornito da un Hanging Protocol (scroll/istanza salvata della subgrid).
+  // handed over by a hanging protocol (the subgrid's saved scroll position).
   const firstDisplaySetRunRef = useRef(true);
   useEffect(() => {
     if (firstDisplaySetRunRef.current) {
@@ -95,11 +95,11 @@ function OHIFMontageViewport(props: withAppTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displaySetUID]);
 
-  // Badge description serie (a livello griglia) + tooltip moderno SOLO se il
+  // The series description badge, at grid level, with a modern tooltip only when the
   // testo è troncato. Misuriamo la troncatura (scrollWidth > clientWidth) e ci
-  // riaggiorniamo sui resize della badge (cambio layout/finestra). Quando NON è
+  // refreshed whenever the badge is resized (a change of layout, or of window). When it
   // troncato il badge resta `pointer-events:none` (vedi CSS): nessun tooltip e
-  // nessuna interferenza col lavoro nella viewport.
+  // nothing gets in the way of the work in the viewport.
   const seriesBadgeText = useMemo(
     () =>
       [
@@ -125,32 +125,32 @@ function OHIFMontageViewport(props: withAppTypes) {
     return () => ro.disconnect();
   }, [seriesBadgeText, cols, rows]);
 
-  // RenderingEngine DEDICATO alla subgrid: le celle vivono qui, NON
-  // nell'engine principale. Così enable/disable/resize delle celle (attivazione,
-  // cambio layout, refit) riconfigurano SOLO l'offscreen della subgrid e
-  // NON causano il ri-render/lampeggio di tutte le altre viewport della griglia.
+  // A RenderingEngine of the subgrid's OWN, not the main one: the cells live here.
+  // Enabling, disabling or resizing a cell (turning the subgrid on, changing the
+  // layout, refitting) therefore reconfigures ONLY the subgrid's offscreen surface
+  // and does NOT make every other viewport in the grid redraw and flash.
   const renderingEngineId = `ohif-montage-${viewportId}`;
   const renderingEngine = useMemo(
     () => getRenderingEngine(renderingEngineId) || new RenderingEngine(renderingEngineId),
     [renderingEngineId]
   );
 
-  // toolGroup dedicato alla montage: come 'default' per interazione e misure, ma
-  // SENZA i tool cross-viewport (ReferenceLines/Crosshairs/ReferenceCursors),
-  // privi di senso tra celle della stessa serie.
-  // Fallback a 'default' se il toolGroup 'montage' non è stato creato dal mode.
+  // A tool group of the montage's own: like 'default' for interaction and measurement,
+  // but WITHOUT the cross-viewport tools (reference lines, crosshairs, reference
+  // cursors), which mean nothing between cells of one series.
+  // Falls back to 'default' if the mode never created a 'montage' tool group.
   const toolGroupId = ToolGroupManager.getToolGroup('montage')
     ? 'montage'
     : viewportOptions?.toolGroupId || 'default';
   const voiSyncId = `montage-voi-${viewportId}`;
   const zoomPanSyncId = `montage-zoompan-${viewportId}`;
 
-  // Teardown dell'engine dedicato all'unmount (uscita dalla subgrid/cambio
-  // serie). Inoltre registriamo un riferimento "phantom" della viewport OHIF nel
-  // toolGroup 'montage' SOTTO l'engine principale: serve solo a far risolvere
-  // toolGroupService.getToolGroupForViewport(viewportId) (che interroga l'engine
-  // principale) → così i bottoni della toolbar valutano stato attivo/disabilitato
-  // correttamente. Il phantom non ha un enabled-element, quindi non renderizza.
+  // The dedicated engine is torn down on unmount (leaving the subgrid, or changing
+  // series). A "phantom" reference to the OHIF viewport is also registered in the
+  // 'montage' tool group UNDER the main engine. Its only job is to let
+  // toolGroupService.getToolGroupForViewport(viewportId), which asks the main engine,
+  // resolve at all, so the toolbar buttons work out active and disabled correctly.
+  // The phantom has no enabled element, so it renders nothing.
   useEffect(() => {
     const mainEngineId = cornerstoneViewportService.getRenderingEngine?.()?.id;
     if (mainEngineId) {
@@ -177,8 +177,8 @@ function OHIFMontageViewport(props: withAppTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Segnala alla griglia che la viewport è pronta (il percorso normale passa da
-  // onElementEnabled, qui assente perché non usiamo cornerstoneViewportService).
+  // Tells the grid the viewport is ready. The usual path is onElementEnabled, which
+  // is absent here because this does not go through cornerstoneViewportService.
   useEffect(() => {
     viewportGridService?.setViewportIsReady?.(viewportId, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -186,11 +186,11 @@ function OHIFMontageViewport(props: withAppTypes) {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Viewport REALI delle celle nell'engine dedicato. Gli id sono TUTTI della
-  // forma `<viewportId>::montage::<k>` con k da 0 (deriveMontageCells in
-  // types/Montage.ts): il vecchio mapping "cella 0 = viewportId" e' obsoleto e
-  // lasciava la PRIMA cella fuori da refit/ripristini (nel one-up restava a fit,
-  // piu' grande delle altre). Filtro a prefisso, robusto a entrambi gli schemi.
+  // The cells' REAL viewports in the dedicated engine. Every id has the shape
+  // `<viewportId>::montage::<k>` with k from 0 (deriveMontageCells in
+  // types/Montage.ts). The old "cell 0 is the viewportId" mapping is obsolete and
+  // left the FIRST cell out of refits and restores: in one-up it stayed at fit,
+  // larger than the rest. Filtering by prefix survives both schemes.
   const getCellViewports = useCallback((): any[] => {
     if (!renderingEngine) {
       return [];
@@ -201,7 +201,7 @@ function OHIFMontageViewport(props: withAppTypes) {
     );
   }, [renderingEngine, viewportId]);
 
-  // Rifit della camera SOLO delle celle montage (non tocca le altre viewport).
+  // Refits the camera of the montage cells only, leaving other viewports alone.
   const resetCellCameras = useCallback(() => {
     if (!renderingEngine) {
       return;
@@ -212,16 +212,16 @@ function OHIFMontageViewport(props: withAppTypes) {
     });
   }, [renderingEngine, getCellViewports]);
 
-  // Ridimensiona l'engine (preserva la camera) e rifà il fit delle celle. Usato
-  // all'attivazione/cambio layout, quando non scatta un resize della griglia e i
-  // canvas delle celle sarebbero altrimenti mal dimensionati (immagini stirate).
+  // Resizes the engine, keeping the camera, and refits the cells. Used when the
+  // subgrid is turned on or the layout changes, when no grid resize fires and the
+  // cells' canvases would otherwise be the wrong size, stretching the images.
   const refitCells = useCallback(() => {
     if (!renderingEngine) {
       return;
     }
     try {
-      // Qui il risultato voluto E' il fit: keepCamera non serve (ed emetterebbe
-      // la stessa cascata sync descritta in onContainerResize).
+      // Fit IS the wanted result here, so keepCamera buys nothing, and it would set
+      // off the same sync cascade described in onContainerResize.
       renderingEngine.resize(true, false);
       resetCellCameras();
     } catch (e) {
@@ -229,9 +229,9 @@ function OHIFMontageViewport(props: withAppTypes) {
     }
   }, [renderingEngine, resetCellCameras]);
 
-  // Refit all'attivazione/cambio layout (su rAF: la griglia CSS è già misurata).
-  // Dipende da rows/cols/total (NON da `base`): lo scroll non rifà il fit, così
-  // lo zoom impostato dall'utente è preservato durante lo scorrimento.
+  // Refit when the subgrid opens or the layout changes, on rAF, once the CSS grid
+  // has been measured. It depends on rows, cols and total but NOT on `base`, so
+  // scrolling does not refit and the zoom a reader set survives the scroll.
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
       refitCells();
@@ -240,11 +240,11 @@ function OHIFMontageViewport(props: withAppTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows, cols, total, refitCells]);
 
-  // Ripristino dello stato salvato delle celle (window level + zoom/pan) quando
+  // Puts the cells' saved state back (window level, zoom and pan) when it arrives in
   // la subgrid è (ri)creata da un Hanging Protocol: i valori arrivano in
-  // viewportOptions.montage.{voiRange,viewPresentation}. Le celle si creano in
-  // modo asincrono e fanno auto-fit (resetCamera), quindi applichiamo UNA volta
-  // sola dopo che si sono stabilizzate (best-effort). Lo scroll/istanza è invece
+  // viewportOptions.montage.{voiRange,viewPresentation}. Cells are created
+  // asynchronously and auto-fit themselves (resetCamera), so this is applied ONCE,
+  // after they have settled, and best effort. The scroll position instead comes
   // gestito da `firstImageIndex` (init di `base`).
   const restoredCellStateRef = useRef(false);
   useEffect(() => {
@@ -261,11 +261,11 @@ function OHIFMontageViewport(props: withAppTypes) {
     const tryApply = () => {
       attempts += 1;
       // Geometria stabile? Durante one-up / cambio layout il contenitore passa per
-      // dimensioni provvisorie. Lo zoom del viewPresentation e' RELATIVO alla
-      // camera di fit della cella: applicato su una geometria provvisoria produce
-      // una camera sballata (immagini ridotte a un puntino) che il resize
-      // successivo, con keepCamera, CONSERVA. Si applica solo quando il
-      // contenitore ha una dimensione reale, uguale a quella del tentativo
+      // provisional size. The viewPresentation zoom is RELATIVE to the cell's fit
+      // camera: applied to a provisional geometry it produces a camera that is wrong
+      // (images shrunk to a dot), and the resize that follows, with keepCamera,
+      // KEEPS it. So it is applied only once the container has a real size, the
+      // same one as the attempt.
       // precedente.
       const el = containerRef.current;
       const size = el ? `${el.clientWidth}x${el.clientHeight}` : '';
@@ -281,8 +281,8 @@ function OHIFMontageViewport(props: withAppTypes) {
       let ready = cellViewports.length > 0;
       let appliedAny = false;
       for (const vp of cellViewports) {
-        // Aspetta che la cella abbia un'immagine renderizzata: altrimenti
-        // setProperties/voiRange non "attacca" (è il caso del WL che spariva).
+        // Wait for the cell to have drawn an image: otherwise setProperties and
+        // voiRange do not take, which is where the disappearing window level came from.
         if (!vp || !vp.getImageData || !vp.getImageData()) {
           ready = false;
           continue;
@@ -297,10 +297,10 @@ function OHIFMontageViewport(props: withAppTypes) {
             });
           }
           if (mv) {
-            // Riferimento sano: rifa' il fit sulla geometria ATTUALE della cella
-            // prima di applicare zoom/pan relativi. Una cella creata durante una
+            // A sound reference: refit against the cell's CURRENT geometry before
+            // applying a relative zoom and pan. A cell created during a resize has a
             // transizione di layout ha una camera iniziale di una dimensione
-            // provvisoria, e zoom/pan relativi a quella non hanno senso.
+            // provisional one, and a zoom relative to that means nothing.
             vp.resetCamera?.();
             vp.setViewPresentation(mv);
           }
@@ -331,27 +331,27 @@ function OHIFMontageViewport(props: withAppTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [(montage as any).viewPresentation, (montage as any).voiRange, rows, cols, total]);
 
-  // Resize del contenitore (one-up/ritorno, toggle pannelli, resize finestra):
-  // pan/zoom delle celle preservati in forma RELATIVA via framing.js (vedi
-  // commento nel corpo: il keepCamera di cornerstone qui non e' utilizzabile
-  // per la cascata del sync zoompan). Il fit iniziale e' gestito dall'effetto
+  // The container is resized (one-up and back, panels toggled, the window resized).
+  // The cells' pan and zoom are kept in RELATIVE form through framing.js, see the
+  // comment in the body: cornerstone's keepCamera cannot be used here because of the
+  // zoompan sync cascade. The first fit is handled by the effect
   // su rows/cols/total (attivazione/cambio layout).
   const onContainerResize = useCallback(() => {
     if (!renderingEngine) {
       return;
     }
     try {
-      // Le celle sono collegate da un sync zoompan: con resize(keepCamera=true)
-      // cornerstone le processa IN SEQUENZA (reset + ripristino) e ogni cella
-      // emette CAMERA_MODIFIED; il sync riversa il suo stato transitorio sulle
-      // celle non ancora processate, la cui "camera da conservare" viene quindi
-      // fotografata gia' inquinata. Il rapporto vecchioFit/nuovoFit si compone
-      // una volta per cella: misurato dal vivo 2.102^8 = 381.6 (zoom 381.603 nel
-      // log del one-up) -> immagini a puntino o zoomate all'inverosimile.
-      // Quindi: fotografia RELATIVA di ogni cella prima (framingBeforeResize),
-      // resize SENZA keepCamera (tutte a fit: la propagazione del sync e'
-      // innocua perche' il fit e' lo stesso stato per tutte), riapplicazione
-      // per-cella a eventi soppressi (applyFraming) -> il sync non spara.
+      // The cells are tied together by a zoompan sync. With resize(keepCamera=true)
+      // cornerstone works through them IN SEQUENCE (reset, then restore) and each one
+      // emits CAMERA_MODIFIED; the sync pours its transient state onto the cells not
+      // yet processed, so the "camera to keep" is photographed already polluted. The
+      // ratio of old fit to new fit compounds once per cell: measured live at
+      // 2.102^8 = 381.6 (zoom 381.603 in the one-up log), which is images shrunk to a
+      // dot or blown up beyond sense.
+      // So: photograph each cell RELATIVELY first (framingBeforeResize), resize
+      // WITHOUT keepCamera (all of them to fit, where the sync spreading is harmless
+      // because fit is the same state for every cell), then reapply per cell with
+      // events suppressed (applyFraming), and the sync never fires.
       const framings: Array<[string, any]> = [];
       getCellViewports().forEach(vp => {
         const framing = framingBeforeResize(vp);
@@ -370,16 +370,16 @@ function OHIFMontageViewport(props: withAppTypes) {
   const { ref: resizeRef, height: containerHeight } = useResizeDetector({
     refreshMode: 'debounce',
     refreshRate: 30,
-    // leading: rifà il fit SUBITO al primo evento di resize (es. ritorno dal
-    // one-up) invece di aspettare il debounce → riduce il "lampo" di immagini
-    // stirate prima del refit.
+    // leading: refit at the FIRST resize event rather than waiting out the debounce,
+    // coming back from one-up for instance, which cuts the flash of stretched
+    // images before the refit.
     refreshOptions: { leading: true },
     onResize: onContainerResize,
   });
 
-  // Sync iniziale dello strumento attivo: il toolGroup 'montage' ha uno strumento
-  // attivo proprio (di default WindowLevel). All'attivazione allineiamo lo
-  // strumento attivo (e il cursore) a quello del toolGroup 'default'.
+  // The first sync of the active tool: the 'montage' tool group has an active tool of
+  // its own, window level by default. When the subgrid opens, its active tool and
+  // cursor are lined up with the 'default' tool group's.
   useEffect(() => {
     const montageTg = ToolGroupManager.getToolGroup(toolGroupId);
     if (!montageTg) {
@@ -405,9 +405,9 @@ function OHIFMontageViewport(props: withAppTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toolGroupId, rows, cols, total]);
 
-  // Mantiene il cursore delle celle allineato allo strumento attivo del toolGroup
-  // montage ad ogni cambio strumento. Usa SOLO setViewportsCursorByToolName, che
-  // NON rilancia TOOL_ACTIVATED → nessun loop (a differenza di setToolActive).
+  // Keeps the cells' cursor in step with the montage tool group's active tool on every
+  // change of tool. It uses setViewportsCursorByToolName only, which does NOT re-emit
+  // TOOL_ACTIVATED, so there is no loop. setToolActive would.
   useEffect(() => {
     const refreshCursor = () => {
       try {
@@ -426,12 +426,12 @@ function OHIFMontageViewport(props: withAppTypes) {
     };
   }, [toolGroupId]);
 
-  // Scale di riferimento (ScaleOverlay): all'apertura della subgrid
-  // rispecchia lo stato dal toolGroup 'default' (se era attiva sulle viewport
-  // normali la attiviamo anche qui, altrimenti la spegniamo). Il toggle dalla
-  // toolbar mantiene poi i due toolGroup sincronizzati. NB: niente refit/resize
-  // dinamico qui — lo spazio per l'etichetta è un padding STATICO sulle celle
-  // (vedi .montage-cell in Montage.css), così non si interferisce col rendering.
+  // The reference scale (ScaleOverlay): when the subgrid opens it mirrors the state of
+  // the 'default' tool group, so it comes on here if it was on for the ordinary
+  // viewports and stays off otherwise. After that the toolbar toggle keeps the two
+  // tool groups in step. Nothing here refits or resizes dynamically: the room for the
+  // label is STATIC padding on the cells (see .montage-cell in Montage.css), so it
+  // never gets in the way of the rendering.
   useEffect(() => {
     const tg = ToolGroupManager.getToolGroup(toolGroupId);
     if (!tg || !tg.hasTool?.('ScaleOverlay')) {
@@ -454,16 +454,16 @@ function OHIFMontageViewport(props: withAppTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toolGroupId]);
 
-  // Scroll a blocchi: step = righe×colonne.
+  // Scrolling by blocks: the step is rows by columns.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) {
       return undefined;
     }
     const handler = (e: WheelEvent) => {
-      // Capture + stopPropagation: intercetta la rotella PRIMA che raggiunga gli
-      // enabled-element delle celle, così lo StackScroll del toolGroup condiviso
-      // non scorre le singole celle. Lo scroll qui avanza di un BLOCCO intero.
+      // Capture plus stopPropagation: catches the wheel BEFORE it reaches the cells'
+      // enabled elements, so the shared tool group's stack scroll does not move each
+      // cell separately. Scrolling here advances a WHOLE block.
       e.preventDefault();
       e.stopPropagation();
       const dir = e.deltaY > 0 ? 1 : -1;
@@ -473,11 +473,11 @@ function OHIFMontageViewport(props: withAppTypes) {
     return () => el.removeEventListener('wheel', handler, { capture: true } as any);
   }, [visibleCount, total]);
 
-  // Scroll col TOOL "Scorrimento" (drag tasto sinistro): deve muovere TUTTE le
-  // celle insieme (come la rotella), non la singola cella. Quando lo strumento
-  // attivo è StackScroll, intercettiamo il drag in capture (stopPropagation così
-  // lo StackScroll di cornerstone NON scorre la singola cella) e aggiorniamo
-  // `base` per tutto il blocco. Per gli altri strumenti (Pan/WL/Zoom) lasciamo
+  // Scrolling with the stack scroll TOOL (left button drag) has to move EVERY cell
+  // together, like the wheel, not one cell. So when that tool is the active one, the
+  // drag is caught in capture (stopPropagation, so cornerstone's own stack scroll does
+  // NOT move a single cell) and `base` is advanced for the whole block. For the other
+  // tools (pan, window level, zoom) it is left alone.
   // gestire a cornerstone normalmente.
   useEffect(() => {
     const el = containerRef.current;
@@ -499,7 +499,7 @@ function OHIFMontageViewport(props: withAppTypes) {
     };
 
     const onPointerDown = (e: PointerEvent) => {
-      // Non intercettare i click sulla stellina dei favourites né sulla scrollbar.
+      // Do not swallow clicks on the favourites star, or on the scrollbar.
       if ((e.target as HTMLElement)?.closest?.('.montage-cell-fav, .scroll')) {
         return;
       }
@@ -541,15 +541,15 @@ function OHIFMontageViewport(props: withAppTypes) {
   );
 
   // Scrollbar: lo scroll a blocchi muove `base` in [0, total - visibleCount].
-  // Compare SOLO se c'è effettivamente da scorrere (più immagini delle celle
-  // visibili nel layout corrente). Altezza calcolata come nelle viewport normali.
+  // Shown only when there is something to scroll, meaning more images than the layout
+  // has cells for. The height is worked out as in the ordinary viewports.
   const maxBase = Math.max(0, total - visibleCount);
   const scrollbarHeight = `${Math.max(40, (containerHeight || 0) - 40)}px`;
 
   const setContainerRef = useCallback(
     (node: HTMLDivElement | null) => {
       containerRef.current = node;
-      // react-resize-detector usa una ref-callback/object
+      // react-resize-detector takes either a ref callback or an object
       if (typeof resizeRef === 'function') {
         (resizeRef as (n: HTMLDivElement | null) => void)(node);
       } else if (resizeRef) {
@@ -582,9 +582,9 @@ function OHIFMontageViewport(props: withAppTypes) {
             className={`montage-series-badge${
               seriesBadgeTruncated ? ' montage-series-badge--truncated' : ''
             }`}
-            // Limita alla width della PRIMA cella (meno la stellina): così il
-            // badge non attraversa le posizioni delle stelle delle altre celle
-            // (ogni cella ha la sua stellina in alto a sinistra).
+            // Held to the width of the FIRST cell, minus the star, so the badge does
+            // not run across where the other cells' stars sit (every cell has its own,
+            // at the top left).
             style={{ maxWidth: `calc(${100 / cols}% - 44px)` }}
           >
             {seriesBadgeText}
@@ -613,14 +613,14 @@ function OHIFMontageViewport(props: withAppTypes) {
         />
       )}
       {cells.map((cell, idx) => {
-        // Tutte le celle hanno un id cornerstone proprio nell'engine dedicato.
-        // La risoluzione dei tool della toolbar per la viewport OHIF avviene
-        // tramite il "phantom" (viewportId nel toolGroup 'montage' sotto l'engine
-        // principale), quindi NON serve più che una cella usi l'id viewportId.
+        // Every cell has a cornerstone id of its own in the dedicated engine. The
+        // toolbar resolves its tools for the OHIF viewport through the "phantom" (the
+        // viewportId in the 'montage' tool group under the main engine), so no cell
+        // needs to borrow the viewportId any more.
         return (
           <MontageCell
-            // La key include la serie: al cambio serie la cella si rimonta e
-            // ricarica lo stack corretto (l'id cornerstone `cellId` resta stabile).
+            // The key carries the series: when the series changes the cell remounts and
+            // loads the right stack, while the cornerstone id `cellId` stays put.
             key={`${cell.cellId}::${displaySetUID}`}
             cellId={cell.cellId}
             ohifViewportId={viewportId}

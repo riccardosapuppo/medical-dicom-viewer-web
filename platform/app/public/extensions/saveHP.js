@@ -63,7 +63,7 @@ const saveHP = () => {
   }
   for (let i = 0; i < window.favourites.length; i++) {
     const seriesDescription = window.favourites[i].SeriesDescription;
-    const numeroIstanza = window.favourites[i].NumeroIstanza;
+    const numeroIstanza = window.favourites[i].instanceNumber;
     const displaySetKey = `DisplaySet${i}`;
     //Series
     baseHP.displaySetSelectors[displaySetKey] = {};

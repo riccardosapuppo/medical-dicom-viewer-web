@@ -1,13 +1,13 @@
 /**
- * hpStore.js — Data-layer (no-DOM) per la gestione degli Hanging Protocol custom.
+ * hpStore.js: the data layer for custom hanging protocols, with no DOM in it.
  *
- * Estratto/rifattorizzato da saveHangingProtocol.js: contiene SOLO logica dati
- * (lettura/scrittura preferenze, matching, cattura dello stato viewport e
- * composizione dell'Hanging Protocol). Nessuna manipolazione del DOM: la UI
- * vive nel componente React HangingProtocolManager.
+ * Pulled out of saveHangingProtocol.js: this holds the data logic ONLY
+ * (reading and writing preferences, matching, capturing the viewport state and
+ * composing the hanging protocol). Nothing here touches the DOM: the interface
+ * lives in the React component HangingProtocolManager.
  *
- * Riusato sia dalla modale React sia (indirettamente, per le stesse regole di
- * matching) da loadHangingProtocol.js.
+ * Used both by the React dialog and, indirectly through the same matching rules,
+ * by loadHangingProtocol.js.
  */
 import { metaData, getRenderingEngine } from '@cornerstonejs/core';
 import { letturaPreferenzeAPI } from './loadHangingProtocol';
@@ -34,9 +34,9 @@ const getUrlParam = name => {
   }
 };
 
-// La "partizione" (postazione) e l'aetitle sono sinonimi in questo sistema
-// (vedi openPriors.js). Le config viaggiano per (partizione, utente):
-// lato server sono già salvate in userdata/{aetitle}/{user}/preferenze.json.
+// The "partition" (the workstation) and the AE title are the same thing in this
+// system, see openPriors.js. Configurations travel per partition and user: on the
+// server they are already stored under userdata/{aetitle}/{user}/preferences.json.
 const getPartizione = () => window.mdvAETitle || getUrlParam('partizione') || getUrlParam('aetitle');
 const getUsername = () => window.mdvUsername || getUrlParam('User');
 
@@ -98,9 +98,9 @@ const tryResolveStudyInfoFromMetadata = () => {
   return changed;
 };
 
-// I metadati dello studio sono già disponibili (displaySets caricati)? In tal caso
-// qualunque description/modality ancora vuota è un valore DEFINITIVO (studio senza nome
-// / senza modality nei metadati), non un "sto ancora caricando": inutile aspettare oltre.
+// Are the study's metadata already there, meaning the display sets have loaded? If
+// so, a description or modality still empty is a FINAL value (a study with no name
+// or no modality in its metadata), not "still loading": there is nothing to wait for.
 const studyMetadataAvailable = () => {
   const displaySetService = window.servicesManager?.services?.displaySetService;
   if (!displaySetService) {
@@ -131,9 +131,9 @@ export const ensureStudyInfoFromMetadata = async () => {
     if (window.mdvStudyDescription && window.mdvModality) {
       return;
     }
-    // Metadati già caricati → abbiamo risolto tutto il possibile. Evita l'attesa piena
-    // (che bloccava la modale "loading" su postazioni il cui URL di lancio non
-    // contiene i parametri StudyDescription/Modality, o sugli studi senza nome).
+    // Metadata already loaded, so everything that can be resolved is resolved. This
+    // skips the full wait, which used to hold the dialog on "loading" at workstations
+    // whose launch URL carries no StudyDescription or Modality, and on unnamed studies.
     if (studyMetadataAvailable()) {
       return;
     }
@@ -142,7 +142,7 @@ export const ensureStudyInfoFromMetadata = async () => {
 };
 
 /* ------------------------------------------------------------------ *
- * Helper struttura / matching (riusati anche dalla UI)               *
+ * Structure and matching helpers, shared with the interface                *
  * ------------------------------------------------------------------ */
 
 export const normalizza = value => (value || '').toString().trim().toUpperCase();
@@ -153,26 +153,26 @@ export const normalizzaModality = value =>
     .map(item => normalizza(item))
     .filter(Boolean);
 
-// Chiave d'IDENTITÀ di una config "exam description": la description normalizzata.
-// (vuoto/assente/spazi/maiuscole diverse → stessa chiave). Usata identica da
-// salvataggio, eliminazione, de-duplica e dalla modale, così si sovrascrive/elimina
-// sempre la stessa entry (nessun duplicato "fantasma" per gli studi senza nome).
+// The IDENTITY key of an "exam description" configuration: the normalised description
+// (empty, missing, or spelled with other spaces or case, all give the same key). The
+// same key is used by saving, deleting, de-duplicating and the dialog, so the entry
+// overwritten or removed is always the same one, with no phantoms for unnamed studies.
 export const canonExamKey = value => normalizza(value);
 
-// Chiave d'IDENTITÀ di una config "modality": l'INSIEME ORDINATO delle modalità
-// (case-insensitive). Così 'CT\MR' e 'MR\CT' (l'ordine dipende dall'ordine dei
-// displaySet e può variare tra un'apertura e l'altra) contano come la STESSA config.
-// NB: è volutamente diversa dal MATCHING di caricamento (che è a sovrapposizione di
-// token, più permissivo, per decidere quale config si applica a uno studio): qui serve
-// l'IDENTITÀ per sovrascrivere/eliminare/deduplicare senza ambiguità né perdita di dati.
+// The IDENTITY key of a "modality" configuration: the ORDERED SET of modalities,
+// case-insensitive. So 'CT\\MR' and 'MR\\CT' (the order follows the display sets and
+// can differ between one opening and the next) count as the SAME configuration.
+// Deliberately different from the MATCHING done at load time, which overlaps tokens
+// and is more permissive because it decides which configuration applies to a study.
+// Here identity is what lets an overwrite or a delete land without ambiguity.
 export const canonModalityKey = value =>
   Array.from(new Set(normalizzaModality(value))).sort().join('\\');
 
-// Collassa le entry array tenendo l'ULTIMA occorrenza per chiave d'identità (la più
-// recente: i salvataggi vengono aggiunti in coda). Serve perché le entry legacy salvate
-// per studi SENZA NOME avevano `examName: undefined` (chiave sparita dal JSON con
-// JSON.stringify) mentre le nuove usano '': erano trattate come DIVERSE dal salvataggio/
-// eliminazione ma UGUALI dal caricamento → duplicati "fantasma" non sovrascrivibili.
+// Collapses array entries, keeping the LAST occurrence per identity key, which is the
+// most recent: saves are appended. This is needed because legacy entries saved for
+// studies with NO NAME had `examName: undefined` (JSON.stringify drops the key) while
+// new ones use '': saving and deleting treated them as DIFFERENT, loading treated them
+// as the SAME, and the result was phantom duplicates that could not be overwritten.
 const dedupByKey = (arr, keyFn) => {
   const map = new Map();
   arr.forEach(item => {
@@ -235,9 +235,9 @@ export const parseLayout = (entry = {}) => {
 };
 
 /**
- * Default retro-compatibile: le entry salvate prima dell'introduzione dei flag
- * non hanno il campo `captured`. In quel caso il comportamento priors era:
- * griglia + serie + istanza + zoom/pan (il window level non veniva MAI salvato).
+ * Backwards-compatible default: entries saved before the flags existed have no
+ * `captured` field. For those the behaviour was: grid, series, instance, and
+ * zoom and pan. The window level was NEVER saved.
  */
 export const LEGACY_CAPTURED = Object.freeze({
   grid: true,
@@ -264,9 +264,9 @@ export const getCaptured = entry => {
 };
 
 /**
- * Determina la configurazione effettivamente applicabile allo studio corrente,
- * con priorità studio specifico > exam description > modality.
- * (match normalizzato / parziale per modality).
+ * Works out which configuration actually applies to the study on screen, in the order
+ * specific study, then exam description, then modality. The modality match is
+ * normalised and partial.
  */
 export const getAppliedHpConfig = (preferenzeJson, ctx = getContext()) => {
   const hp = preferenzeJson?.hp;
@@ -328,16 +328,16 @@ const resolveSeriesLabelFromEntry = (entry, index) => {
  * Lettura / scrittura preferenze remote + cache localStorage          *
  * ------------------------------------------------------------------ */
 
-// La cache locale deve essere per (partizione, utente): senza l'utente, su una
-// postazione condivisa un altro utente leggerebbe la config di chi l'ha preceduto.
+// The local cache has to be per partition and user. Without the user, a shared
+// workstation would show one person the configuration left by the one before.
 const localStorageKey = () => {
   const ctx = getContext();
   return `userPreferences-${ctx.aetitle}-${ctx.username}`;
 };
 
 /**
- * Ritorna un payload normalizzato `{ json: { hp: {...} } }` pronto sia per la
- * lettura (`payload.json.hp`) sia per la scrittura (`payload.json`).
+ * Returns a normalised `{ json: { hp: {...} } }` payload, ready both for reading
+ * (`payload.json.hp`) and for writing (`payload.json`).
  */
 export const readPreferenze = async () => {
   const ctx = getContext();
@@ -345,7 +345,7 @@ export const readPreferenze = async () => {
   if (raw && typeof raw === 'object') {
     return ensurePreferenzePayload(raw);
   }
-  // Fallback cache locale: la localStorage memorizza direttamente l'oggetto `json`.
+  // Local cache fallback: localStorage holds the `json` object directly.
   let cachedJson = {};
   try {
     cachedJson = JSON.parse(localStorage.getItem(localStorageKey()) || '{}');
@@ -374,10 +374,10 @@ const scritturaPreferenzeAPI = async (aetitle, username, body) => {
       console.error('[HP] Writing the user preferences failed');
       return null;
     }
-    // Un indirizzo che il server non conosce risponde con la pagina
-    // dell'applicazione e stato 200. Senza guardare il tipo del corpo la
-    // scrittura si dichiarerebbe riuscita, e il pannello direbbe salvato
-    // sul server quando non e arrivato niente da nessuna parte.
+    // An address the server does not know answers with the application's own page
+    // and a status of 200. Without looking at the body's type the write would
+    // declare itself a success, and the panel would say it had saved to the
+    // server when nothing had arrived anywhere.
     if ((apiResponse.headers.get('content-type') || '').includes('text/html')) {
       console.warn('[HP] No remote preference store: the local copy stands');
       return null;
@@ -390,16 +390,16 @@ const scritturaPreferenzeAPI = async (aetitle, username, body) => {
 };
 
 /**
- * Save le preferenze.
+ * Saves the preferences.
  *
- * La cache locale viene scritta SEMPRE, anche quando il backend non risponde.
- * In lettura la cache era gia il ripiego (vedi readPreferenze), ma in scrittura
- * non lo era: senza backend il salvataggio tornava false e il protocollo andava
- * perso, cioe la funzione sembrava rotta invece che non sincronizzata.
+ * The local cache is ALWAYS written, even when the backend does not answer.
+ * On reads the cache was already the fallback, see readPreferences, but on writes
+ * it was not: with no backend the save returned false and the protocol was lost,
+ * which looks like a broken feature rather than an unsynchronised one.
  *
- * Il backend, quando c e, resta la copia autorevole e condivisa fra postazioni.
- * Il valore restituito dice se la sincronizzazione e riuscita, non se il
- * salvataggio e avvenuto.
+ * The backend, when there is one, stays the shared authoritative copy across
+ * workstations. The return value says whether the sync succeeded, not whether the
+ * save happened.
  */
 const writePreferenze = async payload => {
   const ctx = getContext();
@@ -416,7 +416,7 @@ const writePreferenze = async payload => {
 };
 
 /* ------------------------------------------------------------------ *
- * Capture dello stato corrente → Hanging Protocol                     *
+ * Capturing the current state as a hanging protocol                      *
  * ------------------------------------------------------------------ */
 
 const createBaseProtocol = ({ rows, columns }) => ({
@@ -454,13 +454,13 @@ const readVoiRange = viewport => {
       return { lower: range.lower, upper: range.upper };
     }
   } catch (err) {
-    /* viewport non pronto / non supportato */
+    /* the viewport is not ready, or does not support this */
   }
   return null;
 };
 
-// Color LUT (colormap) corrente del viewport. Il default grigio non ha colormap
-// → null (non salvato/applicato). Salvo solo il nome (basta a setProperties).
+// The viewport's current colour LUT. The grey default has no colormap, so this is
+// null and nothing is saved or applied. Only the name is kept; setProperties wants no more.
 const readColormap = viewport => {
   try {
     const props =
@@ -471,7 +471,7 @@ const readColormap = viewport => {
       return { name };
     }
   } catch (err) {
-    /* viewport non pronto / non supportato */
+    /* the viewport is not ready, or does not support this */
   }
   return null;
 };
@@ -479,7 +479,7 @@ const readColormap = viewport => {
 /**
  * captureOptions = { grid, series, instance, windowLevel, zoomPan, colorLut }
  * scope = 'specificStudy' | 'examDescription' | 'modality'
- *   (per 'specificStudy' la serie viene agganciata via SeriesInstanceUID,
+ *   (for 'specificStudy' the series is pinned by SeriesInstanceUID,
  *    altrimenti via SeriesDescription / SeriesNumber).
  */
 export const captureCurrentState = (scope, captureOptions) => {
@@ -518,9 +518,9 @@ export const captureCurrentState = (scope, captureOptions) => {
     const displaySetKey = `DisplaySet${i}`;
     const hpViewportId = `mdvhp-${i}`;
 
-    // Subgrid (Montage): le celle vivono nell'engine DEDICATO (non nel
-    // principale). Per leggere istanza/scroll, WL e zoom/pan LIVE uso la cella
-    // primaria di quell'engine, non il viewport principale (che non esiste).
+    // Subgrid (montage): the cells live in their OWN engine, not the main one. To
+    // read the live instance, scroll, window level and zoom or pan, this uses that
+    // engine's primary cell rather than the main viewport, which does not exist.
     const montageOpt = _viewport?.viewportOptions?.montage;
     const isMontage = opts.grid && !!montageOpt?.enabled;
     const montageEngine = isMontage ? getRenderingEngine(`ohif-montage-${viewportId}`) : null;
@@ -574,15 +574,15 @@ export const captureCurrentState = (scope, captureOptions) => {
         position: cameraViewport.position,
         viewPresentation: cameraViewPresentation,
       };
-      // Framing RELATIVA (framing.js): scala-invariante, quindi valida anche
-      // quando l'HP verra' applicato in una cella di dimensioni diverse (priors
-      // affiancato, altri monitor). I campi assoluti sopra restano come fallback
-      // per le build precedenti a questa modifica.
+      // RELATIVE framing (framing.js): scale-invariant, so it still holds when the
+      // protocol is applied to a cell of a different size (a prior study alongside,
+      // another monitor). The absolute fields above stay as a fallback for builds
+      // made before this change.
       const framingData = isMontage ? null : captureFraming(viewport);
       if (framingData) {
         cameraData.framing = framingData;
       }
-      // Per le montage il camera va alle celle (engine dedicato), non al viewport principale.
+      // For montages the camera belongs to the cells, in their own engine, not to the main viewport.
       if (!isMontage) {
         cameraHP[hpViewportId] = cameraData;
       }
@@ -678,25 +678,25 @@ export const captureCurrentState = (scope, captureOptions) => {
     if (!opts.series) {
       seriesMatchingRules = [{}];
     } else if (scope === 'specificStudy') {
-      // Studio specifico: la SeriesInstanceUID e' esatta e sufficiente (stesso studio) → invariato.
+      // Specific study: the SeriesInstanceUID is exact and enough, so nothing changes.
       seriesMatchingRules = [
         { attribute: 'SeriesInstanceUID', constraint: { contains: seriesInstanceUID } },
       ];
     } else {
-      // Cross-studio (exam description / modality). La regola LEGACY su nome/numero
+      // Across studies (exam description or modality). The LEGACY rule on name and number
       // serie resta come FALLBACK a peso basso (comportamento priors invariato)...
       const legacyRule =
         !seriesDescription && seriesNumber != null
           ? { attribute: 'SeriesNumber', constraint: { equals: seriesNumber }, weight: 1 }
           : { attribute: 'SeriesDescription', constraint: { equals: seriesDescription }, weight: 1 };
       seriesMatchingRules = [legacyRule];
-      // ...e, SE la serie di questa cella ha un'identita' di VISTA nomenclature-
-      // indipendente (lateralita' + ViewCode; tipicamente mammografia, ma vale per
-      // qualunque serie che porti quei tag), si aggiunge una regola a peso ALTO cosi'
-      // vince sul nome/numero (che cambiano fra studi con nomenclature diverse).
-      // Se i tag vista NON ci sono (es. CT/MR), non si aggiunge nulla → seriesMatchingRules
-      // resta identica a prima ⇒ nessuna regressione. Il matcher somma i pesi delle regole
-      // che passano e sceglie il displaySet col punteggio piu' alto.
+      // ...and IF this cell's series carries a VIEW identity that does not depend on
+      // naming (laterality plus ViewCode; typically mammography, but true of any series
+      // carrying those tags), a high-weight rule is added so it beats name and number,
+      // which change between studies named by different conventions.
+      // With no view tags (CT or MR, say) nothing is added, seriesMatchingRules stays
+      // exactly as it was, and nothing regresses. The matcher sums the weights of the
+      // rules that pass and takes the display set with the highest score.
       const viewKey = deriveViewKey(primaryDisplaySet);
       if (viewKey) {
         seriesMatchingRules.unshift({
@@ -704,10 +704,10 @@ export const captureCurrentState = (scope, captureOptions) => {
           constraint: { equals: viewKey },
           weight: 100,
         });
-        // Spareggio 2D/3D ACCOPPIATO alla vista (chiave lat|view|dim): fra serie della
-        // stessa vista preferisce lo stesso tipo salvato, ma una serie di vista DIVERSA
-        // non prende punti solo perche' condivide la dimensione (evita che il peso 20
-        // scavalchi il fallback nome/numero quando la vista non combacia).
+        // The 2D/3D tie-break is TIED to the view (key lat|view|dim): among series of
+        // the same view it prefers the type that was saved, but a series of a DIFFERENT
+        // view earns nothing for merely sharing the dimension. Otherwise the weight of
+        // 20 would jump over the name and number fallback when the view does not match.
         const viewDimKey = deriveViewDimKey(primaryDisplaySet);
         if (viewDimKey) {
           seriesMatchingRules.push({
@@ -720,8 +720,8 @@ export const captureCurrentState = (scope, captureOptions) => {
     }
     protocol.displaySetSelectors[displaySetKey] = { seriesMatchingRules };
 
-    // Subgrid: salva scroll/istanza (firstImageIndex LIVE dalla cella primaria),
-    // window level e zoom/pan dentro l'oggetto montage (riapplicati alle celle in riapertura).
+    // Subgrid: saves the scroll position and instance (firstImageIndex read live from
+    // the primary cell), the window level and the zoom and pan inside the montage
     const montage = buildMontage(
       isMontage
         ? {
@@ -738,8 +738,8 @@ export const captureCurrentState = (scope, captureOptions) => {
     montageByIndex.push(montage);
 
     const viewportOptions = { viewportType: 'stack', viewportId: hpViewportId };
-    // Per le montage l'istanza è gestita da firstImageIndex (initialImageOptions sarebbe ignorato).
-    // initialImageOptions.index è 0-based, mentre numeroIstanza è 1-based.
+    // For montages the instance is handled by firstImageIndex; initialImageOptions
+    // would be ignored. initialImageOptions.index is 0-based, the instance number 1-based.
     if (opts.instance && numeroIstanza != null && !isMontage) {
       viewportOptions.initialImageOptions = { index: numeroIstanza - 1 };
     }
@@ -796,7 +796,7 @@ const buildEntry = (captureState, extra = {}) => ({
   istanzeSpecifiche: captureState.istanzeSpecifiche,
   serieLabels: captureState.serieLabels,
   montageByIndex: captureState.montageByIndex,
-  // campi legacy mantenuti per retro-compatibilità con lo schema esistente
+  // legacy fields kept so the existing schema still reads
   layoutPersonalizzato: null,
   allineamento: null,
   scalaOverlay: null,
@@ -806,7 +806,7 @@ const buildEntry = (captureState, extra = {}) => ({
 });
 
 /* ------------------------------------------------------------------ *
- * Operazioni di salvataggio / eliminazione                            *
+ * Saving and deleting                                                 *
  * ------------------------------------------------------------------ */
 
 const SCOPE_TO_CAPTURE = {
@@ -825,7 +825,7 @@ export const saveConfig = async (scope, captureOptions) => {
   const hp = payload.json.hp;
 
   if (scope === 'examDescription' && ctx.studyDescription === '') {
-    // consentito ma documentato: la config varrà per gli esami senza nome
+    // allowed, but written down: the configuration will hold for unnamed exams
   }
   if (scope === 'modality' && ctx.modality === '') {
     return { ok: false, reason: 'This study has no such modality' };
@@ -837,18 +837,19 @@ export const saveConfig = async (scope, captureOptions) => {
     hp.studioSpecifico[ctx.studyInstanceUIDs] = buildEntry(captureState);
   } else if (scope === 'examDescription') {
     const entry = buildEntry(captureState, { examName: ctx.studyDescription });
-    // Confronto NORMALIZZATO: sovrascrive l'entry esistente (anche legacy con examName
-    // assente/undefined, o con spazi/maiuscole diverse) invece di crearne un duplicato
-    // "fantasma". Rimuove tutte le normalize-uguali e ne tiene una sola, la più recente.
+    // NORMALISED comparison: overwrites the entry that is there (legacy ones with
+    // examName missing or undefined, or spelled with different spaces or case) rather
+    // than adding a phantom duplicate. The normalise-equal ones go, newest kept.
     const target = normalizza(ctx.studyDescription);
     hp.examName = hp.examName.filter(item => normalizza(item?.examName) !== target);
     hp.examName.push(entry);
   } else if (scope === 'modality') {
     const entry = buildEntry(captureState, { modalityName: ctx.modality });
-    // Chiave CANONICA (insieme ordinato): sovrascrive la config della STESSA combinazione
-    // di modality (anche con ordine token diverso, es. 'CT\MR' vs 'MR\CT') senza creare
-    // doppioni; NON tocca config di combinazioni diverse ma sovrapposte (es. 'PT\CT') →
-    // niente perdita di dati. Coerente con delete/dedup/modale (existsForScope).
+    // CANONICAL key (the ordered set): overwrites the configuration for the SAME
+    // combination of modalities, even written in another token order such as 'CT\\MR'
+    // against 'MR\\CT', without making doubles. It leaves alone a different but
+    // overlapping combination such as 'PT\\CT', so no data is lost. Consistent with
+    // delete, de-duplication and the dialog (existsForScope).
     const target = canonModalityKey(ctx.modality);
     hp.modality = hp.modality.filter(item => canonModalityKey(item?.modalityName) !== target);
     hp.modality.push(entry);
@@ -872,9 +873,9 @@ export const deleteConfig = async (scope, key) => {
   if (scope === 'studioSpecifico') {
     delete hp.studioSpecifico[key];
   } else if (scope === 'examDescription') {
-    // Confronto NORMALIZZATO: elimina l'entry mostrata (chiave '' per gli esami senza
-    // nome) anche se salvata come undefined/vuota/case diverso, senza colpire per errore
-    // un'altra entry (bug "elimina quella sbagliata / quella salvata in precedenza").
+    // NORMALISED comparison: deletes the entry actually on screen (key '' for unnamed
+    // exams) even when it was saved as undefined, empty, or in another case, without
+    // hitting a neighbour by mistake. That was the "it deleted the wrong one" bug.
     const target = normalizza(key);
     hp.examName = hp.examName.filter(item => normalizza(item?.examName) !== target);
   } else if (scope === 'modality') {
@@ -890,7 +891,7 @@ export const deleteConfig = async (scope, key) => {
 };
 
 /* ------------------------------------------------------------------ *
- * Elenco di TUTTE le config salvate (risolve il bug "cannot be deleted")*
+ * Every saved configuration, which is what fixes the "cannot be deleted" bug *
  * ------------------------------------------------------------------ */
 
 const SCOPE_LABEL = {
@@ -916,7 +917,7 @@ const getCurrentStudyDisplaySets = ctx => {
 
 const dsField = (ds, field) => ds?.[field] ?? ds?.instances?.[0]?.[field];
 
-// Una regola "vuota" [{}] combacia sempre (riempie con la prima serie disponibile).
+// An "empty" rule [{}] always matches, and fills with the first series available.
 const seriesRuleMatches = (rule, displaySets) => {
   if (!rule || !rule.attribute) {
     return true;
@@ -940,10 +941,10 @@ const seriesRuleMatches = (rule, displaySets) => {
     if (attr === 'SeriesNumber') {
       return String(dsField(ds, 'SeriesNumber')) === String(value);
     }
-    // Regole basate sulla VISTA (mammografia): l'applicabilità va verificata
-    // ricalcolando l'identità di vista sui displaySet dello studio corrente, non con
-    // il ramo generico `return true` (che darebbe sempre applicabile → niente notice
-    // "no series available" né "Carica solo griglia").
+    // Rules based on the VIEW (mammography): applicability has to be checked by
+    // recomputing the view identity against this study's display sets, rather than the
+    // generic `return true` branch, which would call everything applicable and never
+    // reach either "no series available" or "load the grid only".
     if (attr === MDV_VIEW_KEY_ATTR) {
       return deriveViewKey(ds) === value;
     }
@@ -954,12 +955,12 @@ const seriesRuleMatches = (rule, displaySets) => {
   });
 };
 
-// Quante delle serie vincolate dalla config NON esistono nello studio corrente.
-// NB: una cella ha PIU' regole pesate (vista + nome/numero di fallback). Il matcher reale
-// sceglie il miglior punteggio tra TUTTE le regole, quindi la cella è "presente" se
-// ALMENO UNA regola combacia (vista OPPURE nome/numero) — non solo la prima. Guardare solo
-// la regola[0] (la vista) segnalerebbe erroneamente "non applicabile" uno studio privo dei
-// tag-vista ma con la serie giusta per nome, forzando inutilmente il "Carica solo griglia".
+// How many of the series the configuration pins are missing from the study on screen.
+// A cell has SEVERAL weighted rules (view, plus name and number as a fallback). The real
+// matcher takes the best score across ALL of them, so a cell counts as "present" when
+// AT LEAST ONE rule matches, view OR name and number, not only the first. Looking at
+// rule[0] alone (the view) wrongly reported "not applicable" for a study with no view
+// tags but the right series by name, forcing "load the grid only" for nothing.
 const computeApplicability = (entry, displaySets) => {
   const performanceHP = entry?.performanceHP || {};
   const viewports = performanceHP?.stages?.[0]?.viewports || [];
@@ -979,7 +980,7 @@ const computeApplicability = (entry, displaySets) => {
   return { total, missing, applicable: missing === 0 };
 };
 
-// La config è "rilevante" per lo studio corrente (stesso ambito/valore)?
+// Is the configuration "relevant" to the study on screen, same scope and value?
 const isRelevant = (scope, key, ctx) => {
   if (scope === 'studioSpecifico') {
     return key === ctx.studyInstanceUIDs;
@@ -1031,10 +1032,10 @@ const describeEntry = (scope, key, entry, ctx, applied, displaySets) => {
 };
 
 /**
- * Ritorna l'list di TUTTE le entry salvate, ognuna con la propria chiave reale
- * di delete (sempre eliminabile, risolve il bug della config "orfana") e con i
- * flag `relevant` (stesso ambito dello studio corrente) e `applicable` (le serie
- * referenziate esistono nello studio corrente). La UI separa rilevanti vs gestione.
+ * Returns the list of EVERY saved entry, each with its own real delete key, so it
+ * can always be removed (this is what fixed the orphaned configuration), and with
+ * the flags `relevant` (same scope as the study on screen) and `applicable` (the
+ * series it refers to exist in this study). The interface splits relevant from the rest.
  */
 export const listSavedConfigs = (preferenzeJson, ctx = getContext()) => {
   const hp = ensureHpStructure(preferenzeJson?.hp);
@@ -1067,7 +1068,7 @@ export const listSavedConfigs = (preferenzeJson, ctx = getContext()) => {
  * Applicazione immediata di una config ("Carica")                     *
  * ------------------------------------------------------------------ */
 
-// Rimappa una sorgente per-viewport (mappa `mdvhp-i` oppure array per-indice) → mappa per-id.
+// Remaps a per-viewport source (an `mdvhp-i` map, or an array by index) to a map by id.
 const remapByViewport = (byId, byIndex) => {
   const out = {};
   const map = byId && typeof byId === 'object' ? byId : {};
@@ -1100,8 +1101,8 @@ let _hpRuntimeCounter = 0;
 
 const cloneProtocol = protocol => JSON.parse(JSON.stringify(protocol));
 
-// "Solo griglia": stesse celle/layout (+ eventuale subgrid) ma senza vincolare
-// le serie specifiche né l'istanza → riproduce lo schema anche se le serie differiscono.
+// "Grid only": the same cells and layout, plus the subgrid if there is one, but
+// without pinning specific series or an instance, so the shape survives different series.
 const toGridOnlyProtocol = protocol => {
   const clone = cloneProtocol(protocol);
   Object.values(clone.displaySetSelectors || {}).forEach(sel => {
@@ -1115,8 +1116,8 @@ const toGridOnlyProtocol = protocol => {
   return clone;
 };
 
-// Le sottogriglie Montage vengono perse dall'Hanging Protocol (rigenera viewportOptions):
-// le riapplichiamo dopo che il nuovo layout è pronto, via setDisplaySetsForViewports.
+// Montage subgrids are lost by the hanging protocol, which regenerates viewportOptions.
+// They go back on once the new layout is ready, through setDisplaySetsForViewports.
 const reapplyMontageAfterProtocol = montageByIndex => {
   const list = Array.isArray(montageByIndex) ? montageByIndex : [];
   if (!list.some(m => m?.enabled)) {
@@ -1160,7 +1161,7 @@ const reapplyMontageAfterProtocol = montageByIndex => {
     }
     sub?.unsubscribe?.();
   };
-  // I viewport del nuovo layout possono non essere pronti subito dopo setProtocol.
+  // The new layout's viewports may not be ready the moment setProtocol returns.
   const sub = viewportGridService.subscribe?.(
     viewportGridService.EVENTS.VIEWPORTS_READY,
     runOnce
@@ -1169,18 +1170,19 @@ const reapplyMontageAfterProtocol = montageByIndex => {
 };
 
 /**
- * Applica SUBITO una config salvata. Riceve direttamente l'entry (niente re-match
- * fragile per chiave → niente più "Configuration not found").
- * options.gridOnly = applica solo griglia/subgrid (serie libere, no istanza/WL/zoom),
- * usato quando alcune serie non esistono nello studio corrente.
+ * Applies a saved configuration AT ONCE. It receives the entry itself, so there is no
+ * fragile per-key lookup and no more "Configuration not found".
+ * options.gridOnly applies the grid and subgrid only, leaving the series free and
+ * skipping instance, window level and zoom, which is what to do when some of the
+ * series are missing from the study on screen.
  */
 export const applyConfigNow = (entry, options = {}) => {
   if (!entry?.performanceHP) {
     return { ok: false, reason: 'The configuration is not valid' };
   }
-  // Rete di sicurezza idempotente: gli attributi custom di vista devono essere
-  // registrati prima che il matcher valuti le regole salvate (il caricamento
-  // automatico li registra già all'avvio).
+  // Idempotent safety net: the custom view attributes have to be registered before
+  // the matcher reads the saved rules. Loading registers them at startup, but this
+  // path can be reached without going through it.
   registerMdvHPAttributes(window.servicesManager?.services?.hangingProtocolService);
   const gridOnly = !!options.gridOnly;
   const baseProtocol = gridOnly ? toGridOnlyProtocol(entry.performanceHP) : entry.performanceHP;
@@ -1195,7 +1197,7 @@ export const applyConfigNow = (entry, options = {}) => {
     window.cameraSettingsFromHPMdv = camera;
     window.voiSettingsFromHPMdv = voi;
     window.colormapFromHPMdv = color;
-    // Istanza specifica per-viewport (0-based), saltando le montage (gestite da firstImageIndex).
+    // A specific instance per viewport (0-based), skipping montages, which firstImageIndex handles.
     const captured = getCaptured(entry);
     const imgMap = {};
     if (captured.instance) {
@@ -1210,8 +1212,8 @@ export const applyConfigNow = (entry, options = {}) => {
   }
   window.viewportsAlreadyHPApplied = [];
 
-  // Id univoco a ogni apply: _setProtocol riassegna il protocollo SOLO se l'id cambia,
-  // altrimenti ri-applicare 'mdvhp' (già attivo) userebbe il protocollo VECCHIO → nessun cambiamento.
+  // A fresh id on every apply: _setProtocol only reassigns the protocol when the id
+  // changes, so reapplying 'mdvhp' while it is already active would use the OLD protocol and do nothing.
   const runtimeId = `mdvhp-load-${++_hpRuntimeCounter}`;
   const protocol = cloneProtocol(baseProtocol);
   protocol.id = runtimeId;

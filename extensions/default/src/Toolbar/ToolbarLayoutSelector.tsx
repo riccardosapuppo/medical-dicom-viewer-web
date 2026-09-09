@@ -242,7 +242,7 @@ function ToolbarLayoutSelectorWithServices({
       const ActiveThumbnail = document.querySelector(
         `#thumbnail-${activeDisplaySetInstanceUID} img`
       );
-      window.instanceUIDMPRDaCliccare = activeDisplaySetInstanceUID;
+      window.instanceUIDMPRToClick = activeDisplaySetInstanceUID;
 
       hangingProtocolService.setProtocol(selectedHangingProtocol);
       //Memorizzo globalmente il preset selezionato così da riapplicare lo stesso eventualmente alla riattivazione dell'mpr (mprDirectClick)

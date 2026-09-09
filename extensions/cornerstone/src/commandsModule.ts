@@ -43,12 +43,13 @@ import { updateSegmentBidirectionalStats } from './utils/updateSegmentationStats
 import { generateSegmentationCSVReport } from './utils/generateSegmentationCSVReport';
 const { DefaultHistoryMemo } = csUtils.HistoryMemo;
 
-// Fix inversione mammografia: cornerstone resetProperties() ricalcola l'invert dal solo
-// PhotometricInterpretation e IGNORA PresentationLUTShape=INVERSE. Sulle MONOCHROME1 (tipico
-// della mammografia "For Presentation") questo riportava a video la polarita' INVERTITA
-// (sfondo bianco) dopo il Reset, pur essendo il display corretto a sfondo nero. Per QUESTE
-// immagini preserviamo la polarita' corretta che c'era prima del reset; sulle altre
-// (MONOCHROME2 = quasi tutto) NON cambiamo nulla -> nessuna regressione.
+// Mammography inversion fix: cornerstone's resetProperties() recomputes invert from
+// PhotometricInterpretation alone and IGNORES PresentationLUTShape=INVERSE. On
+// MONOCHROME1 images, which is what mammography "For Presentation" usually is, that
+// brought back the INVERTED polarity (a white background) after a reset, even though
+// the correct display is on black. For THOSE images the correct polarity from before
+// the reset is kept; on the others (MONOCHROME2, which is nearly everything) nothing
+// changes, so nothing regresses.
 const _isMonochrome1Viewport = viewport => {
   try {
     const imageId =
@@ -67,19 +68,19 @@ const _resetViewportKeepingMono1Invert = viewport => {
   const isMono1 = _isMonochrome1Viewport(viewport);
   viewport.resetProperties?.();
   viewport.resetCamera?.();
-  // Fix inversione MONOCHROME1 (mammografia). resetProperties() ripristina i nodi
-  // NON-invertiti della transfer function (initialTransferFunctionNodes, catturati prima
-  // dell'invert iniziale) e il suo setInvertColor(true) e' un no-op (flag gia' true),
-  // quindi il display tornava invertito (sfondo bianco) pur restando invert===true.
-  // Forzando la ricostruzione della LUT, cornerstone ri-applica l'invert corrente
-  // (flag true) rigenerando la TF invertita = display corretto. Solo per MONOCHROME1
-  // (verificato sui DICOM del cliente) → nessun impatto sulle altre immagini.
+  // MONOCHROME1 inversion fix (mammography). resetProperties() restores the
+  // NON-inverted nodes of the transfer function (initialTransferFunctionNodes, taken
+  // before the first invert) and its own setInvertColor(true) is a no-op because the
+  // flag is already true, so the display came back inverted (white background) while
+  // invert stayed true. Forcing the LUT to be rebuilt makes cornerstone apply the
+  // current invert again, regenerating the inverted transfer function, which is the
+  // right display. MONOCHROME1 only, so no other image is affected.
   if (isMono1 && typeof viewport.setVOI === 'function') {
     try {
       const voiRange = viewport.getProperties?.()?.voiRange;
       viewport.setVOI(voiRange, { forceRecreateLUTFunction: true });
     } catch (err) {
-      /* best-effort: se l'API cornerstone cambia, il reset resta comunque funzionante */
+      /* best effort: if the cornerstone API changes, the reset still works */
     }
   }
 };
@@ -93,13 +94,13 @@ const debounceTime = 200;
 let debounceTimeout;
 
 /**
- * Modalita' "priors affiancato": lo studio precedente vive in un iframe
- * (#priors-iframe) con la propria toolbar nascosta via CSS. Ogni comando
- * lanciato dallo studio principale (toolbar o scorciatoia) viene inoltrato
- * all'iframe, che lo esegue sulla propria viewport attiva.
- * Il message e' l'id del bottone di toolbar (o un nome comando priors);
- * per i comandi con parametri si usa {type: 'mdv-priors-command', ...}.
- * Lato iframe la gestione sta in public/extensions/openPriors.
+ * "Prior alongside" mode: the earlier study lives in a frame (#priors-iframe) with
+ * its own toolbar hidden by CSS. Every command fired from the main study, whether
+ * from the toolbar or a shortcut, is forwarded to that frame, which runs it on its
+ * own active viewport.
+ * The message is the toolbar button's id, or the name of a priors command; commands
+ * that carry parameters use {type: 'mdv-priors-command', ...}.
+ * Inside the frame this is handled in public/extensions/openPriors.
  */
 function _postToPriors(message: unknown) {
   const priorsIframe = document.getElementById('priors-iframe') as HTMLIFrameElement | null;
@@ -140,10 +141,10 @@ function commandsModule({
   }
 
   /**
-   * Se la viewport attiva è in modalità Subgrid (Montage), restituisce le
-   * cornerstone-viewport di TUTTE le celle (più la "primary" = cella 0, che ha
-   * l'id della viewport OHIF). Serve per applicare invert/rotate/flip/reset a
-   * tutte le celle insieme (coerenza visiva della subgrid). Altrimenti null.
+   * When the active viewport is in subgrid (montage) mode, returns the cornerstone
+   * viewports of EVERY cell, plus the "primary" one, cell 0, which carries the OHIF
+   * viewport's id. This is what lets invert, rotate, flip and reset land on all the
+   * cells together, so the subgrid stays visually coherent. Otherwise null.
    */
   function _getMontageCells() {
     const activeViewportId = viewportGridService.getActiveViewportId();
@@ -151,7 +152,7 @@ function commandsModule({
     if (vp?.viewportOptions?.montage?.enabled !== true) {
       return null;
     }
-    // Le celle vivono nell'engine DEDICATO della subgrid (non nel principale).
+    // The cells live in the subgrid's OWN engine, not the main one.
     const re = getRenderingEngine(`ohif-montage-${activeViewportId}`);
     if (!re) {
       return null;
@@ -186,7 +187,7 @@ function commandsModule({
 
   let isMprClicked = false;
 
-  //Salvo lo stato attuale
+  // Save the current state
   const storeState = () => {
     if (
       document.body.classList.contains('hp-mpr-active') ||
@@ -424,7 +425,7 @@ function commandsModule({
     const { activeViewportId, viewports, layout, isHangingProtocolLayout } = viewportGridState;
     const { displaySetInstanceUIDs, displaySetOptions, viewportOptions } =
       viewports.get(activeViewportId);
-    //Permetto di ripristinare lo stato una volta sola, per ripristinarlo una seconda volta occorre fare un nuovo storeState
+    // The state can be restored once. Restoring it a second time needs a fresh storeState.
 
     const { toggleOneUpViewportGridStore } = useToggleOneUpViewportGridStore.getState();
 
@@ -467,14 +468,14 @@ function commandsModule({
     if (!window.storedState) {
       return;
     }
-    //Permetto di ripristinare lo stato una volta sola, per ripristinarlo una seconda volta occorre fare un nuovo storeState
+    // The state can be restored once. Restoring it a second time needs a fresh storeState.
 
     // window.storedState = false;
 
     const { toggleOneUpViewportGridStore } = stateSyncService.getState();
 
-    //Se è zero vuol dire che sto provando a ripristinare uno stato in cui era stato fatto doppio click sulla viewport e quindi
-    //per ripristinarlo il metodo è differente
+    // Zero means this is a state where the viewport had been double-clicked, and
+    // restoring that one takes a different route.
     if (Object.entries(toggleOneUpViewportGridStore).length === 0) {
       const viewportGridState = viewportGridService.getState();
       const { activeViewportId, viewports } = viewportGridState;
@@ -524,9 +525,8 @@ function commandsModule({
 
   const actions = {
     /**
-     * Sceglie il layout della subgrid in base al numero di immagini della
-     * serie, con un massimo di 8 celle (grid il più possibile "quadrata" ma in
-     * orizzontale: rows <= cols).
+     * Picks the subgrid layout from the number of images in the series, up to eight
+     * cells. The grid is kept as square as it can be, but landscape: rows <= cols.
      */
     _computeMontageLayout: (total: number) => {
       const cells = Math.min(Math.max(total || 1, 1), 8);
@@ -548,7 +548,7 @@ function commandsModule({
       return { rows: 2, cols: 4 }; // 7-8 celle
     },
 
-    /** Numero di immagini della serie mostrata nella viewport attiva. */
+    /** How many images are in the series showing in the active viewport. */
     _getActiveSeriesImageCount: vp => {
       const dsUID = vp?.displaySetInstanceUIDs?.[0];
       if (!dsUID) {
@@ -559,13 +559,13 @@ function commandsModule({
     },
 
     /**
-     * Attiva/disattiva la Subgrid (Montage) sulla viewport attiva.
-     * Senza rows/cols espliciti sceglie il layout in automatico in base al
-     * numero di istanze della serie (max 8 celle). Non crea viewport OHIF
-     * aggiuntive: imposta solo viewportOptions.montage.
+     * Turns the subgrid (montage) on or off for the active viewport.
+     * With no explicit rows or cols it picks the layout from the number of instances
+     * in the series, up to eight cells. It adds no OHIF viewports: all it sets is
+     * viewportOptions.montage.
      */
     toggleMontage: ({ rows, cols } = {}) => {
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors('MontageAuto');
 
       const activeViewportId = viewportGridService.getActiveViewportId();
@@ -604,7 +604,7 @@ function commandsModule({
       });
     },
 
-    /** Disattiva la subgrid sulla viewport attiva (torna allo stack). */
+    /** Turns the subgrid off for the active viewport, back to the stack. */
     disableMontage: () => {
       const activeViewportId = viewportGridService.getActiveViewportId();
       const { viewports } = viewportGridService.getState();
@@ -629,11 +629,11 @@ function commandsModule({
     },
 
     /**
-     * Imposta il layout della subgrid (righe×colonne) sulla viewport attiva,
-     * attivando la montage se non già attiva.
+     * Sets the subgrid's layout (rows by columns) on the active viewport, turning the
+     * montage on if it is not on already.
      */
     setMontageLayout: ({ rows, cols }) => {
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors({
         type: 'mdv-priors-command',
         commandName: 'setMontageLayout',
@@ -1090,7 +1090,7 @@ function commandsModule({
       });
     },
     toggleCine: () => {
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors('cine');
 
       const { viewports } = viewportGridService.getState();
@@ -1178,10 +1178,10 @@ function commandsModule({
       });
     },
     /**
-     * Applica il preset W/L all'indice `index` (0-based), dando PRIORITÀ ai preset
-     * DICOM della serie attiva (WindowCenter/WindowWidth dell'immagine) e poi, a
-     * seguire, ai preset di configurazione per la modalità. Così il tasto 1 attiva
-     * il 1° preset DICOM, il 2 il 2° preset DICOM, ecc., poi si passa agli altri.
+     * Applies the window level preset at `index` (0-based), giving PRIORITY to the
+     * active series' own DICOM presets (the image's WindowCenter and WindowWidth) and
+     * only then to the configured presets for the modality. So key 1 gives the first
+     * DICOM preset, key 2 the second, and the configured ones follow after those.
      */
     setWindowLevelPresetByIndex: ({ index = 0 }) => {
       const activeViewportId = viewportGridService.getActiveViewportId();
@@ -1196,8 +1196,8 @@ function commandsModule({
 
       const combined = [];
 
-      // 1) Preset DICOM (priorità): coppie WindowCenter/WindowWidth della serie,
-      // deduplicate. Sorgente: window.MdvDicomLuts[SeriesInstanceUID].
+      // 1) DICOM presets first: the series' WindowCenter and WindowWidth pairs, with
+      // duplicates removed. They come from window.MdvDicomLuts[SeriesInstanceUID].
       try {
         const luts = (window as any).MdvDicomLuts;
         const entry = SeriesInstanceUID && luts ? luts[SeriesInstanceUID] : null;
@@ -1223,7 +1223,7 @@ function commandsModule({
         /* noop */
       }
 
-      // 2) Preset di configurazione per la modalità (dopo i DICOM).
+      // 2) The configured presets for the modality, after the DICOM ones.
       try {
         const presets = customizationService.getCustomization('cornerstone.windowLevelPresets');
         const forModality = modality && presets ? presets[modality] : null;
@@ -1281,26 +1281,26 @@ function commandsModule({
 
       _postToPriors(toolName);
 
-      // Modo canonico OHIF: getToolGroup(undefined) risolve internamente il
-      // toolGroup della viewport ATTIVA (gestisce anche le celle della
-      // subgrid). Ne ricaviamo l'id stringa.
+      // The canonical OHIF way: getToolGroup(undefined) resolves the ACTIVE viewport's
+      // tool group internally, subgrid cells included. The string id comes from that.
       const activeToolGroup = toolGroupService.getToolGroup(toolGroupId);
       const activeId = activeToolGroup?.id;
       if (!activeToolGroup) {
         return;
       }
 
-      // In contesto viewport normale/subgrid sincronizziamo lo stato del
-      // tool tra i toolGroup 'default' e 'montage' (la Scale di riferimento si
-      // attiva/disattiva INSIEME su viewport normali e celle). Altrove (es. MPR)
-      // agiamo solo sull'attivo. I tool presenti solo in 'default'
-      // (ReferenceLines, ecc.) non vengono toccati nella montage (`hasTool`=false).
+      // In an ordinary viewport or a subgrid, the tool's state is kept in step between
+      // the 'default' and 'montage' tool groups, so the reference scale comes on and
+      // goes off TOGETHER on the ordinary viewports and the cells. Elsewhere, in MPR
+      // for instance, only the active one is touched. Tools that exist only in
+      // 'default', reference lines and the like, are left alone in the montage
+      // (`hasTool` is false).
       const ids =
         activeId === 'default' || activeId === 'montage'
           ? Array.from(new Set([activeId, 'default', 'montage']))
           : [activeId];
 
-      // Determina il nuovo stato dal primo toolGroup (tra i target) col tool.
+      // The new state comes from the first target tool group that has the tool.
       let referenceToolGroup = null;
       for (const id of ids) {
         const tg = toolGroupService.getToolGroup(id);
@@ -1324,7 +1324,7 @@ function commandsModule({
         nextEnabled ? tg.setToolEnabled(toolName) : tg.setToolDisabled(toolName);
       });
 
-      // Notifica la Subgrid per ri-allineare lo stato della Scale (padding).
+      // Tell the subgrid to line the scale's state up again (the padding).
       try {
         window.dispatchEvent(new Event('mdv-tool-toggled'));
       } catch (e) {
@@ -1357,7 +1357,7 @@ function commandsModule({
         return;
       }
 
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors(toolName);
 
       const toolIsActive = [
@@ -1383,7 +1383,7 @@ function commandsModule({
       // Sometimes it is passed as value (tools with options), sometimes as itemId (toolbar buttons)
       toolName = toolName || itemId || value;
 
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors(toolName);
 
       toolGroupIds = toolGroupIds.length ? toolGroupIds : toolGroupService.getToolGroupIds();
@@ -1485,12 +1485,12 @@ function commandsModule({
       }
     },
     storeState: () => {
-      //memorizzo tutte le settings attuali della griglia con le relative serie
+      // Remember every current grid setting, with the series that go with them
 
       storeState();
     },
     restoreState: () => {
-      //ripristino  tutte le settings precedentemente salvate
+      // Put back every setting saved earlier
       restoreState();
     },
     setFavouritesHangingProtocol: () => {
@@ -1507,14 +1507,14 @@ function commandsModule({
       }
     },
     hideInfoDicom: () => {
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors('hideInfoDicom');
 
       document.body.classList.toggle('hide-info-dicom');
     },
     mprDirectClick: () => {
       try {
-        //Se lo premo troppo velocemente avrò degli errori sulla camera ecc. per cui imposto un timeout
+        // Pressed too quickly this throws on the camera and elsewhere, hence the timeout
         if (isMprClicked) {
           return;
         }
@@ -1567,7 +1567,7 @@ function commandsModule({
         // }
         // const viewport = enabledElement.viewport;
 
-        //Verifico di non essere già in modalità MPR, se lo sono già torno alla visualizzazione default
+        // If MPR is already on, this goes back to the default view instead
         if (document.body.classList.contains('hp-mpr-active')) {
           // hangingProtocolService.setProtocol('default');
           //Ripulisco classi body
@@ -1588,9 +1588,9 @@ function commandsModule({
           restoreState();
           window.mprIsActive = false;
 
-          // Ritorno alla visualizzazione normale: se i Reference cursors
-          // erano attivi prima di entrare in MPR, li riattiviamo (deferito per
-          // dare tempo a restoreState di ricostruire le viewport/toolgroup).
+          // Back to the ordinary view: if the reference cursors were on before MPR
+          // was entered, they come back on. Deferred, to give restoreState time to
+          // rebuild the viewports and tool groups.
           try {
             if ((window as any).refCursorsWasActiveBeforeMpr) {
               (window as any).refCursorsWasActiveBeforeMpr = false;
@@ -1609,7 +1609,7 @@ function commandsModule({
             // non-fatal
           }
 
-          //Se sono nell'iframe dello priors mando un message al genitore dicendo che l'mpr è stato appena disabilitato
+          // Inside the priors frame, tell the parent that MPR has just been turned off
           if (window.location.href.includes('priors=same-tab')) {
             window.parent.postMessage('uscita-da-secondo-mpr', '*');
           }
@@ -1648,10 +1648,10 @@ function commandsModule({
 
         //Attivazione MPR
 
-        // Entrando in MPR si usa il Crosshair: se i Reference cursors
-        // erano attivi nella visualizzazione normale li disattiviamo (e
-        // ripristiniamo il tool primario precedente, es. Window/Level).
-        // Ricordiamo lo stato per riattivarli al ritorno in modalità normale.
+        // Entering MPR means using the crosshairs, so if the reference cursors were on
+        // in the ordinary view they are turned off here, and the previous primary tool
+        // (window level, say) is put back. The state is remembered so they can come
+        // back on when the ordinary view returns.
         try {
           const defaultTg: any = toolGroupService.getToolGroup('default');
           const refCursorsActive =
@@ -1711,17 +1711,16 @@ function commandsModule({
               });
               return;
             }
-            //Save stato attuale
+            // Save the current state
             storeState();
-            //Verifico che la serie selezionata su cui attivare l'mpr sia dello studio attuale o magari dello priors così la clicco subito dopo l'attivazione
+            // Check the selected series belongs to the current study, or perhaps to the prior, so it can be clicked straight after
             if (!document.body.classList.contains('priors-same-tab')) {
-              // Le linguette di studio ci sono solo quando c e uno priors.
+              // The study tabs exist only when there is a prior.
               //
-              // Servono a scegliere in quale list cercare la miniatura della
-              // serie. Se il patient non ha esami precedenti non vengono
-              // disegnate affatto, e qui si chiamava click() su undefined:
-              // l attivazione dell MPR si fermava con un TypeError, e il
-              // pulsante sembrava non fare niente.
+              // They are what says which list to look in for the series thumbnail. A
+              // patient with no earlier exams gets no tabs drawn at all, and click()
+              // was being called on undefined here: turning MPR on stopped with a
+              // TypeError, and the button looked as though it did nothing.
               const linguetteStudio = document.querySelectorAll('.qualestudio-btn');
               if (linguetteStudio.length > 1) {
                 const quale =
@@ -1729,35 +1728,36 @@ function commandsModule({
                 linguetteStudio[quale].click();
               }
             }
-            //Dopo il click della tab corretta applico un timeout
+            // Once the right tab is clicked, wait a moment
             setTimeout(() => {
               let ActiveThumbnail = document.querySelector(
                 `#thumbnail-${activeDisplaySetInstanceUID} img`
               ); //Attivo l'mpr sulla serie attualmente attiva
 
-              //Se da qualche altra parte specifico window.instanceUIDMPRDaCliccare (es. attivazione priors da iframe, do priorità a questo)
-              if (window.instanceUIDMPRDaCliccare) {
+              // window.instanceUIDMPRToClick set elsewhere (turning MPR on from the priors frame, say) wins over this
+              if (window.instanceUIDMPRToClick) {
                 ActiveThumbnail = document.querySelector(
-                  `#thumbnail-${window.instanceUIDMPRDaCliccare} img`
+                  `#thumbnail-${window.instanceUIDMPRToClick} img`
                 );
                 if (!ActiveThumbnail) {
-                  //Se non trovo ActiveThumbnail, è probabile che non mi trovo nella tab corrispondente
-                  //(o sono nello priors o nello studio attuale) e ActiveThumbnail si potrebbe trovare in una delle due (tab inattiva)
+                  // With no ActiveThumbnail here, this is probably the wrong tab: it
+                  // could be the prior or the current study, and ActiveThumbnail may
+                  // be sitting in the inactive one.
                   //
-                  // La linguetta inattiva esiste solo se ce ne sono due. Senza
-                  // priors non c e, e qui si chiamava click() su null.
+                  // The inactive tab exists only when there are two. With no prior
+                  // there is none, and click() was being called on null.
                   document.querySelector('.inactive-tab-study')?.click();
                   setTimeout(() => {
                     ActiveThumbnail = document.querySelector(
-                      `#thumbnail-${window.instanceUIDMPRDaCliccare} img`
+                      `#thumbnail-${window.instanceUIDMPRToClick} img`
                     );
                   }, 0);
                 }
               }
-              window.instanceUIDMPRDaCliccare = null;
+              window.instanceUIDMPRToClick = null;
               isMprClicked = true;
               let protocolToApply = 'mpr';
-              //Se trovo in memoria un altro protocol da applicare lo applico
+              // If another protocol is waiting in memory, apply it
               if (window.mdvProtocolToApply) {
                 protocolToApply = window.mdvProtocolToApply;
               }
@@ -2438,10 +2438,10 @@ function commandsModule({
       }
     },
     rotateViewport: ({ rotation }) => {
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors(`rotateViewport-${rotation.toString()}`);
 
-      // Montage: ruota TUTTE le celle dello stesso angolo (rimangono allineate).
+      // Montage: rotate EVERY cell by the same angle, so they stay lined up.
       const montage = _getMontageCells();
       if (montage) {
         const basePres = montage.primary.getViewPresentation?.();
@@ -2479,10 +2479,10 @@ function commandsModule({
       }
     },
     flipViewportHorizontal: () => {
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors('flipViewportHorizontal');
 
-      // Montage: applica lo stesso flip a tutte le celle.
+      // Montage: the same flip on every cell.
       const montageH = _getMontageCells();
       if (montageH) {
         const target = !montageH.primary.getCamera().flipHorizontal;
@@ -2506,10 +2506,10 @@ function commandsModule({
       viewport.render();
     },
     flipViewportVertical: () => {
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors('flipViewportVertical');
 
-      // Montage: applica lo stesso flip a tutte le celle.
+      // Montage: the same flip on every cell.
       const montageV = _getMontageCells();
       if (montageV) {
         const target = !montageV.primary.getCamera().flipVertical;
@@ -2533,10 +2533,10 @@ function commandsModule({
       viewport.render();
     },
     invertViewport: ({ element }) => {
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors('invertViewport');
 
-      // Montage: inverte TUTTE le celle insieme (stesso stato finale).
+      // Montage: invert EVERY cell together, to the same end state.
       if (element === undefined) {
         const montageInv = _getMontageCells();
         if (montageInv) {
@@ -2588,10 +2588,10 @@ function commandsModule({
       });
     },
     resetViewport: () => {
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors('resetViewport');
 
-      // Montage: reset di tutte le celle (proprietà + fit camera).
+      // Montage: reset every cell, both properties and camera fit.
       const montageReset = _getMontageCells();
       if (montageReset) {
         montageReset.cells.forEach(v => {
@@ -2614,7 +2614,7 @@ function commandsModule({
       viewport.render();
     },
     zoomOneToOne: () => {
-      //Passo il comando anche all'eventuale iframe priors
+      // The command goes to the priors frame too, when there is one
       _postToPriors('zoomOneToOne');
 
       const enabledElement = _getActiveViewportEnabledElement();
@@ -2775,10 +2775,10 @@ function commandsModule({
      * @param options.type - The type of synchronization to perform
      */
     toggleSynchronizer: ({ type, viewports, syncId, toggledState, itemId }) => {
-      //Passo il comando anche all'eventuale iframe priors, ma solo per il
-      //toggle voluto dall'utente (toolbar -> itemId, scorciatoia -> solo type).
-      //Le riattivazioni automatiche arrivano con toggledState e non vanno
-      //propagate, altrimenti spegnerebbero il sync dello priors.
+      // The command goes to the priors frame too, but only for a toggle the reader
+      // asked for (toolbar gives an itemId, a shortcut gives only a type). The
+      // automatic reactivations arrive carrying toggledState and must not be
+      // forwarded, or they would turn the prior's sync off.
       const priorsSyncItemId = itemId || (type === 'imageSlice' ? 'ImageSliceSync' : null);
       if (toggledState === undefined && priorsSyncItemId) {
         _postToPriors(priorsSyncItemId);
@@ -2853,7 +2853,7 @@ function commandsModule({
       }
     },
     setSourceViewportForReferenceLinesTool: ({ viewportId }) => {
-      //Viene richiamato ripetute volte esponenzialmente ad ogni trigger, imposto un timeout così da avere sempre una sola chiamata
+      // Called again and again, exponentially, on every trigger, so a timeout holds it to one call
       if (debounceTimeout) {
         return;
       }
@@ -3375,9 +3375,9 @@ function commandsModule({
       });
     },
     // ESC ("Delete the last measurement"):
-    //  1) se c'è un disegno IN CORSO (handle in posizionamento), lo annulla
-    //     (cornerstone `cancelActiveManipulations`, che ritorna l'UID annullato);
-    //  2) altrimenti elimina l'ULTIMA measurement creata (la più recente).
+    //  1) if a drawing is IN PROGRESS, with a handle being placed, it is cancelled
+    //     (cornerstone's `cancelActiveManipulations`, which returns the cancelled UID);
+    //  2) otherwise the LAST measurement made, the most recent one, is deleted.
     cancelMeasurement: () => {
       const tryCancelOnElement = (element?: HTMLDivElement): boolean => {
         if (!element) {
@@ -3391,7 +3391,7 @@ function commandsModule({
         }
       };
 
-      // 1) Cancel un eventuale disegno in corso (anche nelle celle montage).
+      // 1) Cancel a drawing in progress, in the montage cells too.
       let cancelled = false;
       const montage = _getMontageCells();
       if (montage) {
@@ -3407,7 +3407,7 @@ function commandsModule({
         return;
       }
 
-      // 2) Nessun disegno in corso → elimina l'ultima measurement creata.
+      // 2) Nothing being drawn, so delete the last measurement made.
       const measurements = measurementService.getMeasurements();
       if (measurements?.length) {
         const last = measurements[measurements.length - 1];
