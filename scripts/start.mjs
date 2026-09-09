@@ -6,7 +6,7 @@
  *
  * Four things have to be true before there is anything to look at: the
  * dependencies are installed, the archive container is running, the studies are
- * downloaded, and they are loaded into the archive. Only then is `yarn dev`
+ * downloaded, and they are loaded into the archive. Only then is the viewer
  * worth starting — before that it serves a viewer with nothing behind it, which
  * is what an empty study list means and why it is not obvious what went wrong.
  *
@@ -19,12 +19,19 @@
  * images on disk, does the archive hold them. So running this twice costs a few
  * HTTP requests, and running it after deleting any one of the four repairs that
  * one. Nothing here is destructive.
+ *
+ * And it says what it is waiting for while it waits. `yarn install` on a Lerna
+ * monorepo sits without printing for minutes at a time, and a terminal that
+ * prints nothing looks exactly like a terminal whose command has died. So the
+ * step, how long it has taken so far and a turning cursor appear whenever the
+ * command underneath goes quiet, and get out of the way the moment it speaks.
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+import { since, watching } from './lib/pulse.mjs';
 import { get } from './lib/viewerReady.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -39,42 +46,100 @@ const expected = manifest.studies.reduce(
 );
 
 let step = 0;
+let current = '';
 function heading(text) {
   console.log('');
-  console.log(`${++step}/5  ${text}`);
+  current = `${++step}/5  ${text}`;
+  console.log(current);
 }
 
+
 /**
- * Runs a step, showing its output as it happens.
+ * Runs a step, showing its output as it happens and a pulse while it does not.
  *
  * `shell: true` because on Windows `yarn` and `docker` are batch files, which
- * cannot be executed directly. `stdio: inherit` because these steps take
- * minutes and a progress bar nobody can see is a hung command.
+ * cannot be executed directly. The output is piped rather than inherited so the
+ * pulse can be taken out of the way before a chunk lands; the chunks themselves
+ * go through untouched, so whatever the command draws, it draws.
+ *
+ * @param {object} options
+ * @param {string} [options.label] - What to call this while it is quiet.
+ * @param {string} [options.hint] - What to suggest if it fails.
+ * @param {RegExp} [options.readyOn] - What the command prints when it is up. A
+ *   command that never exits has no other way of saying so, and being quiet is
+ *   its finished state: a cursor still turning after the viewer is serving says
+ *   the opposite of what is true.
+ * @param {() => Promise<string|null>} [options.ready] - Asked once, when that
+ *   pattern is seen; its answer replaces the pulse for good.
+ *
+ * Read from the output rather than by asking the port. The first version polled
+ * the viewer every three seconds, which made webpack print "wait until bundle
+ * finished" every three seconds, which reset the silence the pulse measures -
+ * so the thing built for a terminal that says nothing filled the terminal with
+ * noise and then went quiet itself.
  */
-function run(command, hint) {
+function run(command, { label, hint, readyOn, ready } = {}) {
   console.log(`  ${command}`);
-  const done = spawnSync(command, { cwd: root, stdio: 'inherit', shell: true });
-  if (done.status === 0) {
-    return;
-  }
-  console.log('');
-  console.error(`"${command}" stopped with ${done.status ?? done.signal}.`);
-  if (hint) {
-    console.error(hint);
-  }
-  process.exit(done.status ?? 1);
+  const pulse = watching(label ?? current.slice(current.indexOf(' ') + 1).trim());
+
+  return new Promise(resolve => {
+    const child = spawn(command, { cwd: root, shell: true, stdio: ['inherit', 'pipe', 'pipe'] });
+
+    // Claimed before the await, and settled only once: two overlapping checks
+    // printed the line twice.
+    let asking = false;
+    let said = false;
+
+    const listen = async chunk => {
+      pulse.heard(chunk);
+      if (said || asking || !readyOn || !readyOn.test(String(chunk))) {
+        return;
+      }
+      asking = true;
+      const line = ready ? await ready() : null;
+      asking = false;
+      if (line) {
+        said = true;
+        pulse.settle(line);
+      }
+    };
+
+    child.stdout.on('data', listen);
+    child.stderr.on('data', listen);
+
+    child.on('close', (status, signal) => {
+      const took = pulse.stop();
+
+      if (status === 0) {
+        console.log(`  done in ${took}`);
+        resolve();
+        return;
+      }
+
+      console.log('');
+      console.error(`"${command}" stopped with ${status ?? signal}.`);
+      if (hint) {
+        console.error(hint);
+      }
+      process.exit(status ?? 1);
+    });
+  });
 }
 
 async function waitFor(url, what) {
-  for (let waited = 0; waited < 180; waited += 2) {
+  const started = Date.now();
+  const pulse = watching(`waiting for ${what}`);
+
+  for (let attempt = 0; attempt < 90; attempt++) {
     if (await get(url)) {
-      console.log('');
+      pulse.stop();
+      console.log(`  ${what} answered after ${since(started)}`);
       return;
     }
-    process.stdout.write(waited === 0 ? `  waiting for ${what} ` : '.');
     await new Promise(resolve => setTimeout(resolve, 2000));
   }
-  console.log('');
+
+  pulse.stop();
   console.error(`${what} never answered on ${url}.`);
   process.exit(1);
 }
@@ -110,15 +175,22 @@ if (fs.existsSync(path.join(root, 'node_modules', '.bin'))) {
   console.log('  node_modules is here');
 } else {
   // yarn, not npm: this is a Lerna monorepo with a yarn.lock, and npm resolves
-  // it into a tree that does not build.
-  run('yarn install', 'Install yarn first: npm install --global yarn');
+  // it into a tree that does not build. It is also the slowest step by far, and
+  // the one that prints nothing for minutes at a time.
+  await run('yarn install', {
+    label: 'installing, which takes several minutes the first time',
+    hint: 'Install yarn first: npm install --global yarn',
+  });
 }
 
 heading('The archive');
 if (await get(`${ORTHANC}/system`)) {
   console.log(`  already answering on ${ORTHANC}`);
 } else {
-  run('docker compose up -d', 'Is Docker running? This step needs it; the other four do not.');
+  await run('docker compose up -d', {
+    label: 'starting the archive',
+    hint: 'Is Docker running? This step needs it; the other four do not.',
+  });
   await waitFor(`${ORTHANC}/system`, 'the archive');
 }
 
@@ -128,7 +200,7 @@ if (onDisk >= expected) {
   console.log(`  ${onDisk} images already in data/dicom`);
 } else {
   // Several hundred megabytes from a public archive, the first time only.
-  run('yarn data');
+  await run('yarn data', { label: 'downloading the studies' });
 }
 
 heading('The studies, in the archive');
@@ -136,7 +208,7 @@ const instances = await asJson(`${ORTHANC}/instances`);
 if (Array.isArray(instances) && instances.length >= expected) {
   console.log(`  ${instances.length} instances already loaded`);
 } else {
-  run('yarn data:load');
+  await run('yarn data:load', { label: 'loading the studies into the archive' });
 }
 
 heading('The viewer');
@@ -148,5 +220,21 @@ if (await get(`${VIEWER}/`)) {
   console.log(`  Open ${VIEWER}`);
   process.exit(0);
 }
-console.log(`  starting the viewer; it will serve on ${VIEWER}. Ctrl+C stops it.`);
-run('yarn dev');
+
+console.log(`  Ctrl+C stops it.`);
+await run('yarn dev', {
+  label: 'building the viewer, which takes a few minutes',
+  // webpack says this once, at the end of a build, whether or not it had
+  // warnings. The port is then asked once to confirm it, rather than asked
+  // over and over while the build is still running.
+  readyOn: /webpack .*compiled/,
+  ready: async () => {
+    for (let attempt = 0; attempt < 10; attempt++) {
+      if (await get(`${VIEWER}/`)) {
+        return `  Serving on ${VIEWER}`;
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    return null;
+  },
+});

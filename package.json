@@ -71,6 +71,7 @@
     "link-list": "npm ls --depth=0 --link=true",
     "data": "node scripts/fetch-studies.mjs",
     "data:load": "node scripts/load-orthanc.mjs",
+    "test:scripts": "node --test \"scripts/lib/*.test.mjs\"",
     "check:smoke": "node scripts/smoke.mjs",
     "check:layout": "node scripts/layout.mjs",
     "check:controls": "node scripts/controls.mjs",
