@@ -117,7 +117,7 @@ function MontageLayoutSelector({
 
       <ToolButtonListDivider />
 
-      {/* FRECCETTA: selettore righe×colonne (Standard + Personalizzato) */}
+      {/* THE ARROW: the rows-by-columns picker, Standard and Custom */}
       <LayoutSelector
         onSelectionChange={handleSelectionChange}
         {...props}

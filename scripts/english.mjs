@@ -376,6 +376,25 @@ function visibleText(file, source) {
       }
     }
 
+    // A string inside a JSX expression is on screen as surely as JsxText is.
+    // `{condition ? 'Custom' : 'Personalizzato'}` is neither text nor an
+    // attribute, and both branches are drawn. Judged whatever shape it has, so
+    // a single word with no spaces is not thrown away as if it were an
+    // identifier.
+    if (ts.isJsxExpression(node)) {
+      const inside = [];
+      const gather = child => {
+        if (ts.isStringLiteral(child) || ts.isNoSubstitutionTemplateLiteral(child)) {
+          inside.push(child);
+        }
+        ts.forEachChild(child, gather);
+      };
+      ts.forEachChild(node, gather);
+      for (const literal of inside) {
+        add(literal, 'in JSX', literal.text, true);
+      }
+    }
+
     // The safety net: every other string, judged only if it reads like prose.
     if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
       add(node, 'string', node.text, false);
@@ -406,6 +425,7 @@ function proveItLooks() {
     '    </Tab>',
     '    <b>SENTINEL_BESIDE {value} AN_EXPRESSION</b>',
     '    <Field label="SENTINEL_IN_AN_ATTRIBUTE" />',
+    "    <i>{flag ? 'SENTINEL_IN_A_TERNARY' : 'other'}</i>",
     '  </Panel>',
     ');',
     'const generic: Record<string, unknown> = {};',
@@ -416,7 +436,12 @@ function proveItLooks() {
     .map(piece => piece.text)
     .join(' | ');
 
-  const wanted = ['SENTINEL_ON_ITS_OWN_LINE', 'SENTINEL_BESIDE', 'SENTINEL_IN_AN_ATTRIBUTE'];
+  const wanted = [
+    'SENTINEL_ON_ITS_OWN_LINE',
+    'SENTINEL_BESIDE',
+    'SENTINEL_IN_AN_ATTRIBUTE',
+    'SENTINEL_IN_A_TERNARY',
+  ];
   const missed = wanted.filter(one => !seen.includes(one));
   if (missed.length > 0) {
     console.error('This check has stopped seeing text it used to see:\n');
@@ -486,6 +511,21 @@ for (const entry of englishLocaleValues()) {
     });
   }
 }
+
+// One literal can sit inside nested JSX expressions and be gathered by each of
+// them. The defect is one defect; counting it three times makes the report
+// read as worse than it is.
+const seen = new Set();
+const unique = hits.filter(one => {
+  const key = `${one.file}:${one.line}:${one.kind}:${one.text}`;
+  if (seen.has(key)) {
+    return false;
+  }
+  seen.add(key);
+  return true;
+});
+hits.length = 0;
+hits.push(...unique);
 
 const certain = hits.filter(one => one.certain);
 const net = hits.filter(one => !one.certain);

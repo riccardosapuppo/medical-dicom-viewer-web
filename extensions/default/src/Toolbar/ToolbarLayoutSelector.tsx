@@ -351,7 +351,7 @@ function ToolbarLayoutSelectorWithServices({
 
               {advancedPresets.length > 0 && (
                 <LayoutSelector.PresetSection className={`advanced-layout advanced-layout-main-study`}
-                  title={showLayoutPresetsForPriors ? 'Advanced, main study' : 'Avanzato'}>
+                  title={showLayoutPresetsForPriors ? 'Advanced, main study' : 'Advanced'}>
                   {advancedPresets.map((preset, index) => (
                     <LayoutSelector.Preset
                       key={`advanced-preset-${index}`}
@@ -389,7 +389,7 @@ function ToolbarLayoutSelectorWithServices({
           {/* Right Side - Grid Layout */}
           <div className="bg-muted flex flex-col gap-2.5 border-l-2 border-solid border-black p-2">
             <div className="custom-layout">
-              <div className="text-muted-foreground text-xs">{showLayoutPresetsForPriors ? 'Custom, main study' : 'Personalizzato'}</div>
+              <div className="text-muted-foreground text-xs">{showLayoutPresetsForPriors ? 'Custom, main study' : 'Custom'}</div>
               <LayoutSelector.GridSelector
                 rows={rows}
                 columns={columns}

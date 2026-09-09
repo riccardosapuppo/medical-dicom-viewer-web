@@ -1,7 +1,7 @@
 {
   "Age": "Test Age",
   "Sex": "Test Sex",
-  "MRN": "Test ID Patient",
+  "MRN": "Test Patient ID",
   "Thickness": "Test Thickness",
   "Spacing": "Test Spacing",
   "Scanner": "Test Scanner"

@@ -130,7 +130,7 @@ skipped; and letting the match span lines instead filled the result with
 `Record<string, unknown>`. The parser is never unsure which of those three a
 piece of source is.
 
-It also checks itself before it checks anything else. Three sentinels in three
+It also checks itself before it checks anything else. Four sentinels in four
 shapes are put through the reader, and if any of them stops coming back the
 check refuses to give a verdict at all rather than reporting the all-clear that
 a reader which has quietly stopped looking would also report.
