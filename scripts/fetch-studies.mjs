@@ -118,7 +118,7 @@ async function main() {
   }
 
   console.log(`\n${plural(total, 'image')} in ${outputRoot}`);
-  console.log('Load them into the archive with: npm run data:load');
+  console.log('Load them into the archive with: yarn data:load');
 }
 
 main().catch(error => {

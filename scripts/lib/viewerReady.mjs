@@ -17,12 +17,16 @@
 import http from 'node:http';
 import https from 'node:https';
 
-const START = [
-  'docker compose up -d          # the archive',
-  'yarn data                     # fetch the studies, once',
-  'yarn data:load                # load them into the archive',
-  'yarn dev                      # the viewer, on http://localhost:3000',
-];
+// Named, not indexed. Each message lists the steps still missing, and adding
+// `yarn demo` to the front of this list silently changed which steps every
+// `START.slice(0, 3)` below printed.
+const ARCHIVE = 'docker compose up -d          # the archive';
+const FETCH = 'yarn data                     # fetch the studies, once';
+const LOAD = 'yarn data:load                # load them into the archive';
+const SERVE = 'yarn dev                      # the viewer, on http://localhost:3000';
+const DEMO = 'yarn demo                     # all of the below, skipping what is done';
+
+const START = [DEMO, '', ARCHIVE, FETCH, LOAD, SERVE];
 
 function stop(what, todo) {
   console.error(`\n${what}\n`);
@@ -30,7 +34,10 @@ function stop(what, todo) {
     console.error(`  ${line}`);
   }
   console.error('');
-  process.exit(1);
+  // 2, not 1. Nothing was driven, so this is neither a pass nor a failure,
+  // and a caller that treats it as one reads a stopped archive as a broken
+  // viewer.
+  process.exit(2);
 }
 
 /**
@@ -44,7 +51,7 @@ function stop(what, todo) {
  * @returns {Promise<{status: number, body: string}|undefined>} undefined if
  *   nothing answered.
  */
-function get(url) {
+export function get(url) {
   const target = new URL(url);
   const transport = target.protocol === 'https:' ? https : http;
 
@@ -87,14 +94,16 @@ export async function requireViewer(viewerUrl) {
   if (!Array.isArray(payload)) {
     stop(
       `${viewerUrl} is serving the viewer, but no archive is answering behind it.`,
-      START.slice(0, 3)
+      [DEMO, '', ARCHIVE, FETCH, LOAD]
     );
   }
 
   if (payload.length === 0) {
     stop('The archive is running and empty: the studies have not been loaded into it.', [
-      START[1],
-      START[2],
+      DEMO,
+      '',
+      FETCH,
+      LOAD,
     ]);
   }
 }

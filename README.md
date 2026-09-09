@@ -86,26 +86,55 @@ yarn check:layout          # text drawn over text, controls off screen, at two w
 yarn check:controls        # presses every control this fork adds, one at a time
 ```
 
-`yarn`, not `npm`, since this page says two paragraphs down that installing
-with npm produces a tree that does not build, and then named its own checks as
-`npm run`.
-Both commands reach the same scripts, but a README that contradicts itself is
-one somebody follows in the wrong half.
+`yarn`, not `npm`: this page says below that installing with npm produces a
+tree that does not build, and then named its own checks as `npm run` -- as did
+two of the scripts themselves, in the line each prints when it finishes. Both
+reach the same scripts, but a README that contradicts itself is one somebody
+follows in the wrong half.
 
 None of the three starts anything. They attach to what **Running it** below
-leaves running — the archive up, the studies loaded into it, and `yarn dev`
-serving on port 3000 — and they need a browser to drive, which `yarn install`
-does not bring because nothing else here uses one:
+leaves running -- the archive up, the studies loaded into it, and the viewer
+serving on port 3000 -- and they drive the browser already on the machine:
+Edge, then Chrome, then a Chromium in Playwright's download cache if there is
+one. `--channel <name>` names a different one. Each check prints which it got,
+because a check whose output does not name what it drove is one whose green
+nobody else can reproduce.
+
+They drive it through `playwright-core`, which arrives with `@playwright/test`
+in `yarn install` and deliberately ships no browsers of its own -- that is what
+the `-core` means, and why it costs two megabytes instead of four hundred. This
+page used to ask for a hundred and fifty megabyte Chromium on top of it, because
+the checks looked only in that download cache and, finding nothing, failed on a
+machine with two browsers on it. Given the same three switches that turn on
+software WebGL, Edge reports
 
 ```
-npm install --no-save playwright-core
-npx playwright install chromium
+WebGL 2.0 (OpenGL ES 3.0 Chromium)
+ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device), SwiftShader driver)
 ```
 
-Run a check without one of those and it stops in about a second naming the piece
-that is missing and the command that supplies it, rather than spending ninety
-seconds on a navigation that was never going to arrive. `VIEWER_URL` points them
+which is exactly what the downloaded Chromium reports. The download bought
+nothing.
+
+Run a check with nothing to drive, or with no archive behind the viewer, and it
+stops in about a second naming the piece that is missing and the command that
+supplies it, rather than spending ninety seconds on a navigation that was never
+going to arrive. It leaves with status 2 rather than 1, because a check that
+could not run is neither a pass nor a failure. `VIEWER_URL` points them
 somewhere other than `http://localhost:3000`.
+
+They also refuse to run against a source that has moved under them. Each control
+carries the string its selector rests on, and that string is looked for in the
+source before a browser is started. This was not a precaution: three of the six
+controls were being pressed by names that had been renamed away -- `Sottogriglia`
+for `Subgrid`, `gestioneHP` for `hangingProtocols`, `preferiti.png` for
+`favourites.png` -- and so was the button that closes the guided tour, in all
+three checks, which meant every one of them had been measuring the page through
+the tour's veil. None of it showed as a broken check. It showed as dead buttons
+and a covered page, which is what a broken application looks like from here, and
+it stayed that way because running these needs an archive and a viewer up. A
+rename now goes red in the same commit that makes it, in a second, with nothing
+running.
 
 `check:smoke` is also where the pictures in this README come from, so they are
 always the current build rather than something taken by hand months ago.
@@ -191,18 +220,37 @@ real studies to put in it.
 git clone https://github.com/riccardosapuppo/medical-dicom-viewer-web
 cd medical-dicom-viewer-web
 
-docker compose up -d          # the archive
+yarn demo
+```
+
+That is all of it: install, start the archive, fetch the studies, load them into
+the archive, serve the viewer on http://localhost:3000. Each of the five steps
+is skipped if it is already done, and what it asks is about the world rather
+than a marker file -- is something answering on the archive's port, are the
+images on disk, does the archive hold them. So running it again after deleting
+any one piece repairs that piece, running it twice costs a few HTTP requests,
+and it never takes anything down.
+
+There was no such command until now, which is the part worth admitting: `yarn
+start` was an alias for `yarn dev`, so the shortest-looking command in the file
+was the one that skipped the other four and served a viewer with nothing behind
+it. An empty study list is what that looks like from the browser.
+
+The five steps, to run one at a time or when one of them fails:
+
+```
 yarn install                  # once, and it is a big install
+docker compose up -d          # the archive
 yarn data                     # fetch the studies: 113 MB down, 268 MB in data/
 yarn data:load                # load them into the archive
 yarn dev                      # the viewer, on http://localhost:3000
 ```
 
-`yarn install` is third and not fourth, which is the order that works: the load
-step reads each file with `dicom-parser` before sending it, so on a fresh clone
-it cannot run until the modules are there. In the order this README gave until
-now, **step three died** and nothing noticed, because everybody who ran it
-already had `node_modules`.
+`yarn install` comes before `yarn data:load`, which is the order that works: the
+load step reads each file with `dicom-parser` before sending it, so on a fresh
+clone it cannot run until the modules are there. In the order this README gave
+until now it came last, **the load died**, and nothing noticed, because
+everybody who ran it already had `node_modules`.
 
 `docker compose down -v` puts the machine back as it was, archive volume
 included; `rm -rf node_modules data` takes the rest, `data/` holding both the

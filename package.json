@@ -70,6 +70,7 @@
     "lerna:restore": "./netlify-lerna-restore.sh",
     "lerna:customVersion": "node version.mjs",
     "link-list": "npm ls --depth=0 --link=true",
+    "demo": "node scripts/demo.mjs",
     "data": "node scripts/fetch-studies.mjs",
     "data:load": "node scripts/load-orthanc.mjs",
     "check:smoke": "node scripts/smoke.mjs",

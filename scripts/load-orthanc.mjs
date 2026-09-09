@@ -125,7 +125,7 @@ function nameEveryPatient(files) {
 
 async function main() {
   if (!fs.existsSync(dicomRoot)) {
-    throw new Error('no studies downloaded yet. Run: npm run data');
+    throw new Error('no studies downloaded yet. Run: yarn data');
   }
 
   await waitForOrthanc();
