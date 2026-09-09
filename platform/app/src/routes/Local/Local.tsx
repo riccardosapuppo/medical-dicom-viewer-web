@@ -99,7 +99,7 @@ function Local({ modePath }: LocalProps) {
   const fetchLocalFile = async () => {
     const fileNumber = await getFileNumber();
     try {
-      let completedRequests = 0; // Conta il numero di richieste completate
+      let completedRequests = 0;
       const promises = [];
 
       for (let i = 0; i < fileNumber; i++) {

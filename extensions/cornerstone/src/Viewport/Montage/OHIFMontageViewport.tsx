@@ -83,7 +83,7 @@ function OHIFMontageViewport(props: withAppTypes) {
   // clicked while the subgrid is on): start again from the first image of the new
   // series. The cells are remounted, see `key` below, so they load the right stack
   // instead of showing a mix of the old one and the new.
-  // NB: salto il PRIMO run (mount), altrimenti azzererei il `firstImageIndex`
+  // The FIRST run, on mount, is skipped: it would clear the `firstImageIndex`
   // handed over by a hanging protocol (the subgrid's saved scroll position).
   const firstDisplaySetRunRef = useRef(true);
   useEffect(() => {
@@ -241,11 +241,11 @@ function OHIFMontageViewport(props: withAppTypes) {
   }, [rows, cols, total, refitCells]);
 
   // Puts the cells' saved state back (window level, zoom and pan) when it arrives in
-  // la subgrid è (ri)creata da un Hanging Protocol: i valori arrivano in
+  // the subgrid is built, or rebuilt, by a hanging protocol. The values arrive in
   // viewportOptions.montage.{voiRange,viewPresentation}. Cells are created
   // asynchronously and auto-fit themselves (resetCamera), so this is applied ONCE,
   // after they have settled, and best effort. The scroll position instead comes
-  // gestito da `firstImageIndex` (init di `base`).
+  // from `firstImageIndex`, which is what `base` starts at.
   const restoredCellStateRef = useRef(false);
   useEffect(() => {
     const mv = (montage as any).viewPresentation;
@@ -260,8 +260,9 @@ function OHIFMontageViewport(props: withAppTypes) {
     const MAX_ATTEMPTS = 20;
     const tryApply = () => {
       attempts += 1;
-      // Geometria stabile? Durante one-up / cambio layout il contenitore passa per
-      // provisional size. The viewPresentation zoom is RELATIVE to the cell's fit
+      // Is the geometry settled? Going one-up, or changing layout, takes the
+      // container through a provisional size. The viewPresentation zoom is RELATIVE
+      // to the cell's fit
       // camera: applied to a provisional geometry it produces a camera that is wrong
       // (images shrunk to a dot), and the resize that follows, with keepCamera,
       // KEEPS it. So it is applied only once the container has a real size, the
@@ -539,7 +540,7 @@ function OHIFMontageViewport(props: withAppTypes) {
     [rows, cols, base, total, viewportId]
   );
 
-  // Scrollbar: lo scroll a blocchi muove `base` in [0, total - visibleCount].
+  // The scrollbar: scrolling by blocks moves `base` within [0, total - visibleCount].
   // Shown only when there is something to scroll, meaning more images than the layout
   // has cells for. The height is worked out as in the ordinary viewports.
   const maxBase = Math.max(0, total - visibleCount);

@@ -241,7 +241,7 @@ real studies to put in it.
 git clone https://github.com/riccardosapuppo/medical-dicom-viewer-web
 cd medical-dicom-viewer-web
 
-yarn demo
+yarn start
 ```
 
 That is all of it: install, start the archive, fetch the studies, load them into
@@ -252,10 +252,10 @@ images on disk, does the archive hold them. So running it again after deleting
 any one piece repairs that piece, running it twice costs a few HTTP requests,
 and it never takes anything down.
 
-There was no such command until now, which is the part worth admitting: `yarn
-start` was an alias for `yarn dev`, so the shortest-looking command in the file
-was the one that skipped the other four and served a viewer with nothing behind
-it. An empty study list is what that looks like from the browser.
+`yarn start` did not use to do that, which is the part worth admitting: it was
+an alias for `yarn dev`, so the shortest-looking command in the file was the one
+that skipped the other four and served a viewer with nothing behind it. An empty
+study list is what that looks like from the browser.
 
 The five steps, to run one at a time or when one of them fails:
 

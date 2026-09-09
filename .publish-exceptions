@@ -1,0 +1,17 @@
+# Real findings that are not secrets, and why.
+#
+# This is a fork, and a fork carries the files of the project it came from. The
+# paths below are ones the publication gate may stop reporting, with the reason
+# beside each: they are upstream files, public, holding example values.
+#
+# It does not apply to company names or to real keys. Those block from any
+# file, for any reason, and that is right.
+#
+# The reasons are written without quoting what they excuse. The gate reads every
+# tracked file, this one included, and used to report the address that the line
+# explaining it had written out.
+
+platform/app/.recipes/*        # upstream docker recipes: example passwords and secrets, public there
+platform/app/public/oidc-client.min.js   # a minified library: setPassword and accessToken are function names in it
+platform/app/.webpack/webpack.pwa.js   # a development host, commented out, upstream
+platform/core/src/utils/resolveObjectPath.test.js   # a private address that is the data of a test, upstream

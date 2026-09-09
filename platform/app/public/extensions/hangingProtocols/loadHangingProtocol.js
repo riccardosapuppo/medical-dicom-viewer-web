@@ -544,7 +544,7 @@ const loadHangingProtocol = async () => {
       }
       const isMontageVp = !!montageByIndexLoaded?.[i]?.enabled;
       if (isMontageVp) {
-        continue; // le montage usano firstImageIndex (scroll a blocchi), non l'indice del viewport
+        continue; // a subgrid uses firstImageIndex, scrolling by blocks, not the viewport index
       }
       const zeroBased = specificInstances[i] - 1;
       if (mdvhp?.stages?.[0]?.viewports?.[i]) {

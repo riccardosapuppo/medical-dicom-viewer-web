@@ -34,7 +34,7 @@ export function WindowLevel({
     // There may be duplicates at this point. Pairing the first WindowWidth with the first
     // WindowCenter, the second with the second and so on can give 300,175  300,75  350,40.
 
-    // Creo un array di coppie [WindowCenter, WindowWidth]
+    // An array of [WindowCenter, WindowWidth] pairs
     const combined = dicomWHWC.WindowCenter.map((center, index) => {
       return { center, width: dicomWHWC.WindowWidth[index] };
     });

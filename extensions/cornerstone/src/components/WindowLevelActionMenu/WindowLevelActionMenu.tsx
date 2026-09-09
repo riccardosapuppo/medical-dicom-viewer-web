@@ -91,7 +91,7 @@ export function WindowLevelActionMenu({
     const crosshairsTool = new CrosshairsTool({}, customToolProps);
     const { cornerstoneViewportService } = servicesManager.services;
     const viewport = cornerstoneViewportService.getCornerstoneViewport(viewportId);
-    crosshairsTool.setSlabThickness(viewport, value); // Utilizza il valore passato
+    crosshairsTool.setSlabThickness(viewport, value);
     if (event.target.nextElementSibling) {
       event.target.nextElementSibling.style.width = `${value}%`;
     }
@@ -121,7 +121,7 @@ export function WindowLevelActionMenu({
       const crosshairsTool = new CrosshairsTool({}, customToolProps);
       const { cornerstoneViewportService } = servicesManager.services;
       const viewport = cornerstoneViewportService.getCornerstoneViewport(viewportId);
-      crosshairsTool.setSlabThickness(viewport, currentThickness); // Utilizza il valore passato
+      crosshairsTool.setSlabThickness(viewport, currentThickness);
       viewport.render();
     }, 0);
   };

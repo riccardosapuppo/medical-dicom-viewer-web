@@ -45,7 +45,7 @@ function LoadingIndicatorProgress({ className, textBlock, progress }) {
         if (prevProgress >= 100) {
           return 100;
         }
-        // Incrementa il progresso con un valore casuale tra 10 e 30
+        // A random step between 10 and 30
         const randomIncrement = Math.floor(Math.random() * 21) + 10;
         return Math.min(prevProgress + randomIncrement, 100); // Evita di superare il 100%
       });

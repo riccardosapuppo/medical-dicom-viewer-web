@@ -194,7 +194,7 @@ function commandsModule({
       document.body.classList.contains('loading-spinner-into-grid')
     ) {
       return;
-    } //Salvo lo stato solo in modalità NON MPR
+    } // The state is kept only outside reformatting
     window.storedState = true;
     const viewportGridState = viewportGridService.getState();
     const { setToggleOneUpViewportGridStore } = useToggleOneUpViewportGridStore.getState();

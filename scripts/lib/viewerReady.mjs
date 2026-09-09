@@ -18,13 +18,13 @@ import http from 'node:http';
 import https from 'node:https';
 
 // Named, not indexed. Each message lists the steps still missing, and adding
-// `yarn demo` to the front of this list silently changed which steps every
+// `yarn start` to the front of this list silently changed which steps every
 // `START.slice(0, 3)` below printed.
 const ARCHIVE = 'docker compose up -d          # the archive';
 const FETCH = 'yarn data                     # fetch the studies, once';
 const LOAD = 'yarn data:load                # load them into the archive';
 const SERVE = 'yarn dev                      # the viewer, on http://localhost:3000';
-const DEMO = 'yarn demo                     # all of the below, skipping what is done';
+const DEMO = 'yarn start                    # all of the below, skipping what is done';
 
 const START = [DEMO, '', ARCHIVE, FETCH, LOAD, SERVE];
 

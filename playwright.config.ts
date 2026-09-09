@@ -38,7 +38,9 @@ export default defineConfig({
     //},
   ],
   webServer: {
-    command: 'cross-env APP_CONFIG=config/e2e.js yarn start',
+    // `yarn dev`, not `yarn start`: start brings the archive up and loads it,
+    // and these tests bring their own data.
+    command: 'cross-env APP_CONFIG=config/e2e.js yarn dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 360_000,

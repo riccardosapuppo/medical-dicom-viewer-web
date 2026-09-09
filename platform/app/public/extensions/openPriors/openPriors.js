@@ -465,7 +465,7 @@ function split2Studies(urlToOpen) {
   iframe.style.position = 'relative';
   iframe.style.zIndex = '19';
 
-  //Creo un preloader
+  // A spinner while it loads
   const preloader = createPreloader();
 
   mainArea.parentNode.insertBefore(preloader, mainArea.nextSibling);

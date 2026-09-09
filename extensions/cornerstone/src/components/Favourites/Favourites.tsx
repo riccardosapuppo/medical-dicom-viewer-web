@@ -913,7 +913,8 @@ export function Favourites({
   const onSetFavourite = useCallback(
     async e => {
       const { uiNotificationService } = servicesManager.services;
-      const checked = e; //Mi indica se sto checkando o meno l'opzione per aggiunta/rimozione favourite      // Inizializza window.favourites se non esiste
+      // Whether the star was just marked or unmarked.
+      const checked = e;
       const instance = getInstanceAtIndex(activeElementIndex);
       const sopUID = getSopUIDAtIndex(activeElementIndex);
       const imageId = getImageIdAtIndex(activeElementIndex);

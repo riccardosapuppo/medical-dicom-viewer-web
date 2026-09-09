@@ -2,7 +2,7 @@
 /**
  * The one command that brings the whole demonstration up.
  *
- *   yarn demo
+ *   yarn start
  *
  * Four things have to be true before there is anything to look at: the
  * dependencies are installed, the archive container is running, the studies are
