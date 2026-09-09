@@ -70,7 +70,7 @@ export function WindowLevelActionMenu({
 
   let _selectedRenderingMethod;
 
-  const ManageSpessore = event => {
+  const onSlabThicknessChange = event => {
     const value = Number(event.target.value);
     setRangeValue(value);
     setTimeout(() => {
@@ -84,7 +84,7 @@ export function WindowLevelActionMenu({
 
     const customToolProps = {
       configuration: {
-        slabThicknessBlendMode: slabThicknessBlendMode, // Sovrascrive il valore predefinito
+        slabThicknessBlendMode: slabThicknessBlendMode, // Overrides the default
       },
     };
     // Make a CrosshairsTool instance
@@ -104,8 +104,9 @@ export function WindowLevelActionMenu({
   const handleRadioChange = event => {
     window.setTimeout(() => {
       event.target.checked = true;
-      _selectedRenderingMethod = event.target.value; //lo cambia in tempo reale
-      setSelectedRenderingMethod(event.target.value); //memorizza lo stato quando passo da una viewport ad un'altra o dopo riattivazione
+      _selectedRenderingMethod = event.target.value; // Takes effect straight away
+      // Remembered, so moving between viewports and coming back keeps the choice.
+      setSelectedRenderingMethod(event.target.value);
       //Passo live da mip/minip o viceversa
       const currentThickness =
         event.target.parentElement.parentElement.parentElement.querySelector('.thickness-div span')
@@ -114,7 +115,7 @@ export function WindowLevelActionMenu({
 
       const customToolProps = {
         configuration: {
-          slabThicknessBlendMode: slabThicknessBlendMode, // Sovrascrive il valore predefinito
+          slabThicknessBlendMode: slabThicknessBlendMode, // Overrides the default
         },
       };
       const crosshairsTool = new CrosshairsTool({}, customToolProps);
@@ -326,8 +327,8 @@ export function WindowLevelActionMenu({
                   min="0"
                   max="100"
                   step="1"
-                  value={rangeValue} // Uso il valore dallo stato
-                  onChange={ManageSpessore}
+                  value={rangeValue}
+                  onChange={onSlabThicknessChange}
                 />
                 <div
                   className="range-fill"
@@ -341,7 +342,7 @@ export function WindowLevelActionMenu({
                     id="mip"
                     name="renderingMethod"
                     value="mip"
-                    checked={selectedRenderingMethod === 'mip'} // Controllo se è selezionato
+                    checked={selectedRenderingMethod === 'mip'}
                     onClick={handleRadioChange}
                   />
                   <label htmlFor="mip">MIP</label>
@@ -353,7 +354,7 @@ export function WindowLevelActionMenu({
                     id="minip"
                     name="renderingMethod"
                     value="minip"
-                    checked={selectedRenderingMethod === 'minip'} // Controllo se è selezionato
+                    checked={selectedRenderingMethod === 'minip'}
                     onClick={handleRadioChange}
                   />
                   <label htmlFor="minip">MinIP</label>

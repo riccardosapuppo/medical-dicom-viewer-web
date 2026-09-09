@@ -37,11 +37,13 @@ const getUrlParam = name => {
 // The "partition" (the workstation) and the AE title are the same thing in this
 // system, see openPriors.js. Configurations travel per partition and user: on the
 // server they are already stored under userdata/{aetitle}/{user}/preferences.json.
-const getPartizione = () => window.mdvAETitle || getUrlParam('partizione') || getUrlParam('aetitle');
+// The first parameter name is the one an older host page sends, and it is still
+// read: the address is built by whatever page embeds the viewer.
+const getAeTitle = () => window.mdvAETitle || getUrlParam('partizione') || getUrlParam('aetitle');
 const getUsername = () => window.mdvUsername || getUrlParam('User');
 
 export const getContext = () => ({
-  aetitle: getPartizione(),
+  aetitle: getAeTitle(),
   username: getUsername(),
   studyInstanceUIDs: window.mdvStudyInstanceUIDs,
   studyDescription: window.mdvStudyDescription || '',
@@ -447,7 +449,7 @@ const writePreferences = async payload => {
   try {
     localStorage.setItem(localStorageKey(), JSON.stringify(payload.json));
   } catch (err) {
-    // Finestra privata, o spazio esaurito: resta il tentativo remoto.
+    // A private window, or no room left: the remote attempt still stands.
     console.warn('[HP] The local preference cache could not be written', err);
   }
 
@@ -691,7 +693,7 @@ export const captureCurrentState = (scope, captureOptions) => {
       seriesDescription = ds?.SeriesDescription || ds?.instances?.[0]?.SeriesDescription || '';
     }
 
-    // --- Istanza corrente ---
+    // --- The instance now open ---
     let instanceNumber = null;
     if (Number.isFinite(viewport?.currentImageIdIndex)) {
       instanceNumber = viewport.currentImageIdIndex + 1;
@@ -713,7 +715,7 @@ export const captureCurrentState = (scope, captureOptions) => {
             : 'Series'
     );
 
-    // --- Regola di matching serie (rispetta il flag "series") ---
+    // --- The series matching rule, which honours the "series" flag ---
     let seriesMatchingRules;
     if (!opts.series) {
       seriesMatchingRules = [{}];
@@ -724,7 +726,7 @@ export const captureCurrentState = (scope, captureOptions) => {
       ];
     } else {
       // Across studies (exam description or modality). The LEGACY rule on name and number
-      // serie resta come FALLBACK a peso basso (comportamento priors invariato)...
+      // stays as a low-weight fallback, which leaves the priors behaving as they did.
       const legacyRule =
         !seriesDescription && seriesNumber != null
           ? { attribute: 'SeriesNumber', constraint: { equals: seriesNumber }, weight: 1 }
@@ -1107,7 +1109,7 @@ export const listSavedConfigs = (preferencesJson, ctx = getContext()) => {
 };
 
 /* ------------------------------------------------------------------ *
- * Applicazione immediata di una config ("Carica")                     *
+ * Applying a saved arrangement at once                                *
  * ------------------------------------------------------------------ */
 
 // Remaps a per-viewport source (an `mdvhp-i` map, or an array by index) to a map by id.

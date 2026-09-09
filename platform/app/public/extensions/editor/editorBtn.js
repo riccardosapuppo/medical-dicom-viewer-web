@@ -65,20 +65,20 @@ const createEditorFunc = () => {
       document.body.classList.contains('priors-same-tab')
     ) {
       return;
-    } //Non applico riadattamento se cìè uno priors sulla destra
+    } // No refitting while a prior is open beside it
     setTimeout(() => {
-      const widthPannelloSx = parseFloat(
+      const leftPanelWidth = parseFloat(
         window.getComputedStyle(document.querySelector('.mdv-new-panel')).width
       );
       const favouritesPanelLeftPosition = parseFloat(
         window.getComputedStyle(document.getElementById('editor-tools')).left
       );
-      const valoreDefinitivo = favouritesPanelLeftPosition - widthPannelloSx;
-      document.querySelector('[data-cy="viewport-grid"]').style.width = `${valoreDefinitivo}px`;
+      const gridWidth = favouritesPanelLeftPosition - leftPanelWidth;
+      document.querySelector('[data-cy="viewport-grid"]').style.width = `${gridWidth}px`;
     }, 350);
   }, 0);
 
-  let nota = {};
+  let note = {};
   const insertNoteIntoDom = () => {
     let savedDelta = localStorage.getItem('quillContent');
     let noteFound = false;
@@ -89,7 +89,7 @@ const createEditorFunc = () => {
     if (savedDelta.length > 0) {
       savedDelta.forEach(element => {
         if (element.studyInstanceUID === window.mdvStudyInstanceUIDs) {
-          nota.ops = element.ops;
+          note.ops = element.ops;
           noteFound = true;
         }
       });
@@ -99,7 +99,7 @@ const createEditorFunc = () => {
         savedNotesArea.insertAdjacentHTML(
           'afterbegin',
           `
-      <div onclick="window.handleNotaClick(this)" class="saved-note">
+      <div onclick="window.handleNoteClick(this)" class="saved-note">
           <p>Load the saved note</p>
         </div>`
         );
@@ -111,18 +111,18 @@ const createEditorFunc = () => {
     }
   };
 
-  window.handleNotaClick = e => {
+  window.handleNoteClick = e => {
     if (
       confirm(
         "Loading the note will overwrite anything written so far. Go ahead?"
       ) == true
     ) {
-      quill.setContents(nota);
+      quill.setContents(note);
     }
   };
 
   const saveText = () => {
-    //Ottengo le note attuali
+    // The notes already saved
     let currentNotes = [];
     if (localStorage.getItem('quillContent')) {
       currentNotes = JSON.parse(localStorage.getItem('quillContent'));
@@ -130,11 +130,11 @@ const createEditorFunc = () => {
     const delta = quill.getContents();
     delta.studyInstanceUID = window.mdvStudyInstanceUIDs;
     // Check there is no note for this studyInstanceUID already, so no duplicate is added; overwrite if there is
-    const studyInstanceUID = window.mdvStudyInstanceUIDs; // UID corrente
+    const studyInstanceUID = window.mdvStudyInstanceUIDs;
 
     // Check whether the array of current notes is empty
     if (currentNotes.length === 0) {
-      // Se è vuoto, inserisci direttamente il delta
+      // Empty, so the delta goes straight in
       currentNotes.push(delta);
     } else {
       let found = false;

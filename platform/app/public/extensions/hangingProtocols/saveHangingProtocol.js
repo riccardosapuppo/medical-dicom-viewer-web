@@ -647,18 +647,18 @@ async function saveHangingProtocol() {
 
 function currentlySavedHangingProtocols() {
   syncStudyInfo();
-  const configAttiva = [];
+  const activeConfig = [];
   const key = `userPreferences-${aetitle}`;
   const cachedRaw = localStorage.getItem(key);
   if (!cachedRaw) {
-    return configAttiva;
+    return activeConfig;
   }
   let cachedPreferences;
   try {
     cachedPreferences = JSON.parse(cachedRaw);
   } catch (err) {
     console.warn('The cached hanging protocol preferences are not valid', err);
-    return configAttiva;
+    return activeConfig;
   }
 
   const hp = ensureHpStructure(cachedPreferences?.hp);
@@ -666,21 +666,21 @@ function currentlySavedHangingProtocols() {
   const userPreferencesByExam = hp.examName;
   const userPreferencesByModality = hp.modality;
   if (userPreferencesForThisStudy[studyInstanceUIDs]) {
-    configAttiva.push('specificStudy');
+    activeConfig.push('specificStudy');
   }
 
   for (let i = 0; i < userPreferencesByExam.length; i++) {
     if (userPreferencesByExam[i]?.examName === studyDescription) {
-      configAttiva.push('examDescription');
+      activeConfig.push('examDescription');
     }
   }
 
   for (let i = 0; i < userPreferencesByModality.length; i++) {
     if (modality !== '' && userPreferencesByModality[i]?.modalityName === modality) {
-      configAttiva.push('modality');
+      activeConfig.push('modality');
     }
   }
-  return configAttiva;
+  return activeConfig;
 }
 
 async function creaDIV() {
@@ -691,7 +691,7 @@ async function creaDIV() {
     return;
   }
 
-  const configAttiva = currentlySavedHangingProtocols(); //Verifico gli HP attualmente attivi per lo studio
+  const activeConfig = currentlySavedHangingProtocols(); // Which hanging protocols this study already has
 
   const menuHP = /*html*/ `
   <div id="menu-hp">
@@ -700,7 +700,7 @@ async function creaDIV() {
   <div id="info">
   <p>Modality: <span>${modality}</span></p>
   <p>Exam: <span>${studyDescription}</span></p>
-  <p style=${configAttiva.length > 0 ? 'color:#e9e9e9;display:block' : 'display:none'}>🟢 Hanging protocols are applied for this study </p>
+  <p style=${activeConfig.length > 0 ? 'color:#e9e9e9;display:block' : 'display:none'}>🟢 Hanging protocols are applied for this study </p>
   </div>
 
   <div style="margin-top:12px;border-top:1px solid #212832;padding-top:10px;">
@@ -715,8 +715,8 @@ async function creaDIV() {
   <h3 style>Save the current arrangement for this <span style="color:#38bdf8">study</span> only</h3>
   <p>The hanging protocols will apply to this study alone</p>
   <p style="color:red;display:none" id="hp-studiospecifico-presente">There is a configuration saved for this study alone </p>
-  <button id="save-hp-config-actual-study">${configAttiva.includes('specificStudy') ? 'Overwrite the current configuration' : 'Save for this study only'}</button>
-  <button style=${configAttiva.includes('specificStudy') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-actual-study">Delete the saved configuration</button>
+  <button id="save-hp-config-actual-study">${activeConfig.includes('specificStudy') ? 'Overwrite the current configuration' : 'Save for this study only'}</button>
+  <button style=${activeConfig.includes('specificStudy') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-actual-study">Delete the saved configuration</button>
   </div>
 
   <div class="hp-option">
@@ -724,16 +724,16 @@ async function creaDIV() {
   <p>The hanging protocols will apply to every exam described as <span style="font-weight: 600;">${studyDescription}</span></p>
   <p style="color:red;display:none" id="hp-descrizioneesame-presente">There is a configuration saved for every exam described as "${studyDescription}" </p>
   <p style="color:red;display:none" id="unnamed-exam">This exam has no name, so a configuration saved here will apply to every unnamed exam. </p>
-  <button id="save-hp-config-exam">${configAttiva.includes('examDescription') ? 'Overwrite the current configuration' : 'Save for this kind of exam'} </button>
-  <button style=${configAttiva.includes('examDescription') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-exam">Delete the saved configuration</button>
+  <button id="save-hp-config-exam">${activeConfig.includes('examDescription') ? 'Overwrite the current configuration' : 'Save for this kind of exam'} </button>
+  <button style=${activeConfig.includes('examDescription') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-exam">Delete the saved configuration</button>
   </div>
 
   <div style="margin-right:0" class="hp-option">
   <h3>Save the current arrangement for this <span style="color:#38bdf8">modality</span></h3>
   <p>The hanging protocols will apply to every exam of modality <span style="font-weight: 600;">${modality}</span></p>
   <p style="color:red;display:none" id="hp-modality-presente">There is a configuration saved for this modality</p>
-  <button id="save-hp-config-modality">${configAttiva.includes('modality') ? 'Overwrite the current configuration' : 'Save for this modality'}</button>
-  <button style=${configAttiva.includes('modality') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-modality">Delete the saved configuration</button>
+  <button id="save-hp-config-modality">${activeConfig.includes('modality') ? 'Overwrite the current configuration' : 'Save for this modality'}</button>
+  <button style=${activeConfig.includes('modality') ? 'display:block' : 'display:none'} class="delete-hp-btn" id="delete-hp-config-modality">Delete the saved configuration</button>
   </div>
 
   </div>
@@ -942,8 +942,8 @@ async function componiHP(mode) {
 }
 
 async function saveSpecificStudy() {
-  const configAttiva = currentlySavedHangingProtocols();
-  if (configAttiva.includes('specificStudy')) {
+  const activeConfig = currentlySavedHangingProtocols();
+  if (activeConfig.includes('specificStudy')) {
     if (!confirm('Overwrite the current configuration?') == true) {
       return;
     }
@@ -958,6 +958,7 @@ async function saveSpecificStudy() {
   const entry = {
     protocol: mdvHP,
     gridLayout: window.layout,
+    // These five keep their old names on purpose; hpStore.js says why.
     layoutPersonalizzato: null,
     allineamento: null,
     scalaOverlay: null,
@@ -987,8 +988,8 @@ async function saveSpecificStudy() {
 }
 
 async function saveConfigExam() {
-  const configAttiva = currentlySavedHangingProtocols();
-  if (configAttiva.includes('examDescription')) {
+  const activeConfig = currentlySavedHangingProtocols();
+  if (activeConfig.includes('examDescription')) {
     if (!confirm('Overwrite the current configuration?') == true) {
       return;
     }
@@ -1007,6 +1008,7 @@ async function saveConfigExam() {
     examName: studyDescription,
     protocol: mdvHP,
     gridLayout: window.layout,
+    // These five keep their old names on purpose; hpStore.js says why.
     layoutPersonalizzato: null,
     allineamento: null,
     scalaOverlay: null,
@@ -1043,8 +1045,8 @@ async function saveConfigExam() {
 }
 
 async function saveConfigModality() {
-  const configAttiva = currentlySavedHangingProtocols();
-  if (configAttiva.includes('modality')) {
+  const activeConfig = currentlySavedHangingProtocols();
+  if (activeConfig.includes('modality')) {
     if (!confirm('Overwrite the current configuration?') == true) {
       return;
     }
@@ -1063,6 +1065,7 @@ async function saveConfigModality() {
     modalityName: modality,
     protocol: mdvHP,
     gridLayout: window.layout,
+    // These five keep their old names on purpose; hpStore.js says why.
     layoutPersonalizzato: null,
     allineamento: null,
     scalaOverlay: null,

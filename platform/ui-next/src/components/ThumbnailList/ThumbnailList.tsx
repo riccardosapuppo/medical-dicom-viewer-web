@@ -74,7 +74,7 @@ const ThumbnailList = ({
           });
         }
       } else {
-        // Pannello sinistro: scroll verticale nel container .ohif-scrollbar
+        // The left panel scrolls vertically inside the .ohif-scrollbar container
         const scrollContainer = activeThumbnail.closest('[data-cy="studyBrowser-panel"]')?.querySelector('.ohif-scrollbar') as HTMLElement;
         if (!scrollContainer) return;
         const containerRect = scrollContainer.getBoundingClientRect();

@@ -11,7 +11,7 @@ const generateRandomString = length => {
 };
 
 const saveHP = () => {
-  //Parto da una configurazione di base
+  // Starting from a base configuration
   let baseHP = {
     id: `@mdv/favourites`,
     description: 'Apply the hanging protocol for saved favourites',

@@ -470,7 +470,7 @@ class MetadataProvider {
             const dataLow = smallestPx * slopeForFit + interceptForFit;
             const dataHigh = largestPx * slopeForFit + interceptForFit;
             const dataRange = dataHigh - dataLow;
-            // Intersezione tra finestra e range pixel (in unità rescalate).
+            // Where the window and the pixel range overlap, in rescaled units.
             const overlapLow = Math.max(windowLow, dataLow);
             const overlapHigh = Math.min(windowHigh, dataHigh);
             const overlap = Math.max(0, overlapHigh - overlapLow);
@@ -498,9 +498,9 @@ class MetadataProvider {
             // Nor does it fire on the legitimately wide, one-sided CT windows (lung at
             // centre -600 and width 1500, where everything dense goes white): coverage
             // there stays high, around 0.45, so the `coverage < COV` gate protects it.
-            const EDGE = 0.05; // un lato è praticamente senza dati (finestra a filo/oltre il bordo)
-            const BULK = 0.6; // l'altro lato concentra la grande maggioranza dei pixel
-            const COV = 0.25; // la finestra è un filo sottile sul range complessivo
+            const EDGE = 0.05; // one side holds almost no data: the window sits at or past the edge
+            const BULK = 0.6; // the other side holds the great majority of the pixels
+            const COV = 0.25; // the window is a sliver of the whole range
             const oneSidedSaturation =
               (fractionBelow < EDGE && fractionAbove > BULK) ||
               (fractionAbove < EDGE && fractionBelow > BULK);

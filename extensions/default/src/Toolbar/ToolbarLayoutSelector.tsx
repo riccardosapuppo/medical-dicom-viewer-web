@@ -222,10 +222,10 @@ function ToolbarLayoutSelectorWithServices({
 
   const onSelectionPreset = preset => {
     try {
-      const listaPresetAvanzati = ['fourUp', 'main3D', 'primaryAxial', 'only3D', 'primary3D'];
+      const advancedPresets = ['fourUp', 'main3D', 'primaryAxial', 'only3D', 'primary3D'];
       document.body.classList.add('mpr-layout-loading');
       // Clear the classes remembered from the previous preset
-      listaPresetAvanzati.forEach(preset => {
+      advancedPresets.forEach(preset => {
         if (document.body.classList.contains(preset)) {
           document.body.classList.remove(preset);
         }

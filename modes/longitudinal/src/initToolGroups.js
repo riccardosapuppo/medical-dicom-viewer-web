@@ -368,7 +368,7 @@ function initMontageToolGroup(extensionManager, toolGroupService, commandsManage
       { toolName: toolNames.Magnify },
       { toolName: toolNames.Probe },
       { toolName: toolNames.DragProbe },
-      // Strumenti di misura/annotazione
+      // The measurement and annotation tools
       { toolName: toolNames.Length },
       {
         toolName: toolNames.ArrowAnnotate,

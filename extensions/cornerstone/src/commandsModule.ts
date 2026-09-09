@@ -545,7 +545,7 @@ function commandsModule({
       if (cells <= 6) {
         return { rows: 2, cols: 3 };
       }
-      return { rows: 2, cols: 4 }; // 7-8 celle
+      return { rows: 2, cols: 4 }; // 7-8 cells
     },
 
     /** How many images are in the series showing in the active viewport. */
@@ -1570,21 +1570,8 @@ function commandsModule({
         // If MPR is already on, this goes back to the default view instead
         if (document.body.classList.contains('hp-mpr-active')) {
           // hangingProtocolService.setProtocol('default');
-          //Ripulisco classi body
+          // Clear the body classes
           document.body.classList.remove('hp-mpr-active');
-          // const listaPresetAvanzati = [
-          //   'mpr',
-          //   'fourUp',
-          //   'main3D',
-          //   'primaryAxial',
-          //   'only3D',
-          //   'primary3D',
-          // ];
-          // listaPresetAvanzati.forEach(preset => {
-          //   if (document.body.classList.contains(preset)) {
-          //     document.body.classList.remove(preset);
-          //   }
-          // });
           restoreState();
           window.mprIsActive = false;
 
@@ -1732,7 +1719,7 @@ function commandsModule({
             setTimeout(() => {
               let ActiveThumbnail = document.querySelector(
                 `#thumbnail-${activeDisplaySetInstanceUID} img`
-              ); //Attivo l'mpr sulla serie attualmente attiva
+              ); // Turn reformatting on for the series that is open
 
               // window.instanceUIDMPRToClick set elsewhere (turning MPR on from the priors frame, say) wins over this
               if (window.instanceUIDMPRToClick) {
@@ -2857,9 +2844,9 @@ function commandsModule({
       if (debounceTimeout) {
         return;
       }
-      // Imposta il timeout per ritardare la prossima chiamata
+      // The timeout that holds the next call off
       debounceTimeout = setTimeout(() => {
-        debounceTimeout = null; // Resetta il timeout dopo l'intervallo di debounce
+        debounceTimeout = null;
       }, debounceTime);
 
       if (!viewportId) {

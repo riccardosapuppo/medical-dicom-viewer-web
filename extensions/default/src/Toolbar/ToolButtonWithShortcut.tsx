@@ -87,7 +87,7 @@ export function getShortcut(props: any, hotkeysManager: any): string | null {
     // scale claimed shift+l, which turns something else on.
     //
     // When the shortcut says which item it belongs to, that item has to be this button.
-    const idBottone = commandOptions?.itemId ?? props.id;
+    const buttonId = commandOptions?.itemId ?? props.id;
     match = list.find(d => {
       if (d.commandName !== commandName) {
         return false;
@@ -96,8 +96,8 @@ export function getShortcut(props: any, hotkeysManager: any): string | null {
       if (wantTool && d.commandOptions?.toolName !== wantTool) {
         return false;
       }
-      const suQuale = d.commandOptions?.itemId;
-      return !suQuale || suQuale === idBottone;
+      const forWhichButton = d.commandOptions?.itemId;
+      return !forWhichButton || forWhichButton === buttonId;
     });
   }
 

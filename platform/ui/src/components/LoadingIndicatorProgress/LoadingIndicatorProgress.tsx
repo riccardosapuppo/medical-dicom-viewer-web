@@ -43,14 +43,14 @@ function LoadingIndicatorProgress({ className, textBlock, progress }) {
           return 0;
         }
         if (prevProgress >= 100) {
-          return 100; // Imposta il massimo a 100%
+          return 100;
         }
         // Incrementa il progresso con un valore casuale tra 10 e 30
         const randomIncrement = Math.floor(Math.random() * 21) + 10;
         return Math.min(prevProgress + randomIncrement, 100); // Evita di superare il 100%
       });
 
-      // Imposta un intervallo casuale tra 100ms e 500ms per il prossimo aggiornamento
+      // A random gap between 100ms and 500ms before the next step
       const randomInterval = Math.floor(Math.random() * 401) + 100;
       setTimeout(updateFakeProgress, randomInterval);
     };

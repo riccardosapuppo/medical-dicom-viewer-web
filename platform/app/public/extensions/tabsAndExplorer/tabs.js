@@ -24,12 +24,12 @@ const isStudyListEnabled = window?.config?.showStudyList !== false;
  * The toolbar's tooltips are drawn at 50: anything that has to leave them readable
  * belongs below that number.
  */
-const PIANI = {
-  nascosto: -1,
-  contenuto: 1,
+const LAYERS = {
+  hidden: -1,
+  content: 1,
   tabBar: 10,
   patientTab: 11,
-  modale: 100,
+  modal: 100,
 };
 
 
@@ -125,7 +125,7 @@ function markIframeReady(iframe) {
   } else if (activeIframeId === iframe.id) {
     iframe.style.opacity = '1';
     iframe.style.pointerEvents = 'auto';
-    iframe.style.zIndex = String(PIANI.contenuto);
+    iframe.style.zIndex = String(LAYERS.content);
   }
 }
 
@@ -247,7 +247,7 @@ function buildPatientTabDescription() {
   return [patientName, accession].filter(Boolean).join(' — ') || 'Opening the study';
 }
 
-/** Scrive l etichetta, e dice se ormai dice qualcosa. */
+/** Writes the label, and says whether it says anything yet. */
 function updatePatientTabDescription() {
   const titleNode = document.querySelector('#explorer-tab-btn .patient-title');
   if (!titleNode) {
@@ -256,7 +256,7 @@ function updatePatientTabDescription() {
   // The label is always rewritten with the best there is; the return value says
   // whether anything is still worth waiting for.
   //
-  // Fermarsi al primo dato utile era troppo presto: nome e accession arrivano
+  // Stopping at the first usable field was too early: the name and the accession arrive
   // at different moments (the accession one React commit earlier), so the name alone
   // was enough to end the loop and the accession never appeared. It stops once it has
   // both of them, or when the time runs out.
@@ -412,14 +412,14 @@ if (window.self !== window.top) {
   // that the study is there, and the token and the AE title", which sends somebody
   // looking for a fault that is not there.
   const readyInterval = setInterval(() => {
-    const listaPronta =
+    const listReady =
       document.querySelector('[title="Accession"]') ||
       document.querySelector('[title="PatientID"]') ||
       document.querySelector('[data-cy="study-list-results"]');
-    const visualizzatorePronto =
+    const viewerReady =
       document.querySelector('.viewport-element') ||
       document.querySelector('[data-cy="viewport-grid"] canvas');
-    if (listaPronta || visualizzatorePronto) {
+    if (listReady || viewerReady) {
       clearInterval(readyInterval);
       window.parent.postMessage({ type: 'mdv-iframe-ready' }, '*');
     }
@@ -526,10 +526,10 @@ function preloadEmptyIframe() {
   iframe.style.height = '100%';
   iframe.style.border = 'none';
 
-  // NASCOSTO MA ATTIVO (NO display:none!)
+  // Out of sight but still running. Not display:none, which would stop it.
   iframe.style.opacity = '0';
   iframe.style.pointerEvents = 'none';
-  iframe.style.zIndex = String(PIANI.nascosto);
+  iframe.style.zIndex = String(LAYERS.hidden);
 
   document.body.appendChild(iframe);
 
@@ -564,9 +564,9 @@ function openRouteInModal(url) {
   // is the first one and does not come through this function. Reopening from the
   // list the study already on screen therefore gave a second tab for the same study,
   // indistinguishable from the first.
-  const studioDellaScheda = window.mdvStudyInstanceUIDs;
+  const tabStudy = window.mdvStudyInstanceUIDs;
   const patientTab = document.getElementById('explorer-tab-btn');
-  if (studyId && studioDellaScheda && studyId === studioDellaScheda && patientTab) {
+  if (studyId && tabStudy && studyId === tabStudy && patientTab) {
     patientTab.click();
     return;
   }
@@ -586,7 +586,7 @@ function openRouteInModal(url) {
   modal.style.height = '100vh';
   modal.style.background = 'rgba(0,0,0,0.65)';
   modal.style.backdropFilter = 'blur(4px)';
-  modal.style.zIndex = String(PIANI.modale);
+  modal.style.zIndex = String(LAYERS.modal);
   modal.style.display = 'flex';
   modal.style.alignItems = 'center';
   modal.style.justifyContent = 'center';
@@ -923,7 +923,7 @@ function injectTabs(target) {
 
   const layoutPanel = document.getElementById('viewerLayoutResizableViewportGridPanel');
 
-  // ============ TAB PAZIENTE (STATICO) ============
+  // ============ THE PATIENT TAB (STATIC) ============
 
   const patientTab = document.createElement('div');
   patientTab.id = 'explorer-tab-btn';
@@ -934,7 +934,7 @@ function injectTabs(target) {
     cursor:pointer;
     color:#bbb;
     font-size:12px;
-    display:none;   /* inizialmente nascosto */
+    display:none;   /* hidden to begin with */
   ">✕</span>
 `;
 
@@ -966,7 +966,7 @@ function injectTabs(target) {
   plusTab.style.fontWeight = 'bold';
   plusTab.style.borderRadius = '4px';
   plusTab.style.userSelect = 'none';
-  plusTab.style.zIndex = String(PIANI.tabBar);
+  plusTab.style.zIndex = String(LAYERS.tabBar);
   plusTab.style.whiteSpace = 'nowrap';
 
   plusTab.addEventListener('mouseenter', () => {
@@ -983,7 +983,7 @@ function injectTabs(target) {
     const emptyIframe = document.getElementById("mdv-dynamic-iframe-empty");
     if (!emptyIframe) return;
 
-    // Mostra l’iframe precaricato
+    // Show the frame that was loaded ahead of time
 
     if (window.top && window.top !== window) {
       window.top.postMessage({ type: 'mdv-hide-extension-banner' }, '*');
@@ -991,7 +991,7 @@ function injectTabs(target) {
       window.postMessage({ type: 'mdv-hide-extension-banner' }, '*');
     }
 
-    // Attiva una tab "vuota"
+    // Select an empty tab
     showIframeForTab("mdv-dynamic-iframe-empty");
   });
 
@@ -1005,7 +1005,7 @@ function injectTabs(target) {
     plusTab.style.pointerEvents = 'none';
   }
 
-  // INSERISCI container sopra il pannello
+  // Put the container above the panel
   // target.insertAdjacentElement('afterbegin', container);
   //document.body.insertAdjacentElement('beforebegin', container);
   document.querySelector(".mdv-main-area").insertAdjacentElement('beforebegin', container);
@@ -1072,7 +1072,7 @@ function injectTabs(target) {
       patientTab.style.opacity = '0';
       patientTab.style.display = 'none';
       patientTab.style.pointerEvents = 'none';
-      patientTab.style.zIndex = String(PIANI.nascosto);
+      patientTab.style.zIndex = String(LAYERS.hidden);
       patientTab.dataset.visible = "false";
 
       // With the main tab closed and only one frame tab left, hide the close button here
@@ -1089,7 +1089,7 @@ function injectTabs(target) {
 
 
 // ========================
-//  HOOK APERTURA PANNELLI
+//  Hooks for opening the panels
 // ========================
 
 window.addEventListener('panelOpen', function (event) {
@@ -1114,7 +1114,7 @@ function updatePatientCloseButton() {
   const closeBtn = document.getElementById("close-patient-tab");
   const patientTab = document.getElementById('explorer-tab-btn');
 
-  // Mostra/nasconde il pulsante per chiudere una tab iframe
+  // Shows and hides the button that closes a frame tab
   if (closeIframeBtn) {
     closeIframeBtn.style.display = count > 1 || patientTab.style.display !== 'none' ? "block" : "none";
   }
@@ -1169,7 +1169,7 @@ function hidePatientTab() {
   patientTab.style.opacity = '0';
   patientTab.style.display = 'none';
   patientTab.style.pointerEvents = 'none';
-  patientTab.style.zIndex = String(PIANI.nascosto);
+  patientTab.style.zIndex = String(LAYERS.hidden);
   patientTab.dataset.visible = "false";
 }
 
@@ -1194,7 +1194,7 @@ function closeAllTabsAndShowExplorer() {
 
 
 // =====================================================================
-//   CREA TAB + IFRAME DINAMICO (VERSIONE MIGLIORATA)
+//   Creates a tab and the frame that goes with it
 // =====================================================================
 
 window.openStudyInInternalTab = function (url, options = {}) {
@@ -1219,9 +1219,9 @@ window.openStudyInInternalTab = function (url, options = {}) {
   // is the first one and does not come through this function. Reopening from the
   // list the study already on screen therefore gave a second tab for the same study,
   // indistinguishable from the first.
-  const studioDellaScheda = window.mdvStudyInstanceUIDs;
+  const tabStudy = window.mdvStudyInstanceUIDs;
   const patientTab = document.getElementById('explorer-tab-btn');
-  if (studyId && studioDellaScheda && studyId === studioDellaScheda && patientTab) {
+  if (studyId && tabStudy && studyId === tabStudy && patientTab) {
     patientTab.click();
     return;
   }
@@ -1259,7 +1259,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   tab.style.cursor = 'pointer';
   tab.style.userSelect = 'none';
   tab.style.whiteSpace = 'nowrap';
-  tab.style.zIndex = String(PIANI.tabBar);
+  tab.style.zIndex = String(LAYERS.tabBar);
   tab.style.transition = 'background 0.2s';
   tab.style.border = '1px solid transparent';
 
@@ -1312,7 +1312,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   /* --- THE CLOSE CROSS --- */
   tab.appendChild(close);
 
-  // Inserisci la tab accanto al "+"
+  // Put the tab next to the "+"
   const plusTab = document.getElementById("plus-tab-btn");
   if (plusTab) {
     container.insertBefore(tab, plusTab);
@@ -1338,7 +1338,7 @@ window.openStudyInInternalTab = function (url, options = {}) {
   iframe.style.border = 'none';
   iframe.style.opacity = '0';
   iframe.style.pointerEvents = 'none';
-  iframe.style.zIndex = String(PIANI.contenuto);
+  iframe.style.zIndex = String(LAYERS.content);
 
   document.body.appendChild(iframe);
 
@@ -1421,14 +1421,14 @@ function showIframeForTab(iframeId) {
   // tab and there are two identical bars on top of each other, with the controls
   // landing on the one underneath, which is to say on the viewer nobody is looking
   // at.
-  const schedaEsterna =
+  const externalTab =
     resolvedIframeId !== 'none' && String(resolvedIframeId).startsWith('mdv-dynamic-iframe-');
-  document.body.classList.toggle('mdv-external-tab', schedaEsterna);
+  document.body.classList.toggle('mdv-external-tab', externalTab);
   // Hide every dynamic frame
   document.querySelectorAll('[id^="mdv-dynamic-iframe"]').forEach(ifr => {
     ifr.style.opacity = '0';
     ifr.style.pointerEvents = 'none';
-    ifr.style.zIndex = String(PIANI.nascosto);
+    ifr.style.zIndex = String(LAYERS.hidden);
   });
 
   // Reset grafico tab dinamiche
@@ -1441,7 +1441,7 @@ function showIframeForTab(iframeId) {
   setPatientTabActive(resolvedIframeId === 'none');
   setExplorerUiVisibility(resolvedIframeId === 'mdv-dynamic-iframe-empty');
 
-  // Tab patient → nessun iframe visibile
+  // The patient tab: no frame is shown
   if (resolvedIframeId === 'none') {
     updatePatientCloseButton();
     return;
@@ -1452,11 +1452,11 @@ function showIframeForTab(iframeId) {
     if (iframe.dataset.loaded === 'true') {
       iframe.style.opacity = '1';
       iframe.style.pointerEvents = 'auto';
-      iframe.style.zIndex = String(PIANI.contenuto);
+      iframe.style.zIndex = String(LAYERS.content);
     }
   }
 
-  // Evidenzia tab attiva
+  // Mark the selected tab
   const activeTab = [...document.querySelectorAll('.mdv-dynamic-tab')]
     .find(t => t.dataset.iframeId === resolvedIframeId);
 
@@ -1466,7 +1466,7 @@ function showIframeForTab(iframeId) {
     activeTab.style.border = "1px solid #38bdf8";
   }
 
-  // Nascondi la tab principale se un iframe è attivo
+  // Hide the main tab while a frame is showing
   const patientTab = document.getElementById('explorer-tab-btn');
 
   if (resolvedIframeId === 'none') {
@@ -1474,16 +1474,16 @@ function showIframeForTab(iframeId) {
     patientTab.style.opacity = '1';
     patientTab.style.display = 'block';
     patientTab.style.pointerEvents = 'auto';
-    patientTab.style.zIndex = String(PIANI.patientTab);
+    patientTab.style.zIndex = String(LAYERS.patientTab);
     patientTab.dataset.visible = "true";
   } else {
     // If the frame is NOT the + button's, hide the main tab
-    // Se sto mostrando un iframe REALE → nascondo la tab principale
+    // A real frame is showing, so the main tab goes away
     if (resolvedIframeId.startsWith("mdv-dynamic-iframe-") && resolvedIframeId !== "mdv-dynamic-iframe-empty") {
 
       // patientTab.style.opacity = '0';
       // patientTab.style.pointerEvents = 'none';
-      // patientTab.style.zIndex = String(PIANI.nascosto);
+      // patientTab.style.zIndex = String(LAYERS.hidden);
       // patientTab.dataset.visible = "false";
 
     }
@@ -1492,7 +1492,7 @@ function showIframeForTab(iframeId) {
 
       patientTab.style.opacity = '1';
       patientTab.style.pointerEvents = 'auto';
-      patientTab.style.zIndex = String(PIANI.patientTab);
+      patientTab.style.zIndex = String(LAYERS.patientTab);
       patientTab.dataset.visible = "true";
 
     }
@@ -1501,7 +1501,7 @@ function showIframeForTab(iframeId) {
 
       patientTab.style.opacity = '1';
       patientTab.style.pointerEvents = 'auto';
-      patientTab.style.zIndex = String(PIANI.patientTab);
+      patientTab.style.zIndex = String(LAYERS.patientTab);
       patientTab.dataset.visible = "true";
 
     }
@@ -1536,19 +1536,19 @@ function removeDynamicTab(tab) {
   const container = document.getElementById('mdv-tab-container');
   const allTabs = [...container.querySelectorAll('.mdv-dynamic-tab')];
 
-  // Nessuna altra tab → torna a iframe vuoto
+  // No other tab left: back to the empty frame
   if (allTabs.length === 0) {
     showIframeForTab('none');
     const patientTab = document.getElementById('explorer-tab-btn');
     patientTab.style.opacity = '1';
     patientTab.style.pointerEvents = 'auto';
-    patientTab.style.zIndex = String(PIANI.patientTab);
+    patientTab.style.zIndex = String(LAYERS.patientTab);
     patientTab.dataset.visible = "true";
     updatePatientCloseButton();
     return;
   }
 
-  // Attiva ultima tab
+  // Select the last tab
   const prev = allTabs[allTabs.length - 1];
   showIframeForTab(prev.dataset.iframeId);
   updatePatientCloseButton();

@@ -81,7 +81,7 @@ function MontageLayoutSelector({
       data-cy="MontageLayout"
       className="inline-flex items-center"
     >
-      {/* ICONA: attiva/disattiva con layout consigliato (auto) */}
+      {/* The icon turns it on and off, with the layout it suggests */}
       <Tooltip>
         <TooltipTrigger asChild>
           <span className={disabled ? 'cursor-not-allowed' : undefined}>

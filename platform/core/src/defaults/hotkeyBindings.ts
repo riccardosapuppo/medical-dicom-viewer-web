@@ -20,7 +20,7 @@ const bindings = [
     keys: ['w'],
     isEditable: true,
   },
-  // Strumenti di misura
+  // The measurement tools
   {
     commandName: 'setToolActiveToolbar',
     commandOptions: { toolName: 'Length' },
@@ -99,7 +99,7 @@ const bindings = [
     keys: ['n'],
     isEditable: true,
   },
-  // Strumenti di misura/annotazione aggiuntivi
+  // The further measurement and annotation tools
   {
     commandName: 'setToolActiveToolbar',
     commandOptions: { toolName: 'CobbAngle' },

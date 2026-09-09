@@ -3,7 +3,7 @@ import saveHP from '../saveHP';
 
 /*
 ======================================================
-= POPUP PER VISUALIZZARE LE IMMAGINI DEI PREFERITI
+= The popup that shows the marked images
 ======================================================
 */
 window.viewFavouritePopup = imgSrc => {
@@ -18,7 +18,7 @@ window.viewFavouritePopup = imgSrc => {
 
 /*
 ======================================================
-= FUNZIONE GLOBALE PER RIMUOVERE UN PREFERITO
+= The global function that unmarks an image
 ======================================================
 */
 window.removeFavourite = sopUID => {
@@ -28,7 +28,7 @@ window.removeFavourite = sopUID => {
   window.favourites = window.favourites.filter(p => p.SOPInstanceUID !== sopUID);
   window.dispatchEvent(new Event('mdv-favourites-updated'));
 
-  // Aggiorna pannello se aperto
+  // Refresh the panel if it is open
   const area = document.getElementById('favourites-list-area');
   if (area) {
     area.innerHTML = '';
@@ -58,7 +58,7 @@ window.removeFavourite = sopUID => {
 
 /*
 ======================================================
-= AGGANCIO DEL PULSANTE ALLA BARRA
+= Hooking the button onto the toolbar
 ======================================================
 */
 const favouritesInitInterval = () => {
@@ -89,7 +89,7 @@ const injectFavouritesBtn = () => {
 
 /*
 ======================================================
-= PANNELLO PREFERITI LATERALE
+= The favourites panel at the side
 ======================================================
 */
 const createFavourites = () => {
@@ -151,7 +151,7 @@ const createFavourites = () => {
     });
   }
 
-  // animazione apertura
+  // the opening animation
   setTimeout(() => {
     panel.style.left = window.iAmAPrior ? '60%' : '80%';
   }, 10);

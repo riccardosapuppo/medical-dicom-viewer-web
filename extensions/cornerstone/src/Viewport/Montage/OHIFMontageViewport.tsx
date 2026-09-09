@@ -15,7 +15,7 @@ import {
 } from '../../../../../platform/app/public/extensions/hangingProtocols/framing';
 
 /**
- * Viewport "Montage": suddivide UNA viewport OHIF in una subgrid interna di
+ * The montage viewport: it divides ONE viewport into an inner subgrid of
  * rows by columns of cells, all on the same series, sharing the pixel cache, the
  * tools and the synchronisation (window level, VOI, zoom, pan, invert, LUT). It
  * adds no viewports to the main grid. See docs/montage-viewport-design.md.
@@ -96,9 +96,9 @@ function OHIFMontageViewport(props: withAppTypes) {
   }, [displaySetUID]);
 
   // The series description badge, at grid level, with a modern tooltip only when the
-  // testo è troncato. Misuriamo la troncatura (scrollWidth > clientWidth) e ci
+  // text is truncated. The truncation is measured (scrollWidth > clientWidth) and
   // refreshed whenever the badge is resized (a change of layout, or of window). When it
-  // troncato il badge resta `pointer-events:none` (vedi CSS): nessun tooltip e
+  // is not truncated the badge stays `pointer-events:none` (see the CSS): no tooltip, and
   // nothing gets in the way of the work in the viewport.
   const seriesBadgeText = useMemo(
     () =>
@@ -265,8 +265,7 @@ function OHIFMontageViewport(props: withAppTypes) {
       // camera: applied to a provisional geometry it produces a camera that is wrong
       // (images shrunk to a dot), and the resize that follows, with keepCamera,
       // KEEPS it. So it is applied only once the container has a real size, the
-      // same one as the attempt.
-      // precedente.
+      // same one as the previous attempt.
       const el = containerRef.current;
       const size = el ? `${el.clientWidth}x${el.clientHeight}` : '';
       const stable = !!el && el.clientWidth > 8 && el.clientHeight > 8 && size === lastSize;
@@ -298,9 +297,9 @@ function OHIFMontageViewport(props: withAppTypes) {
           }
           if (mv) {
             // A sound reference: refit against the cell's CURRENT geometry before
-            // applying a relative zoom and pan. A cell created during a resize has a
-            // transizione di layout ha una camera iniziale di una dimensione
-            // provisional one, and a zoom relative to that means nothing.
+            // applying a relative zoom and pan. A cell created during a layout
+            // change starts with a camera for a provisional size, and a zoom
+            // relative to that means nothing.
             vp.resetCamera?.();
             vp.setViewPresentation(mv);
           }

@@ -765,13 +765,13 @@ function LinkedSeriesBadgeOverlayItem(props: OverlayItemProps) {
   const synchronizers = syncGroupService?.getSynchronizersForViewport?.(viewportId) || [];
   const groups = synchronizers
     .filter(sync => {
-      // Skip synchronizers the user has turned off via the "collega serie"
+      // Skip synchronizers the user has turned off via the "Link images"
       // toggle: the group may still hold viewports but is no longer active,
       // so the badge must disappear (and reappear when the toggle is re-enabled).
       if ((sync as any)?._enabled === false) {
         return false;
       }
-      // Only surface viewport-scroll links ("collega serie"). Other sync
+      // Only surface viewport-scroll links ("Link images"). Other sync
       // types (reference lines, camera position, VOI, zoom/pan) must not
       // trigger the badge because they don't actually scroll the series.
       if (syncGroupService?.isImageSliceSyncronizer?.(sync)) {

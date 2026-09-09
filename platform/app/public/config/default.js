@@ -63,21 +63,21 @@ const modality = new URLSearchParams(new URL(window.location.href).search).get('
   ['mdvAETitle', 'aetitle'],
   ['mdvUsername', 'User'],
   ['mdvToken', 'Token'],
-].forEach(([nome, parametro]) => {
-  let posato;
-  let posatoSu;
+].forEach(([name, parameter]) => {
+  let held;
+  let heldFor;
 
-  Object.defineProperty(window, nome, {
+  Object.defineProperty(window, name, {
     get() {
-      const daIndirizzo = new URLSearchParams(window.location.search).get(parametro);
-      if (daIndirizzo) {
-        return daIndirizzo;
+      const fromTheAddress = new URLSearchParams(window.location.search).get(parameter);
+      if (fromTheAddress) {
+        return fromTheAddress;
       }
-      return posatoSu === window.location.href ? posato : null;
+      return heldFor === window.location.href ? held : null;
     },
-    set(valore) {
-      posato = valore;
-      posatoSu = window.location.href;
+    set(value) {
+      held = value;
+      heldFor = window.location.href;
     },
     configurable: true,
   });
@@ -93,7 +93,7 @@ let origin = window.location.origin;
 // the switches are gone and not only their values: leaving them false would keep alive
 // code that nobody can turn on, and so nobody can test.
 window.portableVersion = false;
-window.showFrontendErrors = false //Something went wrong errore
+window.showFrontendErrors = false; // The "Something went wrong" screen
 
 // The demonstration archive, served by Orthanc and reached through the
 // development proxy: same origin, so no cross-origin headers to configure on
@@ -175,7 +175,7 @@ window.config = {
   allowMultiSelectExport: true,
   useExperimentalUI: true,
   autoImageSliceSync: true,
-  // Il parametro nell indirizzo lo forza; altrimenti decide la sonda qui sopra.
+  // The parameter in the address forces it; otherwise the probe above decides.
   useCPURendering: useCPURendering ? true : !graphicsContext,
   mdvExtensionBrowserUrl: 'https://chrome.google.com/webstore/detail/REPLACE_ME',
   showMissingBrowserExtensionNotice: false,

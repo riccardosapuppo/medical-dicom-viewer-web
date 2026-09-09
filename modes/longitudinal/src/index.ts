@@ -233,7 +233,7 @@ function modeFactory({ modeConfiguration }) {
         'MontageOff',
       ]);
 
-      //Versione normale o mobile
+      // Desktop or mobile
       if (!window.portableVersion) {
         //Priors
         if (document.body.classList.contains('priors-same-tab')) {
@@ -301,7 +301,7 @@ function modeFactory({ modeConfiguration }) {
             'MoreTools',
           ]);
         }
-        //Versione standard
+        // The standard build
         else {
           toolbarService.createButtonSection('primary', [
             'MeasurementTools',
@@ -341,7 +341,7 @@ function modeFactory({ modeConfiguration }) {
           ]);
         }
       } else {
-        //Versione portable
+        // The portable build
         toolbarService.createButtonSection('primary', [
           'MeasurementTools',
           'Pan',
@@ -360,7 +360,7 @@ function modeFactory({ modeConfiguration }) {
           'Cine',
           'Capture',
           'hideInfoDicom',
-          // 'ReferenceLines',  //Controllare linee riferimento per versione portable, eventuale modifica al modulo cornerstone
+          // 'ReferenceLines',  // The reference lines need checking for the portable build, and may want a change in the cornerstone module
           'Reset',
         ]);
       }

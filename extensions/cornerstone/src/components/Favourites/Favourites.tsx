@@ -1036,7 +1036,7 @@ export function Favourites({
         });
         setIsFavourite(true);
 
-        //Se ho la clipbooard favourites aperta, inserisco il favourite in tempo reale
+        // With the favourites panel open, the new one appears in it straight away
         if (document.getElementById('favourites-list-area')) {
           document.getElementById('favourites-list-area').insertAdjacentHTML(
             'afterbegin',

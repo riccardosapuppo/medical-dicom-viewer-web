@@ -242,7 +242,7 @@ const StudyBrowser = ({
         </div>
       )}
 
-      {/* Popover priors studi — solo in bottom mode con più studi */}
+      {/* The priors popover, only along the bottom and only with more than one study */}
       {isBottomDocked && priorsPickerOpen && isPriorsActive && priorsStudies.length > 1 && (
         <div
           ref={priorsPickerRef}
@@ -276,7 +276,7 @@ const StudyBrowser = ({
                 onClick={() => {
                   setBottomSelectedStudyUid(study.studyInstanceUid);
                   skipAutoExpandRef.current = true;
-                  // Espandi lo studio se non già espanso
+                  // Expand the study unless it already is
                   if (!(expandedStudyInstanceUIDs as string[]).includes(study.studyInstanceUid)) {
                     (onClickStudy as Function)(study.studyInstanceUid);
                   }

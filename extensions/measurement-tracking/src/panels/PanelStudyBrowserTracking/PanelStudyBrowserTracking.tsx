@@ -12,7 +12,7 @@ import { Separator } from '@ohif/ui-next';
 import { PanelStudyBrowserHeader, MoreDropdownMenu } from '@ohif/extension-default';
 import { defaultActionIcons, defaultViewPresets } from './constants';
 
-let primoAvvio = true
+let firstRun = true
 const cacheThumbnails = {}
 
 const { formatDate, createStudyBrowserTabs } = utils;
@@ -255,7 +255,7 @@ export default function PanelStudyBrowserTracking({
   // The last tab chosen by an actual click: it must not be abandoned while still empty.
   const userChosenTabRef = useRef(null);
   // The last study expanded in each tab: coming back to the tab reopens it.
-  const ultimoStudioPerTabRef = useRef({});
+  const lastStudyPerTab = useRef({});
 
   const [viewPresets, setViewPresets] = useState(
     customizationService.getCustomization('studyBrowser.viewPresets')
@@ -290,13 +290,13 @@ export default function PanelStudyBrowserTracking({
         selected: false,
       })
     }
-    primoAvvio = false; // Imposta `primoAvvio` a false per evitare chiamate successive
+    firstRun = false;
   };
 
   // At first start, check for a mobile device and, if it is one, show the series as a list
   useEffect(() => {
-    if (primoAvvio) {
-      handleOnMobile(); // Verifica se chiudere il pannello
+    if (firstRun) {
+      handleOnMobile(); // On a phone the panel starts closed
     }
   }, []);
 
@@ -760,27 +760,27 @@ export default function PanelStudyBrowserTracking({
 
     // Coming back to a tab reopens the last study expanded there, if it is still in the
     // list.
-    const memorizzato = ultimoStudioPerTabRef.current[activeTabName];
-    const memorizzatoAncoraPresente =
-      memorizzato && activeTab.studies.some(study => study.studyInstanceUid === memorizzato);
+    const remembered = lastStudyPerTab.current[activeTabName];
+    const rememberedStillThere =
+      remembered && activeTab.studies.some(study => study.studyInstanceUid === remembered);
 
     // With no memory, only "Current study" opens its first study by itself. In the
     // priors' tabs nothing expands until the reader chooses.
-    const daEspandere = memorizzatoAncoraPresente
-      ? memorizzato
+    const toExpand = rememberedStillThere
+      ? remembered
       : activeTabName === 'primary'
         ? activeTab.studies[0].studyInstanceUid
         : null;
 
-    if (!daEspandere) {
+    if (!toExpand) {
       return;
     }
 
     setExpandedStudyInstanceUIDs(prevState =>
-      prevState.length === 1 && prevState[0] === daEspandere ? prevState : [daEspandere]
+      prevState.length === 1 && prevState[0] === toExpand ? prevState : [toExpand]
     );
 
-    requestStudySeriesIfNeeded(daEspandere);
+    requestStudySeriesIfNeeded(toExpand);
   }, [tabs, activeTabName, expandedStudyInstanceUIDs, displaySets]);
 
   // TODO: Should not fire this on "close"
@@ -793,7 +793,7 @@ export default function PanelStudyBrowserTracking({
 
     // Remembered per tab, and cleared on close, so coming back leaves the tab as it was
     // rather than reopening something the reader had just shut.
-    ultimoStudioPerTabRef.current[activeTabName] = shouldCollapseStudy ? null : StudyInstanceUID;
+    lastStudyPerTab.current[activeTabName] = shouldCollapseStudy ? null : StudyInstanceUID;
 
     setExpandedStudyInstanceUIDs(updatedExpandedStudyInstanceUIDs);
 
@@ -848,38 +848,38 @@ export default function PanelStudyBrowserTracking({
   // The status badge at the top of the priors list. It is direct DOM manipulation, like
   // the rest of this panel, because it grafts into the scrollbar StudyBrowser renders.
   const drawPriorsBadge = () => {
-    const contenitore = document.querySelector('.ohif-scrollbar');
-    if (!contenitore) {
+    const container = document.querySelector('.ohif-scrollbar');
+    if (!container) {
       return;
     }
-    const esistente = document.getElementById('priors-state');
-    if (esistente) {
-      esistente.remove();
+    const existing = document.getElementById('priors-state');
+    if (existing) {
+      existing.remove();
     }
 
     if (activeTabName !== 'all') {
       return;
     }
 
-    let testo;
-    let classe = '';
+    let text;
+    let className = '';
 
-    // Badge durante la search, poi solo se la tab e' rimasta vuota (altrimenti la lista
-    // parla da se' e il badge sparisce).
+    // The badge shows while the search runs, and afterwards only if the tab came
+    // back empty: with studies in it the list speaks for itself.
     if (priorsState === 'loading') {
-      testo = 'Searching';
-      classe = 'loading';
+      text = 'Searching';
+      className = 'loading';
     } else {
-      const tabPriors = tabs.find(tab => tab.name === 'all');
-      if (tabPriors?.studies?.length) {
+      const priorsTab = tabs.find(tab => tab.name === 'all');
+      if (priorsTab?.studies?.length) {
         return;
       }
-      testo = 'No local prior studies';
+      text = 'No local prior studies';
     }
 
-    contenitore.insertAdjacentHTML(
+    container.insertAdjacentHTML(
       'afterbegin',
-      `<div class="${classe}" id="priors-state"><p>${testo}</p></div>`
+      `<div class="${className}" id="priors-state"><p>${text}</p></div>`
     );
   };
 

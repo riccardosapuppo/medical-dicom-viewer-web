@@ -18,11 +18,11 @@ declare global {
  *
  * So the message is decided by whoever hosts the page, and the default stays what it was.
  */
-const MESSAGGIO_PREDEFINITO = 'Session expired';
+const DEFAULT_MESSAGE = 'Session expired';
 
 /** The message goes inside HTML, so it does not go in as markup. */
-function testo(valore: string): string {
-  return valore
+function escaped(value: string): string {
+  return value
     .split('&').join('&amp;')
     .split('<').join('&lt;')
     .split('>').join('&gt;');
@@ -37,13 +37,13 @@ window.fetchErrors = error => {
   // is the study actually open. If the error is about a series from the priors, the
   // reader is only browsing, and stopping them would be wrong as well as misleading: a
   // prior study that does not arrive is not an expired session.
-  const studyUIDDallErrore = message.match(/studies\/([0-9.]+)/);
-  if (studyUIDDallErrore) {
-    const studiPrimari = `${window.mdvStudyInstanceUIDs || ''}`
+  const studyInTheError = message.match(/studies\/([0-9.]+)/);
+  if (studyInTheError) {
+    const studyOnScreen = `${window.mdvStudyInstanceUIDs || ''}`
       .split(',')
       .map(uid => uid.trim())
       .filter(Boolean);
-    if (studiPrimari.length && !studiPrimari.includes(studyUIDDallErrore[1])) {
+    if (studyOnScreen.length && !studyOnScreen.includes(studyInTheError[1])) {
       return;
     }
   }
@@ -52,7 +52,7 @@ window.fetchErrors = error => {
     message.includes("Couldn't retrieve") &&
     message.includes('frames/')
   ) {
-    const message = testo(window.config?.fetchErrorMessage || MESSAGGIO_PREDEFINITO);
+    const message = escaped(window.config?.fetchErrorMessage || DEFAULT_MESSAGE);
 
     document.body.insertAdjacentHTML(
       'beforeend',

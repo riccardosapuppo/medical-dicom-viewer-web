@@ -298,7 +298,9 @@ const loadHangingProtocol = async () => {
   registerMdvHPAttributes(window.servicesManager?.services?.hangingProtocolService);
   let url = window.location.href;
   const urlParams = new URLSearchParams(new URL(url).search);
-  // partizione (postazione) ≡ aetitle: le config viaggiano per (partizione, utente).
+  // The parameter and the aetitle are the same thing under two names, and a saved
+// arrangement belongs to the pair of that and the user. The first name is the one
+// an older host page sends, and it is still read.
   const aetitle = window.mdvAETitle || urlParams.get('partizione') || urlParams.get('aetitle');
   const username = urlParams.get('User') || window.mdvUsername;
   // The local cache is per partition and user. Without the user, a shared workstation
@@ -373,7 +375,7 @@ const loadHangingProtocol = async () => {
 
   // Are the study's metadata already there? Then a description or modality still empty
   // is a FINAL value, a study with no name, and not "still loading".
-  const metadataDisponibili = () => {
+  const metadataAvailable = () => {
     const displaySetService = window.servicesManager?.services?.displaySetService;
     if (!displaySetService || !studyInstanceUID) {
       return false;
@@ -398,7 +400,7 @@ const loadHangingProtocol = async () => {
         return;
       }
       // Everything that can be resolved is resolved: do not sit out the full five seconds on an unnamed study.
-      if (metadataDisponibili()) {
+      if (metadataAvailable()) {
         return;
       }
       await wait(stepMs);

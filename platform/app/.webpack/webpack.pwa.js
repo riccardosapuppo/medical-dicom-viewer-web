@@ -67,7 +67,7 @@ class WriteVersionPlugin {
         finalVersion = String(version_number).trim();
       }
 
-      // La versione si scrive com e. Qui "beta" veniva riscritto in "prod".
+      // The version is written as it is. This used to rewrite "beta" as "prod".
       fs.writeFileSync(versionFilePath, `Version: ${finalVersion}`, 'utf8');
       console.log('Version (dist/version.txt):', finalVersion);
     });

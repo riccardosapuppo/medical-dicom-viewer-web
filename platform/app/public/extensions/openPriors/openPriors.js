@@ -50,6 +50,8 @@ function parsePriorsLink(linkValue) {
     const params = parsedUrl.searchParams;
     return {
       studyInstanceUID: getParamCaseInsensitive(params, 'StudyInstanceUIDs', 'StudyInstanceUID'),
+      // The second name is the one an older host page sends, and it is still
+      // accepted: this address is built by whatever page embeds the viewer.
       aetitle: getParamCaseInsensitive(params, 'aetitle', 'partizione'),
       token: getParamCaseInsensitive(params, 'Token', 'token'),
       user: getParamCaseInsensitive(params, 'User', 'user'),
@@ -225,7 +227,7 @@ function alignPriorsToMainStudy() {
   try {
     priorsDocument = iframe.contentDocument;
   } catch (_) {
-    return false; //iframe non ancora accessibile
+    return false; // The frame is not reachable yet
   }
   const priorsArea = priorsDocument?.querySelector('.mdv-main-area');
   if (!priorsArea) {
@@ -411,10 +413,11 @@ const saveSeriesToClickAgain = () => {
 };
 
 const fixlayoutViewportsMPR = () => {
-  //Disattivo e riattivo mpr salvando la serie attualmente attiva
+  // Turn reformatting off and on again, keeping the series that is open
   saveSeriesToClickAgain();
   document.querySelector('[data-cy="LayoutMPR"]').click(); //Disattivo MPR
-  document.body.classList.add('loading-spinner-into-grid'); //Non mostro il cambio vista griglia ma metto uno spinner
+  // A spinner rather than the grid rearranging itself in front of the reader.
+  document.body.classList.add('loading-spinner-into-grid');
 
   setTimeout(() => {
     document.querySelector('[data-cy="LayoutMPR"]').click(); //Riattivo MPR
@@ -433,7 +436,7 @@ function split2Studies(urlToOpen) {
   clearPriorsLoadingState({ removePreloader: true });
   stopPriorsAlignment();
   if (document.getElementById('priors-iframe')) {
-    document.getElementById('priors-iframe').remove(); //Sovrascrivo sempre
+    document.getElementById('priors-iframe').remove(); // Always replaced, never reused
   }
   // With MPR on, turn it off and back on once the screen is already split: resizing
   // the window throws it out at random, while enabling it on an already split screen does not
@@ -444,7 +447,7 @@ function split2Studies(urlToOpen) {
   document.body.classList.remove('second-mpr-active');
   const mainArea = document.querySelector('.mdv-main-area');
   mainArea.style.width = '50%';
-  mainArea.style.float = 'left'; // Imposta il float per affiancarlo
+  mainArea.style.float = 'left'; // Floated, so the prior sits beside it
 
   // Make a new frame
   const iframe = document.createElement('iframe');
@@ -455,12 +458,12 @@ function split2Studies(urlToOpen) {
   iframe.dataset.loaded = 'false';
 
   // Style the frame
-  iframe.style.width = '50%'; // Imposta l'iframe al 50% della width
-  iframe.style.height = '100vh'; // Altezza a tutta la vista
-  iframe.style.border = 'none'; // Rimuove il bordo
-  iframe.style.float = 'left'; // Imposta anche qui il float
-  iframe.style.position = 'relative'; // Imposta anche qui il float
-  iframe.style.zIndex = '19'; // Imposta anche qui il float
+  iframe.style.width = '50%'; // Half the width, for the study and its prior
+  iframe.style.height = '100vh'; // The full height of the view
+  iframe.style.border = 'none';
+  iframe.style.float = 'left';
+  iframe.style.position = 'relative';
+  iframe.style.zIndex = '19';
 
   //Creo un preloader
   const preloader = createPreloader();
@@ -737,9 +740,9 @@ function listenerEvent(event) {
     }
     // 3D MPR fix: going from a split screen to full screen with a 3D view active cut it
     // off. Apply the MPR preset first, then put the previous 3D preset back
-    const listaPreset3D = ['fourUp', 'main3D', 'only3D', 'primary3D'];
+    const preset3DNames = ['fourUp', 'main3D', 'only3D', 'primary3D'];
 
-    listaPreset3D.forEach(preset3D => {
+    preset3DNames.forEach(preset3D => {
       if (document.body.classList.contains(preset3D)) {
         saveSeriesToClickAgain();
         fix3DOnClosedIframe();

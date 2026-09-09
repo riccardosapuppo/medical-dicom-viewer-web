@@ -105,7 +105,7 @@ function initDoubleClick({ customizationService, commandsManager }: initDoubleCl
         cancelActiveManipulations(element);
       }
     } catch (_) {
-      /* nessuna manipolazione attiva */
+      /* nothing is being manipulated */
     }
 
     commandsManager.run(toRun);

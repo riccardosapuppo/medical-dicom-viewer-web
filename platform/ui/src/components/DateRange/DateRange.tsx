@@ -136,11 +136,11 @@ const DateRange = props => {
 
   const parsedStartDate = startDate
     ? moment(startDate, 'YYYYMMDD')
-    : moment(); // default = oggi
+    : moment(); // defaults to today
 
   const parsedEndDate = startDate
     ? moment(startDate, 'YYYYMMDD')
-    : moment(); // default = oggi
+    : moment(); // defaults to today
 
 
 

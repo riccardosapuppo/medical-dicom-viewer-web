@@ -13,39 +13,39 @@ import { hasTourBeenShown, markTourAsShown, defaultShowHandler, middleware } fro
  * It also hands back a way to stop waiting: somebody who changes page while the study is
  * still loading should not find the guided tour starting on top of the new one.
  */
-function attendiElemento(selettore: string, attesaMassimaMs: number) {
-  let ferma = () => {};
+function waitForElement(selector: string, timeoutMs: number) {
+  let stop = () => {};
 
-  const promessa = new Promise<boolean>(risolvi => {
-    if (document.querySelector(selettore)) {
-      risolvi(true);
+  const promise = new Promise<boolean>(resolve => {
+    if (document.querySelector(selector)) {
+      resolve(true);
       return;
     }
 
-    const intervallo = 100;
-    let trascorso = 0;
+    const every = 100;
+    let elapsed = 0;
 
-    const controllo = setInterval(() => {
-      if (document.querySelector(selettore)) {
-        clearInterval(controllo);
-        risolvi(true);
+    const timer = setInterval(() => {
+      if (document.querySelector(selector)) {
+        clearInterval(timer);
+        resolve(true);
         return;
       }
 
-      trascorso += intervallo;
-      if (trascorso >= attesaMassimaMs) {
-        clearInterval(controllo);
-        risolvi(false);
+      elapsed += every;
+      if (elapsed >= timeoutMs) {
+        clearInterval(timer);
+        resolve(false);
       }
-    }, intervallo);
+    }, every);
 
-    ferma = () => {
-      clearInterval(controllo);
-      risolvi(false);
+    stop = () => {
+      clearInterval(timer);
+      resolve(false);
     };
   });
 
-  return { promessa, ferma: () => ferma() };
+  return { promise, stop: () => stop() };
 }
 
 const Onboarding = ({
@@ -88,15 +88,15 @@ const Onboarding = ({
       return;
     }
 
-    let annullato = false;
-    const attesa = matchingTour.waitFor
-      ? attendiElemento(matchingTour.waitFor, matchingTour.waitForTimeout ?? 60000)
-      : { promessa: Promise.resolve(true), ferma: () => {} };
+    let cancelled = false;
+    const waiting = matchingTour.waitFor
+      ? waitForElement(matchingTour.waitFor, matchingTour.waitForTimeout ?? 60000)
+      : { promise: Promise.resolve(true), stop: () => {} };
 
-    attesa.promessa.then(pronto => {
+    waiting.promise.then(ready => {
       // No target, no tour: better not shown than shown hanging off nothing. It is still
       // marked as seen, so it does not try again on every study.
-      if (annullato || !pronto) {
+      if (cancelled || !ready) {
         markTourAsShown(matchingTour.id);
         return;
       }
@@ -122,8 +122,8 @@ const Onboarding = ({
     });
 
     return () => {
-      annullato = true;
-      attesa.ferma();
+      cancelled = true;
+      waiting.stop();
     };
   }, [Shepherd, tours, location.pathname]);
 

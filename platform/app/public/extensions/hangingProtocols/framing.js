@@ -100,8 +100,8 @@ const imageBBox = vp => {
 };
 
 const axisCapture = (lo, extent, cell) => {
-  const gStart = lo; // spazio (o sbordo, se negativo) sul bordo iniziale
-  const gEnd = cell - lo - extent; // idem sul bordo finale
+  const gStart = lo; // the gap at the near edge, or the overhang if negative
+  const gEnd = cell - lo - extent; // the same at the far edge
   const inside = gStart >= -EDGE_EPS && gEnd >= -EDGE_EPS;
   const covers = gStart <= EDGE_EPS && gEnd <= EDGE_EPS;
   const free = cell - extent;
@@ -142,7 +142,7 @@ export const captureFraming = vp => {
   }
 };
 
-// Bordo sinistro/alto voluto per un asse, date le dimensioni ATTUALI.
+// Where the near edge should sit on one axis, at the sizes it has now.
 const axisTarget = (axis, extent, cell) => {
   if (axis.mode === 'edge') {
     // Keeps the overflow, relative to the image, on the side it runs over.
@@ -288,7 +288,7 @@ export const applyFraming = (vp, framing) => {
     const rTarget = fill[axis];
     const rNow = axis === 0 ? bb.w / cw : bb.h / ch;
     if (rNow > 0 && Math.abs(rTarget / rNow - 1) > 1e-3) {
-      const scale = rTarget / rNow; // fattore sulla dimensione a schermo
+      const scale = rTarget / rNow; // a factor on the size as drawn
       const cam = vp.getCamera();
       withCameraEventsSuppressed(vp, () =>
         vp.setCamera({ parallelScale: cam.parallelScale / scale })

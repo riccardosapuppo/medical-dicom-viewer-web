@@ -127,7 +127,7 @@ function Local({ modePath }: LocalProps) {
 
       const files = await Promise.all(promises);
       onDrop(files); // Esegui una volta completato
-      setPercentComplete(100); // Imposta la percentuale finale al 100%
+      setPercentComplete(100);
     } catch (error) {
       console.error('Fetch error:', error);
     }

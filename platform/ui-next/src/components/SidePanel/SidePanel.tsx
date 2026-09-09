@@ -64,7 +64,7 @@ type StyleMap = {
 const closeIconWidth = 30;
 const gridHorizontalPadding = 10;
 const tabSpacerWidth = 2;
-let primoAvvio = true;
+let firstRun = true;
 const STUDY_BROWSER_PANEL_POSITION_STORAGE_KEY = 'mdvStudyPanelPosition';
 const STUDY_BROWSER_BOTTOM_HEIGHT_PX = 107;
 
@@ -637,12 +637,12 @@ const SidePanel = ({
 
   const handleOnMobile = () => {
     if (isBottomDocked) {
-      primoAvvio = false;
+      firstRun = false;
       return;
     }
 
     if (window.matchMedia('(max-width: 768px)').matches) {
-      updatePanelOpen(!panelOpen); // Chiude il pannello
+      updatePanelOpen(!panelOpen);
       isExpanded = false;
 
       const mainArea = document.querySelector('.mdv-main-area');
@@ -651,14 +651,14 @@ const SidePanel = ({
       mainArea.style.height = bottomHeaderBarY - 2 + 'px';
       mainArea.style.top = '2px';
     }
-    primoAvvio = false; // Imposta `primoAvvio` a false per evitare chiamate successive
+    firstRun = false;
   };
 
   // At first start, check for a mobile device and, if it is one, close the panel by
   // default and fit the height of the whole area above the bottom header bar
   useEffect(() => {
-    if (primoAvvio) {
-      handleOnMobile(); // Verifica se chiudere il pannello
+    if (firstRun) {
+      handleOnMobile(); // On a phone the panel starts closed
     }
   }, []);
 
