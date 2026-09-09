@@ -87,21 +87,21 @@ yarn check:controls        # presses every control this fork adds, one at a time
 ```
 
 `yarn`, not `npm`: this page says below that installing with npm produces a
-tree that does not build, and then named its own checks as `npm run` -- as did
+tree that does not build, and then named its own checks as `npm run` — as did
 two of the scripts themselves, in the line each prints when it finishes. Both
 reach the same scripts, but a README that contradicts itself is one somebody
 follows in the wrong half.
 
 None of the three starts anything. They attach to what **Running it** below
-leaves running -- the archive up, the studies loaded into it, and the viewer
-serving on port 3000 -- and they drive the browser already on the machine:
+leaves running — the archive up, the studies loaded into it, and the viewer
+serving on port 3000 — and they drive the browser already on the machine:
 Edge, then Chrome, then a Chromium in Playwright's download cache if there is
 one. `--channel <name>` names a different one. Each check prints which it got,
 because a check whose output does not name what it drove is one whose green
 nobody else can reproduce.
 
 They drive it through `playwright-core`, which arrives with `@playwright/test`
-in `yarn install` and deliberately ships no browsers of its own -- that is what
+in `yarn install` and deliberately ships no browsers of its own — that is what
 the `-core` means, and why it costs two megabytes instead of four hundred. This
 page used to ask for a hundred and fifty megabyte Chromium on top of it, because
 the checks looked only in that download cache and, finding nothing, failed on a
@@ -126,9 +126,9 @@ somewhere other than `http://localhost:3000`.
 They also refuse to run against a source that has moved under them. Each control
 carries the string its selector rests on, and that string is looked for in the
 source before a browser is started. This was not a precaution: three of the six
-controls were being pressed by names that had been renamed away -- `Sottogriglia`
+controls were being pressed by names that had been renamed away — `Sottogriglia`
 for `Subgrid`, `gestioneHP` for `hangingProtocols`, `preferiti.png` for
-`favourites.png` -- and so was the button that closes the guided tour, in all
+`favourites.png` — and so was the button that closes the guided tour, in all
 three checks, which meant every one of them had been measuring the page through
 the tour's veil. None of it showed as a broken check. It showed as dead buttons
 and a covered page, which is what a broken application looks like from here, and
@@ -226,7 +226,7 @@ yarn demo
 That is all of it: install, start the archive, fetch the studies, load them into
 the archive, serve the viewer on http://localhost:3000. Each of the five steps
 is skipped if it is already done, and what it asks is about the world rather
-than a marker file -- is something answering on the archive's port, are the
+than a marker file — is something answering on the archive's port, are the
 images on disk, does the archive hold them. So running it again after deleting
 any one piece repairs that piece, running it twice costs a few HTTP requests,
 and it never takes anything down.
