@@ -39,7 +39,7 @@ function promptHydrateRT({
 
 function _askHydrate(uiViewportDialogService: AppTypes.UIViewportDialogService, viewportId) {
   return new Promise(function (resolve, reject) {
-    const message = 'Vuoi aprire questa segmentazione?';
+    const message = 'Open this segmentation?';
     const actions = [
       {
         id: 'no-hydrate',

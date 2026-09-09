@@ -114,7 +114,7 @@ const createEditorFunc = () => {
   window.handleNotaClick = e => {
     if (
       confirm(
-        "Il caricamento della nota sovrascriverà l'eventuale contenuto scritto finora. Procedere?"
+        "Loading the note will overwrite anything written so far. Go ahead?"
       ) == true
     ) {
       quill.setContents(nota);

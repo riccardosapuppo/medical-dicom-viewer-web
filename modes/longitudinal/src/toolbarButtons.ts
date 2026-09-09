@@ -747,7 +747,7 @@ const toolbarButtons: Button[] = [
       evaluate: {
         name: 'evaluate.cornerstone.segmentation',
         toolNames: ['CircularBrush', 'SphereBrush'],
-        disabledText: 'Crea una nuova segmentazione per abilitare questo strumento.',
+        disabledText: 'Create a segmentation to enable this tool.',
       },
       options: [
         {

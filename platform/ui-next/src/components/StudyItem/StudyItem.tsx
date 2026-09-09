@@ -260,7 +260,7 @@ const StudyItem = ({
           <div className="open-priors-modes">
             <Tooltip
               position="bottom"
-              content="Espandi e mostra anteprime"
+              content="Expand and show the thumbnails"
               isDisabled={isExpanded ? true : false}
             >
               <button

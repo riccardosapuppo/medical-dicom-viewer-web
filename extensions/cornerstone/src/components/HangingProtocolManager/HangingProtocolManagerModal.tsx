@@ -33,8 +33,8 @@ type CaptureOptions = {
 };
 
 const TOGGLES: Array<{ key: keyof CaptureOptions; label: string; hint: string }> = [
-  { key: 'series', label: 'Series', hint: 'Aggancia ogni viewport alla sua serie' },
-  { key: 'instance', label: 'Istanza specifica', hint: "L'immagine/slice visualizzata" },
+  { key: 'series', label: 'Series', hint: 'Pin each viewport to its own series' },
+  { key: 'instance', label: 'Istanza specifica', hint: "The image or slice on screen" },
   { key: 'windowLevel', label: 'Window Level', hint: 'Luminosità/contrasto (WW/WC)' },
   { key: 'zoomPan', label: 'Zoom / Pan', hint: 'Framing corrente' },
   { key: 'colorLut', label: 'Color LUT', hint: 'Mappa colore (colormap)' },

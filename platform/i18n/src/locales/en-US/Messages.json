@@ -2,7 +2,7 @@
   "Display Set Messages": "Messaggi del Display Set",
   "1": "No valid instances were found in the series.",
   "2": "Il display set ha informazioni di posizione mancanti.",
-  "3": "Il display set non è un volume 3D ricostruibile.",
+  "3": "The display set is not a reconstructable 3D volume.",
   "4": "I display set multi-frame non hanno informazioni sulle measurements dei pixel.",
   "5": "I display set multi-frame non hanno informazioni sull'orientamento.",
   "6": "I display set multi-frame non hanno informazioni sulla posizione.",

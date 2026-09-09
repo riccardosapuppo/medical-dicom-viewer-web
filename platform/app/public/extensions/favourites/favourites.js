@@ -24,7 +24,7 @@ window.viewFavouritePopup = imgSrc => {
 window.removeFavourite = sopUID => {
   if (!window.favourites) return;
 
-  // Rimuovi dalla lista globale
+  // Remove dalla lista globale
   window.favourites = window.favourites.filter(p => p.SOPInstanceUID !== sopUID);
   window.dispatchEvent(new Event('mdv-favourites-updated'));
 
@@ -47,7 +47,7 @@ window.removeFavourite = sopUID => {
           <button onclick="window.removeFavourite('${p.SOPInstanceUID}')"
                   style="margin-top:6px;padding:0px 10px;background:#b91c1c;
                          color:white;border:none;border-radius:4px;cursor:pointer;">
-             Rimuovi favourite
+             Remove favourite
           </button>
         </div>
         `
@@ -143,7 +143,7 @@ const createFavourites = () => {
                          background:#b91c1c;color:white;
                          border:none;border-radius:4px;
                          cursor:pointer;">
-             Rimuovi favourite
+             Remove favourite
           </button>
         </div>
         `

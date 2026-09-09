@@ -95,7 +95,7 @@ const bindings = [
   {
     commandName: 'setToolActiveToolbar',
     commandOptions: { toolName: 'WindowLevelRegion' },
-    label: 'Window Level su regione',
+    label: 'Window level over a region',
     keys: ['n'],
     isEditable: true,
   },

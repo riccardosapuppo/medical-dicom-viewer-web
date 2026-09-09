@@ -67,7 +67,7 @@ function startIframeReadyTimeout(iframeId, studyTitle = 'Studio') {
   const timeoutId = setTimeout(() => {
     markIframeFailed(
       iframeId,
-      `Impossibile completare il caricamento di "${studyTitle}". Verifica disponibilita studio/token/aetitle.`
+      `"${studyTitle}" could not finish loading. Check that the study is there, and the token and the AE title.`
     );
   }, IFRAME_READY_TIMEOUT_MS);
   iframeLoadTimeoutById.set(iframeId, timeoutId);
@@ -1579,7 +1579,7 @@ window.addEventListener("message", (event) => {
       document.head.appendChild(style);
       console.log("CSS ricevuto e applicato dall'iframe");
     } catch (err) {
-      console.error("Errore iniezione CSS nell'iframe", err);
+      console.error("Could not inject the CSS into the frame", err);
     }
   }
   if (event.data?.type === 'mdv-iframe-ready') {

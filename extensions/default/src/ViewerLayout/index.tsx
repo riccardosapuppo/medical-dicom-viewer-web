@@ -31,14 +31,14 @@ function MdvExtensionBrowser({ appConfig, onVisibilityChange }) {
         return;
       }
 
-      if (event.data?.type === 'fromExtension' && event.data?.data?.versione) {
+      if (event.data?.type === 'fromExtension' && event.data?.data?.version) {
         extensionDetected = true;
         setVisible(false);
       }
     };
 
     window.addEventListener('message', handleMessage);
-    window.postMessage({ type: 'fromPage', data: 'Info versione' }, '*');
+    window.postMessage({ type: 'fromPage', data: 'version-info' }, '*');
 
     const timeoutId = setTimeout(() => {
       if (!extensionDetected) {

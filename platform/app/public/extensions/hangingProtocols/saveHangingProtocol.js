@@ -417,7 +417,7 @@ const ensurePreferenzePayload = preferenzePayload => {
 };
 
 const logHangingProtocolSave = (tipo, entry) => {
-  console.log('[HP] Salvataggio', {
+  console.log('[HP] Saving', {
     tipo,
     aetitle,
     username,
@@ -561,7 +561,7 @@ const resolveSeriesLabel = (rule, fallbackIndex) => {
 
 const buildSavedConfigHtml = (tipo, entry) => {
   if (!entry) {
-    return `<div style="color:#bbb;">Nessuna configurazione salvata applicabile.</div>`;
+    return `<div style="color:#bbb;">No saved configuration applies here.</div>`;
   }
 
   const { rows, columns } = parseLayout(entry);

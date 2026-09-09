@@ -234,7 +234,7 @@ function Local({ modePath }: LocalProps) {
               </div>
               <div className="flex justify-around pt-4">
                 {getLoadButton(onDrop, 'Carica file', false)}
-                {getLoadButton(onDrop, "Carica l'intera cartella", true)}
+                {getLoadButton(onDrop, "Load the whole folder", true)}
               </div>
             </div>
           </div>

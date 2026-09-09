@@ -263,7 +263,7 @@ const ViewportDownloadForm = ({
     <div>
       <Typography variant="h6">
         {t(
-          "Specifica le dimensioni, il nome del file e il tipo desiderato per l'immagine di output."
+          "Set the size, the file name and the type for the image you want out."
         )}
       </Typography>
 

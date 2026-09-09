@@ -140,7 +140,7 @@ function ViewerViewportGrid(props: withAppTypes) {
         uiNotificationService.show({
           title: 'Drag and Drop',
           message:
-            "Il display set selezionato non può essere aggiunto alla viewport a causa di un'incongruenza con le regole dell'Hanging Protocol.",
+            "The selected display set cannot be added to the viewport: it does not match the hanging protocol rules.",
           type: 'info',
           duration: 3000,
         });

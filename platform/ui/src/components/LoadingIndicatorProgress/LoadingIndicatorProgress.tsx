@@ -10,8 +10,8 @@ const LOADING_STEPS: Array<{ threshold: number; label: string }> = [
   { threshold: 0, label: 'Inizializzazione viewer...' },
   { threshold: 15, label: 'Connessione al server DICOM...' },
   { threshold: 35, label: 'Download metadati studio...' },
-  { threshold: 55, label: 'Elaborazione serie e immagini...' },
-  { threshold: 75, label: 'Preparazione layout e strumenti...' },
+  { threshold: 55, label: 'Working through the series and images...' },
+  { threshold: 75, label: 'Preparing the layout and the tools...' },
   { threshold: 92, label: 'Quasi pronto...' },
 ];
 

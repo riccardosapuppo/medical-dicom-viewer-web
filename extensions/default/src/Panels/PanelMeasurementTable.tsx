@@ -276,7 +276,7 @@ function _mapMeasurementToDisplay(measurement, index, types) {
   } = measurement;
 
   const firstSite = findingSites?.[0];
-  const label = baseLabel || finding?.text || firstSite?.text || '(nessuna)';
+  const label = baseLabel || finding?.text || firstSite?.text || '(none)';
   let displayText = baseDisplayText || [];
   if (findingSites) {
     const siteText = [];

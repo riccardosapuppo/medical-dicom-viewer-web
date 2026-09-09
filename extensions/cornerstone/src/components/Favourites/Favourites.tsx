@@ -953,7 +953,7 @@ export function Favourites({
             <img onclick="window.viewFavouritePopup('${favourite.DataUrl}')" src=${favourite.DataUrl} />
             <p>Series ${favourite.NumeroSerie} - ${favourite.SeriesDescription}</p>
             <p>N¶ø istanza: ${favourite.NumeroIstanza}</p>
-            <button class="remove-favourite-btn" onclick="window.removeFavourite('${favourite.SOPInstanceUID}')">Rimuovi</button>
+            <button class="remove-favourite-btn" onclick="window.removeFavourite('${favourite.SOPInstanceUID}')">Remove</button>
             </div>
             `
             );
@@ -991,7 +991,7 @@ export function Favourites({
       //       <img onclick="window.viewFavouritePopup('${imgData}')" src=${imgData} />
       //       <p>Series ${NumeroSerie} - ${SeriesDescription}</p>
       //       <p>N¶ø istanza: ${NumeroIstanza}</p>
-      //       <button class="remove-favourite-btn" onclick="window.removeFavourite('${SOPInstanceUID}')">Rimuovi</button>
+      //       <button class="remove-favourite-btn" onclick="window.removeFavourite('${SOPInstanceUID}')">Remove</button>
       //       </div>
       //       `
       //       );
@@ -1081,7 +1081,7 @@ export function Favourites({
         <img onclick="window.viewFavouritePopup('${imgData}')" src=${imgData} />
         <p>Series ${NumeroSerie} - ${SeriesDescription}</p>
         <p>N¶ø istanza: ${NumeroIstanza}</p>
-        <button class="remove-favourite-btn" onclick="window.removeFavourite('${SOPInstanceUID}')">Rimuovi</button>
+        <button class="remove-favourite-btn" onclick="window.removeFavourite('${SOPInstanceUID}')">Remove</button>
         </div>
       `
           );
@@ -1131,7 +1131,7 @@ export function Favourites({
     >
       <div className="mr-2 w-[28px]"></div>
       {/* <button onClick={onSetFavourite}>
-        {!isAlreadyFavourite ? 'Add to favourites' : 'Rimuovi'}
+        {!isAlreadyFavourite ? 'Add to favourites' : 'Remove'}
       </button> */}
       <SwitchButton
         label={!isFavourite ? 'Add to favourites' : 'Remove from favourites'}

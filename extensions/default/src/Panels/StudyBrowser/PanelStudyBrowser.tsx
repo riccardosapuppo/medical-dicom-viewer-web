@@ -80,7 +80,7 @@ function PanelStudyBrowser({
     } catch (error) {
       console.warn(error);
       uiNotificationService.show({
-        title: 'Selezione serie',
+        title: 'Series picker',
         message: 'The selected display set cannot be added to the viewport.',
         type: 'info',
         duration: 3000,

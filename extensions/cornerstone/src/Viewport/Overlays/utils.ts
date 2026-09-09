@@ -1,5 +1,4 @@
 import moment from 'moment';
-import 'moment/locale/it';
 import { metaData } from '@cornerstonejs/core';
 
 /**
@@ -33,7 +32,10 @@ export function formatNumberPrecision(number, precision = 0) {
  * @returns {string} formatted date.
  */
 export function formatDICOMDate(date, strFormat = 'D MMM, YYYY') {
-  moment.locale('it');
+  // No moment.locale() call here. It used to set the Italian locale, and
+  // moment.locale() is global: one formatter reached every date in the
+  // application, including the study list drawn by a different function.
+  // The month name burned into the picture is what gave it away.
   return moment(date, 'YYYYMMDD').format(strFormat);
 }
 

@@ -593,8 +593,8 @@ window.config = {
       steps: [
         {
           id: 'scroll',
-          title: 'Scorrere le Immagini',
-          text: 'Puoi scorrere le immagini utilizzando la rotellina del mouse o la barra di scorrimento',
+          title: 'Scrolling the images',
+          text: 'Scroll the images with the mouse wheel or the scrollbar.',
           attachTo: {
             element: '.viewport-element',
             on: 'top',
@@ -607,8 +607,8 @@ window.config = {
         },
         {
           id: 'zoom',
-          title: 'Zoomare In e Out',
-          text: 'Puoi zoomare sulle immagini utilizzando il clic destro del mouse.',
+          title: 'Zooming in and out',
+          text: 'Zoom with the right mouse button.',
           attachTo: {
             element: '.viewport-element',
             on: 'left',
@@ -621,8 +621,8 @@ window.config = {
         },
         {
           id: 'pan',
-          title: "Spostare l'Immagine",
-          text: 'Puoi spostare le immagini utilizzando il clic centrale del mouse.',
+          title: "Panning the image",
+          text: 'Pan with the middle mouse button.',
           attachTo: {
             element: '.viewport-element',
             on: 'top',
@@ -734,8 +734,8 @@ window.config = {
         },
         {
           id: 'selectMPRSeries',
-          title: 'Selezionare una serie ricostruibile per appicare il Layout MPR',
-          text: 'Selezionare una serie ricostruibile per appicare il Layout MPR',
+          title: 'Select a series that can be reconstructed to apply the MPR layout',
+          text: 'Select a series that can be reconstructed to apply the MPR layout',
           attachTo: {
             element: '.mpr-thumbnail',
             on: 'left-start',
@@ -748,7 +748,7 @@ window.config = {
         },
         {
           id: 'selectLayout',
-          title: 'Selezionare il Layout MPR',
+          title: 'Select the MPR layout',
           text: 'Choose the MPR layout to read the images on three planes.',
           attachTo: {
             element: '[data-cy="LayoutMPR"]',

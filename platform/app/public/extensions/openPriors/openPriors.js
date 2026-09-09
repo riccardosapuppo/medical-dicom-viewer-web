@@ -481,7 +481,7 @@ function split2Studies(urlToOpen) {
         iframeDocument.body.classList.add('priors-same-tab');
       }
     } catch (err) {
-      console.warn('Impossibile applicare classe priors-same-tab su iframe:', err);
+      console.warn('Could not put the priors-same-tab class on the frame:', err);
     }
   };
   //A questo punto avvio un listener per ascoltare eventuali messages dall'iframe listener
@@ -547,7 +547,7 @@ const PRIORS_TOOLBAR_ITEM_BY_MESSAGE = {
   'rotateViewport-90': 'rotate-right',
   'rotateViewport--90': 'rotate-left',
   mprDirectClick: 'LayoutMPR',
-  'attiva-mpr': 'LayoutMPR',
+  'enable-mpr': 'LayoutMPR',
 };
 
 //Preset avanzati 3D/MPR: il selettore layout li segna anche come classe sul body.

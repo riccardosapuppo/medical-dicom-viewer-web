@@ -108,8 +108,8 @@ function MontageLayoutSelector({
         <TooltipContent side="bottom">
           <div>
             {isActive
-              ? 'Subgrid attiva (clic per disattivare)'
-              : 'Subgrid: layout consigliato in base al numero di immagini (clic per attivare)'}
+              ? 'Subgrid on, click to turn it off'
+              : 'Subgrid: the layout follows the number of images, click to turn it on'}
           </div>
           {disabled && disabledText && <div className="text-muted-foreground">{disabledText}</div>}
         </TooltipContent>

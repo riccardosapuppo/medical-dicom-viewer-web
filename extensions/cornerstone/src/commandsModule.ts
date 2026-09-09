@@ -1475,7 +1475,7 @@ function commandsModule({
       if (uiModalService) {
         uiModalService.show({
           content: CornerstoneViewportDownloadForm,
-          title: "Scarica l'immagine ad alta qualità",
+          title: "Download the image at full quality",
           contentProps: {
             activeViewportId,
             cornerstoneViewportService,
@@ -1705,8 +1705,8 @@ function commandsModule({
             const areValid = _areSelectorsValid(hp, displaySets, hangingProtocolService);
             if (!areValid) {
               uiNotificationService.show({
-                title: 'Attivazione MPR',
-                message: "L'MPR non è disponibile per la serie selezionata",
+                title: 'Switching to MPR',
+                message: "MPR is not available for the selected series",
                 type: 'warning',
               });
               return;
@@ -2239,7 +2239,7 @@ function commandsModule({
         return;
       }
       document.body.classList.add('secondo-mpr-attivo');
-      _postToPriors('attiva-mpr');
+      _postToPriors('enable-mpr');
     },
     ptctDirectClick: () => {
       // Helper: restore a specific viewport grid state snapshot (captured
@@ -2334,7 +2334,7 @@ function commandsModule({
         if (!modalities.has('PT') || !modalities.has('CT')) {
           uiNotif.show({
             title: 'PET/CT is not available',
-            message: 'Lo studio deve contenere serie PT e CT per attivare questa vista.',
+            message: 'The study must hold both PT and CT series to enable this view.',
             type: 'warning',
             duration: 4000,
           });

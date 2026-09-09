@@ -3,7 +3,7 @@ import { HYDRATE_SEG_SYNC_GROUP, VOI_SYNC_GROUP } from './mpr';
 export const fourUp = {
   id: 'fourUp',
   locked: true,
-  name: 'Volume 3D a destra',
+  name: '3D volume on the right',
   icon: 'layout-advanced-3d-four-up',
   isPreset: true,
   createdDate: '2023-03-15T10:29:44.894Z',
