@@ -100,7 +100,34 @@ const ITALIAN_WORDS = [
   'senza', 'sempre', 'ogni', 'dove', 'deve', 'devono', 'gia', 'cioe', 'anche',
   'ancora', 'mentre', 'quando', 'fino', 'cosi', 'tutto', 'tutti', 'tutte',
   'attendere', 'connessione', 'inizializzazione', 'quasi',
+  // Added after a reading pass found forty-four pieces this list had let
+  // through. Every one is either too short for an ending rule to say anything
+  // about, or shares its ending with English.
+  'oggi', 'ieri', 'domani', 'tasto', 'tasti', 'esporta', 'rinomina', 'cattura',
+  'pulisci', 'coronale', 'assiale', 'sagittale', 'istanze', 'indietro', 'azzera',
+  'spazio', 'invio', 'canc', 'maiusc', 'inizio', 'premi', 'giorni', 'ultimi',
+  'ultima', 'ultimo', 'dimensione', 'spessore', 'clicca', 'cambia', 'installa',
+  'trascina', 'dettaglio', 'raggiungibile', 'anteprima', 'gestione', 'contrasto',
+  'mappa', 'colore', 'intervallo', 'rapido', 'rapida', 'settimana', 'mese',
+  'anno', 'adesso', 'riprova', 'storto', 'andato', 'qualcosa', 'funzione',
+  'estensione', 'griglia', 'assiale', 'sovrascrivere', 'applicherà', 'varrà',
+  'eliminarle', 'applicabile', 'applicabili', 'esistente', 'informativa',
+  'chiusura', 'espandi', 'cancella',
 ];
+
+/**
+ * A list has a ceiling, and this is where it is.
+ *
+ * "Si", "Oggi", "Tasto", "di", "Esporta", "Rinomina": every one of those was on
+ * screen in Italian while this file reported the interface clean, and no rule
+ * about endings could have said otherwise, because they are either two letters
+ * long or end the way English does. They were found by reading, once, through
+ * every piece of text the parser can reach.
+ *
+ * So this check is a floor that holds what has already been found, not a proof
+ * that nothing is left. The proof is a reading pass, and it has to be redone
+ * whenever a lot of new interface text arrives.
+ */
 
 /**
  * Endings no English word has, or has only in words this project never uses.
@@ -248,6 +275,37 @@ function flatFiles() {
   return execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
     .split('\n')
     .filter(file => /\.(html|css)$/.test(file) && !/\.min\.css$/.test(file));
+}
+
+/**
+ * The values in the English locale, which is the one a reader gets.
+ *
+ * The locale folders were excluded from this check on the reasoning that a
+ * translation is supposed to be in another language. That is true of ten of the
+ * eleven folders and false of the one that matters: en-US is DEFAULT_LANGUAGE,
+ * so its values are what appears on screen. Twelve of the thirteen messages
+ * about a display set were still Italian, and so were the date picker, half the
+ * study list and four buttons, none of it visible to a check that skipped the
+ * whole directory because most of it is meant to be foreign.
+ *
+ * Keys are not read. A key is a lookup token, and several of them here are
+ * numbers.
+ */
+function englishLocaleValues() {
+  const folder = path.join(root, 'platform/i18n/src/locales/en-US');
+  if (!fs.existsSync(folder)) {
+    return [];
+  }
+  const found = [];
+  for (const name of fs.readdirSync(folder).filter(one => one.endsWith('.json'))) {
+    const parsed = JSON.parse(fs.readFileSync(path.join(folder, name), 'utf8'));
+    for (const [key, value] of Object.entries(parsed)) {
+      if (typeof value === 'string') {
+        found.push({ file: `platform/i18n/src/locales/en-US/${name}`, key, value });
+      }
+    }
+  }
+  return found;
 }
 
 /** Every piece of text a reader could meet, with where it came from. */
@@ -413,6 +471,20 @@ for (const file of flatFiles()) {
       });
     }
   });
+}
+
+for (const entry of englishLocaleValues()) {
+  const word = notEnglish(entry.value);
+  if (word) {
+    hits.push({
+      file: entry.file,
+      line: 0,
+      kind: `en-US ${entry.key}`,
+      text: entry.value,
+      certain: true,
+      word,
+    });
+  }
 }
 
 const certain = hits.filter(one => one.certain);

@@ -1493,7 +1493,7 @@ input[type='range']::-webkit-slider-thumb {
       cursor: pointer; /* A pointer, to say it can be clicked */
       option {
         background-color: #fff; /* the default background colour */
-        color: #333; /* Colore del testo */
+        color: #333; /* the text colour */
       }
 
       /* An attempt at styling the hover state, though support for it is thin */

@@ -89,7 +89,7 @@ export function WindowLevel({
     <>
       <div className="all-in-one-menu-item flex w-full justify-center">
         <SwitchButton
-          label="Anteprima live"
+          label="Live preview"
           checked={showPreview}
           onChange={checked => {
             setShowPreview(checked);

@@ -1,16 +1,16 @@
 {
-  "Display Set Messages": "Messaggi del Display Set",
+  "Display Set Messages": "Display set messages",
   "1": "No valid instances were found in the series.",
-  "2": "Il display set ha informazioni di posizione mancanti.",
+  "2": "The display set is missing position information.",
   "3": "The display set is not a reconstructable 3D volume.",
-  "4": "I display set multi-frame non hanno informazioni sulle measurements dei pixel.",
-  "5": "I display set multi-frame non hanno informazioni sull'orientamento.",
-  "6": "I display set multi-frame non hanno informazioni sulla posizione.",
-  "7": "Il display set ha frame mancanti.",
-  "8": "Il display set ha una spaziatura irregolare.",
-  "9": "Il display set ha dimensioni incoerenti tra i frame.",
-  "10": "Il display set ha frame con un numero di componenti incoerente.",
-  "11": "Il display set ha frame con orientamenti incoerenti.",
-  "12": "Il display set ha informazioni di posizione incoerenti.",
-  "13": "Display set non supportato."
+  "4": "Multi-frame display sets carry no pixel measurement information.",
+  "5": "Multi-frame display sets carry no orientation information.",
+  "6": "Multi-frame display sets carry no position information.",
+  "7": "The display set has frames missing.",
+  "8": "The display set is irregularly spaced.",
+  "9": "The display set has frames of inconsistent size.",
+  "10": "The display set has frames with an inconsistent number of components.",
+  "11": "The display set has frames of inconsistent orientation.",
+  "12": "The display set has inconsistent position information.",
+  "13": "This display set is not supported."
 }

@@ -3,28 +3,32 @@ import { Label } from '../Label';
 import { Input } from '../Input';
 import { cn } from '../../lib/utils';
 
-// Etichette in italiano per i tasti speciali nel pannello scorciatoie. Brevi,
-// perché l'input è stretto: per le frecce uso i simboli ↑↓←→.
+// Short names for the keys that are not a letter or a digit, kept short because
+// the input is narrow; the arrows are drawn as symbols.
+//
+// This is the third copy of this list in the repository, and the three used to
+// disagree: "PgSu" here, "Page up" in platform/ui, "PgUp" in the toolbar, for
+// one key. They say the same thing now.
 const HOTKEY_KEY_LABELS: Record<string, string> = {
-  space: 'Spazio',
-  spacebar: 'Spazio',
+  space: 'Space',
+  spacebar: 'Space',
   esc: 'Esc',
   escape: 'Esc',
-  enter: 'Invio',
-  return: 'Invio',
+  enter: 'Enter',
+  return: 'Enter',
   tab: 'Tab',
   backspace: '⌫',
-  del: 'Canc',
-  delete: 'Canc',
+  del: 'Del',
+  delete: 'Del',
   up: '↑',
   down: '↓',
   left: '←',
   right: '→',
-  pageup: 'PgSu',
-  pagedown: 'PgGiù',
-  home: 'Inizio',
-  end: 'Fine',
-  shift: 'Maiusc',
+  pageup: 'PgUp',
+  pagedown: 'PgDn',
+  home: 'Home',
+  end: 'End',
+  shift: 'Shift',
   ctrl: 'Ctrl',
   control: 'Ctrl',
   alt: 'Alt',
@@ -167,7 +171,7 @@ function Hotkey({ label, placeholder, className, value, onChange, hotkeys }: Hot
           'w-16 shrink-0 text-center transition-colors',
           isRecording && 'bg-accent text-accent-foreground caret-accent-foreground'
         )}
-        placeholder={isRecording ? 'Premi i tasti...' : formatHotkeyValue(placeholder)}
+        placeholder={isRecording ? 'Press the keys...' : formatHotkeyValue(placeholder)}
         value={formatHotkeyValue(value)}
         onKeyDown={onInputKeyDown}
         onFocus={onFocus}

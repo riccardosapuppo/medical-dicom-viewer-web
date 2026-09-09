@@ -681,7 +681,7 @@ function activateCommandOnIframe(command) {
       return;
     }
 
-    console.warn('Priors: comando non gestito ->', command);
+    console.warn('Priors: command not handled ->', command);
   } catch (err) {
     console.error('Could not pass the command to the frame: ', err);
   }
