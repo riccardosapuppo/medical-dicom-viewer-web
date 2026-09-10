@@ -109,6 +109,10 @@ module.exports = (env, argv) => {
   const cacheBuster = isProdBuild ? version_number : formattedDateTime;
 
   const mergedConfig = merge(baseConfig, {
+    // This file decides rules the base one knows nothing about, so it belongs in the
+    // list that invalidates the cache: editing it must not leave a build made under
+    // the previous version in place. webpack-merge appends, it does not replace.
+    cache: { buildDependencies: { config: [__filename] } },
     entry: {
       app: ENTRY_TARGET,
       favouritesBtn: path.join(__dirname, '../public/extensions/favourites/favourites.js'),

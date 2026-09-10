@@ -225,10 +225,15 @@ background went from 29% to 0%.
   Imaging Archive. The figure was 350 MB until the mammograms were added and
   nobody re-measured; it is the folder `du -sh data` reports.
 - **1.3 GB of `node_modules`** on top of that, once, after `yarn install` on a
-  Lerna monorepo with Cornerstone and two patched packages in it. Measured with
-  `du -sh node_modules`, which is worth naming: a recursive size taken
-  through the Windows API reported **1 MB** for the same folder, because it gives
-  up on long paths and says so to nobody.
+  Lerna monorepo with Cornerstone in it. Measured with `du -sh node_modules`,
+  which is worth naming: a recursive size taken through the Windows API
+  reported **1 MB** for the same folder, because it gives up on long paths and
+  says so to nobody. The line above used to say "and two patched packages":
+  `patch-package` is wired in, and there are no patches.
+- **A build cache**, under `platform/app/node_modules/`: about 660 MB once the
+  viewer has been compiled for development, and 1.6 GB more if a production
+  build is ever run. Both live inside a `node_modules`, so deleting that folder
+  takes them with it.
 
 Nothing else. No database of your own, no DICOM toolkit, no account anywhere.
 
@@ -272,6 +277,25 @@ project:
 None of that is caching, and none of it helped the second run either. It is
 gone; production builds are unchanged, and still target ES5 and still ship the
 service worker, because there the browser is somebody else's.
+
+The second start is a different question, and there caching is precisely the
+answer. It writes to disc now, so closing the server no longer throws the build
+away: the starts after the first take about **40%** of the time the first one
+took, measured on two different days and two different machine loads, which
+agreed on the ratio and not on the seconds.
+
+That cache used to be in memory only, and deliberately -- a cache that writes
+nothing can never serve anything stale. What settled it was measuring the
+setting that did the protecting, `snapshot.managedPaths: []`, which tells
+webpack to check all of `node_modules` like ordinary source: with it in place
+webpack stores no cache at all, and the first compilation is twenty seconds
+slower as well. It was never a trade between safety and speed. There was no
+cache to trade.
+
+What replaced it is narrower and aimed at the real case. Dependencies here are
+modified through `patch-package`, and every file in `patches/` is now a build
+dependency: change one and the cache is thrown away. For editing `node_modules`
+by hand, with no patch file, `yarn dev:no:cache` was already there.
 
 `yarn start` did not use to do that, which is the part worth admitting: it was
 an alias for `yarn dev`, so the shortest-looking command in the file was the one

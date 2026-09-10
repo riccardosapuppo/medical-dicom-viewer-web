@@ -41,6 +41,18 @@ const readOptional = name => {
 
 const VERSION_NUMBER = readOptional('version.txt');
 
+/** The patch files, if there are any: a fresh clone with no patches has no folder. */
+const patchFiles = () => {
+  try {
+    return fs
+      .readdirSync(path.join(__dirname, '..', 'patches'))
+      .filter(name => name.endsWith('.patch'))
+      .map(name => path.join(__dirname, '..', 'patches', name));
+  } catch {
+    return [];
+  }
+};
+
 /**
  * The revision this build was made from.
  *
@@ -125,18 +137,41 @@ module.exports = (env, argv, { SRC_DIR, ENTRY }) => {
       children: false,
       warnings: true,
     },
-    // In development the cache is in memory ONLY: it lives in the dev server's process,
-    // writes nothing to disc and disappears when it closes, so it cannot leave stale
-    // artefacts between one run and the next. What it is for is reusing work WITHIN one
-    // session: without it, every save recompiles everything from scratch.
+    // The cache is on disc in development too.
+    //
+    // It used to be memory-only there, and deliberately: a cache that writes nothing
+    // can never serve anything stale. But the memory cache dies with the process, so
+    // that safety was bought at the price of every start -- close the server and the
+    // whole build is thrown away, 1601 sources compiled again from nothing, to guard
+    // against a staleness webpack detects by itself.
+    //
+    // It detects it on three axes: the timestamp and the hash of every file it read,
+    // the version of every package, and -- through buildDependencies -- the
+    // configuration itself, so editing these files discards the cache rather than
+    // reusing a build made under different rules. Each config that builds on this one
+    // adds its own file to that list.
+    //
+    // What it does not do is help the first run, which has nothing to reuse.
     // (There used to be two duplicate `cache` keys here, the second cancelling the first.)
-    cache: isProdBuild ? { type: 'filesystem' } : { type: 'memory' },
-    // ...and node_modules is NOT to be treated as immutable. By default webpack calls it
-    // a "managed path" and validates the cache against the package's VERSION, so changes
-    // made by hand inside node_modules (a patch to @cornerstonejs, say) stayed invisible
-    // for as long as the cache lived. With managedPaths empty those files are checked
-    // like any other source, and a patch shows up at once.
-    ...(isProdBuild ? {} : { snapshot: { managedPaths: [], immutablePaths: [] } }),
+    cache: {
+      type: 'filesystem',
+      // Every patch file is a build dependency, and this replaces something blunter.
+      //
+      // node_modules is validated by the package's VERSION, so a change made inside it
+      // without a version bump is invisible to the cache -- and a patch is exactly that.
+      // The previous answer was `snapshot: { managedPaths: [] }`, which told webpack to
+      // check all of node_modules like ordinary source. It works, and it costs the
+      // cache: measured on this project, with it webpack stores nothing at all, so
+      // every start recompiles everything. Twenty seconds slower cold, and no warm
+      // start ever.
+      //
+      // Patches here are applied by patch-package, from `patches/` -- postinstall and
+      // predev both run it, the latter with --error-on-fail. Naming those files means
+      // changing one throws the cache away, which is the case the blunt setting was
+      // really protecting. For editing node_modules by hand, without a patch file,
+      // there is `yarn dev:no:cache`.
+      buildDependencies: { config: [__filename, ...patchFiles()] },
+    },
     module: {
       noParse: [/(dicomicc)/],
       rules: [
