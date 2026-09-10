@@ -309,14 +309,30 @@ await run('yarn dev', {
   // warnings. The port is then asked once to confirm it, rather than asked
   // over and over while the build is still running.
   readyOn: /webpack .*compiled/,
+  // ANSWERING ONCE IS NOT THE SAME AS SERVING.
+  //
+  // On the first announcement the viewer answered, the browser opened, and the
+  // browser waited: the server had already started a second compilation, and it
+  // holds every request until a build ends. That second build is watchpack, which
+  // on Windows reports directories as changed on its first cycle -- different
+  // directories on different runs, so there is nothing here to fix, only something
+  // to wait out.
+  //
+  // Three answers in a row, spaced out. A build that starts in the middle takes the
+  // streak with it, because the requests stop coming back.
   ready: async () => {
-    for (let attempt = 0; attempt < 10; attempt++) {
+    const wanted = 3;
+    let inARow = 0;
+
+    for (let attempt = 0; attempt < 90; attempt++) {
       const page = await get(`${VIEWER}/`);
-      if (page && isTheViewer(page)) {
+      inARow = page && isTheViewer(page) ? inARow + 1 : 0;
+
+      if (inARow === wanted) {
         openIt(VIEWER);
         return `  Serving on ${VIEWER}`;
       }
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
     return null;
   },

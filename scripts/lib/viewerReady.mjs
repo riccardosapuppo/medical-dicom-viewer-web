@@ -16,6 +16,7 @@
  */
 import http from 'node:http';
 import https from 'node:https';
+import net from 'node:net';
 
 // Named, not indexed. Each message lists the steps still missing, and adding
 // `yarn start` to the front of this list silently changed which steps every
@@ -69,6 +70,28 @@ export function get(url) {
 }
 
 /**
+ * Is anything holding that port, whether or not it is answering yet?
+ *
+ * @param {string} url - Where the viewer is expected.
+ * @returns {Promise<boolean>}
+ */
+function portIsOpen(url) {
+  const target = new URL(url);
+  const port = Number(target.port || (target.protocol === 'https:' ? 443 : 80));
+
+  return new Promise(resolve => {
+    const socket = net.connect({ host: target.hostname, port });
+    const answer = open => {
+      socket.destroy();
+      resolve(open);
+    };
+    socket.setTimeout(3000, () => answer(false));
+    socket.on('connect', () => answer(true));
+    socket.on('error', () => answer(false));
+  });
+}
+
+/**
  * Returns once the viewer answers and the archive behind it holds studies, and
  * otherwise leaves without launching a browser.
  *
@@ -76,7 +99,32 @@ export function get(url) {
  */
 export async function requireViewer(viewerUrl) {
   if (!(await get(`${viewerUrl}/`))) {
-    stop(`Nothing is answering on ${viewerUrl}. This check does not start the viewer.`, START);
+    // A request that times out and a port with nothing behind it come back the same
+    // way from `get`, and they are not the same thing at all. The development server
+    // holds every request while it recompiles, and it recompiles once on its own
+    // shortly after starting -- so a check run right after `yarn start` met a silent
+    // socket and announced that nothing was answering. It was answering. It was busy.
+    //
+    // So: ask the port itself. Closed means what the message below says. Open means
+    // wait, because a build ends.
+    if (!(await portIsOpen(viewerUrl))) {
+      stop(`Nothing is answering on ${viewerUrl}. This check does not start the viewer.`, START);
+    }
+
+    process.stderr.write(`  ${viewerUrl} is busy building. Waiting.
+`);
+    const deadline = Date.now() + 5 * 60 * 1000;
+    let page;
+    while (!(page = await get(`${viewerUrl}/`))) {
+      if (Date.now() > deadline) {
+        stop(
+          `${viewerUrl} has been building for five minutes without answering. ` +
+            'Look at the window running it.',
+          [SERVE]
+        );
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
   }
 
   // The development server answers an address it does not know with the
