@@ -35,7 +35,11 @@ import { since, watching } from './lib/pulse.mjs';
 import { get } from './lib/viewerReady.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const VIEWER = process.env.VIEWER_URL ?? 'http://localhost:3000';
+/* One variable, not two. `OHIF_PORT` is what the webpack dev server reads, so
+   deriving the address from it means there is no way to move the server and
+   leave this looking at where it used to be. VIEWER_URL still wins, for a
+   viewer served from somewhere else entirely. */
+const VIEWER = process.env.VIEWER_URL ?? `http://localhost:${process.env.OHIF_PORT ?? 3000}`;
 const ORTHANC = process.env.ORTHANC_URL ?? 'http://localhost:8042';
 
 /** How many images the manifest says a complete download is. */
@@ -161,6 +165,59 @@ function imagesOnDisk(directory) {
   return found;
 }
 
+/**
+ * Whether what answered is this viewer, and not merely something.
+ *
+ * Port 3000 is the port every development server wants, and another project in
+ * this portfolio publishes its API on it. Asked only whether anything answered,
+ * this said the viewer was already up, printed its address and stopped - and
+ * that address opened somebody else's booking API.
+ *
+ * The page is asked for two things it has and a JSON reply does not: the
+ * element the application mounts into, and the configuration file the page
+ * loads before its entry points.
+ */
+function isTheViewer(answered) {
+  const page = String(answered?.body ?? '');
+  return page.includes('id="root"') && page.includes('app-config.js');
+}
+
+/** The first line of whatever did answer, so the reader can see whose it is. */
+function firstLine(answered) {
+  return String(answered?.body ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 120);
+}
+
+/**
+ * Opens it, the way every other project here does.
+ *
+ * Detached and unwatched: the browser outlives this process, and a machine with
+ * no browser to open must not take the demonstration down with it.
+ */
+function openIt(url) {
+  const [command, args] =
+    process.platform === 'win32'
+      ? ['cmd', ['/c', 'start', '', url]]
+      : process.platform === 'darwin'
+        ? ['open', [url]]
+        : ['xdg-open', [url]];
+
+  if (process.argv.includes('--no-open')) {
+    console.log(`  Open ${url}`);
+    return;
+  }
+
+  try {
+    spawn(command, args, { detached: true, stdio: 'ignore' }).unref();
+    console.log(`  Opening ${url}`);
+  } catch {
+    console.log(`  No browser could be opened here. ${url} is waiting.`);
+  }
+}
+
+
 async function asJson(url) {
   const answered = await get(url);
   try {
@@ -212,13 +269,30 @@ if (Array.isArray(instances) && instances.length >= expected) {
 }
 
 heading('The viewer');
-if (await get(`${VIEWER}/`)) {
+const answering = await get(`${VIEWER}/`);
+
+if (answering && isTheViewer(answering)) {
   // Starting a second one would either fail on the port or quietly move to
   // another, and then every check pointed at 3000 would be driving the old one.
-  console.log(`  something is already serving on ${VIEWER}; leaving it alone`);
+  console.log(`  already serving on ${VIEWER}; leaving it alone`);
   console.log('');
-  console.log(`  Open ${VIEWER}`);
+  openIt(VIEWER);
   process.exit(0);
+}
+
+if (answering) {
+  // Something answers and it is not this. Port 3000 is the one every
+  // development server wants, and the demonstration of another project in this
+  // portfolio holds it: asked only whether anything answered, this said the
+  // viewer was already up, printed an address, and stopped - and what that
+  // address opened was somebody else's API.
+  console.log(`  Something else is on ${VIEWER}. It is not the viewer.`);
+  console.log('');
+  console.log(`  ${firstLine(answering)}`);
+  console.log('');
+  console.log('  Free that port, or move the viewer to another one:');
+  console.log('    OHIF_PORT=3100 yarn start');
+  process.exit(1);
 }
 
 console.log(`  Ctrl+C stops it.`);
@@ -230,7 +304,9 @@ await run('yarn dev', {
   readyOn: /webpack .*compiled/,
   ready: async () => {
     for (let attempt = 0; attempt < 10; attempt++) {
-      if (await get(`${VIEWER}/`)) {
+      const page = await get(`${VIEWER}/`);
+      if (page && isTheViewer(page)) {
+        openIt(VIEWER);
         return `  Serving on ${VIEWER}`;
       }
       await new Promise(resolve => setTimeout(resolve, 1000));
