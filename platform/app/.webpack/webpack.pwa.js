@@ -184,11 +184,11 @@ module.exports = (env, argv) => {
             // opened it, and that page is not part of this repository. The source is the
             // only version of the truth: what is written there is what runs.
           },
-          {
-            from: path.join(__dirname, '../build-tools/web.config'),
-            to: path.join(DIST_DIR, 'web.config'),
-            noErrorOnMissing: true,
-          },
+          // There used to be a `build-tools/web.config` copied here: the settings file
+          // an IIS site needs, for a deployment that is not part of this repository.
+          // The folder does not exist, and `noErrorOnMissing` meant nobody noticed --
+          // except webpack, which watches the paths it was told about and did not find,
+          // in case they appear later.
           // Copy Dicom Microscopy Viewer build files
           {
             from: '../../../node_modules/dicom-microscopy-viewer/dist/dynamic-import',
@@ -313,8 +313,23 @@ module.exports = (env, argv) => {
     );
   }
 
+  // WHAT IS WATCHED, AND WHAT IS WATCHED BUT IS NOT THERE.
+  //
+  // The pattern is matched against real file names, and on Windows those are written
+  // with a backslash: with only a forward slash it matched nothing, ever, and read as
+  // though it were doing something.
+  //
+  // The second half is not a folder at all. `@ohif/ui` is a workspace package, hoisted
+  // to the root node_modules, so resolving it under platform/app fails -- and webpack
+  // watches what it was told about and did not find, in case it turns up. On the
+  // watcher's first cycle those absences are reported as removals, and that alone
+  // bought a second full compilation right after the first.
+  //
+  // One expression and not two: `ignored` takes a single regular expression, or globs
+  // as strings. An array of regular expressions fails validation and webpack refuses
+  // to start, which is at least a way of finding out.
   mergedConfig.watchOptions = {
-    ignored: /node_modules\/@cornerstonejs/,
+    ignored: /(node_modules[\\/]@cornerstonejs|platform[\\/]app[\\/]node_modules[\\/]@ohif)/,
   };
 
   return mergedConfig;
