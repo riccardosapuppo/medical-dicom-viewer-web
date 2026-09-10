@@ -252,6 +252,27 @@ images on disk, does the archive hold them. So running it again after deleting
 any one piece repairs that piece, running it twice costs a few HTTP requests,
 and it never takes anything down.
 
+The viewer is compiled from source, and the first compilation is the long part.
+It takes about a minute and a half on the machine this was written on, and it
+took a little over two -- measured by running the two configurations alternately
+on the same machine, several times each, because a single before-and-after on a
+laptop measures the laptop. The minute that went was not the price of a large
+project:
+
+- every one of the 1601 source files went through babel **twice**, because two
+  rules matched the same files and webpack applies all the rules that match;
+- babel had no target declared, so in development it rewrote every file down to
+  ES5 -- for a browser you are not using, since the one that matters here is the
+  one you have open;
+- and every compilation built a service worker, which meant reading and
+  fingerprinting 240 files totalling 116 MB, for a worker that
+  `init-service-worker.js` then refuses to register because you are on
+  localhost.
+
+None of that is caching, and none of it helped the second run either. It is
+gone; production builds are unchanged, and still target ES5 and still ship the
+service worker, because there the browser is somebody else's.
+
 `yarn start` did not use to do that, which is the part worth admitting: it was
 an alias for `yarn dev`, so the shortest-looking command in the file was the one
 that skipped the other four and served a viewer with nothing behind it. An empty

@@ -205,15 +205,25 @@ module.exports = (env, argv) => {
           CACHE_BUSTER: cacheBuster,
         },
       }),
-      // Generate a service worker for fast local loads
-      new InjectManifest({
-        swDest: 'sw.js',
-        swSrc: path.join(SRC_DIR, 'service-worker.js'),
-        // Need to exclude the theme as it is updated independently
-        exclude: [/theme/],
-        // Cache large files for the manifests to avoid warning messages
-        maximumFileSizeToCacheInBytes: 1024 * 1024 * 50,
-      }),
+      // Generate a service worker for fast local loads -- SOLO in produzione.
+      //
+      // init-service-worker.js lo registra soltanto quando l'host non e'
+      // localhost, quindi in sviluppo sw.js veniva costruito e non lo apriva
+      // nessuno. E non era gratis: per scrivere la lista da precaricare workbox
+      // legge e marca ogni file emesso, e in sviluppo quella lista era di 240
+      // URL per 116 MB, a ogni compilazione.
+      ...(isProdBuild
+        ? [
+            new InjectManifest({
+              swDest: 'sw.js',
+              swSrc: path.join(SRC_DIR, 'service-worker.js'),
+              // Need to exclude the theme as it is updated independently
+              exclude: [/theme/],
+              // Cache large files for the manifests to avoid warning messages
+              maximumFileSizeToCacheInBytes: 1024 * 1024 * 50,
+            }),
+          ]
+        : []),
     ],
     // https://webpack.js.org/configuration/dev-server/
     devServer: {

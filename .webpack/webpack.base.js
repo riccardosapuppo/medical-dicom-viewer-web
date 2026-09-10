@@ -94,7 +94,11 @@ module.exports = (env, argv, { SRC_DIR, ENTRY }) => {
 
   const config = {
     mode: isProdBuild ? 'production' : 'development',
-    devtool: isProdBuild ? 'source-map' : 'cheap-module-source-map',
+    // In sviluppo le mappe stanno DENTRO i moduli (eval) invece di essere
+    // assemblate come file a parte: su un bundle di sviluppo da 49 MiB
+    // assemblarle e' una fetta della prima compilazione, e il browser mostra
+    // lo stesso il sorgente originale. In produzione restano file veri.
+    devtool: isProdBuild ? 'source-map' : 'eval-cheap-module-source-map',
     entry: ENTRY,
     optimization: {
       // splitChunks: {
@@ -136,18 +140,15 @@ module.exports = (env, argv, { SRC_DIR, ENTRY }) => {
     module: {
       noParse: [/(dicomicc)/],
       rules: [
-        ...(isProdBuild
-          ? []
-          : [
-            {
-              test: /\.[jt]sx?$/,
-              exclude: /node_modules/,
-              loader: 'babel-loader',
-              options: {
-                plugins: isProdBuild ? [] : ['react-refresh/babel'],
-              },
-            },
-          ]),
+        // Un solo passaggio di babel.
+        //
+        // Qui ce n'erano due: questa regola, che in sviluppo aggiungeva
+        // react-refresh, e transpileJavaScriptRule poco piu' sotto. Le due si
+        // sovrappongono su ts, tsx, js e jsx, e webpack applica TUTTE le regole
+        // che corrispondono: ogni sorgente del progetto - 1601 file - veniva
+        // transpilato due volte, a ogni compilazione, dalla prima in poi. Il
+        // plugin di react-refresh ora sta nell'altra regola, che per giunta
+        // legge il babel.config.js della radice invece di cercarne uno da se'.
         {
           test: /\.svg?$/,
           oneOf: [

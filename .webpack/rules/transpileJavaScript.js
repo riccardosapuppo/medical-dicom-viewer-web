@@ -32,6 +32,9 @@ function transpileJavaScript(mode) {
       // https://babeljs.io/docs/en/options#rootmode
       rootMode: 'upward',
       envName: mode,
+      // In sviluppo il ricaricamento a caldo di React entra da qui. Era una
+      // seconda regola babel tutta sua, e raddoppiava il lavoro su ogni file.
+      plugins: mode === 'production' ? [] : ['react-refresh/babel'],
       cacheCompression: false,
       // Note: This was causing a lot of issues with yarn link of the cornerstone
       // only set this to true if you don't have a yarn link to external libs

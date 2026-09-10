@@ -45,7 +45,13 @@ module.exports = {
     development: {
       presets: [
         // WebPack handles ES6 --> Target Syntax
-        ['@babel/preset-env', { modules: false }],
+        //
+        // In sviluppo il bersaglio e' il browser che hai aperto adesso, non il
+        // parco installato: senza `targets` preset-env riscrive ogni file fino
+        // a ES5 - classi, async, spread, tutto - su 1601 sorgenti, a ogni
+        // compilazione. In produzione i target restano quelli di prima, perche'
+        // li' il parco installato e' esattamente il punto.
+        ['@babel/preset-env', { modules: false, targets: { chrome: '120', edge: '120', firefox: '120', safari: '17' } }],
         '@babel/preset-react',
         '@babel/preset-typescript',
       ],
