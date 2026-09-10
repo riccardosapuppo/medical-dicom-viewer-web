@@ -296,8 +296,15 @@ if (answering) {
 }
 
 console.log(`  Ctrl+C stops it.`);
+
+// The development server opens a browser of its own the moment it starts
+// listening, which is before there is anything to show: the tab sat on an empty
+// page for the length of the build, and then a second tab opened here when the
+// build finished. One browser, once, when there is a viewer in it.
+process.env.OHIF_NO_OPEN = '1';
+
 await run('yarn dev', {
-  label: 'building the viewer, which takes a few minutes',
+  label: 'building the viewer, a minute or two the first time',
   // webpack says this once, at the end of a build, whether or not it had
   // warnings. The port is then asked once to confirm it, rather than asked
   // over and over while the build is still running.

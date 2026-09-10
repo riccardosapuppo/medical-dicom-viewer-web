@@ -222,7 +222,10 @@ module.exports = (env, argv) => {
       // compress: true,
       // http2: true,
       // https: true,
-      open: true,
+      // `yarn start` opens the browser itself, when the build is finished and
+      // the viewer answers. Left to itself the server opens one as soon as it
+      // binds the port, which is a tab watching an empty page.
+      open: !process.env.OHIF_NO_OPEN,
       port: OHIF_PORT,
       headers: {
         // Nothing the development server hands out is stored. A stale bundle
