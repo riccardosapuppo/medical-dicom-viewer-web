@@ -398,10 +398,6 @@ present and switched off.
 department's workload rather than about reading images, and read it from an
 endpoint that is not here either.
 
-**The interface is in Italian**, as it was written, and so are the comments in
-the parts I wrote, because changing them would make this repository disagree
-with the copy that runs. The commit history is in English.
-
 ## Layout
 
 ```
@@ -414,20 +410,22 @@ scripts/           fetching the studies, loading the archive, the smoke check
 docs/              screenshots, produced by the smoke check rather than by hand
 ```
 
-## Production reconstruction
+## An independent version
 
-This repository is an independent reconstruction of a production system I
-designed and developed.
+This repository is an independent version of a production system I designed
+and developed: the same reading features, rebuilt on the same open-source
+base, OHIF, and working in full, with studies from public research archives.
 
-Confidentiality and intellectual property constraints mean the original cannot
-be published. The additions here were built again over a public checkout of the
-same upstream viewer so they could be shown and run, preserving the core
-architecture, workflows and technical challenges of the production solution,
-with newly written code and fictional data.
+The original stays with the client and is not here: confidentiality and
+intellectual property constraints mean it cannot be published. The additions
+were built again over a public checkout of the same upstream viewer, at the
+same version, so they could be shown and run. What the original had beyond
+reading images, the reporting and the analytics, is listed above as not here.
 
 No proprietary source code, confidential data or client assets from the
 original system are included in this repository.
 
-Only that second sentence differs from the notice every other repository in
-this portfolio carries, and it differs because this one is a declared fork:
-the additions were rebuilt over the same public upstream, not from nothing.
+This is not the notice the reconstructions in this portfolio carry, and on
+purpose: they were written from scratch on invented data, while this is a
+declared fork of the same upstream as the original, reading real studies from
+public research collections, listed above with their licences.
